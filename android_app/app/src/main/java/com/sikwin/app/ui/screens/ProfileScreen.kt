@@ -1,5 +1,6 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -82,10 +84,11 @@ fun ProfileScreen(
                 username = viewModel.userProfile?.username ?: "User",
                 balance = viewModel.wallet?.balance ?: "0.00",
                 onWalletClick = { onNavigate("wallet") },
-                onEditName = { 
+                onEditName = {
                     newName = viewModel.userProfile?.username ?: ""
-                    showEditNameDialog = true 
-                }
+                    showEditNameDialog = true
+                },
+                onRefreshBalance = { viewModel.fetchWallet() }
             )
             
             // Quick Actions Grid
@@ -170,10 +173,11 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileHeader(
-    username: String, 
-    balance: String, 
+    username: String,
+    balance: String,
     onWalletClick: () -> Unit,
-    onEditName: () -> Unit
+    onEditName: () -> Unit,
+    onRefreshBalance: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -242,7 +246,32 @@ fun ProfileHeader(
             Spacer(modifier = Modifier.width(8.dp))
             Text(balance, color = TextWhite, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(12.dp))
-            Icon(Icons.Default.Refresh, null, tint = TextWhite, modifier = Modifier.size(20.dp))
+
+            // Animated refresh icon
+            val rotation by remember { mutableStateOf(0f) }
+            var isRotating by remember { mutableStateOf(false) }
+            val rotationAngle by animateFloatAsState(
+                targetValue = if (isRotating) 360f else 0f,
+                animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
+                finishedListener = {
+                    if (isRotating) {
+                        isRotating = false
+                    }
+                }
+            )
+
+            Icon(
+                Icons.Default.Refresh,
+                contentDescription = "Refresh Balance",
+                tint = PrimaryYellow,
+                modifier = Modifier
+                    .size(20.dp)
+                    .rotate(rotationAngle)
+                    .clickable {
+                        isRotating = true
+                        onRefreshBalance()
+                    }
+            )
         }
     }
 }
