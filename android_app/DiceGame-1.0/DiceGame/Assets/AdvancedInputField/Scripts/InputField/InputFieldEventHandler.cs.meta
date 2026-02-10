@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e9fb5acef4856fe40b938aaa5e692490
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Scripts/InputField/InputFieldEventHandler.cs
+  uploadId: 485141

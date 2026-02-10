@@ -5,12 +5,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth import authenticate
 from django.db import transaction as db_transaction
 from django.utils import timezone
 from django.conf import settings
 from decimal import Decimal, InvalidOperation
+from django.db.models import Q
 import uuid
 import re
 import logging
@@ -25,7 +26,7 @@ try:
 except ImportError:
     TESSERACT_AVAILABLE = False
 
-from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail
+from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw
 from .serializers import (
     UserRegistrationSerializer,
     UserSerializer,
@@ -44,20 +45,46 @@ from .serializers import (
 @authentication_classes([])  # Disable authentication for registration
 @permission_classes([AllowAny])
 def register(request):
-    """User registration"""
-    logger.info(f"Registration attempt for username: {request.data.get('username')}")
-    serializer = UserRegistrationSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
-        logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': UserSerializer(user).data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }, status=status.HTTP_201_CREATED)
-    logger.warning(f"Registration failed for username: {request.data.get('username')} - Errors: {serializer.errors}")
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    """User registration with OTP verification"""
+    try:
+        phone_number = request.data.get('phone_number', '').strip()
+        otp_code = request.data.get('otp_code', '').strip()
+        
+        # Normalize OTP code (remove any whitespace, ensure it's a string)
+        if otp_code:
+            otp_code = str(otp_code).strip().replace(" ", "").replace("-", "")
+            logger.info(f"Registration OTP verification: phone={phone_number}, otp_code={otp_code}")
+        
+        # Verify OTP if provided
+        if otp_code:
+            from .sms_service import sms_service
+            success, message, verified_user = sms_service.verify_otp(phone_number, otp_code, purpose='SIGNUP')
+            if not success:
+                return Response(
+                    {'error': message},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            # For SIGNUP, verified_user can be None (user doesn't exist yet)
+        
+        logger.info(f"Registration attempt for username: {request.data.get('username')}")
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_201_CREATED)
+        logger.warning(f"Registration failed for username: {request.data.get('username')} - Errors: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.exception(f"Error in register: {str(e)}")
+        return Response(
+            {'error': f'Registration failed: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @csrf_exempt
@@ -88,7 +115,13 @@ def login(request):
 
         # Authenticate user
         try:
-            user = authenticate(request=request, username=username, password=password)
+            # Support login with either username or phone number
+            user_obj = User.objects.filter(Q(username=username) | Q(phone_number=username)).first()
+            if user_obj:
+                # Authenticate with the actual username found
+                user = authenticate(request=request, username=user_obj.username, password=password)
+            else:
+                user = None
         except Exception as auth_error:
             logger.exception(f"Authentication error for username {username}: {auth_error}")
             return Response(
@@ -149,6 +182,178 @@ def login(request):
             'error': 'Internal server error',
             'detail': str(e) if settings.DEBUG else 'An error occurred during login'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def send_otp(request):
+    """Send OTP to phone number for signup or login"""
+    try:
+        # Get phone_number from request.data (DRF automatically parses JSON)
+        phone_number = ''
+        purpose = 'SIGNUP'
+        
+        try:
+            # Try to get from request.data (DRF parsed data)
+            if hasattr(request, 'data'):
+                data = request.data
+                if isinstance(data, dict):
+                    phone_number = str(data.get('phone_number', '') or '').strip()
+                    purpose = str(data.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
+                elif hasattr(data, 'get'):
+                    phone_number = str(data.get('phone_number', '') or '').strip()
+                    purpose = str(data.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
+        except Exception as e:
+            logger.warning(f"Error reading request.data: {e}")
+        
+        # Fallback to POST if data is empty
+        if not phone_number:
+            try:
+                if hasattr(request, 'POST'):
+                    phone_number = str(request.POST.get('phone_number', '') or '').strip()
+                    purpose = str(request.POST.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
+            except Exception as e:
+                logger.warning(f"Error reading request.POST: {e}")
+        
+        # Fallback to parsing request.body directly
+        if not phone_number:
+            try:
+                import json
+                if hasattr(request, 'body') and request.body:
+                    body_data = json.loads(request.body)
+                    phone_number = str(body_data.get('phone_number', '') or '').strip()
+                    purpose = str(body_data.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
+            except Exception as e:
+                logger.warning(f"Error parsing request.body: {e}")
+
+        if not purpose:
+            purpose = 'SIGNUP'
+
+        logger.info(f"send_otp: phone={phone_number}, purpose={purpose}")
+
+        if not phone_number:
+            logger.warning("Phone number is missing in request")
+            return Response(
+                {'error': 'Phone number is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # For LOGIN purpose, check if user exists
+        if purpose == 'LOGIN':
+            from .models import User
+            user_exists = User.objects.filter(phone_number=phone_number).exists()
+            if not user_exists:
+                return Response(
+                    {'error': 'Invalid phone number'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Import SMS service
+        from .sms_service import sms_service
+
+        # Send OTP (allow for both SIGNUP and LOGIN)
+        success, message, otp_id = sms_service.send_otp(phone_number, purpose=purpose)
+
+        if success:
+            return Response({
+                'message': message,
+                'otp_id': otp_id
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'error': message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    except Exception as e:
+        logger.exception(f"Error in send_otp: {str(e)}")
+        return Response(
+            {'error': f'Internal server error: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def verify_otp_login(request):
+    """Verify OTP and login user"""
+    try:
+        phone_number = request.data.get('phone_number', '').strip()
+        otp_code = request.data.get('otp_code', '').strip()
+
+        if not phone_number or not otp_code:
+            return Response(
+                {'error': 'Phone number and OTP code are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Normalize OTP code (remove any whitespace, ensure it's a string)
+        otp_code = str(otp_code).strip().replace(" ", "").replace("-", "")
+        
+        logger.info(f"Login OTP verification: phone={phone_number}, otp_code={otp_code}")
+
+        # Import SMS service
+        from .sms_service import sms_service
+
+        # Verify OTP
+        success, message, user = sms_service.verify_otp(phone_number, otp_code, purpose='LOGIN')
+
+        if not success:
+            return Response(
+                {'error': message},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not user:
+            return Response(
+                {'error': 'User not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Check if user is active
+        if not user.is_active:
+            return Response(
+                {'error': 'User account is disabled'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Create JWT tokens
+        refresh = RefreshToken.for_user(user)
+        refresh_token = str(refresh)
+        access_token = str(refresh.access_token)
+
+        # Update last login
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
+
+        logger.info(f"OTP login successful for user: {user.username} (ID: {user.id})")
+
+        # Prepare user data for response
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': getattr(user, 'email', ''),
+            'phone_number': getattr(user, 'phone_number', ''),
+            'is_staff': getattr(user, 'is_staff', False),
+        }
+
+        return Response({
+            'user': user_data,
+            'refresh': refresh_token,
+            'access': access_token,
+            'message': 'Login successful'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.exception(f"Error in verify_otp_login: {str(e)}")
+        return Response(
+            {'error': 'Internal server error'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @csrf_exempt
@@ -557,6 +762,30 @@ def approve_deposit_request(request, pk):
             deposit.processed_at = timezone.now()
             deposit.save()
             logger.info(f"Deposit {pk} approved by admin {request.user.username}. User: {deposit.user.username}, Amount: {deposit.amount}")
+
+            # Check for referral bonus
+            if deposit.user.referred_by:
+                from .referral_logic import calculate_referral_bonus
+                bonus_amount = calculate_referral_bonus(deposit.amount)
+                
+                if bonus_amount > 0:
+                    referrer = deposit.user.referred_by
+                    referrer_wallet, _ = Wallet.objects.get_or_create(user=referrer)
+                    referrer_wallet = Wallet.objects.select_for_update().get(pk=referrer_wallet.pk)
+                    
+                    ref_balance_before = referrer_wallet.balance
+                    referrer_wallet.balance += bonus_amount
+                    referrer_wallet.save()
+                    
+                    Transaction.objects.create(
+                        user=referrer,
+                        transaction_type='REFERRAL_BONUS',
+                        amount=bonus_amount,
+                        balance_before=ref_balance_before,
+                        balance_after=referrer_wallet.balance,
+                        description=f"Referral bonus from {deposit.user.username}'s deposit of ₹{deposit.amount}",
+                    )
+                    logger.info(f"Referral bonus of ₹{bonus_amount} granted to {referrer.username} for {deposit.user.username}'s deposit")
     except DepositRequest.DoesNotExist:
         logger.error(f"Admin {request.user.username} failed to approve deposit {pk}: Not found")
         return Response({'error': 'Deposit request not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -754,6 +983,280 @@ def bank_detail_action(request, pk):
             return Response(serializer.data)
         logger.warning(f"Bank detail {pk} update failed for user {request.user.username}: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def daily_reward(request):
+    """Get daily reward status and spin the wheel"""
+    user = request.user
+    today = timezone.now().date()
+
+    if request.method == 'GET':
+        # Check if user has already claimed reward today
+        existing_reward = DailyReward.objects.filter(
+            user=user,
+            reward_date=today
+        ).first()
+
+        if existing_reward:
+            return Response({
+                'claimed': True,
+                'reward': {
+                    'amount': existing_reward.reward_amount,
+                    'type': existing_reward.reward_type
+                },
+                'message': 'Daily reward already claimed today'
+            })
+
+        return Response({
+            'claimed': False,
+            'message': 'Ready to spin for daily reward'
+        })
+
+    elif request.method == 'POST':
+        # Check if user has already claimed reward today
+        existing_reward = DailyReward.objects.filter(
+            user=user,
+            reward_date=today
+        ).first()
+
+        if existing_reward:
+            return Response({
+                'error': 'Daily reward already claimed today'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Define reward probabilities and amounts
+        rewards = [
+            {'amount': 1000, 'type': 'MONEY', 'probability': 0},
+            {'amount': 500, 'type': 'MONEY', 'probability': 0},
+            {'amount': 100, 'type': 'MONEY', 'probability': 0},
+            {'amount': 20, 'type': 'MONEY', 'probability': 100},   # TEMP: 100% chance for testing
+            {'amount': 10, 'type': 'MONEY', 'probability': 0},
+            {'amount': 5, 'type': 'MONEY', 'probability': 0},
+            {'amount': 0, 'type': 'TRY_AGAIN', 'probability': 0},
+        ]
+
+        # Calculate total probability
+        total_probability = sum(reward['probability'] for reward in rewards)
+
+        # Generate random number
+        import random
+        random_value = random.randint(1, total_probability)
+
+        # Select reward based on probability
+        cumulative_probability = 0
+        selected_reward = None
+
+        for reward in rewards:
+            cumulative_probability += reward['probability']
+            if random_value <= cumulative_probability:
+                selected_reward = reward
+                break
+
+        if not selected_reward:
+            selected_reward = rewards[-1]  # Default to last reward
+
+        # Create the daily reward record
+        daily_reward = DailyReward.objects.create(
+            user=user,
+            reward_amount=Decimal(str(selected_reward['amount'])),
+            reward_type=selected_reward['type'],
+            reward_date=today
+        )
+
+        # If it's a money reward, add to wallet
+        if selected_reward['type'] == 'MONEY' and selected_reward['amount'] > 0:
+            try:
+                wallet = user.wallet
+                wallet.add(Decimal(str(selected_reward['amount'])))
+
+                # Create transaction record
+                balance_before = wallet.balance - Decimal(str(selected_reward['amount']))
+                Transaction.objects.create(
+                    user=user,
+                    transaction_type='DEPOSIT',
+                    amount=Decimal(str(selected_reward['amount'])),
+                    balance_before=balance_before,
+                    balance_after=wallet.balance,
+                    description=f'Daily Reward - ₹{selected_reward["amount"]}'
+                )
+                logger.info(f"Daily reward ₹{selected_reward['amount']} added to wallet for user: {user.username}")
+            except Exception as e:
+                logger.error(f"Failed to add daily reward to wallet for user {user.username}: {str(e)}")
+                return Response({
+                    'error': 'Failed to process reward'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            'reward': {
+                'amount': selected_reward['amount'],
+                'type': selected_reward['type']
+            },
+            'message': f'Congratulations! You won ₹{selected_reward["amount"]}' if selected_reward['type'] == 'MONEY' else 'Better luck next time! Try again tomorrow.'
+        })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def daily_reward_history(request):
+    """Get user's daily reward history"""
+    user = request.user
+    rewards = DailyReward.objects.filter(user=user).order_by('-reward_date')[:30]  # Last 30 days
+
+    reward_data = []
+    for reward in rewards:
+        reward_data.append({
+            'date': reward.reward_date,
+            'amount': reward.reward_amount,
+            'type': reward.reward_type,
+            'claimed_at': reward.claimed_at
+        })
+
+    return Response({
+        'rewards': reward_data
+    })
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def lucky_draw(request):
+    """Get lucky draw status and spin the wheel based on bank transfer deposits"""
+    user = request.user
+    
+    if request.method == 'GET':
+        # Find the most recent approved bank transfer deposit that hasn't been used for lucky draw
+        recent_deposit = DepositRequest.objects.filter(
+            user=user,
+            status='APPROVED',
+            payment_reference__isnull=False  # Bank transfer has UTR/payment reference
+        ).exclude(
+            lucky_draws__isnull=False  # Exclude deposits that already have lucky draw
+        ).order_by('-processed_at').first()
+        
+        # Check if user has already claimed lucky draw for this deposit
+        if recent_deposit:
+            existing_lucky_draw = LuckyDraw.objects.filter(
+                user=user,
+                deposit_request=recent_deposit
+            ).first()
+            
+            if existing_lucky_draw:
+                return Response({
+                    'claimed': True,
+                    'reward': {
+                        'amount': existing_lucky_draw.reward_amount,
+                    },
+                    'deposit_amount': float(existing_lucky_draw.deposit_amount),
+                    'message': 'Lucky draw already claimed for this deposit'
+                })
+            
+            return Response({
+                'claimed': False,
+                'deposit_amount': float(recent_deposit.amount),
+                'message': 'Ready to spin for lucky draw'
+            })
+        
+        return Response({
+            'claimed': False,
+            'deposit_amount': None,
+            'message': 'No eligible bank transfer deposit found. Make a deposit to unlock lucky draw!'
+        })
+
+    elif request.method == 'POST':
+        # Find the most recent approved bank transfer deposit
+        recent_deposit = DepositRequest.objects.filter(
+            user=user,
+            status='APPROVED',
+            payment_reference__isnull=False
+        ).exclude(
+            lucky_draws__isnull=False
+        ).order_by('-processed_at').first()
+        
+        if not recent_deposit:
+            return Response({
+                'error': 'No eligible bank transfer deposit found'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if already claimed
+        existing_lucky_draw = LuckyDraw.objects.filter(
+            user=user,
+            deposit_request=recent_deposit
+        ).first()
+        
+        if existing_lucky_draw:
+            return Response({
+                'error': 'Lucky draw already claimed for this deposit'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Define reward amounts: 100, 300, 500, 1000, 5000, 10000
+        # Probability distribution (can be adjusted)
+        rewards = [
+            {'amount': 10000, 'probability': 1},
+            {'amount': 5000, 'probability': 2},
+            {'amount': 1000, 'probability': 5},
+            {'amount': 500, 'probability': 10},
+            {'amount': 300, 'probability': 20},
+            {'amount': 100, 'probability': 62},  # Higher probability for smaller amounts
+        ]
+        
+        # Calculate total probability
+        total_probability = sum(reward['probability'] for reward in rewards)
+        
+        # Generate random number
+        import random
+        random_value = random.randint(1, total_probability)
+        
+        # Select reward based on probability
+        cumulative_probability = 0
+        selected_reward = None
+        
+        for reward in rewards:
+            cumulative_probability += reward['probability']
+            if random_value <= cumulative_probability:
+                selected_reward = reward
+                break
+        
+        if not selected_reward:
+            selected_reward = rewards[-1]  # Default to last reward
+        
+        # Create the lucky draw record
+        lucky_draw = LuckyDraw.objects.create(
+            user=user,
+            deposit_request=recent_deposit,
+            reward_amount=Decimal(str(selected_reward['amount'])),
+            deposit_amount=recent_deposit.amount
+        )
+        
+        # Add reward to wallet
+        try:
+            wallet = user.wallet
+            balance_before = wallet.balance
+            wallet.add(Decimal(str(selected_reward['amount'])))
+            balance_after = wallet.balance
+            
+            # Create transaction record
+            Transaction.objects.create(
+                user=user,
+                transaction_type='DEPOSIT',
+                amount=Decimal(str(selected_reward['amount'])),
+                balance_before=balance_before,
+                balance_after=balance_after,
+                description=f'Lucky Draw Reward - ₹{selected_reward["amount"]} (from ₹{recent_deposit.amount} deposit)'
+            )
+            logger.info(f"Lucky draw reward ₹{selected_reward['amount']} added to wallet for user: {user.username}")
+        except Exception as e:
+            logger.error(f"Failed to add lucky draw reward to wallet for user {user.username}: {str(e)}")
+            return Response({
+                'error': 'Failed to process reward'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response({
+            'lucky_draw': {
+                'amount': selected_reward['amount'],
+            },
+            'message': f'Congratulations! You won ₹{selected_reward["amount"]}'
+        })
 
 
 

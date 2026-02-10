@@ -107,7 +107,7 @@ def determine_winning_number(dice_values):
     winners = sorted([num for num, count in counts.items() if count >= 2])
     
     if not winners:
-        return None
+        return "0"  # Return "0" to indicate No Winner (prevents Null IntegrityError)
         
     return ", ".join(map(str, winners))
 

@@ -27,12 +27,25 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         if (errorBody.isNullOrEmpty()) return "Unknown error"
         return try {
             val json = JSONObject(errorBody)
-            if (json.has("error")) {
-                json.getString("error")
-            } else if (json.has("message")) {
-                json.getString("message")
-            } else {
-                errorBody
+            when {
+                json.has("error") -> json.getString("error")
+                json.has("message") -> json.getString("message")
+                json.has("detail") -> json.getString("detail")
+                else -> {
+                    // Handle DRF serializer errors like {"field": ["error message"]}
+                    val keys = json.keys()
+                    if (keys.hasNext()) {
+                        val firstKey = keys.next()
+                        val value = json.get(firstKey)
+                        if (value is org.json.JSONArray && value.length() > 0) {
+                            value.getString(0)
+                        } else {
+                            value.toString()
+                        }
+                    } else {
+                        errorBody
+                    }
+                }
             }
         } catch (e: Exception) {
             errorBody
@@ -45,8 +58,12 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     var depositRequests by mutableStateOf<List<DepositRequest>>(emptyList())
     var withdrawRequests by mutableStateOf<List<WithdrawRequest>>(emptyList())
     var paymentMethods by mutableStateOf<List<PaymentMethod>>(emptyList())
-    var bankDetails by mutableStateOf<List<UserBankDetail>>(emptyList())
     var bettingHistory by mutableStateOf<List<Bet>>(emptyList())
+    
+    var otpSent by mutableStateOf(false)
+    var isVerifyingOtp by mutableStateOf(false)
+    
+    var bankDetails by mutableStateOf<List<UserBankDetail>>(emptyList())
     
     var loginSuccess by mutableStateOf(false)
     
@@ -92,6 +109,90 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         }
     }
 
+    fun sendOtp(phoneNumber: String) {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            try {
+                val response = RetrofitClient.apiService.sendOtp(mapOf("phone_number" to phoneNumber))
+                if (response.isSuccessful) {
+                    otpSent = true
+                    errorMessage = null
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = "Failed to send OTP: ${parseError(errorBody)}"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun verifyOtpLogin(phoneNumber: String, otpCode: String) {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            try {
+                val response = RetrofitClient.apiService.verifyOtpLogin(mapOf(
+                    "phone_number" to phoneNumber,
+                    "otp_code" to otpCode
+                ))
+                if (response.isSuccessful) {
+                    val authResponse = response.body()
+                    authResponse?.let {
+                        sessionManager.saveAuthToken(it.access)
+                        sessionManager.saveRefreshToken(it.refresh)
+                        sessionManager.saveUsername(it.user.username)
+                        sessionManager.saveUserId(it.user.id)
+                        // Note: We don't save password for OTP login
+                        userProfile = it.user
+                        loginSuccess = true
+                        otpSent = false // Reset OTP state
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = "OTP verification failed: ${parseError(errorBody)}"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun clearOtpState() {
+        otpSent = false
+        errorMessage = null
+    }
+
+    fun resetPassword(phoneNumber: String, otpCode: String, newPassword: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            try {
+                val data = mapOf(
+                    "phone_number" to phoneNumber,
+                    "otp_code" to otpCode,
+                    "new_password" to newPassword
+                )
+                val response = RetrofitClient.apiService.resetPassword(data)
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = "Reset failed: ${parseError(errorBody)}"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
     fun register(data: Map<String, String>) {
         viewModelScope.launch {
             isLoading = true
@@ -110,7 +211,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         loginSuccess = true
                     }
                 } else {
-                    errorMessage = "Registration failed: ${response.message()}"
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = "Registration failed: ${parseError(errorBody)}"
                 }
             } catch (e: Exception) {
                 errorMessage = "Error: ${e.message}"
@@ -421,6 +523,136 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         }
     }
     
+    fun checkDailyRewardStatus(onResult: (Boolean, String?, String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.checkDailyRewardStatus()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val claimed = body?.get("claimed") as? Boolean ?: false
+                    val message = body?.get("message") as? String
+                    val reward = body?.get("reward") as? Map<*, *>
+                    val amount = reward?.get("amount")?.toString()
+                    onResult(claimed, message, amount)
+                } else {
+                    onResult(false, "Failed to check status", null)
+                }
+            } catch (e: Exception) {
+                onResult(false, e.message, null)
+            }
+        }
+    }
+
+    fun claimDailyReward(onResult: (Boolean, Int?, String, String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.claimDailyReward()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val reward = body?.get("daily_reward") as? Map<*, *> ?: body?.get("reward") as? Map<*, *>
+                    
+                    if (reward != null) {
+                        val amountStr = reward["amount"]?.toString() ?: "0"
+                        val amount = amountStr.toDoubleOrNull()?.toInt() ?: 0
+                        val type = reward["type"]?.toString() ?: "MONEY"
+                        val message = body?.get("message") as? String ?: "Reward claimed"
+                        
+                        // Refresh wallet balance after claiming
+                        fetchWallet()
+                        
+                        onResult(true, amount, type, message)
+                    } else {
+                        onResult(false, null, "TRY_AGAIN", "No reward found in response")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    onResult(false, null, "TRY_AGAIN", parseError(errorBody))
+                }
+            } catch (e: Exception) {
+                onResult(false, null, "TRY_AGAIN", e.message)
+            }
+        }
+    }
+
+    fun checkLuckyDrawStatus(onResult: (Boolean, String?, String?, Double?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.checkLuckyDrawStatus()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val claimed = body?.get("claimed") as? Boolean ?: false
+                    val message = body?.get("message") as? String
+                    val reward = body?.get("reward") as? Map<*, *>
+                    val amount = reward?.get("amount")?.toString()
+                    val depositAmount = body?.get("deposit_amount")?.toString()?.toDoubleOrNull()
+                    onResult(claimed, message, amount, depositAmount)
+                } else {
+                    onResult(false, "Failed to check status", null, null)
+                }
+            } catch (e: Exception) {
+                onResult(false, e.message, null, null)
+            }
+        }
+    }
+
+    fun claimLuckyDraw(onResult: (Boolean, Int?, String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.claimLuckyDraw()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val reward = body?.get("lucky_draw") as? Map<*, *> ?: body?.get("reward") as? Map<*, *>
+                    
+                    if (reward != null) {
+                        val amountStr = reward["amount"]?.toString() ?: "0"
+                        val amount = amountStr.toDoubleOrNull()?.toInt() ?: 0
+                        val message = body?.get("message") as? String ?: "Reward claimed"
+                        
+                        // Refresh wallet balance after claiming
+                        fetchWallet()
+                        
+                        onResult(true, amount, message)
+                    } else {
+                        onResult(false, null, "No reward found in response")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    onResult(false, null, parseError(errorBody))
+                }
+            } catch (e: Exception) {
+                onResult(false, null, e.message)
+            }
+        }
+    }
+
+    // Optional: Sync contacts to backend
+    // Uncomment this function and the API endpoint if you want to send contacts to server
+    /*
+    fun syncContacts(contactsJson: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            try {
+                val response = RetrofitClient.apiService.syncContacts(mapOf("contacts" to contactsJson))
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val error = parseError(errorBody)
+                    errorMessage = error
+                    onError(error)
+                }
+            } catch (e: Exception) {
+                val error = e.message ?: "Failed to sync contacts"
+                errorMessage = error
+                onError(error)
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+    */
+
     fun logout() {
         sessionManager.logout()
         userProfile = null

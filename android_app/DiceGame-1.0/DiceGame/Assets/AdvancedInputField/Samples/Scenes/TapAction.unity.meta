@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6b27a58bc9dcc02419b3a173bccaf1dd
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/TapAction.unity
+  uploadId: 485141

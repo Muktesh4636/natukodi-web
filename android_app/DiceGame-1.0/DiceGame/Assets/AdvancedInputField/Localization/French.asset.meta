@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c1effc830ee4b0748b5aada2d254e61f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Localization/French.asset
+  uploadId: 485141

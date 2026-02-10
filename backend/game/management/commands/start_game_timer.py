@@ -246,8 +246,8 @@ class Command(BaseCommand):
                     if redis_client:
                         try:
                             pipe = redis_client.pipeline()
-                            pipe.set('current_round', json.dumps(round_data))
-                            pipe.set('round_timer', '1')
+                            pipe.set('current_round', json.dumps(round_data), ex=60)
+                            pipe.set('round_timer', '1', ex=60)
                             pipe.execute()  # Execute both writes in one round trip
                         except Exception as e:
                             self.stdout.write(self.style.WARNING(f'Redis write error: {e}, reconnecting...'))
@@ -273,6 +273,7 @@ class Command(BaseCommand):
                                     'round_id': round_obj.round_id,
                                     'status': 'BETTING',
                                     'timer': 1,
+                                    'is_rolling': False,
                                 }
                             )
                             just_sent_game_start = True
@@ -313,6 +314,7 @@ class Command(BaseCommand):
                                         'round_id': round_obj.round_id,
                                         'status': 'COMPLETED',
                                         'timer': round_end_time,
+                                        'is_rolling': False,
                                         'end_time': round_obj.end_time.isoformat(),
                                         'start_time': round_obj.start_time.isoformat(),
                                         'result_time': round_obj.result_time.isoformat() if round_obj.result_time else None,
@@ -354,6 +356,7 @@ class Command(BaseCommand):
                                         'round_id': round_obj.round_id,
                                         'status': 'BETTING',
                                         'timer': 1,
+                                        'is_rolling': False,
                                     }
                                 )
                                 just_sent_game_start = True
@@ -368,8 +371,8 @@ class Command(BaseCommand):
                         # Update Redis with new round (use pipeline for efficient batch writes)
                         if redis_client:
                             pipe = redis_client.pipeline()
-                            pipe.set('current_round', json.dumps(round_data))
-                            pipe.set('round_timer', '1')
+                            pipe.set('current_round', json.dumps(round_data), ex=5)
+                            pipe.set('round_timer', '1', ex=5)
                             pipe.execute()  # Execute both writes in one round trip
                         logger.info(f"New round created: {round_obj.round_id}")
                         self.stdout.write(self.style.SUCCESS(f'New round started: {round_obj.round_id}'))
@@ -411,8 +414,8 @@ class Command(BaseCommand):
                         if redis_client:
                             try:
                                 pipe = redis_client.pipeline()
-                                pipe.set('round_timer', str(timer))
-                                pipe.set('current_round', json.dumps(round_data))
+                                pipe.set('round_timer', str(timer), ex=60)
+                                pipe.set('current_round', json.dumps(round_data), ex=60)
                                 pipe.execute()  # Execute both writes in one round trip
                             except Exception as e:
                                 self.stdout.write(self.style.WARNING(f'Redis write error: {e}, reconnecting...'))
@@ -444,6 +447,7 @@ class Command(BaseCommand):
                                     'round_id': round_obj.round_id,
                                     'timer': timer,
                                     'dice_roll_time': dice_rolling_time,
+                                    'is_rolling': True,
                                 }
                             )
                             # Mark as sent to avoid duplicates (local + distributed)
@@ -489,7 +493,7 @@ class Command(BaseCommand):
                             # Create dice result record
                             DiceResult.objects.update_or_create(
                                 round=round_obj,
-                                defaults={'result': result}
+                                defaults={'result': result or "0"}
                             )
 
                             # Calculate payouts
@@ -497,27 +501,6 @@ class Command(BaseCommand):
 
                             logger.info(f"Dice rolled automatically (random mode) at {timer}s for round {round_obj.round_id}: Result={result}")
                             self.stdout.write(self.style.SUCCESS(f'🎲 Dice rolled automatically (random mode) at {timer}s: {result}'))
-                        else:
-                            # Manual mode fallback: auto-roll if no admin input
-                            dice_values, result = generate_random_dice_values()
-                            apply_dice_values_to_round(round_obj, dice_values)
-                            round_obj.dice_result = result
-                            if not round_obj.result_time:
-                                round_obj.result_time = timezone.now()
-                            round_data['dice_result'] = result
-                            dice_values_for_broadcast = dice_values
-                            round_obj.save()
-
-                            # Create dice result record
-                            DiceResult.objects.update_or_create(
-                                round=round_obj,
-                                defaults={'result': result}
-                            )
-                            # Calculate payouts
-                            calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
-
-                            logger.info(f"Manual mode fallback: Auto-rolling at {timer}s for round {round_obj.round_id}: Result={result}")
-                            self.stdout.write(self.style.WARNING(f'⚠️ Manual mode fallback: No admin input detected by {timer}s, auto-rolling result {result}'))
                         
                         # If dice were already set (e.g., by admin pre-set), but payouts haven't been calculated for this round
                         # We use the dice_result_sent lock to ensure this only runs once at dice_result_time
@@ -606,6 +589,7 @@ class Command(BaseCommand):
                                         'round_id': round_obj.round_id,
                                         'timer': timer,
                                         'dice_values': dice_values_for_broadcast,
+                                        'is_rolling': False,
                                     }
                                 )
                                 # Mark as sent
@@ -645,7 +629,7 @@ class Command(BaseCommand):
                                 round_data[f'dice_{index}'] = dice_value
                         # Save updated round_data to Redis
                         pipe = redis_client.pipeline()
-                        pipe.set('current_round', json.dumps(round_data))
+                        pipe.set('current_round', json.dumps(round_data), ex=60)
                         pipe.execute()
                     except Exception as e:
                         self.stdout.write(self.style.WARNING(f'Redis dice values update error: {e}, reconnecting...'))
@@ -675,7 +659,7 @@ class Command(BaseCommand):
                             lock_acquired = redis_client.set(
                                 timer_lock_key,
                                 '1',
-                                ex=5,
+                                ex=60,
                                 nx=True
                             )
                         except Exception as e:
@@ -700,6 +684,7 @@ class Command(BaseCommand):
                             'timer': timer,
                             'status': status,
                             'round_id': round_obj.round_id if round_obj else None,
+                            'is_rolling': (dice_rolling_time <= timer < dice_result_time),
                         }
                     
                         if channel_layer:

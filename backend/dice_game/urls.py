@@ -22,6 +22,8 @@ urlpatterns = [
     # Auth endpoints (api/auth/)
     path('api/auth/register/', accounts_views.register, name='register'),
     path('api/auth/login/', accounts_views.login, name='login'),
+    path('api/auth/otp/send/', accounts_views.send_otp, name='send_otp'),
+    path('api/auth/otp/verify-login/', accounts_views.verify_otp_login, name='verify_otp_login'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/auth/profile/', accounts_views.profile, name='profile'),

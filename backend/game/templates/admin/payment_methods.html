@@ -208,9 +208,13 @@
                     <p style="font-size: 15px; color: #64748b;">Manage how players can deposit funds to your account</p>
                 </div>
                 <div class="header-actions">
+                    {% if available_method_types %}
                     <button class="btn btn-primary" onclick="showCreateModal()">
                         <span>➕</span> Add New Method
                     </button>
+                    {% else %}
+                    <div style="color: #64748b; font-size: 14px;">All payment methods have been created</div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -228,11 +232,11 @@
                     <div class="method-card">
                         <div class="method-info">
                             <div class="method-icon">
-                                {% if 'bank' in method.name|lower %}🏦{% elif 'google' in method.name|lower %}📱{% elif 'paytm' in method.name|lower %}💸{% elif 'phonepe' in method.name|lower %}🟣{% else %}💳{% endif %}
+                                {% if method.method_type == 'BANK' %}🏦{% elif method.method_type == 'GPAY' %}📱{% elif method.method_type == 'PAYTM' %}💸{% elif method.method_type == 'PHONEPE' %}🟣{% elif method.method_type == 'QR' %}📱{% else %}💳{% endif %}
                             </div>
                             <div class="method-details">
                                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                                    <h3>{{ method.name }}{% if method.name in 'Bank Transfer,Google Pay,PhonePe,Paytm,UPI' %} <span style="font-size: 12px; color: #64748b; font-weight: normal;">(Default)</span>{% endif %}</h3>
+                                    <h3>{{ method.name }}</h3>
                                     <span class="badge {% if method.is_active %}badge-active{% else %}badge-inactive{% endif %}">
                                         {% if method.is_active %}Active{% else %}Inactive{% endif %}
                                     </span>
@@ -257,6 +261,15 @@
                                         </div>
                                     {% endif %}
 
+                                    {% if method.qr_image %}
+                                        <div style="margin-top: 8px;">
+                                            <span style="color: #94a3b8; font-size: 13px;">QR Code:</span>
+                                            <div style="margin-top: 6px;">
+                                                <img src="{{ method.qr_image.url }}" alt="QR Code" style="max-width: 120px; max-height: 120px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
                                     {% comment %} Removed Payment Link display for UPI methods as requested {% endcomment %}
                                 </p>
                             </div>
@@ -266,15 +279,13 @@
                             <a href="{% url 'toggle_payment_method' method.pk %}" class="btn btn-icon" title="{% if method.is_active %}Deactivate{% else %}Activate{% endif %}">
                                 {% if method.is_active %}⏸️{% else %}▶️{% endif %}
                             </a>
-                            <button class="btn btn-icon" onclick="showEditModal('{{ method.pk }}', '{{ method.name|escapejs }}', '{{ method.method_type|escapejs }}', '{{ method.upi_id|escapejs }}', '{{ method.link|escapejs }}', '{{ method.account_name|escapejs }}', '{{ method.bank_name|escapejs }}', '{{ method.account_number|escapejs }}', '{{ method.ifsc_code|escapejs }}', '{{ method.is_active|yesno:'true,false' }}')">
+                            <button class="btn btn-icon" onclick="showEditModal('{{ method.pk }}', '{{ method.method_type|escapejs }}', '{{ method.upi_id|escapejs }}', '{{ method.link|escapejs }}', '{{ method.account_name|escapejs }}', '{{ method.bank_name|escapejs }}', '{{ method.account_number|escapejs }}', '{{ method.ifsc_code|escapejs }}', '{{ method.is_active|yesno:'true,false' }}')">
                                 ✏️
                             </button>
-                            {% if method.name != 'Bank Transfer' and method.name != 'Google Pay' and method.name != 'PhonePe' and method.name != 'Paytm' and method.name != 'UPI' %}
                             <form action="{% url 'delete_payment_method' method.pk %}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this payment method?')">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-icon btn-danger">🗑️</button>
                             </form>
-                            {% endif %}
                         </div>
                     </div>
                 {% empty %}
@@ -297,18 +308,21 @@
             <form id="methodForm" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <input type="hidden" name="method_type" id="field_method_type" value="PHONEPE">
                     <div class="form-group">
-                        <label>Method Name</label>
-                        <input type="text" name="name" id="field_name" class="form-control" placeholder="Friendly name (e.g. Bank Transfer, Google Pay)" required onkeyup="checkMethodType()">
+                        <label>Payment Method</label>
+                        <select name="method_type" id="field_method_type" class="form-control" required onchange="checkMethodType()">
+                            {% for method_type, display_name in available_method_types %}
+                                <option value="{{ method_type }}">{{ display_name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <div id="upi_fields" class="form-group">
                         <label>UPI ID</label>
-                        <input type="text" name="upi_id" id="field_upi_id" class="form-control" placeholder="username@upi">
+                        <input type="text" name="upi_id" id="field_upi_id" class="form-control" placeholder="username@upi" required>
                     </div>
 
-                    <div id="link_fields" class="form-group">
+                    <div id="link_fields" class="form-group" style="display: none;">
                         <label>Payment Link</label>
                         <input type="url" name="link" id="field_link" class="form-control" placeholder="https://link-to-payment.com">
                     </div>
@@ -336,6 +350,12 @@
                         </div>
                     </div>
 
+                    <div id="qr_image_fields" class="form-group" style="display: none;">
+                        <label>QR Code Image</label>
+                        <input type="file" name="qr_image" id="field_qr_image" class="form-control" accept="image/*">
+                        <small style="color: #64748b; font-size: 12px;">Upload a QR code image for this payment method</small>
+                    </div>
+
                     <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 0;">
                         <input type="checkbox" name="is_active" id="field_is_active" checked style="width: 20px; height: 20px; cursor: pointer;">
                         <label for="field_is_active" style="margin: 0; cursor: pointer;">Active (Visible to players)</label>
@@ -352,22 +372,34 @@
 
     <script>
         function checkMethodType() {
-            const name = document.getElementById('field_name').value.toLowerCase();
+            const methodType = document.getElementById('field_method_type').value;
             const bankFields = document.getElementById('bank_transfer_fields');
             const upiFields = document.getElementById('upi_fields');
             const linkFields = document.getElementById('link_fields');
-            const methodType = document.getElementById('field_method_type');
+            const qrImageFields = document.getElementById('qr_image_fields');
 
-            if (name.includes('bank')) {
+            // Show UPI fields for all methods except BANK
+            if (methodType === 'BANK') {
                 bankFields.style.display = 'block';
                 upiFields.style.display = 'none';
                 linkFields.style.display = 'none';
-                methodType.value = 'BANK';
+                qrImageFields.style.display = 'none';
+                // Make UPI ID not required for bank accounts
+                document.getElementById('field_upi_id').required = false;
+            } else if (methodType === 'QR') {
+                bankFields.style.display = 'none';
+                upiFields.style.display = 'none';
+                linkFields.style.display = 'none';
+                qrImageFields.style.display = 'block';
+                // Make UPI ID not required for QR (we use image instead)
+                document.getElementById('field_upi_id').required = false;
             } else {
                 bankFields.style.display = 'none';
                 upiFields.style.display = 'block';
-                linkFields.style.display = 'none'; // Hide link field for UPI methods
-                methodType.value = 'PHONEPE';
+                linkFields.style.display = 'none';
+                qrImageFields.style.display = 'none';
+                // Make UPI ID required for UPI methods
+                document.getElementById('field_upi_id').required = true;
             }
         }
 
@@ -375,20 +407,22 @@
             document.getElementById('modalTitle').textContent = 'Add Payment Method';
             document.getElementById('methodForm').action = "{% url 'create_payment_method' %}";
             document.getElementById('methodForm').reset();
-            document.getElementById('field_name').readOnly = false;
             document.getElementById('field_is_active').checked = true;
-            document.getElementById('field_method_type').value = 'PHONEPE';
+            // Enable method type selection for creating
+            document.getElementById('field_method_type').disabled = false;
             checkMethodType();
             document.getElementById('methodModal').style.display = 'block';
         }
 
-        function showEditModal(pk, name, type, upi, link, accName, bankName, accNum, ifsc, isActive) {
+        function showEditModal(pk, type, upi, link, accName, bankName, accNum, ifsc, isActive) {
             document.getElementById('modalTitle').textContent = 'Edit Payment Method';
             document.getElementById('methodForm').action = "/game-admin/payment-methods/" + pk + "/edit/";
-            
-            document.getElementById('field_name').value = name;
-            document.getElementById('field_name').readOnly = true;
-            document.getElementById('field_method_type').value = type;
+
+            // Disable method type selection for editing
+            const methodTypeSelect = document.getElementById('field_method_type');
+            methodTypeSelect.value = type;
+            methodTypeSelect.disabled = true;
+
             document.getElementById('field_upi_id').value = upi;
             document.getElementById('field_link').value = link;
             document.getElementById('field_account_name').value = accName;
@@ -396,7 +430,7 @@
             document.getElementById('field_account_number').value = accNum;
             document.getElementById('field_ifsc_code').value = ifsc;
             document.getElementById('field_is_active').checked = (isActive === 'true');
-            
+
             checkMethodType();
             document.getElementById('methodModal').style.display = 'block';
         }

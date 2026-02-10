@@ -84,6 +84,21 @@ class GameConsumer(AsyncWebsocketConsumer):
             # Send current state
             try:
                 await self.send_current_state()
+                # Also send a small timer update to "kickstart" the client UI
+                # this helps if the client only listens to 'timer' for updates
+                # but 'game_state' for initial setup
+                round_obj = await self.get_current_round_from_db()
+                if round_obj:
+                    # calculate_current_timer performs DB queries for settings, must be sync_to_async
+                    from channels.db import database_sync_to_async
+                    timer = await database_sync_to_async(calculate_current_timer)(round_obj.start_time)
+                    await self.send(text_data=json.dumps({
+                        'type': 'timer',
+                        'timer': timer,
+                        'status': round_obj.status,
+                        'round_id': round_obj.round_id,
+                        'is_rolling': (await database_sync_to_async(get_game_setting)('DICE_ROLL_TIME', 19) <= timer < await database_sync_to_async(get_game_setting)('DICE_RESULT_TIME', 51))
+                    }))
             except Exception as state_error:
                 logger.error(f"Failed to send initial state: {state_error}")
         except Exception as e:
@@ -148,20 +163,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                     # Convert 0-(round_end_time-1) to 1-round_end_time format
                     timer = round_end_time if timer_raw == 0 else timer_raw
                     
-                    # If Redis has no data, sync from database
                     if not round_data:
+                        # Redis key expired or missing - force sync from DB
                         await self.sync_db_to_redis()
-                        # Read again after sync
-                        pipe = redis_client.pipeline()
-                        pipe.get('current_round')
-                        pipe.get('round_timer')
-                        results = pipe.execute()
-                        round_data = results[0]
-                        if round_data:
-                            timer_raw = int(results[1] or '1')
-                            from .utils import get_game_setting
-                            round_end_time = await database_sync_to_async(get_game_setting)('ROUND_END_TIME', 80)
-                            timer = round_end_time if timer_raw == 0 else timer_raw
+                        # Allow fallback to DB logic below by keeping round_data=None
+                        pass
                 except Exception as e:
                     logger.warning(f"Redis read error (using fallback): {e}")
                     round_data = None
@@ -193,6 +199,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                             'round_id': round_obj.round_id,
                             'status': status,
                             'timer': timer,
+                            'is_rolling': (await database_sync_to_async(get_game_setting)('DICE_ROLL_TIME', 19) <= timer < await database_sync_to_async(get_game_setting)('DICE_RESULT_TIME', 51))
                         }))
                         return
                     else:
@@ -222,6 +229,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                         'round_id': round_data.get('round_id'),
                         'status': round_data.get('status'),
                         'timer': timer,
+                        'is_rolling': (await database_sync_to_async(get_game_setting)('DICE_ROLL_TIME', 19) <= timer < await database_sync_to_async(get_game_setting)('DICE_RESULT_TIME', 51))
                     }))
                 except Exception as parse_error:
                     logger.warning(f"Error parsing round_data, sending default state: {parse_error}")
@@ -289,6 +297,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'timer': event.get('timer', 1),
                 'status': event.get('status', 'BETTING'),
                 'round_id': event.get('round_id'),
+                'is_rolling': event.get('is_rolling', False),
             }))
         except Exception as e:
             logger.warning(f"Error sending game_start message (connection remains open): {e}")
@@ -301,6 +310,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'timer': event.get('timer', 0),
                 'status': event.get('status', 'BETTING'),
                 'round_id': event.get('round_id'),
+                'is_rolling': event.get('is_rolling', False),
             }
             
             # Timer messages should NOT include dice values
@@ -333,6 +343,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'timer': timer,
                 'status': event.get('status', 'RESULT'),
                 'round_id': event.get('round_id'),
+                'is_rolling': False,
             }
             
             # Include dice_values if provided as array
@@ -412,6 +423,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'status': event.get('status', 'CLOSED'),
                 'round_id': event.get('round_id'),
                 'dice_roll_time': event.get('dice_roll_time'),  # Seconds before dice result when warning is sent
+                'is_rolling': True,
             }
             # Ensure status is not None
             if message['status'] is None:
@@ -543,6 +555,6 @@ def start_new_round():
         'start_time': round_obj.start_time.isoformat(),
         'timer': 0,
     }
-    redis_client.set('current_round', json.dumps(round_data))
-    redis_client.set('round_timer', '0')
+    redis_client.set('current_round', json.dumps(round_data), ex=60)
+    redis_client.set('round_timer', '0', ex=60)
 

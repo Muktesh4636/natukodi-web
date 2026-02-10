@@ -38,6 +38,9 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.ui.PlayerView
 import android.net.Uri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +50,8 @@ fun HomeScreen(
     onGameClick: (String) -> Unit,
     onNavigate: (String) -> Unit
 ) {
+    // Pass onNavigate to PromotionalBanners
+    PromotionalBanners(onNavigate)
     LaunchedEffect(Unit) {
         if (viewModel.loginSuccess) {
             viewModel.fetchWallet()
@@ -75,7 +80,7 @@ fun HomeScreen(
             SearchBar()
             
             // Banners
-            PromotionalBanners(onSpinClick = { /* Disabled navigation */ })
+            PromotionalBanners(onNavigate)
             
             // Hot Games
             SectionHeader(title = "Hot games")
@@ -203,14 +208,26 @@ fun SearchBar() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PromotionalBanners(onSpinClick: () -> Unit) {
+fun PromotionalBanners(onNavigate: (String) -> Unit) {
     val pageCount = 3
     val virtualCount = 1000 * pageCount
     val pagerState = rememberPagerState(
         initialPage = virtualCount / 2,
         pageCount = { virtualCount }
     )
-    
+
+    // Prevent multiple rapid clicks
+    var lastClickTime by remember { mutableStateOf(0L) }
+    val clickCooldown = 1000L // 1 second cooldown
+
+    fun handleBannerClick(route: String) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastClickTime > clickCooldown) {
+            lastClickTime = currentTime
+            onNavigate(route)
+        }
+    }
+
     LaunchedEffect(Unit) {
         while (true) {
             yield()
@@ -230,9 +247,9 @@ fun PromotionalBanners(onSpinClick: () -> Unit) {
         ) { virtualPage ->
             val page = virtualPage % pageCount
             val banner = when(page) {
-                0 -> BannerData("REFER & EARN", "Invite friends and earn up to ₹1000 bonus!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), {})
-                1 -> BannerData("GET LUCKY DRAW", "WITH BANK TRANSFER", "SPIN", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), onSpinClick)
-                else -> BannerData("DAILY REWARD", "CLAIM YOUR DAILY BONUS NOW!", "CLAIM", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), {})
+                0 -> BannerData("REFER & EARN", "Invite friends and earn up to ₹1000 bonus!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), { handleBannerClick("affiliate") })
+                1 -> BannerData("GET LUCKY DRAW", "WITH BANK TRANSFER", "SPIN", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
+                else -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
             }
 
             Box(
@@ -292,15 +309,9 @@ fun SectionHeader(title: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(title, color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Row {
-            Icon(Icons.Default.ArrowBack, null, tint = TextGrey, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(Icons.Default.ArrowForward, null, tint = TextWhite, modifier = Modifier.size(16.dp))
-        }
     }
 }
 
@@ -362,13 +373,15 @@ fun GameCard(game: GameItem, modifier: Modifier, onGameClick: (String) -> Unit) 
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(game.name.lowercase(), color = TextGrey, fontSize = 14.sp)
+        Text(game.name, color = TextGrey, fontSize = 14.sp)
     }
 }
 
 @Composable
 fun VideoPlayer(videoResId: Int, modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             val uri = Uri.parse("android.resource://${context.packageName}/$videoResId")
@@ -379,17 +392,34 @@ fun VideoPlayer(videoResId: Int, modifier: Modifier = Modifier) {
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    exoPlayer.playWhenReady = true
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    exoPlayer.playWhenReady = false
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    exoPlayer.release()
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
             exoPlayer.release()
         }
     }
 
     AndroidView(
-        factory = {
-            PlayerView(context).apply {
+        factory = { ctx ->
+            PlayerView(ctx).apply {
                 player = exoPlayer
-                useController = false // Hide controls for a cleaner look
+                useController = false
                 resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
             }
         },

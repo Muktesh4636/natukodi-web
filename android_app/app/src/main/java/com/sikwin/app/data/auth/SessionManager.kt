@@ -3,7 +3,7 @@ package com.sikwin.app.data.auth
 import android.content.Context
 import android.content.SharedPreferences
 
-class SessionManager(context: Context) {
+class SessionManager(private val context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("gunduata_prefs", Context.MODE_PRIVATE)
 
     companion object {
@@ -55,6 +55,17 @@ class SessionManager(context: Context) {
     }
 
     fun logout() {
+        // Clear Kotlin/Android prefs
         prefs.edit().clear().apply()
+        
+        // Clear Unity PlayerPrefs to sync logout
+        try {
+            val unityPrefsName = "${context.packageName}.v2.playerprefs"
+            val unityPrefs = context.getSharedPreferences(unityPrefsName, Context.MODE_PRIVATE)
+            unityPrefs.edit().clear().apply()
+            android.util.Log.d("SessionManager", "Cleared Unity PlayerPrefs ($unityPrefsName)")
+        } catch (e: Exception) {
+            android.util.Log.e("SessionManager", "Failed to clear Unity prefs", e)
+        }
     }
 }

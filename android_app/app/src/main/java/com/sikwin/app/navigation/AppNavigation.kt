@@ -2,6 +2,7 @@ package com.sikwin.app.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
 import android.widget.Toast
@@ -15,27 +16,85 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sikwin.app.data.auth.SessionManager
 import com.sikwin.app.ui.screens.*
+import com.sikwin.app.ui.screens.AffiliateScreen
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
-import com.unity3d.player.UnityPlayerGameActivity
+// import com.unity3d.player.UnityPlayerGameActivity
+import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.font.FontWeight
+import com.sikwin.app.ui.theme.PrimaryYellow
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController, 
+    navController: NavHostController,
     viewModel: GunduAtaViewModel,
     sessionManager: SessionManager
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    var showAuthDialog by remember { mutableStateOf(false) }
+
+    // Prevent rapid navigation
+    var lastNavigationTime by remember { mutableStateOf(0L) }
+    val navigationCooldown = 500L // 500ms cooldown between navigation calls
+
+    fun safeNavigate(route: String) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastNavigationTime > navigationCooldown) {
+            lastNavigationTime = currentTime
+            navController.navigate(route)
+        }
+    }
+
+    if (showAuthDialog) {
+        AlertDialog(
+            onDismissRequest = { showAuthDialog = false },
+            title = { Text("Sign In Required", fontWeight = FontWeight.Bold) },
+            text = { Text("Please sign in or sign up to play Gundu Ata and start winning!") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showAuthDialog = false
+                    navController.navigate("login")
+                }) {
+                    Text("Sign In", color = PrimaryYellow, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showAuthDialog = false
+                    navController.navigate("signup")
+                }) {
+                    Text("Sign Up", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
 
     fun launchGame() {
-        val intent = Intent(context, UnityPlayerGameActivity::class.java).apply {
-            putExtra("token", sessionManager.fetchAuthToken())
-            putExtra("refresh_token", sessionManager.fetchRefreshToken())
-            putExtra("username", sessionManager.fetchUsername())
-            putExtra("user_id", sessionManager.fetchUserId())
-            putExtra("password", sessionManager.fetchPassword())
+        try {
+            // Check if user is logged in
+            if (!viewModel.loginSuccess) {
+                showAuthDialog = true
+                return
+            }
+
+            // Show message that Unity game is coming soon
+            Toast.makeText(
+                context,
+                "🎲 Unity game launching soon! Opening web version for now...",
+                Toast.LENGTH_LONG
+            ).show()
+
+            // For now, open web version until Unity integration is complete
+            val gameUrl = "https://gunduata.online/" // Production game URL
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(gameUrl))
+            context.startActivity(intent)
+
+        } catch (e: Exception) {
+            Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()
         }
-        context.startActivity(intent)
     }
     
     // Handle redirect requests (e.g. from Unity balance click)
@@ -59,6 +118,33 @@ fun AppNavigation(
                     navController.navigate("signup") {
                         popUpTo("login") { inclusive = true }
                     }
+                },
+                onNavigateToForgotPassword = {
+                    navController.navigate("forgot_password")
+                }
+            )
+        }
+        composable("forgot_password") {
+            ForgotPasswordScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onSuccess = {
+                    navController.navigate("login") {
+                        popUpTo("forgot_password") { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable("signup?ref={ref}") { backStackEntry ->
+            val refCode = backStackEntry.arguments?.getString("ref")
+            SignUpScreen(
+                viewModel = viewModel,
+                initialReferralCode = refCode ?: "",
+                onSignUpSuccess = { navController.navigate("home") },
+                onNavigateToSignIn = { 
+                    navController.navigate("login") {
+                        popUpTo("signup") { inclusive = true }
+                    }
                 }
             )
         }
@@ -78,14 +164,28 @@ fun AppNavigation(
                 viewModel = viewModel,
                 onGameClick = { gameId ->
                     if (gameId == "gundu_ata") {
-                        launchGame()
+                        if (viewModel.loginSuccess) {
+                            launchGame()
+                        } else {
+                            showAuthDialog = true
+                        }
                     }
                 },
                 onNavigate = { route ->
                     if (route == "gundu_ata") {
-                        launchGame()
+                        if (viewModel.loginSuccess) {
+                            launchGame()
+                        } else {
+                            showAuthDialog = true
+                        }
+                    } else if (route == "me") {
+                        if (viewModel.loginSuccess) {
+                            safeNavigate("me")
+                        } else {
+                            showAuthDialog = true
+                        }
                     } else if (route != "home") {
-                        navController.navigate(route)
+                        safeNavigate(route)
                     }
                 }
             )
@@ -95,7 +195,11 @@ fun AppNavigation(
                 viewModel = viewModel,
                 onNavigate = { route ->
                     if (route == "gundu_ata") {
-                        launchGame()
+                        if (viewModel.loginSuccess) {
+                            launchGame()
+                        } else {
+                            showAuthDialog = true
+                        }
                     } else {
                         navController.navigate(route)
                     }
@@ -154,7 +258,7 @@ fun AppNavigation(
         composable("transactions") {
             TransactionHistoryScreen(
                 title = "Transaction Record",
-                initialCategory = "Betting",
+                initialCategory = "Deposit",
                 showTabs = true,
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
@@ -195,6 +299,13 @@ fun AppNavigation(
         }
         composable("lucky_wheel") {
             LuckyWheelScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("lucky_draw") {
+            LuckyDrawScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -213,6 +324,17 @@ fun AppNavigation(
         }
         composable("info") {
             InfoScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("affiliate") {
+            AffiliateScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("help_center") {
+            HelpCenterScreen(
                 onBack = { navController.popBackStack() }
             )
         }

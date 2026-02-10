@@ -128,7 +128,16 @@ fun DepositScreen(
             
             OutlinedTextField(
                 value = amount,
-                onValueChange = { amount = it },
+                onValueChange = { newValue ->
+                    // Filter to allow only digits, automatically converting decimals to floor value
+                    val filtered = newValue.filter { it.isDigit() || it == '.' }
+                    // If there's a decimal point, take only the integer part (floor value)
+                    amount = if (filtered.contains('.')) {
+                        filtered.substringBefore('.')
+                    } else {
+                        filtered
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Please enter the deposit amount", color = TextGrey) },
                 leadingIcon = { Text("₹", color = TextGrey, fontSize = 20.sp, modifier = Modifier.padding(start = 12.dp)) },

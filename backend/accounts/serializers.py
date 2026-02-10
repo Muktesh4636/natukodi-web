@@ -2,10 +2,11 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import MinLengthValidator
 from decimal import Decimal
-from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail
+from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=False, allow_blank=True)
     password = serializers.CharField(
         write_only=True, 
         required=True, 
@@ -15,7 +16,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2', 'phone_number')
+        fields = ('username', 'email', 'password', 'password2', 'phone_number', 'referral_code')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -24,7 +25,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+        referral_code = validated_data.pop('referral_code', None)
+        
         user = User.objects.create_user(**validated_data)
+        
+        # Handle referral
+        if referral_code:
+            try:
+                referrer = User.objects.get(referral_code=referral_code)
+                user.referred_by = referrer
+                user.save()
+            except User.DoesNotExist:
+                pass
+        
+        # Generate own referral code
+        import uuid
+        user.referral_code = str(uuid.uuid4())[:8].upper()
+        user.save()
+
         # Wallet is automatically created by signal (accounts.signals.create_user_wallet)
         # Using get_or_create as a safety measure in case signal doesn't fire
         Wallet.objects.get_or_create(user=user, defaults={'balance': Decimal('0.00')})
@@ -34,10 +52,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     is_staff = serializers.BooleanField(read_only=True)
     profile_photo_url = serializers.SerializerMethodField()
+    referral_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'date_joined', 'is_staff', 'profile_photo_url')
+        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'date_joined', 'is_staff', 'profile_photo_url', 'referral_code')
         read_only_fields = ('id', 'date_joined')
 
     def get_profile_photo_url(self, obj):
@@ -129,6 +148,19 @@ class UserBankDetailSerializer(serializers.ModelSerializer):
         model = UserBankDetail
         fields = '__all__'
         read_only_fields = ('id', 'user', 'created_at', 'updated_at')
+
+
+class DailyRewardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyReward
+        fields = ('id', 'reward_amount', 'reward_type', 'claimed_at', 'reward_date')
+        read_only_fields = ('id', 'user', 'claimed_at', 'reward_date')
+
+
+class DailyRewardHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyReward
+        fields = ('reward_amount', 'reward_type', 'claimed_at', 'reward_date')
 
 
 

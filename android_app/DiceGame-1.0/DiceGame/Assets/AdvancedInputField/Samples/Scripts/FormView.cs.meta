@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 85dd00497aa34d24dbccdcb93d28322a
+timeCreated: 1499001027
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scripts/FormView.cs
+  uploadId: 485141

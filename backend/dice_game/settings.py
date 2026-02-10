@@ -284,6 +284,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static' / 'react',
+    BASE_DIR / 'static' / 'unity',
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -293,6 +294,21 @@ REACT_BUILD_DIR = BASE_DIR / 'static' / 'react'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SMS Settings
+SMS_PROVIDER = os.getenv('SMS_PROVIDER', 'MESSAGE_CENTRAL')  # Options: MSG91, TWILIO, TEXTLOCAL, MESSAGE_CENTRAL
+SMS_API_KEY = os.getenv('SMS_API_KEY', 'C-8B852AEF1042406')
+SMS_SENDER_ID = os.getenv('SMS_SENDER_ID', 'Gundu Ata')
+SMS_TEMPLATE_ID = os.getenv('SMS_TEMPLATE_ID', '')
+SMS_AUTH_TOKEN = os.getenv('SMS_AUTH_TOKEN', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDLThCODUyQUVGMTA0MjQwNiIsImlhdCI6MTc3MDYyNTY0MSwiZXhwIjoxOTI4MzA1NjQxfQ.vR6ovuKMq1XRAH_Gt4DlOAE65LpgAnWv9DWEqmECWBqgUmUqL0tg28WxM1ZEsb673oO2aONMhezgr7Hmo2N0Jg')
+SMS_CUSTOMER_ID = os.getenv('SMS_CUSTOMER_ID', 'C-8B852AEF1042406')
+
+# Twilio settings (if using Twilio)
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
+
+# Textlocal settings (if using Textlocal)
+TEXTLOCAL_API_KEY = os.getenv('TEXTLOCAL_API_KEY', '')
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'

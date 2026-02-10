@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: caf4359d807d04943aa608d9269b5839
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/RichText/TMPAllTagsData.asset
+  uploadId: 485141

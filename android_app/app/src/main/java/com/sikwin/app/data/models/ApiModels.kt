@@ -11,7 +11,8 @@ data class User(
     val address: String? = null,
     val date_of_birth: String? = null,
     val is_staff: Boolean,
-    val profile_photo: String? = null
+    val profile_photo: String? = null,
+    val referral_code: String? = null
 )
 
 data class AuthResponse(

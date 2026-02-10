@@ -35,7 +35,7 @@ services:
       - media_volume:/app/media
       - logs_volume:/app/logs
     ports:
-      - "8080:8080"
+      - "8001:8080"
     environment:
       - DEBUG=${DEBUG:-False}
       - SECRET_KEY=${SECRET_KEY:-change-this-in-production}

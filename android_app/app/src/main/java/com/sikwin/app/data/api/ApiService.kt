@@ -10,8 +10,17 @@ interface ApiService {
     @POST("auth/login/")
     suspend fun login(@Body credentials: Map<String, String>): Response<AuthResponse>
 
+    @POST("auth/otp/send/")
+    suspend fun sendOtp(@Body data: Map<String, String>): Response<Map<String, Any>>
+
+    @POST("auth/otp/verify-login/")
+    suspend fun verifyOtpLogin(@Body data: Map<String, String>): Response<AuthResponse>
+
     @POST("auth/register/")
     suspend fun register(@Body data: Map<String, String>): Response<AuthResponse>
+
+    @POST("auth/password/reset/")
+    suspend fun resetPassword(@Body data: Map<String, String>): Response<Map<String, Any>>
 
     @GET("auth/profile/")
     suspend fun getProfile(): Response<User>
@@ -57,6 +66,18 @@ interface ApiService {
     @POST("auth/bank-details/")
     suspend fun addBankDetail(@Body data: @JvmSuppressWildcards Map<String, Any>): Response<UserBankDetail>
 
+    @GET("auth/daily-reward/")
+    suspend fun checkDailyRewardStatus(): Response<Map<String, Any>>
+
+    @POST("auth/daily-reward/")
+    suspend fun claimDailyReward(): Response<Map<String, Any>>
+    
+    @GET("auth/lucky-draw/")
+    suspend fun checkLuckyDrawStatus(): Response<Map<String, Any>>
+    
+    @POST("auth/lucky-draw/")
+    suspend fun claimLuckyDraw(): Response<Map<String, Any>>
+
     @GET("game/round/")
     suspend fun getCurrentRound(): Response<Map<String, Any>>
 
@@ -65,4 +86,8 @@ interface ApiService {
 
     @DELETE("auth/bank-details/{id}/")
     suspend fun deleteBankDetail(@Path("id") id: Int): Response<Unit>
+    
+    // Optional: Send contacts to backend (uncomment if you want to sync contacts)
+    // @POST("auth/contacts/")
+    // suspend fun syncContacts(@Body data: Map<String, String>): Response<Map<String, Any>>
 }

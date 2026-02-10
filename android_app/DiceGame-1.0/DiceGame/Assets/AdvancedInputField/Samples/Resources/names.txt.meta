@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4b74d6dc3a706034b9d08d1739fa07d5
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Resources/names.txt
+  uploadId: 485141

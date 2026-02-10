@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 15c07acad0dde584f90411329a71a42e
+timeCreated: 1506540187
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/LiveDecoration/CreditCardFilter.prefab
+  uploadId: 485141

@@ -3,9 +3,15 @@ from . import views
 
 urlpatterns = [
     path('round/', views.current_round, name='current_round'),
+    path('round/<str:round_id>/bets/', views.round_bets, name='round_bets'),
+    path('round/bets/', views.round_bets, name='round_bets_current'),
     path('bet/', views.place_bet, name='place_bet'),
     path('bet/<int:number>/', views.remove_bet, name='remove_bet'),
+    path('bet/last/', views.remove_last_bet, name='remove_last_bet'),
     path('bets/', views.my_bets, name='my_bets'),
+    path('prediction/', views.submit_prediction, name='submit_prediction'),
+    path('round/<str:round_id>/predictions/', views.round_predictions, name='round_predictions'),
+    path('round/predictions/', views.round_predictions, name='round_predictions_current'),
     path('betting-history/', views.betting_history, name='betting_history'),
     path('set-dice/', views.set_dice_result, name='set_dice_result'),
     path('dice-mode/', views.dice_mode, name='dice_mode'),

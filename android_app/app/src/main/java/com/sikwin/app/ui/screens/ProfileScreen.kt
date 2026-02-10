@@ -1,5 +1,6 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -82,10 +84,11 @@ fun ProfileScreen(
                 username = viewModel.userProfile?.username ?: "User",
                 balance = viewModel.wallet?.balance ?: "0.00",
                 onWalletClick = { onNavigate("wallet") },
-                onEditName = { 
+                onEditName = {
                     newName = viewModel.userProfile?.username ?: ""
-                    showEditNameDialog = true 
-                }
+                    showEditNameDialog = true
+                },
+                viewModel = viewModel
             )
             
             // Quick Actions Grid
@@ -106,8 +109,6 @@ fun ProfileScreen(
                 ProfileMenuItem("Deposit record", Icons.Default.Description) { onNavigate("deposits_record") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Withdrawal record", Icons.Default.Receipt) { onNavigate("withdrawals_record") }
-                Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Betting record", Icons.Default.ConfirmationNumber) { onNavigate("betting_record") }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -126,9 +127,11 @@ fun ProfileScreen(
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Security", Icons.Default.Security) { onNavigate("security") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Help center", Icons.Default.TipsAndUpdates) { }
+                ProfileMenuItem("Help center", Icons.Default.TipsAndUpdates) { onNavigate("help_center") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Refer a Friend", Icons.Default.PersonAdd) { }
+                ProfileMenuItem("Refer a Friend", Icons.Default.PersonAdd) { onNavigate("affiliate") }
+                Divider(color = BorderColor, thickness = 0.5.dp)
+                ProfileMenuItem("Game Guidelines", Icons.Default.Casino) { onNavigate("game_guidelines") }
             }
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -140,11 +143,14 @@ fun ProfileScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 Button(
-                    onClick = { viewModel.logout() },
+                    onClick = { 
+                        viewModel.logout()
+                        onNavigate("home")
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp),
-                    shape = RoundedCornerShape(20.dp),
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SurfaceColor,
                         contentColor = Color.White
@@ -152,8 +158,8 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = "Log out",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Normal
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -165,11 +171,41 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileHeader(
-    username: String, 
-    balance: String, 
+    username: String,
+    balance: String,
     onWalletClick: () -> Unit,
-    onEditName: () -> Unit
+    onEditName: () -> Unit,
+    viewModel: GunduAtaViewModel
 ) {
+    var rotationTarget by remember { mutableFloatStateOf(0f) }
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    // Rotation animation - accumulates rotation for continuous forward spinning
+    val rotation by animateFloatAsState(
+        targetValue = rotationTarget,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = LinearEasing
+        )
+    )
+
+    // Reset refreshing state after animation completes
+    LaunchedEffect(rotation) {
+        if (isRefreshing && rotation == rotationTarget && rotationTarget > 0) {
+            // Small delay before resetting to avoid immediate re-triggering
+            kotlinx.coroutines.delay(100)
+            isRefreshing = false
+        }
+    }
+
+    fun handleRefresh() {
+        if (!isRefreshing) {
+            isRefreshing = true
+            rotationTarget += 360f  // Add 360 degrees for each refresh
+            viewModel.fetchWallet()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,9 +226,9 @@ fun ProfileHeader(
                 Icon(Icons.Default.AddBox, null, tint = PrimaryYellow)
             }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Static Default Avatar
             Box(
@@ -204,9 +240,9 @@ fun ProfileHeader(
             ) {
                 Icon(Icons.Default.Person, null, modifier = Modifier.size(50.dp), tint = TextWhite)
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Hi~ $username", color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -220,24 +256,33 @@ fun ProfileHeader(
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
                     Text(
-                        "VIP0", 
-                        color = Color.LightGray, 
-                        fontSize = 10.sp, 
+                        "VIP0",
+                        color = Color.LightGray,
+                        fontSize = 10.sp,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text("Total/INR", color = TextGrey, fontSize = 14.sp)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("₹", color = PrimaryYellow, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(8.dp))
             Text(balance, color = TextWhite, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(12.dp))
-            Icon(Icons.Default.Refresh, null, tint = TextWhite, modifier = Modifier.size(20.dp))
+            IconButton(onClick = { handleRefresh() }) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = "Refresh balance",
+                    tint = TextWhite,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .rotate(rotation)
+                )
+            }
         }
     }
 }

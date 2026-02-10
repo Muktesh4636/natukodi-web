@@ -122,20 +122,26 @@ def admin_required(view_func):
     """Decorator to require admin access"""
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            # Redirect to game admin login with next parameter
-            from django.http import HttpResponseRedirect
-            from django.urls import reverse
-            try:
-                login_url = reverse('admin_login')
-            except:
-                login_url = '/game-admin/login/'
-            next_url = request.get_full_path()
-            return HttpResponseRedirect(f'{login_url}?next={next_url}')
-        if not is_admin(request.user):
-            messages.error(request, 'You do not have permission to access this page.')
+        try:
+            if not request.user.is_authenticated:
+                # Redirect to game admin login with next parameter
+                from django.http import HttpResponseRedirect
+                from django.urls import reverse
+                try:
+                    login_url = reverse('admin_login')
+                except:
+                    login_url = '/game-admin/login/'
+                next_url = request.get_full_path()
+                return HttpResponseRedirect(f'{login_url}?next={next_url}')
+            if not is_admin(request.user):
+                messages.error(request, 'You do not have permission to access this page.')
+                return redirect('/admin/')
+            return view_func(request, *args, **kwargs)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f'Permission Error: {str(e)}')
             return redirect('/admin/')
-        return view_func(request, *args, **kwargs)
     return wrapper
 
 

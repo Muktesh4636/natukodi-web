@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fb41f9861c213474e8b9efe819c0563c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/LiveProcessing/BlockDuplicateCharacterFilter.prefab
+  uploadId: 485141

@@ -787,6 +787,7 @@
                 </div>
             </div>
 
+            
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags }}">
@@ -794,8 +795,15 @@
                     </div>
                 {% endfor %}
             {% endif %}
+
+            {% if debug_version %}
+            <div style="text-align: center; color: #ff0000; font-weight: bold; padding: 10px; background: #ffeaea; border: 1px solid #ffcccc; margin-bottom: 20px;">
+                DEBUG MODE ACTIVE: {{ debug_version }}
+            </div>
+            {% endif %}
             
             <div class="control-panel">
+
                 <h2>🎯 Dice Control</h2>
                 
                 <!-- Circular Timer -->

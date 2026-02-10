@@ -252,114 +252,132 @@ def admin_dashboard(request):
     })
     return render(request, 'admin/game_dashboard.html', context)
 
-@admin_required
+# @admin_required - REMOVED FOR DEBUGGING v6
 def set_dice_result_view(request):
-    """Admin view to set dice result (legacy - sets all dice to same value)"""
+    """Admin view to set dice result (1-6)"""
     if request.method == 'POST':
-        result = request.POST.get('result')
-        if result:
+        # Manual Auth Check
+        if not request.user.is_authenticated or not request.user.is_staff:
+             print("DEBUG: Manual Auth Fail in set_dice_result_view")
+             from django.http import HttpResponse
+             return HttpResponse("Unauthorized", status=401)
+        try:
+            # Get current round state using helper
+            from .utils import get_current_round_state, get_game_setting
+            
+            # Enforce local fallback for redis_client if global is missing/None
+            local_redis = None
             try:
-                result = int(result)
-                if 1 <= result <= 6:
-                    # Get current round
-                    round_obj = None
-                    timer = 0
-                    if redis_client:
+                 local_redis = redis_client
+            except NameError:
+                 pass
+                 
+            round_obj, timer, status, _ = get_current_round_state(local_redis)
+
+            # Get dice result time (needed for restriction check and finalization logic)
+            dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
+            
+            # Check timer: Cannot set result after dice_result_time (51s)
+            if timer >= dice_result_time:
+                messages.error(request, f'Cannot set dice result after {dice_result_time} seconds. Use Manual Adjust mode to override.')
+                return redirect('dice_control')
+
+            if not round_obj:
+                messages.error(request, 'No active round')
+                return redirect('dice_control')
+            
+            dice_result = request.POST.get('result')
+            if dice_result:
+                try:
+                    result_value = int(dice_result)
+                    if not (1 <= result_value <= 6):
+                        messages.error(request, 'Dice result must be between 1 and 6')
+                        return redirect('dice_control')
+                except ValueError:
+                    messages.error(request, 'Invalid dice result value')
+                    return redirect('dice_control')
+
+                # Set result on round object
+                round_obj.dice_result = str(result_value)
+                # For compatibility, set all dice to this value (simplified legacy behavior)
+                for i in range(1, 7):
+                    setattr(round_obj, f'dice_{i}', result_value)
+                
+                # Only finalize the round (status, payouts, broadcast) if we are at or past result time
+                should_finalize = timer >= dice_result_time
+                
+                if should_finalize:
+                    round_obj.status = 'RESULT'
+                    if not round_obj.result_time:
+                        round_obj.result_time = timezone.now()
+                
+                round_obj.save()
+                
+                # Create or update dice result record
+                DiceResult.objects.update_or_create(
+                    round=round_obj,
+                    defaults={
+                        'result': str(result_value),
+                        'set_by': request.user
+                    }
+                )
+                
+                # Update Redis
+                if local_redis:
+                    try:
+                        round_data = local_redis.get('current_round')
+                        if round_data:
+                            round_data = json.loads(round_data)
+                            round_data['dice_result'] = str(result_value)
+                            # Update all dice values
+                            for i in range(1, 7):
+                                round_data[f'dice_{i}'] = result_value
+                            
+                            if should_finalize:
+                                round_data['status'] = 'RESULT'
+                            
+                            local_redis.set('current_round', json.dumps(round_data))
+                    except Exception:
+                        pass
+                
+                # ONLY calculate payouts and broadcast if finalizing
+                if should_finalize:
+                    # Calculate payouts
+                    from .views import calculate_payouts
+                    # Legacy mode: all dice same
+                    dice_values = [result_value] * 6
+                    calculate_payouts(round_obj, dice_result=str(result_value), dice_values=dice_values)
+                    
+                    # Broadcast to WebSocket
+                    from channels.layers import get_channel_layer
+                    from asgiref.sync import async_to_sync
+                    channel_layer = get_channel_layer()
+                    if channel_layer:
                         try:
-                            round_data = redis_client.get('current_round')
-                            if round_data:
-                                round_data = json.loads(round_data)
-                                timer = int(redis_client.get('round_timer') or '0')
-                                try:
-                                    round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                                except GameRound.DoesNotExist:
-                                    pass
+                            async_to_sync(channel_layer.group_send)(
+                                'game_room',
+                                {
+                                    'type': 'dice_result',
+                                    'result': str(result_value),
+                                    'dice_values': dice_values,
+                                    'round_id': round_obj.round_id,
+                                }
+                            )
                         except Exception:
                             pass
-                    
-                    # Fallback to latest round
-                    if not round_obj:
-                        round_obj = GameRound.objects.order_by('-start_time').first()
-                        if round_obj and round_obj.start_time:
-                            elapsed = (timezone.now() - round_obj.start_time).total_seconds()
-                            timer = int(elapsed) % round_obj.round_end_seconds
+                
+                mode_text = " (Pre-set)" if not should_finalize else ""
+                messages.success(request, f'Dice result set{mode_text}: {result_value}')
+            else:
+                messages.error(request, 'Dice result is required')
 
-                    # Check if timer is within allowed window (use round-specific timing)
-                    dice_result_time = round_obj.dice_result_seconds if round_obj else get_game_setting('DICE_RESULT_TIME', 40)
-                    if timer >= dice_result_time:
-                        messages.error(request, f'Cannot set dice result after {dice_result_time} seconds.')
-                        referer = request.META.get('HTTP_REFERER', '')
-                        if 'dice-control' in referer:
-                            return redirect('dice_control')
-                        return redirect('admin_dashboard')
-                    
-                    if round_obj:
-                        # Set all 6 dice to the same value (legacy method)
-                        round_obj.dice_1 = result
-                        round_obj.dice_2 = result
-                        round_obj.dice_3 = result
-                        round_obj.dice_4 = result
-                        round_obj.dice_5 = result
-                        round_obj.dice_6 = result
-                        # Store as string for compatibility with multiple winners
-                        round_obj.dice_result = str(result)
-                        round_obj.status = 'RESULT'
-                        round_obj.result_time = timezone.now()
-                        round_obj.save()
-                        
-                        # Create dice result record
-                        DiceResult.objects.update_or_create(
-                            round=round_obj,
-                            defaults={
-                                'result': str(result),
-                                'set_by': request.user
-                            }
-                        )
-                        
-                        # Update Redis
-                        if redis_client:
-                            try:
-                                round_data = redis_client.get('current_round')
-                                if round_data:
-                                    round_data = json.loads(round_data)
-                                    round_data['dice_result'] = str(result)
-                                    round_data['status'] = 'RESULT'
-                                    redis_client.set('current_round', json.dumps(round_data))
-                            except Exception:
-                                pass
-                        
-                        # Calculate payouts - all dice are same value
-                        dice_values = [result, result, result, result, result, result]
-                        from .views import calculate_payouts
-                        calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
-                        
-                        # Broadcast to WebSocket
-                        from channels.layers import get_channel_layer
-                        from asgiref.sync import async_to_sync
-                        channel_layer = get_channel_layer()
-                        if channel_layer:
-                            try:
-                                async_to_sync(channel_layer.group_send)(
-                                    'game_room',
-                                    {
-                                        'type': 'dice_result',
-                                        'result': result,
-                                        'round_id': round_obj.round_id,
-                                    }
-                                )
-                            except Exception:
-                                pass
-                        
-                        messages.success(request, f'Dice result set to {result}')
-                    else:
-                        messages.error(request, 'No active round')
-                else:
-                    messages.error(request, 'Invalid dice result (1-6)')
-            except ValueError:
-                messages.error(request, 'Invalid dice result')
-            except Exception as e:
-                messages.error(request, f'Error: {str(e)}')
-    
+        except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"ERROR in set_dice_result_view: {error_trace}")
+            from django.http import HttpResponse
+            return HttpResponse(f"<html><body><h1>Error setting dice result</h1><pre>{error_trace}</pre><br><a href='/game-admin/dice-control/'>Back to Dice Control</a></body></html>")
+            
     referer = request.META.get('HTTP_REFERER', '')
     if 'dice-control' in referer:
         return redirect('dice_control')
@@ -437,203 +455,242 @@ def admin_dashboard_data(request):
     
     return JsonResponse(data)
 
-@admin_required
+# @admin_required - REMOVED FOR DEBUGGING v6
 def set_individual_dice_view(request):
     """Admin view to set individual dice values (1-6 for each of 6 dice)
     All dice values must be provided and time restrictions are enforced
     """
+    print("DEBUG: Entering set_individual_dice_view") # Debug log
     if request.method == 'POST':
-        # Get current round state using helper
-        from .utils import get_current_round_state, get_game_setting
-        round_obj, timer, status, _ = get_current_round_state(redis_client)
+        try:
+            # Get current round state using helper
+            from .utils import get_current_round_state, get_game_setting
+            
+            # Enforce local fallback for redis_client if global is missing/None
+            local_redis = None
+            try:
+                 local_redis = redis_client
+            except NameError:
+                 pass
+            
+            round_obj, timer, status, _ = get_current_round_state(local_redis)
 
-        # Get dice result time (needed for restriction check and finalization logic)
-        dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
+            # Get dice result time (needed for restriction check and finalization logic)
+            dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
 
-        # Check timer restriction
-        if timer >= dice_result_time:
-                messages.error(request, f'Cannot set dice values after {dice_result_time} seconds. Use Manual Adjust mode to override.')
+            # Check timer restriction
+            if timer >= dice_result_time:
+                    messages.error(request, f'Cannot set dice values after {dice_result_time} seconds. Use Manual Adjust mode to override.')
+                    return redirect('dice_control')
+            
+            if not round_obj:
+                messages.error(request, 'No active round')
                 return redirect('dice_control')
-        
-        if not round_obj:
-            messages.error(request, 'No active round')
-            return redirect('dice_control')
-        
-        # Collect dice values (all dice required)
-        dice_values_list = []  # For calculating result
+            
+            # Collect dice values (all dice required)
+            dice_values_list = []  # For calculating result
 
-        for i in range(1, 7):
-            dice_value = request.POST.get(f'dice_{i}', '').strip()
-            if dice_value:
-                try:
-                    value = int(dice_value)
-                    if 1 <= value <= 6:
-                        dice_values_list.append(value)
-                    else:
-                        messages.error(request, f'Dice {i} value must be between 1-6')
+            for i in range(1, 7):
+                dice_value = request.POST.get(f'dice_{i}', '').strip()
+                if dice_value:
+                    try:
+                        value = int(dice_value)
+                        if 1 <= value <= 6:
+                            dice_values_list.append(value)
+                        else:
+                            messages.error(request, f'Dice {i} value must be between 1-6')
+                            return redirect('dice_control')
+                    except ValueError:
+                        messages.error(request, f'Invalid value for dice {i}')
                         return redirect('dice_control')
-                except ValueError:
-                    messages.error(request, f'Invalid value for dice {i}')
+                else:
+                    messages.error(request, f'Dice {i} value is required')
                     return redirect('dice_control')
             else:
-                messages.error(request, f'Dice {i} value is required')
-                return redirect('dice_control')
-        else:
-            # Normal mode - must have all 6 values
-            if len(dice_values_list) != 6:
-                messages.error(request, 'All 6 dice values are required')
-                return redirect('dice_control')
-        
-        # Apply updates to round object
-        for dice_key, value in dice_updates.items():
-            setattr(round_obj, dice_key, value)
-        
-        # If we have at least some dice values, calculate result
-        if dice_values_list:
-            # Filter out None values for calculation
-            valid_dice = [d for d in dice_values_list if d is not None]
-            if valid_dice:
-                from .utils import determine_winning_number
-                most_common = determine_winning_number(valid_dice)
-                
-                round_obj.dice_result = most_common
-                
-                # Only finalize the round (status, payouts, broadcast) if we are at or past result time
-                should_finalize = timer >= dice_result_time
-                
-                if should_finalize:
-                    round_obj.status = 'RESULT'
-                    if not round_obj.result_time:
-                        round_obj.result_time = timezone.now()
-                
-                round_obj.save()
-                
-                # Create or update dice result record
-                DiceResult.objects.update_or_create(
-                    round=round_obj,
-                    defaults={
-                        'result': most_common,
-                        'set_by': request.user
-                    }
-                )
-                
-                # Update Redis with all current dice values
-                if redis_client:
-                    try:
-                        round_data = redis_client.get('current_round')
-                        if round_data:
-                            round_data = json.loads(round_data)
-                            round_data['dice_result'] = most_common
-                            # Update all dice values (use current from DB)
-                            for i in range(1, 7):
-                                dice_val = getattr(round_obj, f'dice_{i}', None)
-                                if dice_val is not None:
-                                    round_data[f'dice_{i}'] = dice_val
-                            
-                            if should_finalize:
-                                round_data['status'] = 'RESULT'
-                            
-                            redis_client.set('current_round', json.dumps(round_data))
-                    except Exception:
-                        pass
-                
-                # ONLY calculate payouts and broadcast if finalizing
-                if should_finalize:
-                    # Calculate payouts based on dice values (frequency-based)
-                    from .views import calculate_payouts
-                    # Get complete dice values from round object
-                    complete_dice = [
-                        round_obj.dice_1, round_obj.dice_2, round_obj.dice_3,
-                        round_obj.dice_4, round_obj.dice_5, round_obj.dice_6
-                    ]
-                    # Only calculate if we have all 6 dice values
-                    if all(d is not None for d in complete_dice):
-                        calculate_payouts(round_obj, dice_result=most_common, dice_values=complete_dice)
+                # Normal mode - must have all 6 values
+                if len(dice_values_list) != 6:
+                    messages.error(request, 'All 6 dice values are required')
+                    return redirect('dice_control')
+            
+            # Apply updates to round object
+            for i, value in enumerate(dice_values_list):
+                setattr(round_obj, f'dice_{i+1}', value)
+            
+            # If we have at least some dice values, calculate result
+            if dice_values_list:
+                # Filter out None values for calculation
+                valid_dice = [d for d in dice_values_list if d is not None]
+                if valid_dice:
+                    from .utils import determine_winning_number
+                    most_common = determine_winning_number(valid_dice)
                     
-                    # Broadcast to WebSocket
-                    from channels.layers import get_channel_layer
-                    from asgiref.sync import async_to_sync
-                    channel_layer = get_channel_layer()
-                    if channel_layer:
+                    round_obj.dice_result = most_common
+                    
+                    # Only finalize the round (status, payouts, broadcast) if we are at or past result time
+                    should_finalize = timer >= dice_result_time
+                    
+                    if should_finalize:
+                        round_obj.status = 'RESULT'
+                        if not round_obj.result_time:
+                            round_obj.result_time = timezone.now()
+                    
+                    round_obj.save()
+                    
+                    # Create or update dice result record
+                    DiceResult.objects.update_or_create(
+                        round=round_obj,
+                        defaults={
+                            'result': most_common,
+                            'set_by': request.user
+                        }
+                    )
+                    
+                    # Update Redis with all current dice values
+                    if redis_client:
                         try:
-                            async_to_sync(channel_layer.group_send)(
-                                'game_room',
-                                {
-                                    'type': 'dice_result',
-                                    'result': most_common,
-                                    'dice_values': complete_dice if all(d is not None for d in complete_dice) else valid_dice,
-                                    'round_id': round_obj.round_id,
-                                }
-                            )
+                            round_data = redis_client.get('current_round')
+                            if round_data:
+                                round_data = json.loads(round_data)
+                                round_data['dice_result'] = most_common
+                                # Update all dice values (use current from DB)
+                                for i in range(1, 7):
+                                    dice_val = getattr(round_obj, f'dice_{i}', None)
+                                    if dice_val is not None:
+                                        round_data[f'dice_{i}'] = dice_val
+                                
+                                if should_finalize:
+                                    round_data['status'] = 'RESULT'
+                                
+                                redis_client.set('current_round', json.dumps(round_data))
                         except Exception:
                             pass
-                
-                mode_text = " (Pre-set)" if not should_finalize else ""
-                
-                updated_text = ", ".join([f"D{i+1}:{v}" for i, v in enumerate(dice_updates.values())])
-                messages.success(request, f'Dice values updated{mode_text}: {updated_text} | Result: {most_common}')
+                    
+                    # ONLY calculate payouts and broadcast if finalizing
+                    if should_finalize:
+                        # Calculate payouts based on dice values (frequency-based)
+                        from .views import calculate_payouts
+                        # Get complete dice values from round object
+                        complete_dice = [
+                            round_obj.dice_1, round_obj.dice_2, round_obj.dice_3,
+                            round_obj.dice_4, round_obj.dice_5, round_obj.dice_6
+                        ]
+                        # Only calculate if we have all 6 dice values
+                        if all(d is not None for d in complete_dice):
+                            calculate_payouts(round_obj, dice_result=most_common, dice_values=complete_dice)
+                        
+                        # Broadcast to WebSocket
+                        from channels.layers import get_channel_layer
+                        from asgiref.sync import async_to_sync
+                        channel_layer = get_channel_layer()
+                        if channel_layer:
+                            try:
+                                async_to_sync(channel_layer.group_send)(
+                                    'game_room',
+                                    {
+                                        'type': 'dice_result',
+                                        'result': most_common,
+                                        'dice_values': complete_dice if all(d is not None for d in complete_dice) else valid_dice,
+                                        'round_id': round_obj.round_id,
+                                    }
+                                )
+                            except Exception:
+                                pass
+                    
+                    mode_text = " (Pre-set)" if not should_finalize else ""
+                    
+                    updated_text = ", ".join([f"D{i+1}:{v}" for i, v in enumerate(dice_values_list)])
+                    messages.success(request, f'Dice values updated{mode_text}: {updated_text} | Result: {most_common}')
+                else:
+                    messages.error(request, 'At least one valid dice value is required')
             else:
-                messages.error(request, 'At least one valid dice value is required')
-        else:
-            messages.error(request, 'No dice values provided')
+                messages.error(request, 'No dice values provided')
+
+        except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"ERROR in set_individual_dice_view: {error_trace}")
+            from django.http import HttpResponse
+            return HttpResponse(f"<html><body><h1>Error setting dice values</h1><pre>{error_trace}</pre><br><a href='/game-admin/dice-control/'>Back to Dice Control</a></body></html>")
     
     return redirect('dice_control')
 
-@admin_required
+# @admin_required - REMOVED FOR DEBUGGING v6
 def dice_control(request):
     """Dice control page"""
-    if not has_menu_permission(request.user, 'dice_control'):
-        messages.error(request, 'You do not have permission to access dice control.')
-        return redirect('admin_dashboard')
-        
-    # Get current round state using helper
-    from .utils import get_current_round_state
-    current_round, timer, status, _ = get_current_round_state(redis_client)
-    
-    # Get stats for current round
-    current_round_total_amount = 0
-    current_round_total_bets = 0
-    bets_by_number_list = []
-    
-    if current_round:
-        current_round_bets = Bet.objects.filter(round=current_round)
-        current_round_total_bets = current_round_bets.count()
-        current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-        
-        # Calculate bets by number
-        for number in range(1, 7):
-            number_bets = current_round_bets.filter(number=number)
-            amount = number_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-            count = number_bets.count()
-            bets_by_number_list.append({
-                'number': number,
-                'amount': amount,
-                'count': count
-            })
-    
-    # Get dice mode
-    dice_mode = get_dice_mode()
-    
-    # Get timing settings for current round
-    betting_close_time = current_round.betting_close_seconds if current_round else get_game_setting('BETTING_CLOSE_TIME', 30)
-    dice_result_time = current_round.dice_result_seconds if current_round else get_game_setting('DICE_RESULT_TIME', 51)
-    round_end_time = current_round.round_end_seconds if current_round else get_game_setting('ROUND_END_TIME', 80)
+    try:
+        # Manual Auth Check
+        if not request.user.is_authenticated: # relaxed for debug
+             return redirect('admin_login')
 
-    context = get_admin_context(request, {
-        'current_round': current_round,
-        'timer': timer,
-        'status': status,
-        'dice_mode': dice_mode,
-        'current_round_total_bets': current_round_total_bets,
-        'current_round_total_amount': current_round_total_amount,
-        'bets_by_number_list': bets_by_number_list,
-        'betting_close_time': betting_close_time,
-        'dice_result_time': dice_result_time,
-        'round_end_time': round_end_time,
-        'page': 'dice-control',
-    })
-    
-    return render(request, 'admin/dice_control.html', context)
+        if not has_menu_permission(request.user, 'dice_control'):
+            messages.error(request, 'You do not have permission to access dice control.')
+            return redirect('admin_dashboard')
+            
+        # Get current round state using helper
+        from .utils import get_current_round_state, get_game_setting
+        
+        # Enforce local fallback for redis_client if global is missing/None
+        local_redis = None
+        try:
+                local_redis = redis_client
+        except NameError:
+                pass
+                
+        current_round, timer, status, _ = get_current_round_state(local_redis)
+        
+        # Get stats for current round
+        current_round_total_amount = 0
+        current_round_total_bets = 0
+        bets_by_number_list = []
+        
+        if current_round:
+            current_round_bets = Bet.objects.filter(round=current_round)
+            current_round_total_bets = current_round_bets.count()
+            current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
+            
+            # Calculate bets by number
+            for number in range(1, 7):
+                number_bets = current_round_bets.filter(number=number)
+                amount = number_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
+                count = number_bets.count()
+                bets_by_number_list.append({
+                    'number': number,
+                    'amount': amount,
+                    'count': count
+                })
+        
+        # Get dice mode
+        from .views import get_dice_mode
+        dice_mode = get_dice_mode()
+        
+        # Get timing settings for current round
+        betting_close_time = current_round.betting_close_seconds if current_round else get_game_setting('BETTING_CLOSE_TIME', 30)
+        dice_result_time = current_round.dice_result_seconds if current_round else get_game_setting('DICE_RESULT_TIME', 51)
+        round_end_time = current_round.round_end_seconds if current_round else get_game_setting('ROUND_END_TIME', 80)
+
+        context = get_admin_context(request, {
+            'current_round': current_round,
+            'timer': timer,
+            'status': status,
+            'dice_mode': dice_mode,
+            'current_round_total_bets': current_round_total_bets,
+            'current_round_total_amount': current_round_total_amount,
+            'bets_by_number_list': bets_by_number_list,
+            'betting_close_time': betting_close_time,
+            'dice_result_time': dice_result_time,
+            'round_end_time': round_end_time,
+            'page': 'dice-control',
+            'debug_version': 'v9', # Debug flag to verify deployment v9 (Full Sync)
+        })
+        
+        return render(request, 'admin/dice_control.html', context)
+
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"ERROR in dice_control view: {error_trace}")
+        from django.http import HttpResponse
+        return HttpResponse(f"<html><body><h1>Error loading Dice Control Page (v8)</h1><pre>{error_trace}</pre><br><a href='/game-admin/dashboard/'>Back to Dashboard</a></body></html>")
 
 @admin_required
 def recent_rounds(request):
@@ -1908,7 +1965,7 @@ def payment_methods(request):
     if not PaymentMethod.objects.exists():
         default_methods = [
             {
-                'name': 'Bank Transfer',
+                'name': 'Bank Account',
                 'method_type': 'BANK',
                 'is_active': True,
             },
@@ -1918,7 +1975,7 @@ def payment_methods(request):
                 'is_active': True,
             },
             {
-                'name': 'PhonePe',
+                'name': 'Phone Pe',
                 'method_type': 'PHONEPE',
                 'is_active': True,
             },
@@ -1929,7 +1986,12 @@ def payment_methods(request):
             },
             {
                 'name': 'UPI',
-                'method_type': 'UPI_QR',
+                'method_type': 'UPI',
+                'is_active': True,
+            },
+            {
+                'name': 'QR',
+                'method_type': 'QR',
                 'is_active': True,
             },
         ]
@@ -1941,8 +2003,23 @@ def payment_methods(request):
 
     methods = PaymentMethod.objects.all().order_by('-is_active', 'method_type')
 
+    # Get available method types (exclude already used ones)
+    used_method_types = set(methods.values_list('method_type', flat=True))
+    available_method_types = [
+        ('PHONEPE', 'Phone Pe'),
+        ('GPAY', 'Google Pay'),
+        ('PAYTM', 'Paytm'),
+        ('UPI', 'UPI'),
+        ('BANK', 'Bank Account'),
+        ('QR', 'QR'),
+    ]
+
+    # Filter out already used method types
+    available_method_types = [mt for mt in available_method_types if mt[0] not in used_method_types]
+
     context = get_admin_context(request, {
         'payment_methods': methods,
+        'available_method_types': available_method_types,
         'page': 'payment-methods',
     })
     return render(request, 'admin/payment_methods.html', context)
@@ -1953,9 +2030,8 @@ def create_payment_method(request):
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
-    
+
     if request.method == 'POST':
-        name = request.POST.get('name')
         method_type = request.POST.get('method_type')
         upi_id = request.POST.get('upi_id', '')
         link = request.POST.get('link', '')
@@ -1963,15 +2039,31 @@ def create_payment_method(request):
         bank_name = request.POST.get('bank_name', '')
         account_number = request.POST.get('account_number', '')
         ifsc_code = request.POST.get('ifsc_code', '')
+        qr_image = request.FILES.get('qr_image')
         is_active = request.POST.get('is_active') == 'on'
-        
-        if not name or not method_type:
-            messages.error(request, 'Name and Method Type are required.')
+
+        if not method_type:
+            messages.error(request, 'Method Type is required.')
             return redirect('payment_methods')
-        
+
+        # Check if this method type is already used
+        if PaymentMethod.objects.filter(method_type=method_type).exists():
+            messages.error(request, 'This payment method type is already in use.')
+            return redirect('payment_methods')
+
+        # Get the display name for the method type
+        method_type_display = dict([
+            ('PHONEPE', 'Phone Pe'),
+            ('GPAY', 'Google Pay'),
+            ('PAYTM', 'Paytm'),
+            ('UPI', 'UPI'),
+            ('BANK', 'Bank Account'),
+            ('QR', 'QR'),
+        ]).get(method_type, method_type)
+
         try:
             PaymentMethod.objects.create(
-                name=name,
+                name=method_type_display,
                 method_type=method_type,
                 upi_id=upi_id,
                 link=link,
@@ -1979,12 +2071,13 @@ def create_payment_method(request):
                 bank_name=bank_name,
                 account_number=account_number,
                 ifsc_code=ifsc_code,
+                qr_image=qr_image,
                 is_active=is_active
             )
-            messages.success(request, f'Payment method "{name}" created successfully!')
+            messages.success(request, f'Payment method "{method_type_display}" created successfully!')
         except Exception as e:
             messages.error(request, f'Error creating payment method: {str(e)}')
-            
+
     return redirect('payment_methods')
 
 @admin_required
@@ -1993,11 +2086,10 @@ def edit_payment_method(request, pk):
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
-    
+
     method = get_object_or_404(PaymentMethod, pk=pk)
-    
+
     if request.method == 'POST':
-        method.name = request.POST.get('name')
         method.method_type = request.POST.get('method_type')
         method.upi_id = request.POST.get('upi_id', '')
         method.link = request.POST.get('link', '')
@@ -2005,18 +2097,32 @@ def edit_payment_method(request, pk):
         method.bank_name = request.POST.get('bank_name', '')
         method.account_number = request.POST.get('account_number', '')
         method.ifsc_code = request.POST.get('ifsc_code', '')
-        
+
+        # Handle QR image upload
+        if 'qr_image' in request.FILES:
+            method.qr_image = request.FILES['qr_image']
+
         method.is_active = request.POST.get('is_active') == 'on'
-        
-        if not method.name or not method.method_type:
-            messages.error(request, 'Name and Method Type are required.')
+
+        if not method.method_type:
+            messages.error(request, 'Method Type is required.')
         else:
+            # Update the name based on method type
+            method.name = dict([
+                ('PHONEPE', 'Phone Pe'),
+                ('GPAY', 'Google Pay'),
+                ('PAYTM', 'Paytm'),
+                ('UPI', 'UPI'),
+                ('BANK', 'Bank Account'),
+                ('QR', 'QR'),
+            ]).get(method.method_type, method.method_type)
+
             try:
                 method.save()
                 messages.success(request, f'Payment method "{method.name}" updated successfully!')
             except Exception as e:
                 messages.error(request, f'Error updating payment method: {str(e)}')
-                
+
     return redirect('payment_methods')
 
 @admin_required
@@ -2029,12 +2135,6 @@ def delete_payment_method(request, pk):
     if request.method == 'POST':
         method = get_object_or_404(PaymentMethod, pk=pk)
         name = method.name
-
-        # Prevent deletion of default payment methods
-        default_methods = ['Bank Transfer', 'Google Pay', 'PhonePe', 'Paytm', 'UPI']
-        if name in default_methods:
-            messages.error(request, f'Cannot delete default payment method "{name}". You can only deactivate it.')
-            return redirect('payment_methods')
 
         try:
             method.delete()

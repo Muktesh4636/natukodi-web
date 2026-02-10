@@ -21,18 +21,114 @@ import com.sikwin.app.ui.theme.*
 
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
+import androidx.compose.ui.platform.LocalContext
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.provider.Telephony
+import android.telephony.SmsMessage
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     viewModel: GunduAtaViewModel,
+    initialReferralCode: String = "",
     onSignUpSuccess: () -> Unit,
     onNavigateToSignIn: () -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
+    val context = LocalContext.current
     var password by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var otpCode by remember { mutableStateOf("") }
+    var referralCode by remember { mutableStateOf(initialReferralCode) }
     var passwordVisible by remember { mutableStateOf(false) }
+    var timerSeconds by remember { mutableIntStateOf(0) }
+
+    // Timer logic
+    LaunchedEffect(timerSeconds) {
+        if (timerSeconds > 0) {
+            kotlinx.coroutines.delay(1000)
+            timerSeconds -= 1
+        }
+    }
+
+    // SMS Receiver
+    DisposableEffect(context) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
+                    val bundle = intent.extras
+                    if (bundle != null) {
+                        try {
+                            val pdus = bundle["pdus"] as Array<*>
+                            for (pdu in pdus) {
+                                val message = SmsMessage.createFromPdu(pdu as ByteArray)
+                                val messageBody = message.messageBody
+                                if (messageBody != null) {
+                                    // Extract OTP (4-6 digits, handle various formats)
+                                    // Try 4-digit OTP first
+                                    var otpPattern = Regex("\\b\\d{4}\\b")
+                                    var match = otpPattern.find(messageBody)
+                                    if (match == null) {
+                                        // Try 6-digit OTP
+                                        otpPattern = Regex("\\b\\d{6}\\b")
+                                        match = otpPattern.find(messageBody)
+                                    }
+                                    if (match == null) {
+                                        // Try OTP after common keywords
+                                        otpPattern = Regex("(?:OTP|otp|code|Code|verification|Verification)[:\\s]+(\\d{4,6})")
+                                        match = otpPattern.find(messageBody)
+                                        if (match != null && match.groupValues.size > 1) {
+                                            otpCode = match.groupValues[1].trim()
+                                        }
+                                    } else {
+                                        otpCode = match.value.trim()
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
+
+        val filter = IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
+        context.registerReceiver(receiver, filter)
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val receiveSmsGranted = permissions[Manifest.permission.RECEIVE_SMS] ?: false
+        val readSmsGranted = permissions[Manifest.permission.READ_SMS] ?: false
+        if (!receiveSmsGranted || !readSmsGranted) {
+            // Handle permission denied
+        }
+    }
+
+    // Request permissions on launch
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            permissionLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))
+        }
+    }
 
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
@@ -80,14 +176,14 @@ fun SignUpScreen(
         
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Username
-        InputFieldLabel("Username")
+        // Phone Number
+        InputFieldLabel("Phone number")
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = phoneNumber,
+            onValueChange = { phoneNumber = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your username", color = TextGrey) },
-            leadingIcon = { Icon(Icons.Default.Person, null, tint = TextGrey) },
+            placeholder = { Text("Please enter your phone number", color = TextGrey) },
+            leadingIcon = { Text("+91", color = TextWhite, modifier = Modifier.padding(start = 12.dp)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
                 unfocusedBorderColor = BorderColor,
@@ -96,7 +192,8 @@ fun SignUpScreen(
                 unfocusedTextColor = TextWhite
             ),
             shape = RoundedCornerShape(8.dp),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone)
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -126,19 +223,20 @@ fun SignUpScreen(
                 unfocusedTextColor = TextWhite
             ),
             shape = RoundedCornerShape(8.dp),
-            singleLine = true
+            singleLine = true,
+            visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation()
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Phone Number
-        InputFieldLabel("Phone number")
+        // Referral Code
+        InputFieldLabel("Referral Code (Optional)")
         OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
+            value = referralCode,
+            onValueChange = { referralCode = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your phone number", color = TextGrey) },
-            leadingIcon = { Text("+91", color = TextWhite, modifier = Modifier.padding(start = 12.dp)) },
+            placeholder = { Text("Please enter referral code", color = TextGrey) },
+            leadingIcon = { Icon(Icons.Default.GroupAdd, null, tint = TextGrey) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
                 unfocusedBorderColor = BorderColor,
@@ -153,24 +251,48 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         // OTP Code
-        InputFieldLabel("OTP code")
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        InputFieldLabel("OTP Code")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             OutlinedTextField(
                 value = otpCode,
                 onValueChange = { otpCode = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("OTP code", color = TextGrey) },
-                leadingIcon = { Icon(Icons.Default.VerifiedUser, null, tint = TextGrey) },
+                placeholder = { Text("Enter 4-digit OTP", color = TextGrey) },
+                leadingIcon = { Icon(Icons.Default.Lock, null, tint = TextGrey) },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = SurfaceColor,
                     unfocusedBorderColor = BorderColor,
-                    focusedBorderColor = PrimaryYellow
+                    focusedBorderColor = PrimaryYellow,
+                    focusedTextColor = TextWhite,
+                    unfocusedTextColor = TextWhite
                 ),
                 shape = RoundedCornerShape(8.dp),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
             )
-            TextButton(onClick = { /* Get OTP */ }) {
-                Text("Get OTP Code", color = TextGrey)
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            Button(
+                onClick = { 
+                    viewModel.sendOtp(phoneNumber)
+                    timerSeconds = 10
+                },
+                enabled = !viewModel.isLoading && phoneNumber.length >= 10 && timerSeconds == 0,
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.height(56.dp)
+            ) {
+                Text(
+                    if (timerSeconds > 0) "Resend in ${timerSeconds}s" 
+                    else if (viewModel.otpSent) "Resend" 
+                    else "Get OTP", 
+                    color = BlackBackground, 
+                    fontSize = 12.sp
+                )
             }
         }
 
@@ -178,14 +300,21 @@ fun SignUpScreen(
 
         Button(
             onClick = { 
-                viewModel.register(mapOf(
-                    "username" to username,
+                // Trim and clean OTP code before sending
+                val cleanOtpCode = otpCode.trim().replace(" ", "").replace("-", "")
+                val registrationData = mutableMapOf(
+                    "username" to phoneNumber.trim(),
                     "password" to password,
                     "password2" to password,
-                    "phone_number" to phoneNumber
-                ))
+                    "phone_number" to phoneNumber.trim(),
+                    "otp_code" to cleanOtpCode
+                )
+                if (referralCode.isNotBlank()) {
+                    registrationData["referral_code"] = referralCode.trim()
+                }
+                viewModel.register(registrationData)
             },
-            enabled = !viewModel.isLoading,
+            enabled = !viewModel.isLoading && password.isNotBlank() && phoneNumber.isNotBlank() && (!viewModel.otpSent || otpCode.isNotBlank()),
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
@@ -193,7 +322,7 @@ fun SignUpScreen(
             Text("Sign-up", color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedButton(
             onClick = onNavigateToSignIn,

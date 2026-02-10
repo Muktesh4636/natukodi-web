@@ -32,9 +32,9 @@ fun TransactionHistoryScreen(
     viewModel: GunduAtaViewModel,
     onBack: () -> Unit
 ) {
-    // Main Categories: Betting, Deposit, Withdraw
-    var selectedCategory by remember { mutableStateOf(initialCategory) }
-    val categories = listOf("Betting", "Deposit", "Withdraw")
+    // Main Categories: Deposit, Withdraw
+    var selectedCategory by remember { mutableStateOf(if (initialCategory == "Betting") "Deposit" else initialCategory) }
+    val categories = listOf("Deposit", "Withdraw")
 
     // Sub-filters for Deposit/Withdraw: All, Success, Failed
     var selectedFilter by remember { mutableStateOf("All") }

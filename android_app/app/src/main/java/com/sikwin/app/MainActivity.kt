@@ -38,12 +38,22 @@ class MainActivity : ComponentActivity() {
                         factory = GunduAtaViewModelFactory(sessionManager)
                     )
                     
-                    // Listen for logout intent and trigger viewModel logout
+                    // Listen for deep links or special intents
                     LaunchedEffect(intent) {
                         if (intent?.getStringExtra("action") == "logout") {
                             viewModel.logout()
-                            navController.navigate("login") {
+                            navController.navigate("home") {
                                 popUpTo(0) { inclusive = true }
+                            }
+                        }
+                        
+                        // Handle referral deep link: https://gunduata.com/signup?ref=CODE
+                        intent?.data?.let { uri ->
+                            if (uri.path == "/signup") {
+                                val refCode = uri.getQueryParameter("ref")
+                                if (!refCode.isNullOrBlank()) {
+                                    navController.navigate("signup?ref=$refCode")
+                                }
                             }
                         }
                     }

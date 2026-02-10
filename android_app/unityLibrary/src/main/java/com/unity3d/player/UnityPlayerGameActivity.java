@@ -196,94 +196,131 @@ public class UnityPlayerGameActivity extends GameActivity
     }
 
     private void sendLoginDataToUnity() {
+        // Fetch LIVE data from SharedPreferences (SessionManager)
+        // This ensures that even if tokens rotate, Unity gets the latest versions
+        android.content.SharedPreferences appPrefs = getSharedPreferences("gunduata_prefs",
+                android.content.Context.MODE_PRIVATE);
+        String _token = appPrefs.getString("auth_token", null);
+        String _refreshToken = appPrefs.getString("refresh_token", null);
+        String _username = appPrefs.getString("username", null);
+        String _password = appPrefs.getString("user_pass", null);
+        String _userId = null;
+
+        // Safely get user_id which might be stored as Int by SessionManager
+        if (appPrefs.contains("user_id")) {
+            Object userIdObj = appPrefs.getAll().get("user_id");
+            if (userIdObj != null) {
+                _userId = String.valueOf(userIdObj);
+            }
+        }
+
+        // Fallback to Intent if Prefs are empty
         Intent intent = getIntent();
-        if (intent != null) {
-            final String token = intent.getStringExtra("token");
-            final String refreshToken = intent.getStringExtra("refresh_token");
-            final String username = intent.getStringExtra("username");
-            final String userId = intent.getStringExtra("user_id");
-            final String password = intent.getStringExtra("password");
+        if (_token == null && intent != null) {
+            _token = intent.getStringExtra("token");
+            _refreshToken = intent.getStringExtra("refresh_token");
+            _username = intent.getStringExtra("username");
+            _userId = intent.getStringExtra("user_id");
+            _password = intent.getStringExtra("password");
+        }
 
-            if (token != null && !token.isEmpty()) {
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("access", token);
-                    json.put("token", token);
-                    json.put("accessToken", token);
-                    json.put("refresh", refreshToken);
-                    json.put("refreshToken", refreshToken);
-                    json.put("username", username);
-                    json.put("user_id", userId);
-                    json.put("password", password);
-                    final String jsonString = json.toString();
+        final String token = _token;
+        final String refreshToken = _refreshToken;
+        final String username = _username;
+        final String userId = _userId;
+        final String password = _password;
 
-                    Log.d("UnityLoginBypass",
-                            "Preparing EXHAUSTIVE SHOTGUN injection for: " + username + " (ID: " + userId + ")");
+        if (token != null && !token.isEmpty()) {
+            // Persistent Autologin: Write directly to SharedPreferences (Unity PlayerPrefs)
+            // This ensures the game sees the user as logged in PRE-INITIALIZATION
+            saveToPlayerPrefs(username, password, token);
 
-                    android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-                    // Prolonged injection: every 500ms for 15 seconds to ensure we hit the right
-                    // moment
-                    for (int i = 0; i < 30; i++) {
-                        final int attempt = i;
-                        final long currentDelay = i * 500L;
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (attempt % 10 == 0) {
-                                    Log.d("UnityLoginBypass", "Shotgun injection batch: " + (attempt * 500) + "ms");
-                                }
+            try {
+                JSONObject json = new JSONObject();
+                json.put("access", token);
+                json.put("token", token);
+                json.put("accessToken", token);
+                json.put("refresh", refreshToken);
+                json.put("refreshToken", refreshToken);
+                json.put("username", username);
+                json.put("user_id", userId);
+                json.put("password", password);
+                final String jsonString = json.toString();
 
-                                // --- TARGET: GameManager ---
-                                UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
-                                UnityPlayer.UnitySendMessage("GameManager", "Login", jsonString);
-                                UnityPlayer.UnitySendMessage("GameManager", "SetToken", token);
-                                UnityPlayer.UnitySendMessage("GameManager", "ReceiveToken", token);
-                                UnityPlayer.UnitySendMessage("GameManager", "SetAuthToken", token);
-                                UnityPlayer.UnitySendMessage("GameManager", "setToken", token);
+                Log.d("UnityLoginBypass",
+                        "Preparing EXHAUSTIVE SHOTGUN injection for: " + username + " (ID: " + userId + ")");
 
-                                // --- TARGET: LoginUIManager ---
-                                UnityPlayer.UnitySendMessage("LoginUIManager", "SetAccessAndRefreshTokens", jsonString);
-                                UnityPlayer.UnitySendMessage("LoginUIManager", "LoginUser", username);
-                                UnityPlayer.UnitySendMessage("LoginUIManager", "OnLoginSuccess", jsonString);
-                                UnityPlayer.UnitySendMessage("LoginUIManager", "AutoLoginIfPossible", "");
-                                UnityPlayer.UnitySendMessage("LoginUIManager", "SetToken", token);
-
-                                // --- TARGET: UIManager ---
-                                UnityPlayer.UnitySendMessage("UIManager", "ShowPanel", "3");
-                                UnityPlayer.UnitySendMessage("UIManager", "ShowPanel", "Gameplay");
-                                UnityPlayer.UnitySendMessage("UIManager", "AutoLoginIfPossible", "");
-                                UnityPlayer.UnitySendMessage("UIManager", "SetAccessAndRefreshTokens", jsonString);
-                                UnityPlayer.UnitySendMessage("UIManager", "OnLoginSuccess", jsonString);
-
-                                // --- TARGET: GameplayUIManager ---
-                                UnityPlayer.UnitySendMessage("GameplayUIManager", "SetAccessAndRefreshTokens",
-                                        jsonString);
-
-                                // --- TARGET: Global Bridge attempts ---
-                                UnityPlayer.UnitySendMessage("Bridge", "SetToken", token);
-                                UnityPlayer.UnitySendMessage("AndroidBridge", "SetToken", token);
-                            }
-                        }, currentDelay);
-                    }
-
-                } catch (Exception e) {
-                    Log.e("UnityLoginBypass", "Error setting up login data injection", e);
-                }
-            } else {
-                // FALLBACK: If no token is provided, force Unity to show the Login panel (index
-                // 0)
-                Log.d("UnityNavigationFix", "No token provided, forcing Login panel (0)");
                 android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-                long[] delays = { 1000, 2000, 3000, 5000 };
-                for (long delay : delays) {
+                // Prolonged injection: every 500ms for 15 seconds to ensure we hit the right
+                // moment
+                for (int i = 0; i < 30; i++) {
+                    final int attempt = i;
+                    final long currentDelay = i * 500L;
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            UnityPlayer.UnitySendMessage("UIManager", "ShowPanel", "0");
+                            if (attempt % 10 == 0) {
+                                Log.d("UnityLoginBypass", "Shotgun injection batch: " + (attempt * 500) + "ms");
+                            }
+
+                            // --- TARGET ALL RELEVANT OBJECTS DISCOVERED IN METADATA ---
+                            // Target: GameManager
+                            UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
+                            UnityPlayer.UnitySendMessage("GameManager", "Login", jsonString);
+                            UnityPlayer.UnitySendMessage("GameManager", "SetToken", token);
+                            UnityPlayer.UnitySendMessage("GameManager", "ReceiveToken", token);
+
+                            // Target: LoginUIManager
+                            UnityPlayer.UnitySendMessage("LoginUIManager", "SetAccessAndRefreshTokens", jsonString);
+                            UnityPlayer.UnitySendMessage("LoginUIManager", "LoginUser", username);
+                            UnityPlayer.UnitySendMessage("LoginUIManager", "OnLoginSuccess", jsonString);
+                            UnityPlayer.UnitySendMessage("LoginUIManager", "AutoLoginIfPossible", "");
+
+                            // Target: UIManager
+                            UnityPlayer.UnitySendMessage("UIManager", "ShowPanel", "3");
+                            UnityPlayer.UnitySendMessage("UIManager", "ShowPanel", "Gameplay");
+                            UnityPlayer.UnitySendMessage("UIManager", "AutoLoginIfPossible", "");
+                            UnityPlayer.UnitySendMessage("UIManager", "SetAccessAndRefreshTokens", jsonString);
+                            UnityPlayer.UnitySendMessage("UIManager", "OnLoginSuccess", jsonString);
+
+                            // --- Fallbacks ---
+                            UnityPlayer.UnitySendMessage("Bridge", "SetToken", token);
+                            UnityPlayer.UnitySendMessage("GameplayUIManager", "SetAccessAndRefreshTokens",
+                                    jsonString);
                         }
-                    }, delay);
+                    }, currentDelay);
                 }
+
+            } catch (Exception e) {
+                Log.e("UnityLoginBypass", "Error setting up login data injection", e);
             }
+        }
+    }
+
+    private void saveToPlayerPrefs(String username, String password, String token) {
+        try {
+            // Unity stores PlayerPrefs in SharedPreferences with name:
+            // [package_name].v2.playerprefs
+            String prefsName = getPackageName() + ".v2.playerprefs";
+            android.content.SharedPreferences prefs = getSharedPreferences(prefsName,
+                    android.content.Context.MODE_PRIVATE);
+            android.content.SharedPreferences.Editor editor = prefs.edit();
+
+            // Internal Unity PlayerPrefs format for strings (sometimes needs type prefix,
+            // but usually standard works)
+            editor.putString("username", username);
+            editor.putString("password", password);
+            editor.putString("token", token);
+
+            // Redundant keys for common variants
+            editor.putString("USERNAME_KEY", username);
+            editor.putString("PASSWORD_KEY", password);
+            editor.putString("access_token", token);
+
+            editor.apply();
+            Log.d("UnityLoginBypass", "Successfully wrote credentials to persistent PlayerPrefs (" + prefsName + ")");
+        } catch (Exception e) {
+            Log.e("UnityLoginBypass", "Failed to write to PlayerPrefs", e);
         }
     }
 

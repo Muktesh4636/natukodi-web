@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6bf8681a1dd69bf4c89d88caf8aa4c6c
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/CharacterValidator.unity
+  uploadId: 485141

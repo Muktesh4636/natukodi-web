@@ -75,27 +75,97 @@ fun PaymentScreen(
         viewModel.clearError()
     }
 
-    fun openUpiApp(packageName: String?) {
-        // Find a UPI ID from payment methods or use a default one for testing
-        val upiId = viewModel.paymentMethods.firstOrNull { it.upi_id != null }?.upi_id ?: "payment@upi"
-        val upiUri = "upi://pay?pa=$upiId&pn=GunduAta&am=$amount&cu=INR"
+    fun openUpiApp(packageName: String?, specificUpiId: String?) {
+        val upiId = specificUpiId ?: viewModel.paymentMethods.firstOrNull { !it.upi_id.isNullOrBlank() }?.upi_id 
         
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(upiUri)
-        
-        if (packageName != null) {
-            intent.setPackage(packageName)
+        if (upiId.isNullOrBlank()) {
+            Toast.makeText(context, "No UPI ID available for payment", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        try {
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, "App not installed", Toast.LENGTH_SHORT).show()
-            // If specific app fails, try opening with chooser
-            if (packageName != null) {
-                val chooserIntent = Intent(Intent.ACTION_VIEW)
-                chooserIntent.data = Uri.parse(upiUri)
-                context.startActivity(Intent.createChooser(chooserIntent, "Pay with"))
+        // Create UPI payment URI
+        val payeeName = "GunduAta"
+        val transactionNote = "Wallet Topup"
+        val upiUri = "upi://pay?pa=$upiId&pn=$payeeName&am=$amount&cu=INR&tn=$transactionNote"
+        
+        // Debug logging
+        android.util.Log.d("PaymentScreen", "Opening UPI app - Package: $packageName, UPI URI: $upiUri")
+        
+        // If package name is provided, try to open that specific app
+        if (packageName != null) {
+            // Check if the app is installed before trying to open
+            val packageManager = context.packageManager
+            try {
+                packageManager.getPackageInfo(packageName, 0)
+                // App is installed, try to open it
+                
+                // For PhonePe, try direct launch without package restriction first
+                if (packageName == "com.phonepe.app") {
+                    // Method 1: Try with package name
+                    try {
+                        val intent1 = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
+                        intent1.setPackage(packageName)
+                        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent1)
+                        return
+                    } catch (e1: Exception) {
+                        // Method 2: Try without package restriction (let Android resolve)
+                        try {
+                            val intent2 = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
+                            intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            // Try to resolve PhonePe specifically
+                            val resolveList = packageManager.queryIntentActivities(intent2, 0)
+                            val phonepeResolve = resolveList.firstOrNull { 
+                                it.activityInfo.packageName == packageName 
+                            }
+                            if (phonepeResolve != null) {
+                                intent2.setClassName(
+                                    phonepeResolve.activityInfo.packageName,
+                                    phonepeResolve.activityInfo.name
+                                )
+                                context.startActivity(intent2)
+                                return
+                            } else {
+                                // Fallback to chooser
+                                context.startActivity(Intent.createChooser(intent2, "Pay with PhonePe"))
+                                return
+                            }
+                        } catch (e2: Exception) {
+                            Toast.makeText(context, "Unable to open PhonePe. Please try again.", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                    }
+                } else {
+                    // For other apps (Google Pay, Paytm), use standard UPI URI
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
+                    intent.setPackage(packageName)
+                    try {
+                        context.startActivity(intent)
+                        return
+                    } catch (e: Exception) {
+                        // If opening with package fails, try without package (let system choose)
+                        val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
+                        try {
+                            context.startActivity(fallbackIntent)
+                            return
+                        } catch (e2: Exception) {
+                            Toast.makeText(context, "Unable to open payment app", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // App is not installed
+                Toast.makeText(context, "Please install ${getAppName(packageName)} app", Toast.LENGTH_LONG).show()
+                return
+            }
+        } else {
+            // No specific package, let system choose
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
+                context.startActivity(Intent.createChooser(intent, "Pay with"))
+            } catch (e: Exception) {
+                Toast.makeText(context, "No UPI app found. Please install a UPI app.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -220,39 +290,46 @@ fun PaymentScreen(
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
-                    PaymentMethodItem(
-                        name = "Paytm",
-                        icon = Icons.Default.Payments, // Use a payment icon
-                        isSelected = selectedMethod == "Paytm",
-                        onClick = { 
-                            selectedMethod = "Paytm"
-                            openUpiApp("net.one97.paytm")
-                        }
-                    )
+                    val activeMethods = viewModel.paymentMethods.filter { it.is_active }
                     
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    PaymentMethodItem(
-                        name = "PhonePe",
-                        icon = Icons.Default.AccountBalanceWallet,
-                        isSelected = selectedMethod == "PhonePe",
-                        onClick = { 
-                            selectedMethod = "PhonePe"
-                            openUpiApp("com.phonepe.app")
+                    if (activeMethods.isEmpty()) {
+                        Text(
+                            "No payment methods available",
+                            color = Color.Gray,
+                            modifier = Modifier.padding(8.dp),
+                            style = androidx.compose.ui.text.TextStyle(fontSize = 14.sp)
+                        )
+                    } else {
+                        // Sort so preferred ones are on top if needed, or keeping backend order
+                        activeMethods.forEach { method ->
+                            val icon = getPaymentIcon(method.name)
+                            PaymentMethodItem(
+                                name = method.name,
+                                icon = icon,
+                                isSelected = selectedMethod == method.name,
+                                onClick = { 
+                                    selectedMethod = method.name
+                                    // Identify package based on name (with improved matching)
+                                    val packageName = getPaymentPackage(method.name)
+                                    // Use specific UPI ID if available
+                                    if (!method.upi_id.isNullOrBlank()) {
+                                        // Debug: Log the method name and detected package
+                                        android.util.Log.d("PaymentScreen", "Method: ${method.name}, Package: $packageName, UPI ID: ${method.upi_id}")
+                                        openUpiApp(packageName, method.upi_id)
+                                    } else {
+                                        // Fallback for non-UPI or if UPI ID missing
+                                        // If it's a Bank method, maybe show a toast or dialog with details
+                                        if (method.type == "BANK") {
+                                            Toast.makeText(context, "Please use Bank Transfer details", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "No UPI ID for this method", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    PaymentMethodItem(
-                        name = "Google Pay",
-                        icon = Icons.Default.AccountBalance,
-                        isSelected = selectedMethod == "Google Pay",
-                        onClick = { 
-                            selectedMethod = "Google Pay"
-                            openUpiApp("com.google.android.apps.nbu.paisa.user")
-                        }
-                    )
+                    }
                 }
             }
 
@@ -378,10 +455,10 @@ fun PaymentMethodItem(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val iconColor = when(name) {
-                "Paytm" -> Color(0xFF00BAF2)
-                "PhonePe" -> Color(0xFF5F259F)
-                "Google Pay" -> Color(0xFF4285F4)
+            val iconColor = when {
+                name.contains("Paytm", ignoreCase = true) -> Color(0xFF00BAF2)
+                name.contains("PhonePe", ignoreCase = true) -> Color(0xFF5F259F)
+                name.contains("Google", ignoreCase = true) -> Color(0xFF4285F4)
                 else -> Color.Gray
             }
             Icon(icon, null, tint = iconColor, modifier = Modifier.size(24.dp))
@@ -400,5 +477,36 @@ fun PaymentMethodItem(
                 modifier = Modifier.size(24.dp)
             )
         }
+    }
+}
+
+// Helpers
+private fun getPaymentIcon(name: String): ImageVector {
+    return when {
+        name.contains("Paytm", ignoreCase = true) -> Icons.Default.Payments
+        name.contains("PhonePe", ignoreCase = true) -> Icons.Default.AccountBalanceWallet
+        name.contains("Google", ignoreCase = true) -> Icons.Default.AccountBalance
+        name.contains("Bhim", ignoreCase = true) -> Icons.Default.QrCode
+        else -> Icons.Default.Payment
+    }
+}
+
+private fun getPaymentPackage(name: String): String? {
+    val lowerName = name.lowercase().replace(" ", "").replace("-", "").replace("_", "")
+    return when {
+        lowerName.contains("paytm") -> "net.one97.paytm"
+        lowerName.contains("phonepe") || lowerName.contains("phone") -> "com.phonepe.app"
+        lowerName.contains("google") || lowerName.contains("gpay") -> "com.google.android.apps.nbu.paisa.user"
+        lowerName.contains("bhim") -> "in.org.npci.upiapp"
+        else -> null 
+    }
+}
+
+private fun getAppName(packageName: String?): String {
+    return when (packageName) {
+        "com.phonepe.app" -> "PhonePe"
+        "com.google.android.apps.nbu.paisa.user" -> "Google Pay"
+        "net.one97.paytm" -> "Paytm"
+        else -> "payment app"
     }
 }

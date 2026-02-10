@@ -28,9 +28,10 @@ import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 fun LoginScreen(
     viewModel: GunduAtaViewModel,
     onLoginSuccess: () -> Unit,
-    onNavigateToSignUp: () -> Unit
+    onNavigateToSignUp: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -66,26 +67,28 @@ fun LoginScreen(
             modifier = Modifier.align(Alignment.Start)
         )
         Text(
-            text = "Please enter your username & password to log in",
+            text = "Please enter your phone number and password to log in",
             style = MaterialTheme.typography.bodyMedium,
             color = TextGrey,
             modifier = Modifier.align(Alignment.Start)
         )
-        
+
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Username
+        // Phone Number
         Text(
-            text = "Username",
+            text = "Phone Number",
             color = TextWhite,
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.Start).padding(bottom = 8.dp)
         )
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = phoneNumber,
+            onValueChange = {
+                phoneNumber = it
+            },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your username", color = TextGrey) },
+            placeholder = { Text("Enter phone number", color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TextGrey) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = PrimaryYellow,
@@ -111,13 +114,13 @@ fun LoginScreen(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your password", color = TextGrey) },
+            placeholder = { Text("Enter your password", color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextGrey) },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = null,
+                        null,
                         tint = TextGrey
                     )
                 }
@@ -135,12 +138,12 @@ fun LoginScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        // Sign-in Button
+        // Login Button
         Button(
-            onClick = { viewModel.login(username, password) },
-            enabled = !viewModel.isLoading,
+            onClick = { viewModel.login(phoneNumber, password) },
+            enabled = !viewModel.isLoading && phoneNumber.isNotEmpty() && password.isNotEmpty(),
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
@@ -166,10 +169,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TextButton(onClick = { /* Forgot account */ }) {
-                Text("Forgot account", color = TextGrey)
-            }
-            TextButton(onClick = { /* Forgot password */ }) {
+            TextButton(onClick = onNavigateToForgotPassword) {
                 Text("Forgot password", color = TextGrey)
             }
         }

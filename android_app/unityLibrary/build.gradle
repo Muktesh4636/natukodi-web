@@ -17,19 +17,19 @@ android {
     namespace "com.unity3d.player"
 //    ndkPath "C:/Program Files/Unity/Hub/Editor/6000.2.10f1/Editor/Data/PlaybackEngines/AndroidPlayer/NDK"
 //    ndkVersion "27.2.12479018"
-    compileSdk 36
-    buildToolsVersion = "36.0.0"
+    compileSdk 34
+    buildToolsVersion = "34.0.0"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
         consumerProguardFiles "proguard-unity.txt"
         versionName "0.1"
-        minSdk 23
-        targetSdk 36
+        minSdk 24
+        targetSdk 34
         versionCode 1
 
         ndk {

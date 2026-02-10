@@ -36,7 +36,6 @@ fun SecurityScreen(
     var showPasswordDialog by remember { mutableStateOf(false) }
     var showPhoneDialog by remember { mutableStateOf(false) }
     var showRealNameDialog by remember { mutableStateOf(false) }
-    var showWithdrawalPasswordDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -86,13 +85,6 @@ fun SecurityScreen(
                 label = "Password",
                 action = "Change",
                 onClick = { showPasswordDialog = true }
-            )
-            HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
-
-            SecurityItem(
-                label = "Withdrawal Password:",
-                action = "Setting",
-                onClick = { showWithdrawalPasswordDialog = true }
             )
             HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
 
@@ -161,16 +153,6 @@ fun SecurityScreen(
             onConfirm = { newName ->
                 viewModel.updateProfile(mapOf("username" to newName))
                 showRealNameDialog = false
-            }
-        )
-    }
-
-    if (showWithdrawalPasswordDialog) {
-        SetWithdrawalPasswordDialog(
-            onDismiss = { showWithdrawalPasswordDialog = false },
-            onConfirm = { password ->
-                viewModel.updateProfile(mapOf("withdrawal_password" to password))
-                showWithdrawalPasswordDialog = false
             }
         )
     }
@@ -379,113 +361,6 @@ fun ChangePasswordDialog(
     }
 }
 
-@Composable
-fun SetWithdrawalPasswordDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
-    var showConfirmPassword by remember { mutableStateOf(false) }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = CardBackground)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Set Withdrawal Password",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextWhite
-                )
-
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Withdrawal Password", color = TextGrey) },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showPassword = !showPassword }) {
-                            Icon(
-                                if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = null,
-                                tint = TextGrey
-                            )
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite,
-                        focusedBorderColor = PrimaryYellow,
-                        unfocusedBorderColor = BorderColor
-                    ),
-                    singleLine = true
-                )
-
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password", color = TextGrey) },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
-                            Icon(
-                                if (showConfirmPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = null,
-                                tint = TextGrey
-                            )
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite,
-                        focusedBorderColor = PrimaryYellow,
-                        unfocusedBorderColor = BorderColor
-                    ),
-                    singleLine = true,
-                    isError = confirmPassword.isNotEmpty() && password != confirmPassword
-                )
-
-                if (confirmPassword.isNotEmpty() && password != confirmPassword) {
-                    Text(
-                        "Passwords do not match",
-                        color = Color.Red,
-                        fontSize = 12.sp
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancel", color = TextGrey)
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = { onConfirm(password) },
-                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
-                        enabled = password.isNotBlank() && password == confirmPassword
-                    ) {
-                        Text("Set", color = Color.Black)
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun SecurityItem(

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8fbdbcfd9c7884933b11256382ad69d1
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Resources/countries.txt
+  uploadId: 485141

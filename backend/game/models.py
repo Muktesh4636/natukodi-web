@@ -61,7 +61,7 @@ class Bet(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        unique_together = ['user', 'round', 'number']  # One bet per number per round per user
+        # Removed unique_together constraint to allow multiple independent bets on same number
 
     def __str__(self):
         return f"{self.user.username} - Round {self.round.round_id} - Number {self.number} - {self.chip_amount}"
@@ -87,6 +87,22 @@ class GameSettings(models.Model):
 
     def __str__(self):
         return f"{self.key}: {self.value}"
+
+
+class RoundPrediction(models.Model):
+    """User predictions/guesses after betting closes (no money involved)"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='round_predictions')
+    round = models.ForeignKey(GameRound, on_delete=models.CASCADE, related_name='predictions')
+    number = models.IntegerField()  # 1-6
+    is_correct = models.BooleanField(default=False)  # Set to True if prediction matches result
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = [('user', 'round')]  # One prediction per user per round
+
+    def __str__(self):
+        return f"{self.user.username} - Round {self.round.round_id} - Predicted {self.number}"
 
 
 class AdminPermissions(models.Model):
