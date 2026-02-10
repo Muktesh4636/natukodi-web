@@ -92,7 +92,7 @@ fun ProfileScreen(
             )
             
             // Quick Actions Grid
-            QuickActionsGrid(onNavigate)
+            QuickActionsGrid(onNavigate, viewModel)
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -288,33 +288,90 @@ fun ProfileHeader(
 }
 
 @Composable
-fun QuickActionsGrid(onNavigate: (String) -> Unit) {
+fun QuickActionsGrid(onNavigate: (String) -> Unit, viewModel: GunduAtaViewModel) {
+    var walletRotationTarget by remember { mutableFloatStateOf(0f) }
+    var isWalletRefreshing by remember { mutableStateOf(false) }
+
+    // Wallet rotation animation
+    val walletRotation by animateFloatAsState(
+        targetValue = walletRotationTarget,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = LinearEasing
+        )
+    )
+
+    // Reset wallet refreshing state after animation completes
+    LaunchedEffect(walletRotation) {
+        if (isWalletRefreshing && walletRotation == walletRotationTarget && walletRotationTarget > 0) {
+            kotlinx.coroutines.delay(100)
+            isWalletRefreshing = false
+        }
+    }
+
+    fun handleWalletRefresh() {
+        if (!isWalletRefreshing) {
+            isWalletRefreshing = true
+            walletRotationTarget += 360f
+            viewModel.fetchWallet()
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        val actions = listOf(
-            QuickAction("My wallet", Icons.Default.AccountBalanceWallet, "wallet"),
-            QuickAction("Withdrawal", Icons.Default.ArrowUpward, "withdraw"),
-            QuickAction("Deposit", Icons.Default.ArrowDownward, "deposit")
-        )
-        
-        actions.forEach { action ->
-            Column(
+        // My wallet action with rotation
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(SurfaceColor)
+                .clickable { handleWalletRefresh() }
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                Icons.Default.AccountBalanceWallet,
+                null,
+                tint = PrimaryYellow,
                 modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(SurfaceColor)
-                    .clickable { onNavigate(action.route) }
-                    .padding(vertical = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(action.icon, null, tint = PrimaryYellow, modifier = Modifier.size(28.dp))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(action.name, color = TextWhite, fontSize = 11.sp)
-            }
+                    .size(28.dp)
+                    .rotate(walletRotation)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("My wallet", color = TextWhite, fontSize = 11.sp)
+        }
+
+        // Other actions remain the same
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(SurfaceColor)
+                .clickable { onNavigate("withdraw") }
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(Icons.Default.ArrowUpward, null, tint = PrimaryYellow, modifier = Modifier.size(28.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Withdrawal", color = TextWhite, fontSize = 11.sp)
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(SurfaceColor)
+                .clickable { onNavigate("deposit") }
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(Icons.Default.ArrowDownward, null, tint = PrimaryYellow, modifier = Modifier.size(28.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Deposit", color = TextWhite, fontSize = 11.sp)
         }
     }
 }
