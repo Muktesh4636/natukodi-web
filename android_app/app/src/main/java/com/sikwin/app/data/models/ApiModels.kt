@@ -23,7 +23,6 @@ data class AuthResponse(
 
 data class Wallet(
     val balance: String,
-    val bonus_balance: String = "0.00",
     val unavaliable_balance: String = "0.00",
     val user: User? = null
 )
