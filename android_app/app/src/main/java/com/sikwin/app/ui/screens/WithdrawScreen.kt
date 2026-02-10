@@ -105,6 +105,33 @@ fun WithdrawScreen(
 
         Divider(color = BorderColor, thickness = 1.dp)
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Wallet Balance Info
+        viewModel.wallet?.let { wallet ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .background(SurfaceColor, RoundedCornerShape(8.dp))
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text("Available Balance", color = TextGrey, fontSize = 12.sp)
+                        Text("₹${wallet.balance}", color = PrimaryYellow, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text("Unavailable Balance", color = TextGrey, fontSize = 12.sp)
+                        Text("₹${wallet.unavaliable_balance}", color = Color.Gray, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
 

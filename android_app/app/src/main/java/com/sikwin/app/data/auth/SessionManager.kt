@@ -54,6 +54,42 @@ class SessionManager(private val context: Context) {
         return prefs.getString(USER_PASS, null)
     }
 
+    fun syncAuthToUnity() {
+        // Sync authentication data to Unity PlayerPrefs for seamless login
+        try {
+            val unityPrefsName = "${context.packageName}.v2.playerprefs"
+            val unityPrefs = context.getSharedPreferences(unityPrefsName, Context.MODE_PRIVATE)
+            
+            val authToken = fetchAuthToken()
+            val username = fetchUsername()
+            val userId = fetchUserId()
+            
+            if (authToken != null) {
+                unityPrefs.edit()
+                    .putString("user_token", authToken)
+                    .putString("auth_token", authToken)
+                    .putString("bearer_token", authToken)
+                    .putString("username", username)
+                    .putString("user_id", userId)
+                    .putString("base_url", "https://gunduata.online")
+                    .putString("api_url", "https://gunduata.online/api/")
+                    .putString("is_logged_in", "true")
+                    .putString("auto_login", "true")
+                    .putString("from_android_app", "true")
+                    .putString("login_method", "android_app")
+                    .putLong("auth_timestamp", System.currentTimeMillis())
+                    .putLong("login_timestamp", System.currentTimeMillis())
+                    .remove("logout_requested")
+                    .remove("logout_timestamp")
+                    .apply()
+                
+                android.util.Log.d("SessionManager", "Synced auth data to Unity PlayerPrefs")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SessionManager", "Failed to sync auth to Unity", e)
+        }
+    }
+    
     fun logout() {
         // Clear Kotlin/Android prefs
         prefs.edit().clear().apply()
@@ -62,8 +98,16 @@ class SessionManager(private val context: Context) {
         try {
             val unityPrefsName = "${context.packageName}.v2.playerprefs"
             val unityPrefs = context.getSharedPreferences(unityPrefsName, Context.MODE_PRIVATE)
-            unityPrefs.edit().clear().apply()
-            android.util.Log.d("SessionManager", "Cleared Unity PlayerPrefs ($unityPrefsName)")
+            
+            // Set logout flags for Unity
+            unityPrefs.edit()
+                .clear()
+                .putString("is_logged_in", "false")
+                .putString("logout_requested", "true")
+                .putLong("logout_timestamp", System.currentTimeMillis())
+                .apply()
+            
+            android.util.Log.d("SessionManager", "Cleared Unity PlayerPrefs and set logout flags")
         } catch (e: Exception) {
             android.util.Log.e("SessionManager", "Failed to clear Unity prefs", e)
         }

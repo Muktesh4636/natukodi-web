@@ -49,6 +49,7 @@ urlpatterns = [
     # Game endpoints (api/game/)
     path('api/game/round/', game_views.current_round, name='current_round'),
     path('api/game/bet/', game_views.place_bet, name='place_bet'),
+    path('api/game/bet/last/', game_views.remove_last_bet, name='remove_last_bet'),
     path('api/game/bet/<int:number>/', game_views.remove_bet, name='remove_bet'),
     path('api/game/bets/', game_views.my_bets, name='my_bets'),
     path('api/game/results/', game_views.round_results, name='round_results'),

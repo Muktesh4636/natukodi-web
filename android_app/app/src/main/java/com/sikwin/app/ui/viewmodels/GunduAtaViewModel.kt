@@ -24,7 +24,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     }
 
     private fun parseError(errorBody: String?): String {
-        if (errorBody.isNullOrEmpty()) return "Unknown error"
+        if (errorBody.isNullOrEmpty()) return "Something went wrong. Please try again."
         return try {
             val json = JSONObject(errorBody)
             when {
@@ -39,16 +39,41 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         val value = json.get(firstKey)
                         if (value is org.json.JSONArray && value.length() > 0) {
                             value.getString(0)
+                        } else if (value is org.json.JSONObject) {
+                            // Nested object error
+                            val nestedKeys = value.keys()
+                            if (nestedKeys.hasNext()) {
+                                val firstNestedKey = nestedKeys.next()
+                                val nestedValue = value.get(firstNestedKey)
+                                if (nestedValue is org.json.JSONArray && nestedValue.length() > 0) {
+                                    nestedValue.getString(0)
+                                } else {
+                                    nestedValue.toString()
+                                }
+                            } else {
+                                "Invalid input in $firstKey"
+                            }
                         } else {
                             value.toString()
                         }
                     } else {
-                        errorBody
+                        "An unexpected error occurred."
                     }
                 }
             }
         } catch (e: Exception) {
-            errorBody
+            "An unexpected error occurred. Please try again later."
+        }
+    }
+
+    private fun handleException(e: Exception): String {
+        android.util.Log.e("GunduAtaViewModel", "Exception: ${e.message}", e)
+        return when (e) {
+            is java.net.UnknownHostException -> "No internet connection. Please check your network."
+            is java.net.SocketTimeoutException -> "Connection timed out. Please try again."
+            is java.net.ConnectException -> "Unable to connect to server. Please try again later."
+            is retrofit2.HttpException -> "Server error. Please try again later."
+            else -> "An unexpected error occurred. Please try again."
         }
     }
     
@@ -96,14 +121,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = if (!errorBody.isNullOrEmpty()) {
-                        "Login failed: $errorBody"
-                    } else {
-                        "Login failed: ${response.message()}"
-                    }
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -121,10 +142,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     errorMessage = null
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Failed to send OTP: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -154,10 +175,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "OTP verification failed: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
