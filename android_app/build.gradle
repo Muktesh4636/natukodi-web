@@ -15,7 +15,7 @@ allprojects {
         google()
         mavenCentral()
         flatDir {
-            dirs "libs"
+            dirs "libs", "../unityLibrary/libs", "unityLibrary/libs"
         }
     }
 }

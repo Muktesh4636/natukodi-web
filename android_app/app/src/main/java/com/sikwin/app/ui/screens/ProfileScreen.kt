@@ -140,8 +140,10 @@ fun ProfileScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 Button(
-                    onClick = { 
+                    onClick = {
                         viewModel.logout()
+                        // Clear Unity authentication data
+                        viewModel.clearUnityAuthentication(context)
                         onNavigate("home")
                     },
                     modifier = Modifier

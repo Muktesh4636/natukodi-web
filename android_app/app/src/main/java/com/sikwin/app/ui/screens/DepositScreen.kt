@@ -84,32 +84,6 @@ fun DepositScreen(
             )
         }
 
-        // Balance Section
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Balance", color = TextGrey, fontSize = 18.sp)
-                Spacer(modifier = Modifier.width(8.dp))
-                IconButton(onClick = { viewModel.fetchWallet() }) {
-                    Icon(Icons.Default.Refresh, null, tint = TextWhite, modifier = Modifier.size(20.dp))
-                }
-            }
-            Text("₹ ${viewModel.wallet?.balance ?: "0.00"}", color = PrimaryYellow, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            OutlinedButton(
-                onClick = onNavigateToWithdraw,
-                border = BorderStroke(1.dp, PrimaryYellow),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Text("Withdrawal", color = PrimaryYellow)
-            }
-        }
-
-        Divider(color = BorderColor, thickness = 8.dp)
 
         // Payment Method
         Column(modifier = Modifier.padding(16.dp)) {

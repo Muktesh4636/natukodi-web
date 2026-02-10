@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,7 +43,6 @@
             </intent-filter>
         </activity>
 
-        <!--
         <activity
             android:name="com.unity3d.player.UnityPlayerGameActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
@@ -53,11 +53,11 @@
             android:process=":unity"
             android:resizeableActivity="true"
             android:screenOrientation="fullUser"
+            tools:replace="android:hardwareAccelerated,android:theme"
             android:theme="@style/BaseUnityGameActivityTheme">
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="android.app.lib_name" android:value="game" />
         </activity>
-        -->
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -120,7 +120,7 @@ fun LuckyWheelScreen(
         WheelItem("₹20", Color(0xFFFFD700)),   // Gold
         WheelItem("₹10", Color(0xFF32CD32)),   // Lime Green
         WheelItem("₹5", Color(0xFF00CED1)),    // Dark Turquoise
-        WheelItem("₹0", Color(0xFFC0C0C0))     // Silver
+        WheelItem("Better luck\nnext time", Color(0xFFC0C0C0))     // Silver
     )
 
     fun performSpin() {
@@ -143,7 +143,7 @@ fun LuckyWheelScreen(
                         else -> 6 // ₹0
                     }
 
-                    lastResult = if (type == "MONEY") "₹$amount" else "₹0"
+                    lastResult = if (type == "MONEY") "₹$amount" else "Better luck next time"
 
                     // Calculate spin animation
                     val extraRotations = 10 + Random.nextInt(5)
@@ -162,8 +162,8 @@ fun LuckyWheelScreen(
                     rotationAngle += (extraRotations * 360) + angleDiff
                 } else {
                     // On error, show a default result
-                    val targetIndex = 6 // ₹0
-                    lastResult = "₹0"
+                    val targetIndex = 6 // Better luck next time
+                    lastResult = "Better luck next time"
 
                     val extraRotations = 10 + Random.nextInt(5)
                     val degreesPerSegment = 360f / wheelItems.size
@@ -204,7 +204,7 @@ fun LuckyWheelScreen(
             onDismissRequest = { showResultDialog = false },
             title = { Text("Result", fontWeight = FontWeight.Bold) },
             text = {
-                val message = if (lastResult == "₹0") {
+                val message = if (lastResult == "Better luck next time") {
                     "Better luck next time! Try again tomorrow."
                 } else {
                     "Congratulations! You won $lastResult"

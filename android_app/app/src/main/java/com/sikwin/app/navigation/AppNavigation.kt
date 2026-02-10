@@ -84,34 +84,48 @@ fun AppNavigation(
             try {
                 val intent = Intent(context, UnityPlayerGameActivity::class.java)
 
-                // Pass authentication data to Unity via Intent extras
+                // Pass comprehensive authentication data to Unity via Intent extras
                 val authToken = sessionManager.fetchAuthToken()
                 val username = sessionManager.fetchUsername()
                 val userId = sessionManager.fetchUserId()
 
                 intent.putExtra("auth_token", authToken)
+                intent.putExtra("bearer_token", authToken) // Alternative format
                 intent.putExtra("user_token", authToken)
                 intent.putExtra("username", username)
                 intent.putExtra("user_id", userId)
                 intent.putExtra("base_url", "https://gunduata.online")
+                intent.putExtra("api_url", "https://gunduata.online/api/")
                 intent.putExtra("is_logged_in", true)
+                intent.putExtra("auto_login", true) // Flag for Unity to auto-login
                 intent.putExtra("from_android_app", true)
+                intent.putExtra("login_method", "android_app")
+                intent.putExtra("auth_timestamp", System.currentTimeMillis())
+                intent.putExtra("login_timestamp", System.currentTimeMillis())
 
-                // Store in Unity PlayerPrefs for persistence
+                // Store in Unity PlayerPrefs for persistence and auto-login
                 try {
                     val unityPrefsName = "${context.packageName}.v2.playerprefs"
                     val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
                     unityPrefs.edit().clear().apply() // Clear existing
+
                     unityPrefs.edit()
                         .putString("user_token", authToken)
                         .putString("auth_token", authToken)
+                        .putString("bearer_token", authToken) // Additional format
                         .putString("username", username)
                         .putString("user_id", userId)
                         .putString("base_url", "https://gunduata.online")
+                        .putString("api_url", "https://gunduata.online/api/")
                         .putString("is_logged_in", "true")
+                        .putString("auto_login", "true") // Flag for Unity to auto-login
                         .putString("from_android_app", "true")
+                        .putString("login_method", "android_app")
                         .putLong("auth_timestamp", System.currentTimeMillis())
+                        .putLong("login_timestamp", System.currentTimeMillis())
                         .apply()
+
+                    android.util.Log.d("AppNavigation", "Unity auth data set: user=$username, token=${authToken?.take(10)}...")
                 } catch (e: Exception) {
                     android.util.Log.e("AppNavigation", "Failed to set Unity PlayerPrefs", e)
                 }

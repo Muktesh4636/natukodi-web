@@ -38,7 +38,6 @@ fun WithdrawScreen(
         viewModel.fetchWallet()
     }
 
-    val balance = viewModel.wallet?.balance ?: "0.00"
     val bankAccounts = viewModel.bankDetails
     
     var amount by remember { mutableStateOf("") }
@@ -108,42 +107,6 @@ fun WithdrawScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Balance Section
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Account balance",
-                    color = TextWhite,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, BorderColor, RoundedCornerShape(4.dp)),
-                color = SurfaceColor,
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Available balance:", color = TextGrey, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("₹ $balance", color = TextWhite, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         if (bankAccounts.isEmpty()) {
             // No Bank account added

@@ -684,4 +684,22 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         errorMessage = null
         loginSuccess = false
     }
+
+    fun clearUnityAuthentication(context: android.content.Context) {
+        try {
+            // Clear Unity PlayerPrefs
+            val unityPrefsName = "${context.packageName}.v2.playerprefs"
+            val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
+            unityPrefs.edit().clear().apply()
+
+            // Also set logout flag for Unity
+            unityPrefs.edit()
+                .putString("is_logged_in", "false")
+                .putString("logout_requested", "true")
+                .putLong("logout_timestamp", System.currentTimeMillis())
+                .apply()
+        } catch (e: Exception) {
+            // Ignore errors when clearing Unity prefs
+        }
+    }
 }
