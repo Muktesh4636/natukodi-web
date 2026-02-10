@@ -21,6 +21,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
+        
+        # Validate referral code format if provided
+        referral_code = attrs.get('referral_code')
+        if referral_code:
+            referral_code = referral_code.strip().upper()
+            # Check if referral code exists and is valid
+            if not User.objects.filter(referral_code=referral_code).exists():
+                raise serializers.ValidationError({
+                    "referral_code": "Invalid referral code. Please check and try again."
+                })
+            attrs['referral_code'] = referral_code
+        
         return attrs
 
     def create(self, validated_data):
@@ -29,18 +41,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         user = User.objects.create_user(**validated_data)
         
-        # Handle referral
+        # Handle referral - ensure referral code is valid and not tied to worker
         if referral_code:
+            referral_code = referral_code.strip().upper()
             try:
                 referrer = User.objects.get(referral_code=referral_code)
-                user.referred_by = referrer
-                user.save()
+                # Ensure referrer is not a worker/professional (referral is independent of worker system)
+                # Only set referred_by if referrer exists and has a valid referral code
+                if referrer.referral_code and referrer.referral_code == referral_code:
+                    user.referred_by = referrer
+                    user.save()
             except User.DoesNotExist:
+                # Invalid referral code - user can still register but won't be referred
                 pass
         
-        # Generate own referral code
-        import uuid
-        user.referral_code = str(uuid.uuid4())[:8].upper()
+        # Generate unique referral code (independent of worker/professional system)
+        # The save() method will automatically generate a unique code if missing
+        if not user.referral_code:
+            user.referral_code = user.generate_unique_referral_code()
         user.save()
 
         # Wallet is automatically created by signal (accounts.signals.create_user_wallet)
@@ -96,6 +114,7 @@ class DepositRequestSerializer(serializers.ModelSerializer):
             'amount',
             'status',
             'screenshot_url',
+            'payment_method',
             'admin_note',
             'created_at',
             'updated_at',

@@ -219,15 +219,17 @@ fun AppNavigation(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNavigateToWithdraw = { navController.navigate("withdraw") },
-                onNavigateToPayment = { amount ->
-                    navController.navigate("payment/$amount")
+                onNavigateToPayment = { amount, method ->
+                    navController.navigate("payment/$amount/$method")
                 }
             )
         }
-        composable("payment/{amount}") { backStackEntry ->
+        composable("payment/{amount}/{method}") { backStackEntry ->
             val amount = backStackEntry.arguments?.getString("amount") ?: "0"
+            val method = backStackEntry.arguments?.getString("method") ?: "UPI"
             PaymentScreen(
                 amount = amount,
+                paymentMethod = method,
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onSubmitSuccess = {
@@ -335,6 +337,11 @@ fun AppNavigation(
         }
         composable("help_center") {
             HelpCenterScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("game_guidelines") {
+            GameGuidelinesScreen(
                 onBack = { navController.popBackStack() }
             )
         }

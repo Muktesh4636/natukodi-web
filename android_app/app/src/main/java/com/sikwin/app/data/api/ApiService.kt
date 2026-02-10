@@ -65,6 +65,9 @@ interface ApiService {
 
     @POST("auth/bank-details/")
     suspend fun addBankDetail(@Body data: @JvmSuppressWildcards Map<String, Any>): Response<UserBankDetail>
+    
+    @GET("auth/referral-data/")
+    suspend fun getReferralData(): Response<ReferralData>
 
     @GET("auth/daily-reward/")
     suspend fun checkDailyRewardStatus(): Response<Map<String, Any>>

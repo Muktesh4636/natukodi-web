@@ -121,44 +121,24 @@ fun WithdrawScreen(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    "Daily withdrawal number: 5",
-                    color = TextGrey,
-                    fontSize = 14.sp
-                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-                    .border(1.dp, BorderColor, RoundedCornerShape(4.dp))
-                    .background(SurfaceColor)
+                    .border(1.dp, BorderColor, RoundedCornerShape(4.dp)),
+                color = SurfaceColor,
+                shape = RoundedCornerShape(4.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Available:", color = TextGrey, fontSize = 14.sp)
+                    Text("Available balance:", color = TextGrey, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(balance, color = TextWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                }
-                
-                Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(BorderColor))
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Unavailable:", color = TextGrey, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("0.00", color = TextWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("₹ $balance", color = TextWhite, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

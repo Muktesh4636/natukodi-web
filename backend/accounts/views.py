@@ -636,10 +636,19 @@ def upload_deposit_proof(request):
 
     # Create deposit request with PENDING status - no wallet credit yet
     try:
+        payment_method_id = request.data.get('payment_method_id')
+        payment_method = None
+        if payment_method_id:
+            try:
+                payment_method = PaymentMethod.objects.get(id=payment_method_id)
+            except PaymentMethod.DoesNotExist:
+                pass
+
         deposit = DepositRequest.objects.create(
             user=request.user,
             amount=amount,
             screenshot=screenshot,
+            payment_method=payment_method,
             status='PENDING',
         )
         logger.info(f"Deposit request created: ID {deposit.id} for user {request.user.username}, amount: {amount}")
@@ -689,10 +698,19 @@ def submit_utr(request):
 
     # Create deposit request with PENDING status and UTR (no screenshot)
     try:
+        payment_method_id = request.data.get('payment_method_id')
+        payment_method = None
+        if payment_method_id:
+            try:
+                payment_method = PaymentMethod.objects.get(id=payment_method_id)
+            except PaymentMethod.DoesNotExist:
+                pass
+
         deposit = DepositRequest.objects.create(
             user=request.user,
             amount=amount,
             payment_reference=utr,
+            payment_method=payment_method,
             status='PENDING',
         )
         logger.info(f"Deposit request (UTR) created: ID {deposit.id} for user {request.user.username}, amount: {amount}, UTR: {utr}")
@@ -786,6 +804,12 @@ def approve_deposit_request(request, pk):
                         description=f"Referral bonus from {deposit.user.username}'s deposit of ₹{deposit.amount}",
                     )
                     logger.info(f"Referral bonus of ₹{bonus_amount} granted to {referrer.username} for {deposit.user.username}'s deposit")
+                    
+                    # Check and award milestone bonus if applicable
+                    from .referral_logic import check_and_award_milestone_bonus
+                    milestone_awarded = check_and_award_milestone_bonus(referrer)
+                    if milestone_awarded:
+                        logger.info(f"Milestone bonus awarded to {referrer.username}")
     except DepositRequest.DoesNotExist:
         logger.error(f"Admin {request.user.username} failed to approve deposit {pk}: Not found")
         return Response({'error': 'Deposit request not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -1113,8 +1137,67 @@ def daily_reward_history(request):
             'claimed_at': reward.claimed_at
         })
 
+        return Response({
+            'rewards': reward_data
+        })
+
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def referral_data(request):
+    """Get referral statistics and milestone information"""
+    from django.db.models import Count, Sum, Q
+    from .referral_logic import calculate_milestone_bonus, get_next_milestone
+    
+    user = request.user
+    
+    # Count total referrals (users who signed up using this user's referral code)
+    total_referrals = User.objects.filter(referred_by=user).count()
+    
+    # Count active referrals (referrals who have made at least one deposit)
+    active_referrals = User.objects.filter(
+        referred_by=user,
+        deposit_requests__status='APPROVED'
+    ).distinct().count()
+    
+    # Calculate total earnings from referral bonuses
+    referral_transactions = Transaction.objects.filter(
+        user=user,
+        transaction_type='REFERRAL_BONUS'
+    )
+    total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
+    
+    # Get current milestone bonus
+    current_milestone_bonus = calculate_milestone_bonus(total_referrals)
+    
+    # Get next milestone info
+    next_milestone_info = get_next_milestone(total_referrals)
+    
+    # Get list of achieved milestones
+    milestones = [
+        {'count': 3, 'bonus': 500, 'achieved': total_referrals >= 3},
+        {'count': 5, 'bonus': 1000, 'achieved': total_referrals >= 5},
+        {'count': 10, 'bonus': 2500, 'achieved': total_referrals >= 10},
+        {'count': 20, 'bonus': 5000, 'achieved': total_referrals >= 20},
+        {'count': 50, 'bonus': 15000, 'achieved': total_referrals >= 50},
+        {'count': 100, 'bonus': 50000, 'achieved': total_referrals >= 100},
+    ]
+    
+    # Get recent referral bonuses (last 10)
+    recent_bonuses = referral_transactions.order_by('-created_at')[:10].values(
+        'amount', 'description', 'created_at'
+    )
+    
     return Response({
-        'rewards': reward_data
+        'referral_code': user.referral_code or '',
+        'total_referrals': total_referrals,
+        'active_referrals': active_referrals,
+        'total_earnings': str(total_earnings),
+        'current_milestone_bonus': str(current_milestone_bonus),
+        'next_milestone': next_milestone_info,
+        'milestones': milestones,
+        'recent_bonuses': list(recent_bonuses)
     })
 
 

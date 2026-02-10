@@ -1,5 +1,6 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.foundation.text.selection.SelectionContainer
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 import android.net.Uri
@@ -36,12 +37,34 @@ import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 @Composable
 fun PaymentScreen(
     amount: String,
+    paymentMethod: String = "UPI",
     viewModel: GunduAtaViewModel,
     onBack: () -> Unit,
     onSubmitSuccess: () -> Unit
 ) {
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedMethod by remember { mutableStateOf("Paytm") }
+    
+    val usdtExchangeRate = 95
+    val usdtBonusPercent = 0.05
+    
+    val isUsdt = paymentMethod.contains("USDT", ignoreCase = true)
+    
+    val usdtAmount = if (isUsdt) {
+        try {
+            amount.toDouble() / usdtExchangeRate
+        } catch (e: Exception) {
+            0.0
+        }
+    } else 0.0
+
+    val bonusAmount = if (isUsdt) {
+        try {
+            amount.toDouble() * usdtBonusPercent
+        } catch (e: Exception) {
+            0.0
+        }
+    } else 0.0
     
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -226,8 +249,26 @@ fun PaymentScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
+            if (isUsdt) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    color = Color(0xFFE8F5E9),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, Color(0xFF4CAF50))
+                ) {
+                    Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("USDT Amount to Pay:", color = Color.Black, fontSize = 14.sp)
+                        Text("${String.format("%.2f", usdtAmount)} USDT", color = Color(0xFF2E7D32), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        Text("Exchange Rate: 1 USDT = ₹$usdtExchangeRate", color = Color.Gray, fontSize = 12.sp)
+                        if (bonusAmount > 0) {
+                            Text("Bonus: ₹${String.format("%.2f", bonusAmount)} (5%) will be added!", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+                    }
+                }
+            }
+
             Text(
-                "Please fill in UTR after successful payment",
+                if (isUsdt) "Please transfer USDT to the address below" else "Please fill in UTR after successful payment",
                 color = Color.Black,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -240,24 +281,80 @@ fun PaymentScreen(
                 modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
             )
 
-            // QR Code Placeholder
+            // QR Code Placeholder or USDT Address
             Surface(
                 modifier = Modifier
-                    .size(200.dp)
-                    .border(1.dp, Color.LightGray),
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)),
                 color = Color.White
             ) {
                 Column(
+                    modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // This would be the actual QR code image
-                    Icon(
-                        Icons.Default.QrCode2,
-                        contentDescription = "QR Code",
-                        modifier = Modifier.size(150.dp),
-                        tint = Color.Black
-                    )
+                    if (isUsdt) {
+                        val network = if (paymentMethod.contains("TRC20", ignoreCase = true)) "TRC20" else "BEP20"
+                        val usdtMethod = viewModel.paymentMethods.firstOrNull { 
+                            it.type.contains("USDT", ignoreCase = true) && it.type.contains(network, ignoreCase = true)
+                        }
+                        val address = usdtMethod?.upi_id ?: "Please contact support for address"
+                        
+                        Text("Network: $network", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        // QR Code for USDT if available
+                        if (usdtMethod?.qr_code != null) {
+                            AsyncImage(
+                                model = usdtMethod.qr_code,
+                                contentDescription = "USDT QR Code",
+                                modifier = Modifier.size(150.dp)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.QrCode2,
+                                contentDescription = "QR Code",
+                                modifier = Modifier.size(120.dp),
+                                tint = Color.Black
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Wallet Address:", color = Color.Gray, fontSize = 12.sp)
+                        SelectionContainer {
+                            Text(
+                                address,
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                        
+                        Button(
+                            onClick = { 
+                                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                val clip = android.content.ClipData.newPlainText("USDT Address", address)
+                                clipboard.setPrimaryClip(clip)
+                                Toast.makeText(context, "Address copied to clipboard", Toast.LENGTH_SHORT).show()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Copy Address")
+                        }
+                    } else {
+                        // UPI QR
+                        Icon(
+                            Icons.Default.QrCode2,
+                            contentDescription = "QR Code",
+                            modifier = Modifier.size(150.dp),
+                            tint = Color.Black
+                        )
+                    }
                 }
             }
 

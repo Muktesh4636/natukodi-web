@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/auth/profile/', accounts_views.profile, name='profile'),
     path('api/auth/profile/photo/', accounts_views.update_profile_photo, name='update_profile_photo'),
+    path('api/auth/referral-data/', accounts_views.referral_data, name='referral_data'),
     path('api/auth/wallet/', accounts_views.wallet, name='wallet'),
     path('api/auth/transactions/', accounts_views.TransactionList.as_view(), name='transactions'),
     path('api/auth/extract-utr/', accounts_views.extract_utr, name='extract_utr'),

@@ -50,6 +50,8 @@ fun HomeScreen(
     onGameClick: (String) -> Unit,
     onNavigate: (String) -> Unit
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    
     // Pass onNavigate to PromotionalBanners
     PromotionalBanners(onNavigate)
     LaunchedEffect(Unit) {
@@ -77,14 +79,44 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Search Bar
-            SearchBar()
+            SearchBar(onSearch = { searchQuery = it })
             
-            // Banners
-            PromotionalBanners(onNavigate)
-            
-            // Hot Games
-            SectionHeader(title = "Hot games")
-            HotGamesGrid(onGameClick)
+            if (searchQuery.isEmpty()) {
+                // Banners
+                PromotionalBanners(onNavigate)
+                
+                // Hot Games
+                SectionHeader(title = "Hot games")
+                HotGamesGrid(onGameClick)
+            } else {
+                // Search Results
+                SectionHeader(title = "Search Results")
+                val games = listOf(
+                    GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0))
+                ).filter { it.name.contains(searchQuery, ignoreCase = true) }
+                
+                if (games.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        games.forEach { game ->
+                            GameCard(game, Modifier.fillMaxWidth(0.5f), onGameClick)
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No games found for \"$searchQuery\"", color = TextGrey)
+                    }
+                }
+            }
             
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -107,7 +139,8 @@ fun HomeTopBar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onNavigate("gundu_ata") }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.app_logo),
@@ -185,15 +218,30 @@ fun HomeTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar() {
+fun SearchBar(onSearch: (String) -> Unit) {
+    var searchQuery by remember { mutableStateOf("") }
+    
     OutlinedTextField(
-        value = "",
-        onValueChange = {},
+        value = searchQuery,
+        onValueChange = { 
+            searchQuery = it
+            onSearch(it)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        placeholder = { Text("Search", color = TextGrey) },
+        placeholder = { Text("Search games...", color = TextGrey) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextWhite) },
+        trailingIcon = {
+            if (searchQuery.isNotEmpty()) {
+                IconButton(onClick = { 
+                    searchQuery = ""
+                    onSearch("")
+                }) {
+                    Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextGrey)
+                }
+            }
+        },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             containerColor = SurfaceColor,
             unfocusedBorderColor = Color.Transparent,

@@ -27,11 +27,31 @@ fun DepositScreen(
     viewModel: GunduAtaViewModel,
     onBack: () -> Unit,
     onNavigateToWithdraw: () -> Unit,
-    onNavigateToPayment: (String) -> Unit
+    onNavigateToPayment: (String, String) -> Unit
 ) {
     var amount by remember { mutableStateOf("") }
-    var selectedMethod by remember { mutableStateOf("UPI") } // "Bank" or "UPI"
+    var selectedMethod by remember { mutableStateOf("UPI") } // "Bank", "UPI", or "USDT"
     var selectedOption by remember { mutableStateOf("upi(200-10k)") }
+
+    val usdtExchangeRate = 95
+    val usdtMinDeposit = 1000
+    val usdtBonusPercent = 0.05
+
+    val usdtAmount = if (selectedMethod == "USDT" && amount.isNotBlank()) {
+        try {
+            amount.toDouble() / usdtExchangeRate
+        } catch (e: Exception) {
+            0.0
+        }
+    } else 0.0
+
+    val bonusAmount = if (selectedMethod == "USDT" && amount.isNotBlank()) {
+        try {
+            amount.toDouble() * usdtBonusPercent
+        } catch (e: Exception) {
+            0.0
+        }
+    } else 0.0
 
     LaunchedEffect(Unit) {
         viewModel.fetchWallet()
@@ -96,9 +116,20 @@ fun DepositScreen(
             Text("Payment method", color = TextGrey, fontSize = 16.sp)
             
             Row(modifier = Modifier.padding(vertical = 12.dp)) {
-                PaymentTab("Bank", selectedMethod == "Bank") { selectedMethod = "Bank" }
+                PaymentTab("Bank", selectedMethod == "Bank") { 
+                    selectedMethod = "Bank"
+                    selectedOption = "bank"
+                }
                 Spacer(modifier = Modifier.width(16.dp))
-                PaymentTab("UPI", selectedMethod == "UPI") { selectedMethod = "UPI" }
+                PaymentTab("UPI", selectedMethod == "UPI") { 
+                    selectedMethod = "UPI"
+                    selectedOption = "upi(200-10k)"
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                PaymentTab("USDT", selectedMethod == "USDT") { 
+                    selectedMethod = "USDT"
+                    selectedOption = "usdt_trc20"
+                }
             }
 
             // Payment Options Grid
@@ -106,10 +137,17 @@ fun DepositScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (selectedMethod == "UPI") {
-                    PaymentOptionCard("upi (200-10k)", selectedOption == "upi(200-10k)") { selectedOption = "upi(200-10k)" }
-                } else {
-                    PaymentOptionCard("BANK(200-200k)", selectedOption == "bank") { selectedOption = "bank" }
+                when (selectedMethod) {
+                    "UPI" -> {
+                        PaymentOptionCard("upi (200-10k)", selectedOption == "upi(200-10k)") { selectedOption = "upi(200-10k)" }
+                    }
+                    "Bank" -> {
+                        PaymentOptionCard("BANK(200-200k)", selectedOption == "bank") { selectedOption = "bank" }
+                    }
+                    "USDT" -> {
+                        PaymentOptionCard("USDT (TRC20)", selectedOption == "usdt_trc20") { selectedOption = "usdt_trc20" }
+                        PaymentOptionCard("USDT (BEP20)", selectedOption == "usdt_bep20") { selectedOption = "usdt_bep20" }
+                    }
                 }
             }
         }
@@ -119,12 +157,29 @@ fun DepositScreen(
         // Deposit Amount
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Deposit amount", color = TextGrey, fontSize = 16.sp)
-            Text(
-                "Enter the amount and click confirm, the payment information will be displayed.",
-                color = Color.Red,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+            
+            if (selectedMethod == "USDT") {
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    color = PrimaryYellow.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, PrimaryYellow)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("USDT Deposit Info:", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("• Exchange Rate: 1 USDT = ₹$usdtExchangeRate", color = TextWhite, fontSize = 13.sp)
+                        Text("• Minimum Deposit: ₹$usdtMinDeposit", color = TextWhite, fontSize = 13.sp)
+                        Text("• Bonus: 5% Extra Cashback", color = GreenSuccess, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+                }
+            } else {
+                Text(
+                    "Enter the amount and click confirm, the payment information will be displayed.",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
             
             OutlinedTextField(
                 value = amount,
@@ -141,6 +196,11 @@ fun DepositScreen(
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Please enter the deposit amount", color = TextGrey) },
                 leadingIcon = { Text("₹", color = TextGrey, fontSize = 20.sp, modifier = Modifier.padding(start = 12.dp)) },
+                suffix = {
+                    if (selectedMethod == "USDT" && usdtAmount > 0) {
+                        Text("≈ ${String.format("%.2f", usdtAmount)} USDT", color = PrimaryYellow, fontSize = 14.sp)
+                    }
+                },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
                 unfocusedBorderColor = BorderColor,
@@ -151,6 +211,15 @@ fun DepositScreen(
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
+
+            if (selectedMethod == "USDT" && bonusAmount > 0) {
+                Text(
+                    "You will receive extra ₹${String.format("%.2f", bonusAmount)} cashback!",
+                    color = GreenSuccess,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
             
@@ -174,7 +243,11 @@ fun DepositScreen(
             Button(
                 onClick = { 
                     if (amount.isNotBlank()) {
-                        onNavigateToPayment(amount)
+                        if (selectedMethod == "USDT" && amount.toInt() < usdtMinDeposit) {
+                            viewModel.errorMessage = "Minimum deposit for USDT is ₹$usdtMinDeposit"
+                            return@Button
+                        }
+                        onNavigateToPayment(amount, selectedOption)
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),

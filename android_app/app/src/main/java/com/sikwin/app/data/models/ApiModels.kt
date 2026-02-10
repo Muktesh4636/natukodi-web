@@ -77,6 +77,36 @@ data class PaymentMethod(
     val is_active: Boolean
 )
 
+data class ReferralData(
+    val referral_code: String,
+    val total_referrals: Int,
+    val active_referrals: Int,
+    val total_earnings: String,
+    val current_milestone_bonus: String,
+    val next_milestone: NextMilestone?,
+    val milestones: List<Milestone>,
+    val recent_bonuses: List<RecentBonus>
+)
+
+data class NextMilestone(
+    val next_milestone: Int?,
+    val next_bonus: Double,
+    val current_progress: Int,
+    val progress_percentage: Double
+)
+
+data class Milestone(
+    val count: Int,
+    val bonus: Int,
+    val achieved: Boolean
+)
+
+data class RecentBonus(
+    val amount: String,
+    val description: String,
+    val created_at: String
+)
+
 data class GameRound(
     val round_id: String,
     val status: String,

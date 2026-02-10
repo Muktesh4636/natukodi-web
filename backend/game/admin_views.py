@@ -1078,7 +1078,15 @@ def approve_deposit(request, pk):
             wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
             wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
             balance_before = wallet.balance
-            wallet.balance = balance_before + deposit.amount
+            
+            # Calculate final amount with USDT bonus if applicable
+            final_amount = deposit.amount
+            bonus_amount = Decimal('0.00')
+            if deposit.payment_method and deposit.payment_method.method_type in ['USDT_TRC20', 'USDT_BEP20']:
+                bonus_amount = deposit.amount * Decimal('0.05')
+                final_amount += bonus_amount
+            
+            wallet.balance = balance_before + final_amount
             wallet.save()
             
             deposit.status = 'APPROVED'
@@ -1102,13 +1110,13 @@ def approve_deposit(request, pk):
             Transaction.objects.create(
                 user=deposit.user,
                 transaction_type='DEPOSIT',
-                amount=deposit.amount,
+                amount=final_amount,
                 balance_before=balance_before,
                 balance_after=wallet.balance,
-                description=f"Manual deposit approved #{deposit.id}{f'. {deposit.admin_note}' if deposit.admin_note else ''}",
+                description=f"Manual deposit approved #{deposit.id}{f' (Includes 5% USDT bonus: ₹{bonus_amount})' if bonus_amount > 0 else ''}{f'. {deposit.admin_note}' if deposit.admin_note else ''}",
             )
         
-        messages.success(request, f'Deposit request #{deposit.id} approved. ₹{deposit.amount} added to {deposit.user.username}\'s wallet.')
+        messages.success(request, f"Deposit request #{deposit.id} approved. ₹{final_amount} added to {deposit.user.username}'s wallet.{f' (Includes ₹{bonus_amount} USDT bonus)' if bonus_amount > 0 else ''}")
     except DepositRequest.DoesNotExist:
         messages.error(request, 'Deposit request not found.')
     except Exception as e:

@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from decimal import Decimal
 from django.utils import timezone
+import uuid
+import string
+import random
 
 
 class User(AbstractUser):
@@ -45,6 +48,40 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+    def generate_unique_referral_code(self):
+        """
+        Generate a unique referral code for this user.
+        Referral codes are independent of worker/professional system.
+        """
+        max_attempts = 100
+        for _ in range(max_attempts):
+            # Generate a 10-character alphanumeric code (uppercase letters and numbers)
+            # Format: 3 letters + 4 numbers + 3 letters (e.g., ABC1234XYZ)
+            code = ''.join(random.choices(string.ascii_uppercase, k=3)) + \
+                   ''.join(random.choices(string.digits, k=4)) + \
+                   ''.join(random.choices(string.ascii_uppercase, k=3))
+            
+            # Check if code already exists (excluding current user)
+            if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
+                return code
+        
+        # Fallback: Use UUID if random generation fails (extremely rare)
+        for _ in range(max_attempts):
+            code = str(uuid.uuid4()).replace('-', '').upper()[:10]
+            if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
+                return code
+        
+        # Last resort: timestamp-based (should never reach here)
+        import time
+        code = f"REF{int(time.time()) % 10000000:07d}"
+        return code
+    
+    def save(self, *args, **kwargs):
+        # Ensure referral code is generated if missing (independent of worker system)
+        if not self.referral_code:
+            self.referral_code = self.generate_unique_referral_code()
+        super().save(*args, **kwargs)
 
 
 class Wallet(models.Model):
@@ -115,6 +152,7 @@ class Transaction(models.Model):
         ('WIN', 'Win'),
         ('REFUND', 'Refund'),
         ('REFERRAL_BONUS', 'Referral Bonus'),
+        ('MILESTONE_BONUS', 'Milestone Bonus'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
@@ -143,6 +181,7 @@ class DepositRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deposit_requests')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     screenshot = models.ImageField(upload_to='deposit_screenshots/')
+    payment_method = models.ForeignKey('PaymentMethod', on_delete=models.SET_NULL, null=True, blank=True, related_name='deposit_requests')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     payment_link = models.URLField(blank=True)
     payment_reference = models.CharField(max_length=100, blank=True)
@@ -208,6 +247,8 @@ class PaymentMethod(models.Model):
         ('UPI', 'UPI'),
         ('BANK', 'Bank Account'),
         ('QR', 'QR'),
+        ('USDT_TRC20', 'USDT (TRC20)'),
+        ('USDT_BEP20', 'USDT (BEP20)'),
     ]
 
     name = models.CharField(max_length=100)

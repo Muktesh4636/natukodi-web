@@ -4,6 +4,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,6 +79,62 @@ fun LuckyDrawScreen(
         WheelItem("₹300", Color(0xFF32CD32)),   // Lime Green
         WheelItem("₹100", Color(0xFF00CED1))    // Dark Turquoise
     )
+
+    fun performSpin() {
+        if (!isSpinning && !hasClaimed && eligibleAmount != null && eligibleAmount!! > 0) {
+            isSpinning = true
+
+            // Call backend API to claim lucky draw
+            viewModel.claimLuckyDraw { success, amount, message ->
+                if (success && amount != null) {
+                    hasClaimed = true
+
+                    // Find the index of the reward amount in wheel items
+                    val targetIndex = when (amount) {
+                        10000 -> 0
+                        5000 -> 1
+                        1000 -> 2
+                        500 -> 3
+                        300 -> 4
+                        100 -> 5
+                        else -> 0 // Default to first
+                    }
+
+                    lastResult = "₹$amount"
+
+                    // Calculate spin animation
+                    val extraRotations = 10 + Random.nextInt(5)
+                    val degreesPerSegment = 360f / wheelItems.size
+                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
+                    
+                    val currentRotation = rotationAngle % 360
+                    var angleDiff = targetAngle - currentRotation
+                    if (angleDiff <= 0) angleDiff += 360
+                    
+                    rotationAngle += (extraRotations * 360) + angleDiff
+                } else {
+                    // On error, show a default result
+                    val targetIndex = 0
+                    lastResult = "₹0"
+
+                    val extraRotations = 10 + Random.nextInt(5)
+                    val degreesPerSegment = 360f / wheelItems.size
+                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
+                    
+                    val currentRotation = rotationAngle % 360
+                    var angleDiff = targetAngle - currentRotation
+                    if (angleDiff <= 0) angleDiff += 360
+                    
+                    rotationAngle += (extraRotations * 360) + angleDiff
+
+                    // Show error message
+                    if (message != null) {
+                        // You could show a toast or dialog here
+                    }
+                }
+            }
+        }
+    }
 
     val rotation = animateFloatAsState(
         targetValue = rotationAngle,
@@ -194,14 +251,25 @@ fun LuckyDrawScreen(
                     
                     // Center Hub
                     Surface(
-                        modifier = Modifier.size(50.dp).align(Alignment.Center),
+                        modifier = Modifier
+                            .size(60.dp)
+                            .align(Alignment.Center)
+                            .clickable(
+                                enabled = !isSpinning && !hasClaimed && eligibleAmount != null && eligibleAmount!! > 0,
+                                onClick = { performSpin() }
+                            ),
                         shape = CircleShape,
-                        color = SurfaceColor,
+                        color = PrimaryYellow,
                         shadowElevation = 8.dp,
-                        border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryYellow)
+                        border = androidx.compose.foundation.BorderStroke(4.dp, Color.White)
                     ) {
                          Box(contentAlignment = Alignment.Center) {
-                             Text("WIN", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                             Text(
+                                 "SPIN", 
+                                 color = BlackBackground, 
+                                 fontWeight = FontWeight.Black, 
+                                 fontSize = 14.sp
+                             )
                          }
                     }
                 }
@@ -210,61 +278,7 @@ fun LuckyDrawScreen(
 
                 // Spin Button
                 Button(
-                    onClick = {
-                        if (!isSpinning && !hasClaimed && eligibleAmount != null && eligibleAmount!! > 0) {
-                            isSpinning = true
-
-                            // Call backend API to claim lucky draw
-                            viewModel.claimLuckyDraw { success, amount, message ->
-                                if (success && amount != null) {
-                                    hasClaimed = true
-
-                                    // Find the index of the reward amount in wheel items
-                                    val targetIndex = when (amount) {
-                                        10000 -> 0
-                                        5000 -> 1
-                                        1000 -> 2
-                                        500 -> 3
-                                        300 -> 4
-                                        100 -> 5
-                                        else -> 0 // Default to first
-                                    }
-
-                                    lastResult = "₹$amount"
-
-                                    // Calculate spin animation
-                                    val extraRotations = 10 + Random.nextInt(5)
-                                    val degreesPerSegment = 360f / wheelItems.size
-                                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
-                                    
-                                    val currentRotation = rotationAngle % 360
-                                    var angleDiff = targetAngle - currentRotation
-                                    if (angleDiff <= 0) angleDiff += 360
-                                    
-                                    rotationAngle += (extraRotations * 360) + angleDiff
-                                } else {
-                                    // On error, show a default result
-                                    val targetIndex = 0
-                                    lastResult = "₹0"
-
-                                    val extraRotations = 10 + Random.nextInt(5)
-                                    val degreesPerSegment = 360f / wheelItems.size
-                                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
-                                    
-                                    val currentRotation = rotationAngle % 360
-                                    var angleDiff = targetAngle - currentRotation
-                                    if (angleDiff <= 0) angleDiff += 360
-                                    
-                                    rotationAngle += (extraRotations * 360) + angleDiff
-
-                                    // Show error message
-                                    if (message != null) {
-                                        // You could show a toast or dialog here
-                                    }
-                                }
-                            }
-                        }
-                    },
+                    onClick = { performSpin() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),

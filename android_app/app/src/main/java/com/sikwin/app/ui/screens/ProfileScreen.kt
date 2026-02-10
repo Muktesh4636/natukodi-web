@@ -1,6 +1,5 @@
 package com.sikwin.app.ui.screens
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -84,15 +82,14 @@ fun ProfileScreen(
                 username = viewModel.userProfile?.username ?: "User",
                 balance = viewModel.wallet?.balance ?: "0.00",
                 onWalletClick = { onNavigate("wallet") },
-                onEditName = {
+                onEditName = { 
                     newName = viewModel.userProfile?.username ?: ""
-                    showEditNameDialog = true
-                },
-                viewModel = viewModel
+                    showEditNameDialog = true 
+                }
             )
             
             // Quick Actions Grid
-            QuickActionsGrid(onNavigate, viewModel)
+            QuickActionsGrid(onNavigate)
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -171,41 +168,11 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileHeader(
-    username: String,
-    balance: String,
+    username: String, 
+    balance: String, 
     onWalletClick: () -> Unit,
-    onEditName: () -> Unit,
-    viewModel: GunduAtaViewModel
+    onEditName: () -> Unit
 ) {
-    var rotationTarget by remember { mutableFloatStateOf(0f) }
-    var isRefreshing by remember { mutableStateOf(false) }
-
-    // Rotation animation - accumulates rotation for continuous forward spinning
-    val rotation by animateFloatAsState(
-        targetValue = rotationTarget,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = LinearEasing
-        )
-    )
-
-    // Reset refreshing state after animation completes
-    LaunchedEffect(rotation) {
-        if (isRefreshing && rotation == rotationTarget && rotationTarget > 0) {
-            // Small delay before resetting to avoid immediate re-triggering
-            kotlinx.coroutines.delay(100)
-            isRefreshing = false
-        }
-    }
-
-    fun handleRefresh() {
-        if (!isRefreshing) {
-            isRefreshing = true
-            rotationTarget += 360f  // Add 360 degrees for each refresh
-            viewModel.fetchWallet()
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -226,9 +193,9 @@ fun ProfileHeader(
                 Icon(Icons.Default.AddBox, null, tint = PrimaryYellow)
             }
         }
-
+        
         Spacer(modifier = Modifier.height(24.dp))
-
+        
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Static Default Avatar
             Box(
@@ -240,9 +207,9 @@ fun ProfileHeader(
             ) {
                 Icon(Icons.Default.Person, null, modifier = Modifier.size(50.dp), tint = TextWhite)
             }
-
+            
             Spacer(modifier = Modifier.width(16.dp))
-
+            
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Hi~ $username", color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -256,122 +223,56 @@ fun ProfileHeader(
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
                     Text(
-                        "VIP0",
-                        color = Color.LightGray,
-                        fontSize = 10.sp,
+                        "VIP0", 
+                        color = Color.LightGray, 
+                        fontSize = 10.sp, 
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
             }
         }
-
+        
         Spacer(modifier = Modifier.height(24.dp))
-
+        
         Text("Total/INR", color = TextGrey, fontSize = 14.sp)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("₹", color = PrimaryYellow, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(8.dp))
             Text(balance, color = TextWhite, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(12.dp))
-            IconButton(onClick = { handleRefresh() }) {
-                Icon(
-                    Icons.Default.Refresh,
-                    contentDescription = "Refresh balance",
-                    tint = TextWhite,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .rotate(rotation)
-                )
-            }
+            Icon(Icons.Default.Refresh, null, tint = TextWhite, modifier = Modifier.size(20.dp))
         }
     }
 }
 
 @Composable
-fun QuickActionsGrid(onNavigate: (String) -> Unit, viewModel: GunduAtaViewModel) {
-    var walletRotationTarget by remember { mutableFloatStateOf(0f) }
-    var isWalletRefreshing by remember { mutableStateOf(false) }
-
-    // Wallet rotation animation
-    val walletRotation by animateFloatAsState(
-        targetValue = walletRotationTarget,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = LinearEasing
-        )
-    )
-
-    // Reset wallet refreshing state after animation completes
-    LaunchedEffect(walletRotation) {
-        if (isWalletRefreshing && walletRotation == walletRotationTarget && walletRotationTarget > 0) {
-            kotlinx.coroutines.delay(100)
-            isWalletRefreshing = false
-        }
-    }
-
-    fun handleWalletRefresh() {
-        if (!isWalletRefreshing) {
-            isWalletRefreshing = true
-            walletRotationTarget += 360f
-            viewModel.fetchWallet()
-        }
-    }
-
+fun QuickActionsGrid(onNavigate: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // My wallet action with rotation
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(SurfaceColor)
-                .clickable { handleWalletRefresh() }
-                .padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                Icons.Default.AccountBalanceWallet,
-                null,
-                tint = PrimaryYellow,
+        val actions = listOf(
+            QuickAction("My wallet", Icons.Default.AccountBalanceWallet, "wallet"),
+            QuickAction("Withdrawal", Icons.Default.ArrowUpward, "withdraw"),
+            QuickAction("Deposit", Icons.Default.ArrowDownward, "deposit")
+        )
+        
+        actions.forEach { action ->
+            Column(
                 modifier = Modifier
-                    .size(28.dp)
-                    .rotate(walletRotation)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("My wallet", color = TextWhite, fontSize = 11.sp)
-        }
-
-        // Other actions remain the same
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(SurfaceColor)
-                .clickable { onNavigate("withdraw") }
-                .padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(Icons.Default.ArrowUpward, null, tint = PrimaryYellow, modifier = Modifier.size(28.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Withdrawal", color = TextWhite, fontSize = 11.sp)
-        }
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(SurfaceColor)
-                .clickable { onNavigate("deposit") }
-                .padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(Icons.Default.ArrowDownward, null, tint = PrimaryYellow, modifier = Modifier.size(28.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Deposit", color = TextWhite, fontSize = 11.sp)
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(SurfaceColor)
+                    .clickable { onNavigate(action.route) }
+                    .padding(vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(action.icon, null, tint = PrimaryYellow, modifier = Modifier.size(28.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(action.name, color = TextWhite, fontSize = 11.sp)
+            }
         }
     }
 }

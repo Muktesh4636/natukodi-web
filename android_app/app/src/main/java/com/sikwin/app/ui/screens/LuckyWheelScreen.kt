@@ -4,6 +4,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import com.sikwin.app.R
 import com.sikwin.app.ui.theme.BlackBackground
@@ -42,12 +44,15 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
+import android.media.MediaPlayer
+import androidx.compose.runtime.DisposableEffect
 
 @Composable
 fun LuckyWheelScreen(
     viewModel: GunduAtaViewModel,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var rotationAngle by remember { mutableStateOf(0f) }
     var isSpinning by remember { mutableStateOf(false) }
@@ -55,6 +60,47 @@ fun LuckyWheelScreen(
     var lastResult by remember { mutableStateOf("") }
     var hasClaimedToday by remember { mutableStateOf(false) }
     var claimedAmount by remember { mutableStateOf<String?>(null) }
+    
+    // MediaPlayer for wheel sound
+    val mediaPlayer = remember {
+        try {
+            MediaPlayer.create(context, R.raw.wheel_sound)?.apply {
+                isLooping = false // Play once, not loop
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("LuckyWheelScreen", "Error creating MediaPlayer", e)
+            null
+        }
+    }
+    
+    // Release MediaPlayer when composable is disposed
+    DisposableEffect(Unit) {
+        onDispose {
+            try {
+                mediaPlayer?.release()
+            } catch (e: Exception) {
+                android.util.Log.e("LuckyWheelScreen", "Error releasing MediaPlayer", e)
+            }
+        }
+    }
+    
+    // Play sound when wheel starts spinning
+    LaunchedEffect(isSpinning) {
+        if (isSpinning) {
+            try {
+                mediaPlayer?.let { player ->
+                    if (player.isPlaying) {
+                        player.seekTo(0)
+                    } else {
+                        player.start()
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error silently
+                android.util.Log.e("LuckyWheelScreen", "Error playing sound", e)
+            }
+        }
+    }
 
     // Check daily reward status when screen loads
     LaunchedEffect(Unit) {
@@ -76,6 +122,67 @@ fun LuckyWheelScreen(
         WheelItem("₹5", Color(0xFF00CED1)),    // Dark Turquoise
         WheelItem("₹0", Color(0xFFC0C0C0))     // Silver
     )
+
+    fun performSpin() {
+        if (!isSpinning && !hasClaimedToday) {
+            isSpinning = true
+
+            // Call backend API to claim daily reward
+            viewModel.claimDailyReward { success, amount, type, message ->
+                if (success && amount != null) {
+                    hasClaimedToday = true
+
+                    // Find the index of the reward amount in wheel items
+                    val targetIndex = when (amount) {
+                        1000 -> 0
+                        500 -> 1
+                        100 -> 2
+                        20 -> 3
+                        10 -> 4
+                        5 -> 5
+                        else -> 6 // ₹0
+                    }
+
+                    lastResult = if (type == "MONEY") "₹$amount" else "₹0"
+
+                    // Calculate spin animation
+                    val extraRotations = 10 + Random.nextInt(5)
+                    val degreesPerSegment = 360f / wheelItems.size
+                    // The pointer is at the top (270 degrees in Canvas coordinates).
+                    // When rotationAngle is 0, segment 0 starts at 0 degrees (right side).
+                    // To bring segment 'targetIndex' to the top:
+                    // targetAngle = 270 - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
+                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
+                    
+                    // Ensure we always spin forward
+                    val currentRotation = rotationAngle % 360
+                    var angleDiff = targetAngle - currentRotation
+                    if (angleDiff <= 0) angleDiff += 360
+                    
+                    rotationAngle += (extraRotations * 360) + angleDiff
+                } else {
+                    // On error, show a default result
+                    val targetIndex = 6 // ₹0
+                    lastResult = "₹0"
+
+                    val extraRotations = 10 + Random.nextInt(5)
+                    val degreesPerSegment = 360f / wheelItems.size
+                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
+                    
+                    val currentRotation = rotationAngle % 360
+                    var angleDiff = targetAngle - currentRotation
+                    if (angleDiff <= 0) angleDiff += 360
+                    
+                    rotationAngle += (extraRotations * 360) + angleDiff
+
+                    // Show error message
+                    if (message != null) {
+                        // You could show a toast or dialog here
+                    }
+                }
+            }
+        }
+    }
 
     val rotation = animateFloatAsState(
         targetValue = rotationAngle,
@@ -175,14 +282,25 @@ fun LuckyWheelScreen(
                     
                     // Center Hub
                     Surface(
-                        modifier = Modifier.size(50.dp).align(Alignment.Center),
+                        modifier = Modifier
+                            .size(60.dp)
+                            .align(Alignment.Center)
+                            .clickable(
+                                enabled = !isSpinning && !hasClaimedToday,
+                                onClick = { performSpin() }
+                            ),
                         shape = CircleShape,
-                        color = SurfaceColor,
+                        color = PrimaryYellow,
                         shadowElevation = 8.dp,
-                        border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryYellow)
+                        border = androidx.compose.foundation.BorderStroke(4.dp, Color.White)
                     ) {
                          Box(contentAlignment = Alignment.Center) {
-                             Text("WIN", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                             Text(
+                                 "SPIN", 
+                                 color = BlackBackground, 
+                                 fontWeight = FontWeight.Black, 
+                                 fontSize = 14.sp
+                             )
                          }
                     }
                 }
@@ -191,66 +309,7 @@ fun LuckyWheelScreen(
 
                 // Spin Button
                 Button(
-                    onClick = {
-                        if (!isSpinning && !hasClaimedToday) {
-                            isSpinning = true
-
-                            // Call backend API to claim daily reward
-                            viewModel.claimDailyReward { success, amount, type, message ->
-                                if (success && amount != null) {
-                                    hasClaimedToday = true
-
-                                    // Find the index of the reward amount in wheel items
-                                    val targetIndex = when (amount) {
-                                        1000 -> 0
-                                        500 -> 1
-                                        100 -> 2
-                                        20 -> 3
-                                        10 -> 4
-                                        5 -> 5
-                                        else -> 6 // ₹0
-                                    }
-
-                                    lastResult = if (type == "MONEY") "₹$amount" else "₹0"
-
-                                    // Calculate spin animation
-                                    val extraRotations = 10 + Random.nextInt(5)
-                                    val degreesPerSegment = 360f / wheelItems.size
-                                    // The pointer is at the top (270 degrees in Canvas coordinates).
-                                    // When rotationAngle is 0, segment 0 starts at 0 degrees (right side).
-                                    // To bring segment 'targetIndex' to the top:
-                                    // targetAngle = 270 - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
-                                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
-                                    
-                                    // Ensure we always spin forward
-                                    val currentRotation = rotationAngle % 360
-                                    var angleDiff = targetAngle - currentRotation
-                                    if (angleDiff <= 0) angleDiff += 360
-                                    
-                                    rotationAngle += (extraRotations * 360) + angleDiff
-                                } else {
-                                    // On error, show a default result
-                                    val targetIndex = 6 // ₹0
-                                    lastResult = "₹0"
-
-                                    val extraRotations = 10 + Random.nextInt(5)
-                                    val degreesPerSegment = 360f / wheelItems.size
-                                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
-                                    
-                                    val currentRotation = rotationAngle % 360
-                                    var angleDiff = targetAngle - currentRotation
-                                    if (angleDiff <= 0) angleDiff += 360
-                                    
-                                    rotationAngle += (extraRotations * 360) + angleDiff
-
-                                    // Show error message
-                                    if (message != null) {
-                                        // You could show a toast or dialog here
-                                    }
-                                }
-                            }
-                        }
-                    },
+                    onClick = { performSpin() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
