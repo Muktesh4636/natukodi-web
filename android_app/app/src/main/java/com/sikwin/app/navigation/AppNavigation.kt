@@ -18,7 +18,7 @@ import com.sikwin.app.data.auth.SessionManager
 import com.sikwin.app.ui.screens.*
 import com.sikwin.app.ui.screens.AffiliateScreen
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
-// import com.unity3d.player.UnityPlayerGameActivity
+import com.unity3d.player.UnityPlayerGameActivity
 import androidx.compose.runtime.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -80,17 +80,57 @@ fun AppNavigation(
                 return
             }
 
-            // Show message that Unity game is coming soon
-            Toast.makeText(
-                context,
-                "🎲 Unity game launching soon! Opening web version for now...",
-                Toast.LENGTH_LONG
-            ).show()
+            // Try to launch Unity game
+            try {
+                val intent = Intent(context, UnityPlayerGameActivity::class.java)
 
-            // For now, open web version until Unity integration is complete
-            val gameUrl = "https://gunduata.online/" // Production game URL
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(gameUrl))
-            context.startActivity(intent)
+                // Pass authentication data to Unity via Intent extras
+                val authToken = sessionManager.fetchAuthToken()
+                val username = sessionManager.fetchUsername()
+                val userId = sessionManager.fetchUserId()
+
+                intent.putExtra("auth_token", authToken)
+                intent.putExtra("user_token", authToken)
+                intent.putExtra("username", username)
+                intent.putExtra("user_id", userId)
+                intent.putExtra("base_url", "https://gunduata.online")
+                intent.putExtra("is_logged_in", true)
+                intent.putExtra("from_android_app", true)
+
+                // Store in Unity PlayerPrefs for persistence
+                try {
+                    val unityPrefsName = "${context.packageName}.v2.playerprefs"
+                    val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
+                    unityPrefs.edit().clear().apply() // Clear existing
+                    unityPrefs.edit()
+                        .putString("user_token", authToken)
+                        .putString("auth_token", authToken)
+                        .putString("username", username)
+                        .putString("user_id", userId)
+                        .putString("base_url", "https://gunduata.online")
+                        .putString("is_logged_in", "true")
+                        .putString("from_android_app", "true")
+                        .putLong("auth_timestamp", System.currentTimeMillis())
+                        .apply()
+                } catch (e: Exception) {
+                    android.util.Log.e("AppNavigation", "Failed to set Unity PlayerPrefs", e)
+                }
+
+                context.startActivity(intent)
+                Toast.makeText(context, "🎲 Launching Gundu Ata Unity game...", Toast.LENGTH_SHORT).show()
+
+            } catch (e: Exception) {
+                // Unity activity not available, fallback to web version
+                Toast.makeText(
+                    context,
+                    "🎲 Unity game not available. Opening web version...",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                val gameUrl = "https://gunduata.online/"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(gameUrl))
+                context.startActivity(intent)
+            }
 
         } catch (e: Exception) {
             Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()
