@@ -15,11 +15,25 @@ class SessionManager(private val context: Context) {
     }
 
     fun saveAuthToken(token: String) {
-        prefs.edit().putString(USER_TOKEN, token).apply()
+        // Store in both formats for compatibility
+        // Unity expects "auth_token" but we also keep "user_token" for our app
+        prefs.edit()
+            .putString(USER_TOKEN, token)
+            .putString("auth_token", token) // Unity reads this key
+            .apply()
     }
 
     fun fetchAuthToken(): String? {
-        return prefs.getString(USER_TOKEN, null)
+        // Try both keys for compatibility
+        val token = prefs.getString(USER_TOKEN, null) ?: prefs.getString("auth_token", null)
+        
+        // Migration: If we have user_token but not auth_token, copy it
+        if (token != null && prefs.contains(USER_TOKEN) && !prefs.contains("auth_token")) {
+            prefs.edit().putString("auth_token", token).apply()
+            android.util.Log.d("SessionManager", "Migrated user_token to auth_token for Unity compatibility")
+        }
+        
+        return token
     }
 
     fun saveRefreshToken(token: String) {

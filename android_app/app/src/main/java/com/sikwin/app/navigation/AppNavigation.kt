@@ -18,7 +18,6 @@ import com.sikwin.app.data.auth.SessionManager
 import com.sikwin.app.ui.screens.*
 import com.sikwin.app.ui.screens.AffiliateScreen
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
-import com.unity3d.player.UnityPlayerGameActivity
 import androidx.compose.runtime.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -76,75 +75,103 @@ fun AppNavigation(
         try {
             // Check if user is logged in
             if (!viewModel.loginSuccess) {
+                android.util.Log.w("AppNavigation", "User not logged in, showing auth dialog")
                 showAuthDialog = true
                 return
             }
 
-            // Try to launch Unity game
-            try {
-                val intent = Intent(context, UnityPlayerGameActivity::class.java)
+            // Get authentication data
+            val authToken = sessionManager.fetchAuthToken()
+            val refreshToken = sessionManager.fetchRefreshToken()
+            val username = sessionManager.fetchUsername()
+            val userId = sessionManager.fetchUserId()
 
-                // Pass comprehensive authentication data to Unity via Intent extras
-                val authToken = sessionManager.fetchAuthToken()
-                val username = sessionManager.fetchUsername()
-                val userId = sessionManager.fetchUserId()
-
-                intent.putExtra("auth_token", authToken)
-                intent.putExtra("bearer_token", authToken) // Alternative format
-                intent.putExtra("user_token", authToken)
-                intent.putExtra("username", username)
-                intent.putExtra("user_id", userId)
-                intent.putExtra("base_url", "https://gunduata.online")
-                intent.putExtra("api_url", "https://gunduata.online/api/")
-                intent.putExtra("is_logged_in", true)
-                intent.putExtra("auto_login", true) // Flag for Unity to auto-login
-                intent.putExtra("from_android_app", true)
-                intent.putExtra("login_method", "android_app")
-                intent.putExtra("auth_timestamp", System.currentTimeMillis())
-                intent.putExtra("login_timestamp", System.currentTimeMillis())
-
-                // Store in Unity PlayerPrefs for persistence and auto-login
-                try {
-                    val unityPrefsName = "${context.packageName}.v2.playerprefs"
-                    val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
-                    unityPrefs.edit().clear().apply() // Clear existing
-
-                    unityPrefs.edit()
-                        .putString("user_token", authToken)
-                        .putString("auth_token", authToken)
-                        .putString("bearer_token", authToken) // Additional format
-                        .putString("username", username)
-                        .putString("user_id", userId)
-                        .putString("base_url", "https://gunduata.online")
-                        .putString("api_url", "https://gunduata.online/api/")
-                        .putString("is_logged_in", "true")
-                        .putString("auto_login", "true") // Flag for Unity to auto-login
-                        .putString("from_android_app", "true")
-                        .putString("login_method", "android_app")
-                        .putLong("auth_timestamp", System.currentTimeMillis())
-                        .putLong("login_timestamp", System.currentTimeMillis())
-                        .apply()
-
-                    android.util.Log.d("AppNavigation", "Unity auth data set: user=$username, token=${authToken?.take(10)}...")
-                } catch (e: Exception) {
-                    android.util.Log.e("AppNavigation", "Failed to set Unity PlayerPrefs", e)
-                }
-
-                context.startActivity(intent)
-                Toast.makeText(context, "🎲 Launching Gundu Ata Unity game...", Toast.LENGTH_SHORT).show()
-
-            } catch (e: Exception) {
-                // Unity activity not available, fallback to web version
-                Toast.makeText(
-                    context,
-                    "🎲 Unity game not available. Opening web version...",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                val gameUrl = "https://gunduata.online/"
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(gameUrl))
-                context.startActivity(intent)
+            // Verify token exists
+            if (authToken == null || authToken.isEmpty()) {
+                android.util.Log.e("AppNavigation", "Auth token is null or empty!")
+                Toast.makeText(context, "Authentication error. Please login again.", Toast.LENGTH_LONG).show()
+                return
             }
+
+            android.util.Log.d("AppNavigation", "Launching Unity with auth - user: $username, userId: $userId, token: ${authToken.take(20)}...")
+
+            // Sync auth to Unity PlayerPrefs BEFORE launching (this is critical)
+            sessionManager.syncAuthToUnity()
+
+            // Verify Unity PlayerPrefs were set
+            try {
+                val unityPrefsName = "${context.packageName}.v2.playerprefs"
+                val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
+                val storedToken = unityPrefs.getString("auth_token", null)
+                val isLoggedIn = unityPrefs.getString("is_logged_in", "false")
+                android.util.Log.d("AppNavigation", "Unity PlayerPrefs verification - token exists: ${storedToken != null}, is_logged_in: $isLoggedIn")
+            } catch (e: Exception) {
+                android.util.Log.e("AppNavigation", "Failed to verify Unity PlayerPrefs", e)
+            }
+
+            // Launch Unity with Intent extras
+            val intent = Intent(context, com.unity3d.player.UnityPlayerGameActivity::class.java)
+
+            // Pass authentication data to Unity via Intent extras
+            // Unity's UnityPlayerGameActivity reads from SharedPreferences first, then Intent extras
+            // Make sure we use the exact keys Unity expects
+            val password = sessionManager.fetchPassword()
+            
+            intent.putExtra("token", authToken) // Unity looks for "token" first in Intent
+            intent.putExtra("auth_token", authToken) // Also pass as auth_token
+            intent.putExtra("refresh_token", refreshToken)
+            intent.putExtra("username", username)
+            intent.putExtra("user_id", userId)
+            if (password != null) {
+                intent.putExtra("password", password) // Unity also looks for password
+            }
+            
+            // Additional metadata
+            intent.putExtra("base_url", "https://gunduata.online")
+            intent.putExtra("api_url", "https://gunduata.online/api/")
+            intent.putExtra("is_logged_in", true)
+            intent.putExtra("auto_login", true)
+            intent.putExtra("from_android_app", true)
+            intent.putExtra("login_method", "android_app")
+            intent.putExtra("auth_timestamp", System.currentTimeMillis())
+            intent.putExtra("login_timestamp", System.currentTimeMillis())
+            
+            android.util.Log.d("AppNavigation", "Intent extras set - token: ${authToken?.take(10)}..., username: $username, userId: $userId")
+
+            // Also store in Unity PlayerPrefs again (redundant but ensures it's there)
+            try {
+                val unityPrefsName = "${context.packageName}.v2.playerprefs"
+                val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
+                
+                // Don't clear - just update to ensure latest data
+                unityPrefs.edit()
+                    .putString("user_token", authToken)
+                    .putString("auth_token", authToken)
+                    .putString("bearer_token", authToken)
+                    .putString("access_token", authToken)
+                    .putString("token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("user_id", userId)
+                    .putString("base_url", "https://gunduata.online")
+                    .putString("api_url", "https://gunduata.online/api/")
+                    .putString("is_logged_in", "true")
+                    .putString("auto_login", "true")
+                    .putString("from_android_app", "true")
+                    .putString("login_method", "android_app")
+                    .putLong("auth_timestamp", System.currentTimeMillis())
+                    .putLong("login_timestamp", System.currentTimeMillis())
+                    .remove("logout_requested")
+                    .remove("logout_timestamp")
+                    .apply()
+
+                android.util.Log.d("AppNavigation", "Unity PlayerPrefs updated successfully")
+            } catch (e: Exception) {
+                android.util.Log.e("AppNavigation", "Failed to update Unity PlayerPrefs", e)
+            }
+
+            context.startActivity(intent)
+            Toast.makeText(context, "🎲 Launching Gundu Ata Unity game...", Toast.LENGTH_SHORT).show()
 
         } catch (e: Exception) {
             Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()

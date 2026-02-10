@@ -116,6 +116,22 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
                         sessionManager.savePassword(password)
+                        
+                        // Sync auth to Unity PlayerPrefs
+                        sessionManager.syncAuthToUnity()
+                        
+                        // Send tokens to Unity if Unity is already running
+                        try {
+                            com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                it.access,
+                                it.refresh,
+                                it.user.username ?: ""
+                            )
+                        } catch (e: Exception) {
+                            // Unity might not be running yet, that's okay
+                            android.util.Log.d("GunduAtaViewModel", "Unity not running, tokens will be sent when Unity starts: ${e.message}")
+                        }
+                        
                         userProfile = it.user
                         loginSuccess = true
                     }
@@ -169,6 +185,22 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
                         // Note: We don't save password for OTP login
+                        
+                        // Sync auth to Unity PlayerPrefs
+                        sessionManager.syncAuthToUnity()
+                        
+                        // Send tokens to Unity if Unity is already running
+                        try {
+                            com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                it.access,
+                                it.refresh,
+                                it.user.username ?: ""
+                            )
+                        } catch (e: Exception) {
+                            // Unity might not be running yet, that's okay
+                            android.util.Log.d("GunduAtaViewModel", "Unity not running, tokens will be sent when Unity starts: ${e.message}")
+                        }
+                        
                         userProfile = it.user
                         loginSuccess = true
                         otpSent = false // Reset OTP state
@@ -229,6 +261,22 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
                         data["password"]?.let { pass -> sessionManager.savePassword(pass) }
+                        
+                        // Sync auth to Unity PlayerPrefs
+                        sessionManager.syncAuthToUnity()
+                        
+                        // Send tokens to Unity if Unity is already running
+                        try {
+                            com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                it.access,
+                                it.refresh,
+                                it.user.username ?: ""
+                            )
+                        } catch (e: Exception) {
+                            // Unity might not be running yet, that's okay
+                            android.util.Log.d("GunduAtaViewModel", "Unity not running, tokens will be sent when Unity starts: ${e.message}")
+                        }
+                        
                         userProfile = it.user
                         loginSuccess = true
                     }
