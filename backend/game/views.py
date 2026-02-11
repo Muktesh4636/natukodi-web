@@ -1267,8 +1267,8 @@ def round_bets(request, round_id=None):
     # Check if user is admin
     is_admin = request.user.is_staff or request.user.is_superuser
     
-    # Build query
-    bets_query = Bet.objects.filter(round=round_obj).select_related('user').order_by('-created_at')
+    # Build query - Order by created_at (oldest first) to show betting order
+    bets_query = Bet.objects.filter(round=round_obj).select_related('user').order_by('created_at')
     
     # Filter by number if provided
     if number_filter:
@@ -1309,14 +1309,20 @@ def round_bets(request, round_id=None):
             player_bets_breakdown[user_key] = {}
         if user_key not in player_totals:
             player_totals[user_key] = Decimal('0.00')
-        
+
         num_key = str(bet.number)
         if num_key not in player_bets_breakdown[user_key]:
             player_bets_breakdown[user_key][num_key] = {
                 'total_amount': Decimal('0.00'),
-                'chips': {}
+                'chips': {},
+                'last_chip_amount': bet.chip_amount,  # Track last chip amount used
+                'last_bet_time': bet.created_at    # Track last bet timestamp for ordering
             }
-        
+
+        # Update last chip amount (keep the most recent one)
+        player_bets_breakdown[user_key][num_key]['last_chip_amount'] = bet.chip_amount
+        player_bets_breakdown[user_key][num_key]['last_bet_time'] = bet.created_at
+
         chip_val = str(int(bet.chip_amount)) if bet.chip_amount == bet.chip_amount.to_integral_value() else str(bet.chip_amount)
         player_bets_breakdown[user_key][num_key]['total_amount'] += bet.chip_amount
         player_bets_breakdown[user_key][num_key]['chips'][chip_val] = player_bets_breakdown[user_key][num_key]['chips'].get(chip_val, 0) + 1
@@ -1324,18 +1330,34 @@ def round_bets(request, round_id=None):
 
     # Serialize bets with breakdown
     bets_data = []
+    individual_bets = []  # New: individual bets with timestamps
     for user_name, numbers in player_bets_breakdown.items():
         for num, data in numbers.items():
-            # Create a summary for each user per number
-            chip_breakdown_str = ", ".join([f"{count}x{chip}" for chip, count in data['chips'].items()])
+            # Create a summary for each user per number (sort chips by value ascending)
+            sorted_chips = sorted(data['chips'].items(), key=lambda x: float(x[0]))
+            chip_breakdown_str = ", ".join([f"{count}x{chip}" for chip, count in sorted_chips])
             bets_data.append({
                 'username': user_name,
                 'number': int(num),
                 'amount': str(data['total_amount']),
                 'total_player_bet': str(player_totals[user_name]), # New: total across all numbers
-                'chip_breakdown': data['chips'],
-                'chip_summary': chip_breakdown_str
+                'chip_breakdown': dict(sorted_chips),  # Sort chip breakdown by chip value
+                'chip_summary': chip_breakdown_str,
+                'last_chip_amount': str(data['last_chip_amount']),  # Last chip amount used on this number
+                'last_bet_time': data['last_bet_time'].isoformat()    # Timestamp of last bet
             })
+
+    # Add individual bets with timestamps (ordered chronologically)
+    for bet in bets.order_by('created_at'):
+        individual_bets.append({
+            'id': bet.id,
+            'username': bet.user.username,
+            'number': bet.number,
+            'chip_amount': str(bet.chip_amount),
+            'created_at': bet.created_at.isoformat(),
+            'is_winner': bet.is_winner,
+            'payout_amount': str(bet.payout_amount) if bet.payout_amount else None
+        })
     
     # Calculate statistics by number
     from django.db.models import Sum, Count
@@ -1382,7 +1404,8 @@ def round_bets(request, round_id=None):
             'start_time': round_obj.start_time.isoformat(),
             'result_time': round_obj.result_time.isoformat() if round_obj.result_time else None,
         },
-        'bets': bets_data,
+        'bets': bets_data,  # Grouped bets by user and number
+        'individual_bets': individual_bets,  # Individual bets with timestamps
         'statistics': {
             'overall': {
                 'total_bets': overall_stats['total_bets'] or 0,
@@ -1394,6 +1417,7 @@ def round_bets(request, round_id=None):
             'by_number': stats_by_number,
         },
         'count': len(bets_data),
+        'individual_count': len(individual_bets),
     })
 
 

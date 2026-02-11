@@ -206,7 +206,9 @@ fun WithdrawScreen(
                 // Amount Input
                 OutlinedTextField(
                     value = amount,
-                    onValueChange = { amount = it },
+                    onValueChange = { newValue ->
+                    amount = newValue.filter { it.isDigit() }
+                },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Please enter amount", color = TextGrey) },
                     leadingIcon = { Text("₹", color = TextWhite, fontSize = 18.sp, modifier = Modifier.padding(start = 12.dp)) },

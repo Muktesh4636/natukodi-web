@@ -577,6 +577,7 @@
                                 <th>Screenshot</th>
                                 <th>Processed By</th>
                                 <th>Created</th>
+                                <th>Edit</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -609,6 +610,15 @@
                                 <td><span class="time-badge">{{ request.created_at|date:"M d, H:i" }}</span></td>
                                 <td>
                                     {% if request.status == 'PENDING' %}
+                                        <button type="button" onclick="showEditAmountModal({{ request.pk }}, '{{ request.user.username|escapejs }}', {{ request.amount }})" style="padding: 6px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#5568d3'" onmouseout="this.style.background='#667eea'">
+                                            ✏️ Edit
+                                        </button>
+                                    {% else %}
+                                        <span style="color: #a0aec0; font-size: 12px;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.status == 'PENDING' %}
                                         <div style="display: flex; gap: 8px;">
                                             <button type="button" onclick="showApproveModal({{ request.pk }}, '{{ request.user.username|escapejs }}', {{ request.amount }})" style="padding: 6px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
                                                 ✅ Approve
@@ -624,7 +634,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">📥</div>
                                         <p>No deposit requests found</p>
@@ -686,6 +696,35 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeApproveModal()">Cancel</button>
                 <button type="submit" form="approveForm" class="btn btn-primary" style="background: #28a745;">Approve Deposit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Amount Modal -->
+    <div id="editAmountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #667eea;">✏️ Edit Deposit Amount</h3>
+            </div>
+            <div class="modal-body">
+                <p><strong>User:</strong> <span id="edit-modal-username"></span></p>
+                <p><strong>Current Amount:</strong> ₹<span id="edit-modal-current-amount"></span></p>
+                <form id="editAmountForm" method="post">
+                    {% csrf_token %}
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">New Amount: <span style="color: #dc3545;">*</span></label>
+                        <input type="number" name="new_amount" id="edit-modal-new-amount" step="0.01" min="0.01" placeholder="Enter new amount" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px;">
+                        <small style="color: #718096; font-size: 11px; margin-top: 4px; display: block;">Enter the corrected deposit amount.</small>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">Reason for change:</label>
+                        <textarea name="edit_reason" placeholder="Enter reason for amount change (optional)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 14px; resize: vertical; min-height: 60px;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditAmountModal()">Cancel</button>
+                <button type="submit" form="editAmountForm" class="btn btn-primary">Update Amount</button>
             </div>
         </div>
     </div>
@@ -756,6 +795,11 @@
                     <span style="color: #a0aec0;">-</span>
                 </td>
                 <td><span class="time-badge">${data.created_at}</span></td>
+                <td>
+                    <button type="button" onclick="showEditAmountModal(${data.id}, '${data.user}', ${data.amount})" style="padding: 6px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#5568d3'" onmouseout="this.style.background='#667eea'">
+                        ✏️ Edit
+                    </button>
+                </td>
                 <td>
                     <div style="display: flex; gap: 8px;">
                         <button type="button" onclick="showApproveModal(${data.id}, '${data.user}', ${data.amount})" style="padding: 6px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
@@ -832,16 +876,33 @@
             document.getElementById('approveModal').style.display = 'none';
             document.getElementById('approveForm').reset();
         }
+
+        function showEditAmountModal(requestId, username, currentAmount) {
+            document.getElementById('edit-modal-username').textContent = username;
+            document.getElementById('edit-modal-current-amount').textContent = parseFloat(currentAmount).toFixed(2);
+            document.getElementById('edit-modal-new-amount').value = parseFloat(currentAmount).toFixed(2);
+            document.getElementById('editAmountForm').action = '/game-admin/deposit-requests/' + requestId + '/edit-amount/';
+            document.getElementById('editAmountModal').style.display = 'block';
+        }
+
+        function closeEditAmountModal() {
+            document.getElementById('editAmountModal').style.display = 'none';
+            document.getElementById('editAmountForm').reset();
+        }
         
         // Close modal when clicking outside
         window.onclick = function(event) {
             const rejectModal = document.getElementById('rejectModal');
             const approveModal = document.getElementById('approveModal');
+            const editAmountModal = document.getElementById('editAmountModal');
             if (event.target == rejectModal) {
                 closeRejectModal();
             }
             if (event.target == approveModal) {
                 closeApproveModal();
+            }
+            if (event.target == editAmountModal) {
+                closeEditAmountModal();
             }
         }
 

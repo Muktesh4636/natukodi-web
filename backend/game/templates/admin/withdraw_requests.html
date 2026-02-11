@@ -590,7 +590,7 @@
                                 </td>
                                 <td>
                                     {% if request.withdrawal_details %}
-                                        <span class="time-badge" title="{{ request.withdrawal_details }}">{{ request.withdrawal_details|truncatechars:20 }}</span>
+                                        <span style="white-space: pre-wrap;">{{ request.withdrawal_details }}</span>
                                     {% else %}
                                         <span style="color: #a0aec0;">-</span>
                                     {% endif %}

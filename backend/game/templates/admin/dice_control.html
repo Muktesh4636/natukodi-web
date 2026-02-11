@@ -796,11 +796,6 @@
                 {% endfor %}
             {% endif %}
 
-            {% if debug_version %}
-            <div style="text-align: center; color: #ff0000; font-weight: bold; padding: 10px; background: #ffeaea; border: 1px solid #ffcccc; margin-bottom: 20px;">
-                DEBUG MODE ACTIVE: {{ debug_version }}
-            </div>
-            {% endif %}
             
             <div class="control-panel">
 
@@ -975,8 +970,9 @@
         let gameSocket = null;
         let wsReconnectAttempts = 0;
         const maxReconnectAttempts = 5;
-        let currentTimer = {{ timer|default:1 }}; // Default to 1 if no timer value
+        let currentTimer = 0; // Start at 0, will be synced from WebSocket/AJAX
         let clientSideTimer = null; // Client-side timer for continuous countdown
+        let timerSynced = false; // Flag to track if timer has been synced
         let lastRoundId = '{% if current_round %}{{ current_round.round_id }}{% endif %}';
         
         // WebSocket connection setup
@@ -1035,6 +1031,9 @@
             if (clientSideTimer) {
                 return; // Already running
             }
+            if (!timerSynced) {
+                return; // Don't start until timer is synced
+            }
             clientSideTimer = setInterval(function() {
                 // Always increment timer (it will wrap around at round end)
                 currentTimer++;
@@ -1063,10 +1062,11 @@
                     // Real-time timer update from WebSocket - extract timer value
                     if (data.timer !== undefined && data.timer !== null) {
                         const newTimer = parseInt(data.timer) || 1;
-                        // Only sync if drift is more than 2 seconds to avoid jitter, 
+                        // Only sync if drift is more than 2 seconds to avoid jitter,
                         // or if it's a major state change (timer reset)
-                        if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer) {
+                        if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer || !timerSynced) {
                             currentTimer = newTimer;
+                            timerSynced = true; // Mark as synced
                             updateTimerDisplay();
                         }
                         // Ensure client-side timer is running
@@ -1081,8 +1081,9 @@
                     // Initial game state or state update - extract timer from WebSocket
                     if (data.timer !== undefined && data.timer !== null) {
                         const newTimer = parseInt(data.timer) || 1;
-                        if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer) {
+                        if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer || !timerSynced) {
                             currentTimer = newTimer;
+                            timerSynced = true; // Mark as synced
                             updateTimerDisplay();
                         }
                         startClientSideTimer(); // Start continuous timer
@@ -1154,7 +1155,11 @@
             const roundEndTime = {{ round_end_time|default:80 }};
 
             if (timerDisplay) {
-                timerDisplay.textContent = currentTimer + 's';
+                if (!timerSynced) {
+                    timerDisplay.textContent = '...';
+                } else {
+                    timerDisplay.textContent = currentTimer + 's';
+                }
             }
 
             // Update circular progress
@@ -1186,7 +1191,10 @@
 
             // Update timer label based on phase
             if (timerLabel) {
-                if (currentTimer <= bettingCloseTime) {
+                if (!timerSynced) {
+                    timerLabel.textContent = 'Syncing...';
+                    timerLabel.style.color = '#718096';
+                } else if (currentTimer <= bettingCloseTime) {
                     timerLabel.textContent = 'Betting Open';
                     timerLabel.style.color = '#4a5568';
                 } else if (currentTimer <= diceResultTime) {
@@ -1230,8 +1238,10 @@
                 if (data.timer !== undefined) {
                     const newTimer = parseInt(data.timer) || 1;
                     // Only update if timer changed significantly (to avoid jitter)
-                    if (Math.abs(currentTimer - newTimer) > 3 || !clientSideTimer) {
+                    if (Math.abs(currentTimer - newTimer) > 3 || !clientSideTimer || !timerSynced) {
                         currentTimer = newTimer;
+                        timerSynced = true; // Mark as synced
+                        updateTimerDisplay(); // Update display immediately
                         // Restart client-side timer to sync with server
                         startClientSideTimer();
                         console.log('🔄 Timer synced via AJAX:', currentTimer);
@@ -1369,12 +1379,18 @@
         // Always run AJAX updates to ensure timer stays synced (WebSocket or not)
         setInterval(updateDashboardData, 5000); // More frequent updates
 
-        // Update immediately on page load
-        setTimeout(updateDashboardData, 1000);
+        // Update immediately on page load and attempt to sync timer
+        setTimeout(function() {
+            updateDashboardData();
+            // If still not synced after first AJAX call, show loading
+            setTimeout(function() {
+                if (!timerSynced) {
+                    updateTimerDisplay(); // Show "..." loading state
+                }
+            }, 500);
+        }, 500);
 
-        // Start client-side timer regardless of WebSocket status
-        startClientSideTimer();
-        console.log('🚀 Client-side timer started (will sync with server data)');
+        console.log('🚀 Waiting for timer sync before starting client-side timer');
         
         // Clean up WebSocket and client-side timer on page unload
         window.addEventListener('beforeunload', function() {

@@ -248,7 +248,6 @@ class PaymentMethod(models.Model):
         ('UPI', 'UPI'),
         ('BANK', 'Bank Account'),
         ('QR', 'QR'),
-        ('USDT', 'USDT'),
         ('USDT_TRC20', 'USDT (TRC20)'),
         ('USDT_BEP20', 'USDT (BEP20)'),
     ]
@@ -265,6 +264,7 @@ class PaymentMethod(models.Model):
     is_active = models.BooleanField(default=True)
     usdt_network = models.CharField(max_length=50, blank=True, null=True, default='')
     usdt_wallet_address = models.CharField(max_length=100, blank=True, null=True, default='')
+    usdt_exchange_rate = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('90.00'), help_text="1 USDT = X Rupees")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

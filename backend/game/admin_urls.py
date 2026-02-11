@@ -14,6 +14,7 @@ urlpatterns = [
     path('deposit-requests/', admin_views.deposit_requests, name='deposit_requests'),
     path('deposit-requests/<int:pk>/approve/', admin_views.approve_deposit, name='approve_deposit'),
     path('deposit-requests/<int:pk>/reject/', admin_views.reject_deposit, name='reject_deposit'),
+    path('deposit-requests/<int:pk>/edit-amount/', admin_views.edit_deposit_amount, name='edit_deposit_amount'),
     path('deposit-requests/check-new/', admin_views.check_new_deposit_requests, name='check_new_deposit_requests'),
     path('withdraw-requests/', admin_views.withdraw_requests, name='withdraw_requests'),
     path('withdraw-requests/check-new/', admin_views.check_new_withdraw_requests, name='check_new_withdraw_requests'),

@@ -683,7 +683,6 @@ def dice_control(request):
             'dice_result_time': dice_result_time,
             'round_end_time': round_end_time,
             'page': 'dice-control',
-            'debug_version': 'v9', # Debug flag to verify deployment v9 (Full Sync)
         })
         
         return render(request, 'admin/dice_control.html', context)
@@ -1153,13 +1152,13 @@ def reject_deposit(request, pk):
                 if deposit.status != 'PENDING':
                     messages.error(request, 'Deposit request has already been processed.')
                     return redirect('deposit_requests')
-                
+
                 deposit.status = 'REJECTED'
                 deposit.admin_note = note
                 deposit.processed_by = request.user
                 deposit.processed_at = timezone.now()
                 deposit.save()
-            
+
             messages.success(request, f'Deposit request #{deposit.id} rejected.')
         except DepositRequest.DoesNotExist:
             messages.error(request, 'Deposit request not found.')
@@ -1167,7 +1166,58 @@ def reject_deposit(request, pk):
             messages.error(request, f'Error rejecting deposit: {str(e)}')
             import traceback
             traceback.print_exc()
-    
+
+    return redirect('deposit_requests')
+
+@admin_required
+def edit_deposit_amount(request, pk):
+    """Edit deposit request amount"""
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method. Please use the edit button.')
+        return redirect('deposit_requests')
+
+    try:
+        with db_transaction.atomic():
+            # select_for_update must be inside the transaction
+            deposit = DepositRequest.objects.select_for_update().get(pk=pk)
+            if deposit.status != 'PENDING':
+                messages.error(request, 'Deposit request has already been processed.')
+                return redirect('deposit_requests')
+
+            old_amount = deposit.amount
+            new_amount = decimal.Decimal(request.POST.get('new_amount', '0').strip())
+            edit_reason = request.POST.get('edit_reason', '').strip()
+
+            if new_amount <= 0:
+                messages.error(request, 'Amount must be greater than 0.')
+                return redirect('deposit_requests')
+
+            # Update the amount
+            deposit.amount = new_amount
+
+            # Add edit information to admin_note
+            edit_info = f"[AMOUNT EDITED: ₹{old_amount} → ₹{new_amount}"
+            if edit_reason:
+                edit_info += f" | Reason: {edit_reason}"
+            edit_info += "]"
+
+            if deposit.admin_note:
+                deposit.admin_note += " | " + edit_info
+            else:
+                deposit.admin_note = edit_info
+
+            deposit.save()
+
+        messages.success(request, f"Deposit request #{deposit.id} amount updated from ₹{old_amount} to ₹{new_amount}.")
+    except DepositRequest.DoesNotExist:
+        messages.error(request, 'Deposit request not found.')
+    except decimal.InvalidOperation:
+        messages.error(request, 'Invalid amount format.')
+    except Exception as e:
+        messages.error(request, f'Error updating deposit amount: {str(e)}')
+        import traceback
+        traceback.print_exc()
+
     return redirect('deposit_requests')
 
 
@@ -2040,17 +2090,10 @@ def payment_methods(request):
 
     # Get available method types (exclude already used ones)
     used_method_types = set(methods.values_list('method_type', flat=True))
-    available_method_types = [
-        ('PHONEPE', 'Phone Pe'),
-        ('GPAY', 'Google Pay'),
-        ('PAYTM', 'Paytm'),
-        ('UPI', 'UPI'),
-        ('BANK', 'Bank Account'),
-        ('QR', 'QR'),
-    ]
+    all_method_choices = PaymentMethod.METHOD_TYPES
 
     # Filter out already used method types
-    available_method_types = [mt for mt in available_method_types if mt[0] not in used_method_types]
+    available_method_types = [mt for mt in all_method_choices if mt[0] not in used_method_types]
 
     context = get_admin_context(request, {
         'payment_methods': methods,
@@ -2078,6 +2121,7 @@ def create_payment_method(request):
         is_active = request.POST.get('is_active') == 'on'
         usdt_network = request.POST.get('usdt_network', '') or ''
         usdt_wallet_address = request.POST.get('usdt_wallet_address', '') or ''
+        usdt_exchange_rate = request.POST.get('usdt_exchange_rate', '90.00')
 
         if not method_type:
             messages.error(request, 'Method Type is required.')
@@ -2089,14 +2133,7 @@ def create_payment_method(request):
             return redirect('payment_methods')
 
         # Get the display name for the method type
-        method_type_display = dict([
-            ('PHONEPE', 'Phone Pe'),
-            ('GPAY', 'Google Pay'),
-            ('PAYTM', 'Paytm'),
-            ('UPI', 'UPI'),
-            ('BANK', 'Bank Account'),
-            ('QR', 'QR'),
-        ]).get(method_type, method_type)
+        method_type_display = dict(PaymentMethod.METHOD_TYPES).get(method_type, method_type)
 
         try:
             PaymentMethod.objects.create(
@@ -2111,7 +2148,8 @@ def create_payment_method(request):
                 qr_image=qr_image,
                 is_active=is_active,
                 usdt_network=usdt_network,
-                usdt_wallet_address=usdt_wallet_address
+                usdt_wallet_address=usdt_wallet_address,
+                usdt_exchange_rate=Decimal(usdt_exchange_rate)
             )
             messages.success(request, f'Payment method "{method_type_display}" created successfully!')
         except Exception as e:
@@ -2144,19 +2182,19 @@ def edit_payment_method(request, pk):
         method.is_active = request.POST.get('is_active') == 'on'
         method.usdt_network = request.POST.get('usdt_network', '')
         method.usdt_wallet_address = request.POST.get('usdt_wallet_address', '')
+        
+        exchange_rate = request.POST.get('usdt_exchange_rate')
+        if exchange_rate:
+            try:
+                method.usdt_exchange_rate = Decimal(exchange_rate)
+            except (InvalidOperation, ValueError):
+                pass
 
         if not method.method_type:
             messages.error(request, 'Method Type is required.')
         else:
             # Update the name based on method type
-            method.name = dict([
-                ('PHONEPE', 'Phone Pe'),
-                ('GPAY', 'Google Pay'),
-                ('PAYTM', 'Paytm'),
-                ('UPI', 'UPI'),
-                ('BANK', 'Bank Account'),
-                ('QR', 'QR'),
-            ]).get(method.method_type, method.method_type)
+            method.name = dict(PaymentMethod.METHOD_TYPES).get(method.method_type, method.method_type)
 
             try:
                 method.save()

@@ -248,16 +248,10 @@ fun ProfileHeader(
             Spacer(modifier = Modifier.width(12.dp))
 
             // Animated refresh icon
-            val rotation by remember { mutableStateOf(0f) }
-            var isRotating by remember { mutableStateOf(false) }
+            var rotationTarget by remember { mutableStateOf(0f) }
             val rotationAngle by animateFloatAsState(
-                targetValue = if (isRotating) 360f else 0f,
-                animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
-                finishedListener = {
-                    if (isRotating) {
-                        isRotating = false
-                    }
-                }
+                targetValue = rotationTarget,
+                animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
             )
 
             Icon(
@@ -268,7 +262,7 @@ fun ProfileHeader(
                     .size(20.dp)
                     .rotate(rotationAngle)
                     .clickable {
-                        isRotating = true
+                        rotationTarget += 360f
                         onRefreshBalance()
                     }
             )
