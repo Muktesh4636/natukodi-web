@@ -224,6 +224,10 @@
             font-size: 28px;
             font-weight: 700;
             color: #1a202c;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            line-height: 1.2;
         }
         .stat-card.profit-positive p {
             color: #28a745;
@@ -236,6 +240,20 @@
         }
         .stat-card.profit-negative {
             border-left: 4px solid #dc3545;
+        }
+
+        .stat-card-profit {
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .profit-amount {
+            font-size: 24px !important;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            text-align: center;
         }
 
         .chart-container {
@@ -479,9 +497,9 @@
                     <h3>Total Wins</h3>
                     <p>₹{{ total_wins|floatformat:2 }}</p>
                 </div>
-                <div class="stat-card {% if admin_profit >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+                <div class="stat-card stat-card-profit {% if admin_profit >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
                     <h3>Admin Profit</h3>
-                    <p>₹{{ admin_profit|floatformat:2 }}</p>
+                    <p class="profit-amount">₹{{ admin_profit|floatformat:2 }}</p>
                     <small style="font-size: 11px; opacity: 0.8;">(Total Bets - Total Wins)</small>
                 </div>
             </div>

@@ -126,4 +126,12 @@ class SessionManager(private val context: Context) {
             android.util.Log.e("SessionManager", "Failed to clear Unity prefs", e)
         }
     }
+
+    fun isNewUser(): Boolean {
+        return prefs.getBoolean("is_new_user", true)
+    }
+
+    fun setNewUser(isNew: Boolean) {
+        prefs.edit().putBoolean("is_new_user", isNew).apply()
+    }
 }

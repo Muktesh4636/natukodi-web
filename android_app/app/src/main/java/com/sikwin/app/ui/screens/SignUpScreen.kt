@@ -42,14 +42,17 @@ import androidx.core.content.ContextCompat
 fun SignUpScreen(
     viewModel: GunduAtaViewModel,
     initialReferralCode: String = "",
+    initialSpinBalance: Int = 0,
     onSignUpSuccess: () -> Unit,
-    onNavigateToSignIn: () -> Unit
+    onNavigateToSignIn: () -> Unit,
+    onNavigateToLuckyWheel: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var password by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var otpCode by remember { mutableStateOf("") }
     var referralCode by remember { mutableStateOf(initialReferralCode) }
+    var spinBalance by remember { mutableIntStateOf(initialSpinBalance) }
     var passwordVisible by remember { mutableStateOf(false) }
     var timerSeconds by remember { mutableIntStateOf(0) }
 
@@ -132,6 +135,8 @@ fun SignUpScreen(
 
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
+            // Mark as new user to trigger spin wheel on home screen
+            viewModel.markUserAsNew()
             onSignUpSuccess()
         }
     }
@@ -311,6 +316,9 @@ fun SignUpScreen(
                 )
                 if (referralCode.isNotBlank()) {
                     registrationData["referral_code"] = referralCode.trim()
+                }
+                if (spinBalance > 0) {
+                    registrationData["spin_balance"] = spinBalance.toString()
                 }
                 viewModel.register(registrationData)
             },

@@ -216,6 +216,21 @@ fun AppNavigation(
                 }
             )
         }
+        composable("signup?ref={ref}&spin={spin}") { backStackEntry ->
+            val refCode = backStackEntry.arguments?.getString("ref")
+            val spinBalance = backStackEntry.arguments?.getString("spin")?.toIntOrNull() ?: 0
+            SignUpScreen(
+                viewModel = viewModel,
+                initialReferralCode = refCode ?: "",
+                initialSpinBalance = spinBalance,
+                onSignUpSuccess = { navController.navigate("home") },
+                onNavigateToSignIn = { 
+                    navController.navigate("login") {
+                        popUpTo("signup") { inclusive = true }
+                    }
+                }
+            )
+        }
         composable("signup?ref={ref}") { backStackEntry ->
             val refCode = backStackEntry.arguments?.getString("ref")
             SignUpScreen(
@@ -389,7 +404,8 @@ fun AppNavigation(
         composable("lucky_draw") {
             LuckyDrawScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigate = { route -> navController.navigate(route) }
             )
         }
         composable("withdrawal_account") {

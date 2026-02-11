@@ -51,9 +51,32 @@ fun HomeScreen(
     onNavigate: (String) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var showGuestSpinWheel by remember { mutableStateOf(false) }
+    var guestWheelCloseCount by remember { mutableIntStateOf(0) }
+    
+    // Show guest spin wheel after 3 seconds if not logged in
+    LaunchedEffect(viewModel.loginSuccess, guestWheelCloseCount) {
+        if (!viewModel.loginSuccess && guestWheelCloseCount < 1) {
+            delay(3000)
+            showGuestSpinWheel = true
+        }
+    }
+
+    if (showGuestSpinWheel) {
+        GuestSpinWheelDialog(
+            onDismiss = { 
+                showGuestSpinWheel = false
+                guestWheelCloseCount++
+            },
+            onRegisterClick = { amount ->
+                showGuestSpinWheel = false
+                onNavigate("signup?ref=&spin=$amount")
+            }
+        )
+    }
     
     // Pass onNavigate to PromotionalBanners
-    PromotionalBanners(onNavigate)
+    PromotionalBanners(viewModel, onNavigate)
     
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -96,7 +119,7 @@ fun HomeScreen(
             
             if (searchQuery.isEmpty()) {
                 // Banners
-                PromotionalBanners(onNavigate)
+                PromotionalBanners(viewModel, onNavigate)
                 
                 // Hot Games
                 SectionHeader(title = "Hot games")
@@ -184,9 +207,9 @@ fun HomeTopBar(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Balance text - clickable to go to wallet
+                        // Balance text - clickable to go to deposit
                         Row(
-                            modifier = Modifier.clickable { onWalletClick() },
+                            modifier = Modifier.clickable { onDepositClick() },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("₹", color = PrimaryYellow, fontWeight = FontWeight.Bold)
@@ -277,8 +300,11 @@ fun SearchBar(onSearch: (String) -> Unit) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PromotionalBanners(onNavigate: (String) -> Unit) {
-    val pageCount = 3
+fun PromotionalBanners(
+    viewModel: GunduAtaViewModel,
+    onNavigate: (String) -> Unit
+) {
+    val pageCount = 4
     val virtualCount = 1000 * pageCount
     val pagerState = rememberPagerState(
         initialPage = virtualCount / 2,
@@ -290,6 +316,10 @@ fun PromotionalBanners(onNavigate: (String) -> Unit) {
     val clickCooldown = 1000L // 1 second cooldown
 
     fun handleBannerClick(route: String) {
+        if (!viewModel.loginSuccess) {
+            onNavigate("login")
+            return
+        }
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastClickTime > clickCooldown) {
             lastClickTime = currentTime
@@ -318,7 +348,8 @@ fun PromotionalBanners(onNavigate: (String) -> Unit) {
             val banner = when(page) {
                 0 -> BannerData("REFER & EARN", "Invite friends and earn up to ₹1000 bonus!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), { handleBannerClick("affiliate") })
                 1 -> BannerData("MEGA SPIN", "Deposit ₹2000 or more to spin the wheel!", "SPIN NOW", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
-                else -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
+                2 -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
+                else -> BannerData("USDT SPECIAL ₮", "Get 5% EXTRA CASHBACK on all USDT deposits!", "DEPOSIT NOW", listOf(Color(0xFF00897B), Color(0xFF004D40)), { handleBannerClick("deposit") })
             }
 
             Box(
@@ -328,9 +359,14 @@ fun PromotionalBanners(onNavigate: (String) -> Unit) {
                     .background(Brush.horizontalGradient(banner.gradient)),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
                     Text(banner.title, color = PrimaryYellow, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
-                    Text(banner.subtitle, color = TextWhite, fontWeight = FontWeight.Bold)
+                    Text(
+                        banner.subtitle, 
+                        color = TextWhite, 
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         onClick = banner.onClick,

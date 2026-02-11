@@ -796,4 +796,16 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             // Ignore errors when clearing Unity prefs
         }
     }
+
+    fun isNewUser(): Boolean {
+        return sessionManager.isNewUser()
+    }
+
+    fun markUserAsNew() {
+        sessionManager.setNewUser(true)
+    }
+
+    fun markUserAsNotNew() {
+        sessionManager.setNewUser(false)
+    }
 }

@@ -42,9 +42,10 @@ Summarizes bets per player and per number.
 ### 3. `individual_bets` Array (Chronological Log)
 A flat list of every single chip placed, ordered by time (oldest first).
 - `id`: Unique Bet ID.
+- `user_id`: Unique User ID of the player.
 - `username`: Player name.
 - `number`: Dice number.
-- `chip_amount`: Value of that specific chip.
+- `chip_amount`: Value of that specific chip (the amount for that specific bet action).
 - `created_at`: **Precise timestamp** of the bet.
 - `is_winner`: Boolean indicating if this specific bet won.
 
@@ -79,6 +80,7 @@ Round-wide data for analytics.
   "individual_bets": [
     {
       "id": 5001,
+      "user_id": 42,
       "username": "player1",
       "number": 1,
       "chip_amount": "100.00",
@@ -87,6 +89,7 @@ Round-wide data for analytics.
     },
     {
       "id": 5005,
+      "user_id": 42,
       "username": "player1",
       "number": 1,
       "chip_amount": "50.00",
@@ -95,6 +98,7 @@ Round-wide data for analytics.
     },
     {
       "id": 5010,
+      "user_id": 42,
       "username": "player1",
       "number": 1,
       "chip_amount": "25.00",

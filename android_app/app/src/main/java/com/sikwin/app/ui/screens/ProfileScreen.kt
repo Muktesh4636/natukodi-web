@@ -269,18 +269,24 @@ fun ProfileHeader(
                 animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
             )
 
-            Icon(
-                Icons.Default.Refresh,
-                contentDescription = "Refresh Balance",
-                tint = PrimaryYellow,
+            Box(
                 modifier = Modifier
-                    .size(20.dp)
-                    .rotate(rotationAngle)
+                    .clip(CircleShape)
                     .clickable {
                         rotationTarget += 360f
                         onRefreshBalance()
                     }
-            )
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = "Refresh Balance",
+                    tint = PrimaryYellow,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .rotate(rotationAngle)
+                )
+            }
         }
     }
 }

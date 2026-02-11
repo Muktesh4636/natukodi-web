@@ -1095,9 +1095,9 @@ def approve_deposit(request, pk):
             
             # Calculate final amount with USDT bonus if applicable
             final_amount = deposit.amount
-            bonus_amount = decimal.Decimal('0.00')
+            bonus_amount = Decimal('0.00')
             if deposit.payment_method and deposit.payment_method.method_type in ['USDT_TRC20', 'USDT_BEP20']:
-                bonus_amount = deposit.amount * decimal.Decimal('0.05')
+                bonus_amount = deposit.amount * Decimal('0.05')
                 final_amount += bonus_amount
             
             wallet.balance = balance_before + final_amount
@@ -1114,7 +1114,7 @@ def approve_deposit(request, pk):
                 return redirect('deposit_requests')
             
             deposit.payment_reference = utr
-                
+            
             # If there's a note from the approval process, save it
             note = request.POST.get('note', '')
             if note:

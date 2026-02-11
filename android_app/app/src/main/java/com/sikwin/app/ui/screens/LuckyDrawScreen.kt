@@ -44,11 +44,15 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
+import android.media.MediaPlayer
+
 @Composable
 fun LuckyDrawScreen(
     viewModel: GunduAtaViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigate: (String) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var rotationAngle by remember { mutableStateOf(0f) }
     var isSpinning by remember { mutableStateOf(false) }
@@ -57,6 +61,31 @@ fun LuckyDrawScreen(
     var hasClaimed by remember { mutableStateOf(false) }
     var claimedAmount by remember { mutableStateOf<String?>(null) }
     var eligibleAmount by remember { mutableStateOf<Double?>(null) }
+
+    // MediaPlayer for wheel sound
+    val mediaPlayer = remember {
+        try {
+            MediaPlayer.create(context, com.sikwin.app.R.raw.wheel_sound)?.apply {
+                isLooping = false
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer?.release()
+        }
+    }
+
+    LaunchedEffect(isSpinning) {
+        if (isSpinning) {
+            mediaPlayer?.let { player ->
+                if (player.isPlaying) player.seekTo(0) else player.start()
+            }
+        }
+    }
 
     // Check lucky draw status when screen loads
     LaunchedEffect(Unit) {
@@ -278,7 +307,13 @@ fun LuckyDrawScreen(
 
                 // Spin Button
                 Button(
-                    onClick = { performSpin() },
+                    onClick = { 
+                        if (hasClaimed || eligibleAmount == null || eligibleAmount!! <= 0) {
+                            onNavigate("deposit")
+                        } else {
+                            performSpin()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
@@ -287,11 +322,11 @@ fun LuckyDrawScreen(
                         containerColor = if (hasClaimed || eligibleAmount == null || eligibleAmount!! <= 0) Color.Gray else PrimaryYellow,
                         disabledContainerColor = SurfaceColor
                     ),
-                    enabled = !isSpinning && !hasClaimed && eligibleAmount != null && eligibleAmount!! > 0
+                    enabled = !isSpinning
                 ) {
                     Text(
                         when {
-                            hasClaimed -> "ALREADY CLAIMED"
+                            hasClaimed -> "MAKE A DEPOSIT"
                             eligibleAmount == null || eligibleAmount!! <= 0 -> "MAKE A DEPOSIT"
                             isSpinning -> "SPINNING..."
                             else -> "SPIN NOW"

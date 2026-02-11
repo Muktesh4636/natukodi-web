@@ -1297,8 +1297,8 @@ def round_bets(request, round_id=None):
         # Non-admin users can only see their own bets
         bets_query = bets_query.filter(user=request.user)
     
-    # Apply limit
-    bets = bets_query[:limit]
+    # Apply limit and ordering
+    bets = bets_query.order_by('created_at')[:limit]
     
     # Group bets by user and number to get chip breakdown
     player_bets_breakdown = {}
@@ -1347,10 +1347,11 @@ def round_bets(request, round_id=None):
                 'last_bet_time': data['last_bet_time'].isoformat()    # Timestamp of last bet
             })
 
-    # Add individual bets with timestamps (ordered chronologically)
-    for bet in bets.order_by('created_at'):
+    # Add individual bets with timestamps (already ordered chronologically by the query above)
+    for bet in bets:
         individual_bets.append({
             'id': bet.id,
+            'user_id': bet.user.id,
             'username': bet.user.username,
             'number': bet.number,
             'chip_amount': str(bet.chip_amount),
@@ -1418,6 +1419,76 @@ def round_bets(request, round_id=None):
         },
         'count': len(bets_data),
         'individual_count': len(individual_bets),
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def round_exposure(request, round_id=None):
+    """
+    Get total exposure (total bet amount) for each player in a specific round.
+    
+    Query params:
+    - round_id: (optional) Specific round ID. If not provided, uses current/latest round.
+    - user_id: (optional) Filter by specific user ID.
+    """
+    # Get round by ID or use current round
+    if round_id:
+        try:
+            round_obj = GameRound.objects.get(round_id=round_id)
+        except GameRound.DoesNotExist:
+            return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        # Get current/latest round
+        round_obj = None
+        if redis_client:
+            try:
+                round_data = redis_client.get('current_round')
+                if round_data:
+                    round_data = json.loads(round_data)
+                    try:
+                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
+                    except GameRound.DoesNotExist:
+                        pass
+            except Exception:
+                pass
+        
+        if not round_obj:
+            round_obj = GameRound.objects.order_by('-start_time').first()
+        
+        if not round_obj:
+            return Response({'error': 'No round found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Build query
+    bets_query = Bet.objects.filter(round=round_obj)
+    
+    # Support filtering by user_id via query param since we don't have auth token
+    user_id_param = request.query_params.get('user_id')
+    if user_id_param:
+        try:
+            bets_query = bets_query.filter(user_id=int(user_id_param))
+        except ValueError:
+            return Response({'error': 'Invalid user_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Aggregate exposure by user
+    from django.db.models import Sum
+    exposure_data = bets_query.values('user_id', 'user__username').annotate(
+        exposure_amount=Sum('chip_amount')
+    ).order_by('-exposure_amount')
+
+    # Format response
+    results = []
+    for entry in exposure_data:
+        results.append({
+            'player_id': entry['user_id'],
+            'username': entry['user__username'],
+            'exposure_amount': str(entry['exposure_amount'] or Decimal('0.00'))
+        })
+
+    return Response({
+        'round_id': round_obj.round_id,
+        'status': round_obj.status,
+        'exposure': results
     })
 
 

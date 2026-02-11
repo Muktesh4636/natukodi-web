@@ -71,6 +71,32 @@ def register(request):
         if serializer.is_valid():
             user = serializer.save()
             logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
+            
+            # Credit spin balance if provided
+            spin_balance = request.data.get('spin_balance')
+            if spin_balance:
+                try:
+                    from decimal import Decimal
+                    amount = Decimal(str(spin_balance))
+                    if amount > 0:
+                        from .models import Wallet, Transaction
+                        wallet, _ = Wallet.objects.get_or_create(user=user)
+                        balance_before = wallet.balance
+                        wallet.balance += amount
+                        wallet.save()
+                        
+                        Transaction.objects.create(
+                            user=user,
+                            transaction_type='REFERRAL_BONUS', # Use a suitable type or add a new one
+                            amount=amount,
+                            balance_before=balance_before,
+                            balance_after=wallet.balance,
+                            description=f"Initial spin reward credited upon registration"
+                        )
+                        logger.info(f"Credited spin balance ₹{amount} to user {user.username}")
+                except Exception as e:
+                    logger.error(f"Failed to credit spin balance: {str(e)}")
+
             refresh = RefreshToken.for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
@@ -1192,10 +1218,11 @@ def lucky_draw(request):
     user = request.user
     
     if request.method == 'GET':
-        # Find the most recent approved bank transfer deposit that hasn't been used for lucky draw
+        # Find the most recent approved bank transfer deposit of ₹2000+ that hasn't been used for lucky draw
         recent_deposit = DepositRequest.objects.filter(
             user=user,
             status='APPROVED',
+            amount__gte=Decimal('2000.00'),  # Minimum ₹2000 deposit required
             payment_reference__isnull=False  # Bank transfer has UTR/payment reference
         ).exclude(
             lucky_draws__isnull=False  # Exclude deposits that already have lucky draw
@@ -1227,14 +1254,15 @@ def lucky_draw(request):
         return Response({
             'claimed': False,
             'deposit_amount': None,
-            'message': 'No eligible bank transfer deposit found. Make a deposit to unlock lucky draw!'
+            'message': 'No eligible deposit of ₹2000 or more found. Deposit ₹2000+ to unlock lucky draw!'
         })
 
     elif request.method == 'POST':
-        # Find the most recent approved bank transfer deposit
+        # Find the most recent approved bank transfer deposit of ₹2000+
         recent_deposit = DepositRequest.objects.filter(
             user=user,
             status='APPROVED',
+            amount__gte=Decimal('2000.00'),  # Minimum ₹2000 deposit required
             payment_reference__isnull=False
         ).exclude(
             lucky_draws__isnull=False
@@ -1242,7 +1270,7 @@ def lucky_draw(request):
         
         if not recent_deposit:
             return Response({
-                'error': 'No eligible bank transfer deposit found'
+                'error': 'No eligible deposit of ₹2000 or more found'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if already claimed
