@@ -40,10 +40,10 @@ from .serializers import (
 )
 
 
-@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for registration
 @permission_classes([AllowAny])
+@csrf_exempt
 def register(request):
     """User registration with OTP verification"""
     try:
@@ -87,10 +87,10 @@ def register(request):
         )
 
 
-@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for login
 @permission_classes([AllowAny])
+@csrf_exempt
 def login(request):
     """User login"""
     try:
@@ -184,10 +184,10 @@ def login(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([AllowAny])
+@csrf_exempt
 def send_otp(request):
     """Send OTP to phone number for signup or login"""
     try:
@@ -275,10 +275,10 @@ def send_otp(request):
         )
 
 
-@csrf_exempt
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([AllowAny])
+@csrf_exempt
 def verify_otp_login(request):
     """Verify OTP and login user"""
     try:
@@ -356,7 +356,6 @@ def verify_otp_login(request):
         )
 
 
-@csrf_exempt
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def profile(request):
@@ -375,7 +374,6 @@ def profile(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
@@ -391,7 +389,6 @@ def update_profile_photo(request):
     return Response(serializer.data)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def wallet(request):
@@ -457,7 +454,6 @@ def notify_user(user, message):
     print(f"[NOTIFY] {user.username}: {message}")
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def initiate_deposit(request):
@@ -477,7 +473,6 @@ def initiate_deposit(request):
     })
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
@@ -544,7 +539,6 @@ def extract_utr(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @parser_classes([MultiPartParser, FormParser])
@@ -606,7 +600,6 @@ def process_payment_screenshot(request):
         return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
@@ -678,7 +671,6 @@ def upload_deposit_proof(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit_utr(request):
@@ -723,7 +715,6 @@ def submit_utr(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_deposit_requests(request):
@@ -734,7 +725,6 @@ def my_deposit_requests(request):
     return Response(serializer.data)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def pending_deposit_requests(request):
@@ -745,11 +735,11 @@ def pending_deposit_requests(request):
     return Response(serializer.data)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def approve_deposit_request(request, pk):
     """Admin approves a pending deposit request"""
+    import decimal
     note = request.data.get('note', '')
     logger.info(f"Admin {request.user.username} attempting to approve deposit {pk}")
     try:
@@ -822,7 +812,6 @@ def approve_deposit_request(request, pk):
     return Response(serializer.data)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def reject_deposit_request(request, pk):
@@ -856,7 +845,6 @@ def reject_deposit_request(request, pk):
 
 # Withdraw functionality
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def initiate_withdraw(request):
@@ -937,7 +925,6 @@ def initiate_withdraw(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_withdraw_requests(request):
@@ -958,7 +945,6 @@ def get_payment_methods(request):
     return Response(serializer.data)
 
 
-@csrf_exempt
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def my_bank_details(request):
@@ -984,7 +970,6 @@ def my_bank_details(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['DELETE', 'PUT'])
 @permission_classes([IsAuthenticated])
 def bank_detail_action(request, pk):
@@ -1084,7 +1069,7 @@ def daily_reward(request):
         # Create the daily reward record
         daily_reward = DailyReward.objects.create(
             user=user,
-            reward_amount=Decimal(str(selected_reward['amount'])),
+            reward_amount=decimal.Decimal(str(selected_reward['amount'])),
             reward_type=selected_reward['type'],
             reward_date=today
         )
@@ -1093,14 +1078,14 @@ def daily_reward(request):
         if selected_reward['type'] == 'MONEY' and selected_reward['amount'] > 0:
             try:
                 wallet = user.wallet
-                wallet.add(Decimal(str(selected_reward['amount'])))
+                wallet.add(decimal.Decimal(str(selected_reward['amount'])))
 
                 # Create transaction record
-                balance_before = wallet.balance - Decimal(str(selected_reward['amount']))
+                balance_before = wallet.balance - decimal.Decimal(str(selected_reward['amount']))
                 Transaction.objects.create(
                     user=user,
                     transaction_type='DEPOSIT',
-                    amount=Decimal(str(selected_reward['amount'])),
+                    amount=decimal.Decimal(str(selected_reward['amount'])),
                     balance_before=balance_before,
                     balance_after=wallet.balance,
                     description=f'Daily Reward - ₹{selected_reward["amount"]}'
@@ -1142,7 +1127,6 @@ def daily_reward_history(request):
         })
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def referral_data(request):
@@ -1166,7 +1150,7 @@ def referral_data(request):
         user=user,
         transaction_type='REFERRAL_BONUS'
     )
-    total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
+    total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or decimal.Decimal('0')
     
     # Get current milestone bonus
     current_milestone_bonus = calculate_milestone_bonus(total_referrals)
@@ -1307,7 +1291,7 @@ def lucky_draw(request):
         lucky_draw = LuckyDraw.objects.create(
             user=user,
             deposit_request=recent_deposit,
-            reward_amount=Decimal(str(selected_reward['amount'])),
+            reward_amount=decimal.Decimal(str(selected_reward['amount'])),
             deposit_amount=recent_deposit.amount
         )
         
@@ -1315,14 +1299,14 @@ def lucky_draw(request):
         try:
             wallet = user.wallet
             balance_before = wallet.balance
-            wallet.add(Decimal(str(selected_reward['amount'])))
+            wallet.add(decimal.Decimal(str(selected_reward['amount'])))
             balance_after = wallet.balance
             
             # Create transaction record
             Transaction.objects.create(
                 user=user,
                 transaction_type='DEPOSIT',
-                amount=Decimal(str(selected_reward['amount'])),
+                amount=decimal.Decimal(str(selected_reward['amount'])),
                 balance_before=balance_before,
                 balance_after=balance_after,
                 description=f'Lucky Draw Reward - ₹{selected_reward["amount"]} (from ₹{recent_deposit.amount} deposit)'

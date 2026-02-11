@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
@@ -30,7 +30,9 @@ from .admin_utils import (
     get_admin_permissions, has_menu_permission
 )
 from .utils import get_game_setting
+from decimal import Decimal, InvalidOperation
 from django.db.models import Sum, Q
+import decimal
 from django.core.paginator import Paginator
 
 # Redis connection using connection pool (optimized for scalability)
@@ -85,6 +87,7 @@ def get_admin_context(request, extra_context=None):
     return context
 
 @ensure_csrf_cookie
+@csrf_exempt
 def admin_login(request):
     """Custom login page for game admin panel - SECURITY: Rate limited"""
     if request.user.is_authenticated and is_admin(request.user):
@@ -1081,9 +1084,9 @@ def approve_deposit(request, pk):
             
             # Calculate final amount with USDT bonus if applicable
             final_amount = deposit.amount
-            bonus_amount = Decimal('0.00')
+            bonus_amount = decimal.Decimal('0.00')
             if deposit.payment_method and deposit.payment_method.method_type in ['USDT_TRC20', 'USDT_BEP20']:
-                bonus_amount = deposit.amount * Decimal('0.05')
+                bonus_amount = deposit.amount * decimal.Decimal('0.05')
                 final_amount += bonus_amount
             
             wallet.balance = balance_before + final_amount
@@ -1976,31 +1979,43 @@ def payment_methods(request):
                 'name': 'Bank Account',
                 'method_type': 'BANK',
                 'is_active': True,
+                'usdt_network': '',
+                'usdt_wallet_address': '',
             },
             {
                 'name': 'Google Pay',
                 'method_type': 'GPAY',
                 'is_active': True,
+                'usdt_network': '',
+                'usdt_wallet_address': '',
             },
             {
                 'name': 'Phone Pe',
                 'method_type': 'PHONEPE',
                 'is_active': True,
+                'usdt_network': '',
+                'usdt_wallet_address': '',
             },
             {
                 'name': 'Paytm',
                 'method_type': 'PAYTM',
                 'is_active': True,
+                'usdt_network': '',
+                'usdt_wallet_address': '',
             },
             {
                 'name': 'UPI',
                 'method_type': 'UPI',
                 'is_active': True,
+                'usdt_network': '',
+                'usdt_wallet_address': '',
             },
             {
                 'name': 'QR',
                 'method_type': 'QR',
                 'is_active': True,
+                'usdt_network': '',
+                'usdt_wallet_address': '',
             },
         ]
 
@@ -2049,6 +2064,8 @@ def create_payment_method(request):
         ifsc_code = request.POST.get('ifsc_code', '')
         qr_image = request.FILES.get('qr_image')
         is_active = request.POST.get('is_active') == 'on'
+        usdt_network = request.POST.get('usdt_network', '') or ''
+        usdt_wallet_address = request.POST.get('usdt_wallet_address', '') or ''
 
         if not method_type:
             messages.error(request, 'Method Type is required.')
@@ -2080,7 +2097,9 @@ def create_payment_method(request):
                 account_number=account_number,
                 ifsc_code=ifsc_code,
                 qr_image=qr_image,
-                is_active=is_active
+                is_active=is_active,
+                usdt_network=usdt_network,
+                usdt_wallet_address=usdt_wallet_address
             )
             messages.success(request, f'Payment method "{method_type_display}" created successfully!')
         except Exception as e:
@@ -2111,6 +2130,8 @@ def edit_payment_method(request, pk):
             method.qr_image = request.FILES['qr_image']
 
         method.is_active = request.POST.get('is_active') == 'on'
+        method.usdt_network = request.POST.get('usdt_network', '')
+        method.usdt_wallet_address = request.POST.get('usdt_wallet_address', '')
 
         if not method.method_type:
             messages.error(request, 'Method Type is required.')

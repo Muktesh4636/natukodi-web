@@ -67,7 +67,6 @@ def set_dice_mode(mode):
     return True
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def current_round(request):
@@ -202,9 +201,9 @@ def current_round(request):
     return Response(data)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def place_bet(request):
     """Place a bet on a number"""
     serializer = CreateBetSerializer(data=request.data)
@@ -328,9 +327,9 @@ def place_bet(request):
     return Response(response_data, status=status.HTTP_201_CREATED)
 
 
-@csrf_exempt
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def remove_bet(request, number):
     """Remove a bet for a specific number"""
     logger.info(f"Remove bet request by user {request.user.username} (ID: {request.user.id}) for number {number}")
@@ -438,9 +437,9 @@ def remove_bet(request, number):
     })
 
 
-@csrf_exempt
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def remove_last_bet(request):
     """Remove the user's last (most recent) bet for the current round"""
     logger.info(f"Remove last bet request by user {request.user.username} (ID: {request.user.id})")
@@ -554,7 +553,6 @@ def remove_last_bet(request):
     })
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_bets(request):
@@ -610,7 +608,6 @@ def my_bets(request):
     return Response([])
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def betting_history(request):
@@ -701,7 +698,6 @@ def round_results(request, round_id=None):
     })
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def set_dice_result(request):
@@ -838,7 +834,6 @@ def set_dice_result(request):
     return Response(data)
 
 
-@csrf_exempt
 @api_view(['GET', 'POST'])
 @permission_classes([IsAdminUser])
 def dice_mode(request):
@@ -1135,7 +1130,6 @@ def winning_results(request, round_id=None):
     })
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def game_stats(request):
@@ -1221,7 +1215,6 @@ def last_round_results(request):
     return Response(result)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def round_bets(request, round_id=None):
@@ -1404,9 +1397,9 @@ def round_bets(request, round_id=None):
     })
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def submit_prediction(request):
     """
     Submit a prediction/guess after betting closes.
@@ -1509,7 +1502,6 @@ def submit_prediction(request):
     }, status=status.HTTP_201_CREATED)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def round_predictions(request, round_id=None):

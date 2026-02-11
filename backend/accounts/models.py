@@ -262,6 +262,8 @@ class PaymentMethod(models.Model):
     ifsc_code = models.CharField(max_length=20, blank=True)
     qr_image = models.ImageField(upload_to='payment_qr_codes/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    usdt_network = models.CharField(max_length=50, blank=True, default='')
+    usdt_wallet_address = models.CharField(max_length=100, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

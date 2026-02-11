@@ -20,17 +20,38 @@ class NormalizePathMiddleware(MiddlewareMixin):
         return None
 
 class DisableCSRFMiddleware(MiddlewareMixin):
-    """Middleware to disable CSRF for all API endpoints."""
+    """Middleware to disable CSRF for specific API endpoints."""
     def process_request(self, request):
         # Always normalize for the check
         normalized_path = re.sub(r'/+', '/', request.path)
         
         # Log all POST requests to see what's being blocked
-        if request.method == 'POST':
-            logger.info(f"POST Request received for: {normalized_path}")
+        if request.method in ['POST', 'DELETE', 'PUT', 'PATCH']:
+            logger.info(f"CSRF Check for: {normalized_path} (Method: {request.method})")
         
-        if normalized_path.startswith('/api/'):
+        # List of paths to exempt from CSRF (using regex for flexibility)
+        exempt_patterns = [
+            r'^/ws/.*',
+            r'^/api/auth/login/.*',
+            r'^/api/auth/register/.*',
+            r'^/api/auth/otp/.*',
+            r'^/api/game/bet/last/.*',
+            r'^/api/game/bet/.*',
+            r'^/api/game/prediction/.*',
+            r'^/api/game/round/.*predictions/.*',
+            r'^/game-admin/login/.*',
+            r'^/game-admin/.*',
+        ]
+        
+        is_exempt = False
+        for pattern in exempt_patterns:
+            if re.match(pattern, normalized_path):
+                is_exempt = True
+                break
+        
+        if is_exempt:
             # This flag tells Django's CSRF middleware to skip the check
             setattr(request, '_dont_enforce_csrf_checks', True)
             logger.info(f"CSRF exempt: {normalized_path}")
+        
         return None
