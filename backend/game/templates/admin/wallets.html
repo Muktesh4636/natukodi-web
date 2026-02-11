@@ -405,6 +405,39 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 20px 0;
+        }
+        .pagination a,
+        .pagination span {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .pagination .current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .pagination .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -502,7 +535,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for wallet in wallets %}
+                            {% for wallet in page_obj|default:wallets %}
                             <tr>
                                 <td>
                                     <a href="{% url 'user_details' wallet.user.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
@@ -530,6 +563,28 @@
                         </tbody>
                     </table>
                 </div>
+                
+                {% if page_obj and page_obj.has_other_pages %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?balance={{ balance_filter }}&search={{ search_query }}&sort={{ sort_by }}&page=1">« First</a>
+                        <a href="?balance={{ balance_filter }}&search={{ search_query }}&sort={{ sort_by }}&page={{ page_obj.previous_page_number }}">‹ Prev</a>
+                    {% else %}
+                        <span class="disabled">« First</span>
+                        <span class="disabled">‹ Prev</span>
+                    {% endif %}
+                    
+                    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?balance={{ balance_filter }}&search={{ search_query }}&sort={{ sort_by }}&page={{ page_obj.next_page_number }}">Next ›</a>
+                        <a href="?balance={{ balance_filter }}&search={{ search_query }}&sort={{ sort_by }}&page={{ page_obj.paginator.num_pages }}">Last »</a>
+                    {% else %}
+                        <span class="disabled">Next ›</span>
+                        <span class="disabled">Last »</span>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

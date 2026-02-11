@@ -920,7 +920,7 @@ def all_bets(request):
 
 @admin_required
 def wallets(request):
-    """Wallets page with filters"""
+    """Wallets page with filters and pagination"""
     if not has_menu_permission(request.user, 'wallets'):
         messages.error(request, 'You do not have permission to view wallets.')
         return redirect('admin_dashboard')
@@ -929,6 +929,10 @@ def wallets(request):
     balance_filter = request.GET.get('balance', 'all')  # all, has_balance, zero
     search_query = request.GET.get('search', '').strip()
     sort_by = request.GET.get('sort', 'balance_desc')  # balance_desc, balance_asc, username_asc, username_desc
+    try:
+        page_number = int(request.GET.get('page', 1))
+    except (ValueError, TypeError):
+        page_number = 1
     
     # Build query
     wallets_query = Wallet.objects.select_related('user').all()
@@ -959,14 +963,22 @@ def wallets(request):
     else:
         wallets_query = wallets_query.order_by('-balance')  # default
     
-    # Calculate stats (before filtering for accurate totals)
+    # Calculate stats (before pagination for accurate totals)
     total_wallets = Wallet.objects.count()
     total_balance = Wallet.objects.aggregate(Sum('balance'))['balance__sum'] or 0
     active_wallets = Wallet.objects.filter(balance__gt=0).count()
     zero_balance_wallets = Wallet.objects.filter(balance=0).count()
     
+    # Pagination - 50 wallets per page for better performance
+    paginator = Paginator(wallets_query, 50)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except Exception:
+        page_obj = None
+    
     context = get_admin_context(request, {
-        'wallets': wallets_query,
+        'wallets': page_obj if page_obj else wallets_query[:50],  # Fallback to first 50 if pagination fails
+        'page_obj': page_obj,
         'total_wallets': total_wallets,
         'total_balance': total_balance,
         'active_wallets': active_wallets,
