@@ -22,6 +22,9 @@ interface ApiService {
     @POST("auth/password/reset/")
     suspend fun resetPassword(@Body data: Map<String, String>): Response<Map<String, Any>>
 
+    @POST("auth/token/refresh/")
+    suspend fun refreshToken(@Body data: Map<String, String>): Response<Map<String, String>>
+
     @GET("auth/profile/")
     suspend fun getProfile(): Response<User>
 

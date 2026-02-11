@@ -54,9 +54,21 @@ fun HomeScreen(
     
     // Pass onNavigate to PromotionalBanners
     PromotionalBanners(onNavigate)
-    LaunchedEffect(Unit) {
-        if (viewModel.loginSuccess) {
-            viewModel.fetchWallet()
+    
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.checkSession()
+                if (viewModel.loginSuccess) {
+                    viewModel.fetchWallet()
+                    viewModel.fetchProfile()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -66,6 +78,7 @@ fun HomeScreen(
                 balance = viewModel.wallet?.balance ?: "0.00",
                 isLoggedIn = viewModel.loginSuccess,
                 onWalletClick = { onNavigate("wallet") },
+                onDepositClick = { onNavigate("deposit") },
                 onNavigate = onNavigate
             ) 
         },
@@ -128,6 +141,7 @@ fun HomeTopBar(
     balance: String, 
     isLoggedIn: Boolean,
     onWalletClick: () -> Unit,
+    onDepositClick: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
     Row(
@@ -164,23 +178,30 @@ fun HomeTopBar(
                 Surface(
                     color = SurfaceColor,
                     shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier
-                        .padding(end = 12.dp)
-                        .clickable { onWalletClick() }
+                    modifier = Modifier.padding(end = 12.dp)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("₹", color = PrimaryYellow, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(balance, color = TextWhite, fontWeight = FontWeight.Bold)
+                        // Balance text - clickable to go to wallet
+                        Row(
+                            modifier = Modifier.clickable { onWalletClick() },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("₹", color = PrimaryYellow, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(balance, color = TextWhite, fontWeight = FontWeight.Bold)
+                        }
                         Spacer(modifier = Modifier.width(8.dp))
+                        // Plus icon - clickable to go to deposit
                         Icon(
                             Icons.Default.AddBox,
-                            contentDescription = null,
+                            contentDescription = "Add money",
                             tint = PrimaryYellow,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { onDepositClick() }
                         )
                     }
                 }
@@ -296,7 +317,7 @@ fun PromotionalBanners(onNavigate: (String) -> Unit) {
             val page = virtualPage % pageCount
             val banner = when(page) {
                 0 -> BannerData("REFER & EARN", "Invite friends and earn up to ₹1000 bonus!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), { handleBannerClick("affiliate") })
-                1 -> BannerData("GET LUCKY DRAW", "WITH BANK TRANSFER", "SPIN", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
+                1 -> BannerData("MEGA SPIN", "Deposit ₹2000 or more to spin the wheel!", "SPIN NOW", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
                 else -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
             }
 

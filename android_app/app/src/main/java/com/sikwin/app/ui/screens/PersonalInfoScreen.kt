@@ -87,11 +87,9 @@ fun PersonalInfoScreen(
                                 "Email" -> "email"
                                 "Telegram" -> "telegram"
                                 "Date of Birth" -> "date_of_birth"
-                                else -> ""
+                                else -> field.lowercase().replace(" ", "_")
                             }
-                            if (key.isNotEmpty()) {
-                                viewModel.updateProfile(mapOf(key to editValue))
-                            }
+                            viewModel.updateProfile(mapOf(key to editValue))
                             showEditDialog = null
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
@@ -147,7 +145,7 @@ fun PersonalInfoScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             val items = listOf(
-                InfoRowData("Name", user?.username ?: "", editable = false),
+                InfoRowData("Name", user?.username ?: "", editable = true),
                 InfoRowData("Phone number", maskPhoneNumber(user?.phone_number ?: ""), showArrow = true, editable = true),
                 InfoRowData("Gender", user?.gender ?: "", showArrow = true, editable = true),
                 InfoRowData("Email", user?.email ?: "", showArrow = true, editable = true),

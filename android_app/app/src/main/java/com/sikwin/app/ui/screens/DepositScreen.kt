@@ -132,6 +132,14 @@ fun DepositScreen(
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Deposit amount", color = TextGrey, fontSize = 16.sp)
             
+            Text(
+                "Deposit ₹2000 or more to get a FREE MEGA SPIN!",
+                color = PrimaryYellow,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            
             if (selectedMethod == "USDT") {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),

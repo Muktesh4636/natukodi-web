@@ -93,7 +93,19 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     
     var loginSuccess by mutableStateOf(false)
     
+    // Check if session is still valid
+    fun checkSession() {
+        if (sessionManager.fetchAuthToken() == null) {
+            loginSuccess = false
+            userProfile = null
+            wallet = null
+        }
+    }
+    
     init {
+        // Initialize RetrofitClient with session manager
+        RetrofitClient.init(sessionManager)
+
         // Auto-login if token exists
         if (sessionManager.fetchAuthToken() != null) {
             loginSuccess = true
@@ -552,10 +564,23 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             isLoading = true
             errorMessage = null
             try {
-                val response = RetrofitClient.apiService.updateProfile(data)
+                // Ensure gender is uppercase if present
+                val processedData = data.toMutableMap()
+                if (processedData.containsKey("gender")) {
+                    processedData["gender"] = processedData["gender"]?.uppercase() ?: ""
+                }
+                
+                // Map "Name" to "username" if it comes from the UI as "Name"
+                if (processedData.containsKey("Name")) {
+                    processedData["username"] = processedData.remove("Name") ?: ""
+                }
+                
+                val response = RetrofitClient.apiService.updateProfile(processedData)
                 if (response.isSuccessful) {
                     userProfile = response.body()
-                    data["username"]?.let { sessionManager.saveUsername(it) }
+                    processedData["username"]?.let { sessionManager.saveUsername(it) }
+                    // Re-fetch profile to ensure UI is in sync with server state
+                    fetchProfile()
                 } else {
                     errorMessage = "Failed to update profile: ${response.message()}"
                 }
