@@ -106,87 +106,110 @@ class Command(BaseCommand):
         loop_start_time = time.time()
         iteration_count = 0
         last_broadcast_timer = -1  # Track last broadcast to prevent duplicates
+        
+        # Cache settings to reduce DB load
+        settings_cache = {}
+        last_settings_fetch = 0
 
         while True:
+            iteration_count += 1
             try:
                 # Track loop iteration start time for timing calculations
                 iteration_start = time.time()
                 
-                # CRITICAL: Read settings dynamically on each iteration
-                # This allows settings changes to take effect immediately without restart
-                betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-                dice_rolling_time = get_game_setting('DICE_ROLL_TIME', 19)
-                dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
-                round_end_time = get_game_setting('ROUND_END_TIME', 80)
-                
-                # Log when settings change (helpful for debugging)
-                if (betting_close_time != last_betting_close or 
-                    dice_rolling_time != last_dice_rolling or 
-                    dice_result_time != last_dice_result or 
-                    round_end_time != last_round_end):
-                    logger.info(f"Game settings updated: Betting={betting_close_time}s, Rolling={dice_rolling_time}s, Result={dice_result_time}s, End={round_end_time}s")
-                    self.stdout.write(self.style.WARNING('⚙️  Game settings updated:'))
-                    if betting_close_time != last_betting_close:
-                        self.stdout.write(self.style.WARNING(f'  Betting close: {last_betting_close}s → {betting_close_time}s'))
-                    if dice_rolling_time != last_dice_rolling:
-                        self.stdout.write(self.style.WARNING(f'  Dice rolling: {last_dice_rolling}s → {dice_rolling_time}s'))
-                    if dice_result_time != last_dice_result:
-                        self.stdout.write(self.style.WARNING(f'  Dice result: {last_dice_result}s → {dice_result_time}s'))
-                    if round_end_time != last_round_end:
-                        self.stdout.write(self.style.WARNING(f'  Round end: {last_round_end}s → {round_end_time}s'))
-                    last_betting_close = betting_close_time
-                    last_dice_rolling = dice_rolling_time
-                    last_dice_result = dice_result_time
-                    last_round_end = round_end_time
-                # CRITICAL: First, mark ALL old rounds (> round_end_time seconds) as COMPLETED
-                # This prevents multiple active rounds from causing duplicate broadcasts
-                now = timezone.now()
-                old_rounds = GameRound.objects.filter(
-                    status__in=['BETTING', 'CLOSED', 'RESULT']
-                ).exclude(
-                    start_time__gte=now - timezone.timedelta(seconds=round_end_time)
-                )
-                if old_rounds.exists():
-                    count = old_rounds.count()
-                    # Send game_end messages for old rounds before updating them
-                    for old_round in old_rounds:
-                        # Distributed lock for game_end - STRICT (requires Redis)
-                        end_lock_key = f'game_end_sent_{old_round.round_id}'
-                        end_lock_acquired = False
-                        if redis_client:
-                            try:
-                                end_lock_acquired = redis_client.set(end_lock_key, '1', ex=300, nx=True)
-                            except Exception as e:
-                                self.stdout.write(self.style.WARNING(f'Redis connection error during game_end lock: {e}'))
-                                # Reconnect for next iteration
-                                redis_client = get_or_reconnect_redis()
+                # Refresh settings every 10 seconds instead of every second
+                if time.time() - last_settings_fetch > 10:
+                    try:
+                        betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
+                        dice_rolling_time = get_game_setting('DICE_ROLL_TIME', 19)
+                        dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
+                        round_end_time = get_game_setting('ROUND_END_TIME', 80)
+                        
+                        settings_cache = {
+                            'betting_close_time': betting_close_time,
+                            'dice_rolling_time': dice_rolling_time,
+                            'dice_result_time': dice_result_time,
+                            'round_end_time': round_end_time
+                        }
+                        last_settings_fetch = time.time()
+                        
+                        # Log when settings change
+                        if (betting_close_time != last_betting_close or 
+                            dice_rolling_time != last_dice_rolling or 
+                            dice_result_time != last_dice_result or 
+                            round_end_time != last_round_end):
+                            logger.info(f"Game settings updated: Betting={betting_close_time}s, Rolling={dice_rolling_time}s, Result={dice_result_time}s, End={round_end_time}s")
+                            last_betting_close = betting_close_time
+                            last_dice_rolling = dice_rolling_time
+                            last_dice_result = dice_result_time
+                            last_round_end = round_end_time
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"Error fetching settings: {e}"))
+                        # Use cached values if fetch fails
+                        betting_close_time = settings_cache.get('betting_close_time', 30)
+                        dice_rolling_time = settings_cache.get('dice_rolling_time', 19)
+                        dice_result_time = settings_cache.get('dice_result_time', 51)
+                        round_end_time = settings_cache.get('round_end_time', 80)
+                else:
+                    betting_close_time = settings_cache.get('betting_close_time', 30)
+                    dice_rolling_time = settings_cache.get('dice_rolling_time', 19)
+                    dice_result_time = settings_cache.get('dice_result_time', 51)
+                    round_end_time = settings_cache.get('round_end_time', 80)
 
-                        if channel_layer and end_lock_acquired:
-                            try:
-                                async_to_sync(channel_layer.group_send)(
-                                    'game_room',
-                                    {
-                                        'type': 'game_end',
-                                        'round_id': old_round.round_id,
-                                        'status': 'COMPLETED',
-                                        'timer': round_end_time,
-                                        'end_time': now.isoformat(),
-                                        'start_time': old_round.start_time.isoformat(),
-                                        'result_time': old_round.result_time.isoformat() if old_round.result_time else None,
-                                    }
-                                )
-                            except Exception:
-                                pass
-                    old_rounds.update(
-                        status='COMPLETED',
-                        end_time=now
-                    )
-                    self.stdout.write(self.style.WARNING(f'Marked {count} old round(s) as COMPLETED'))
+                # CRITICAL: Only cleanup old rounds every 30 seconds to reduce DB pressure
+                now = timezone.now()
+                if iteration_count % 30 == 0:
+                    try:
+                        old_rounds = GameRound.objects.filter(
+                            status__in=['BETTING', 'CLOSED', 'RESULT']
+                        ).exclude(
+                            start_time__gte=now - timezone.timedelta(seconds=round_end_time + 10)
+                        )
+                        if old_rounds.exists():
+                            count = old_rounds.count()
+                            # Send game_end messages for old rounds before updating them
+                            for old_round in old_rounds:
+                                # Distributed lock for game_end - STRICT (requires Redis)
+                                end_lock_key = f'game_end_sent_{old_round.round_id}'
+                                end_lock_acquired = False
+                                if redis_client:
+                                    try:
+                                        end_lock_acquired = redis_client.set(end_lock_key, '1', ex=300, nx=True)
+                                    except Exception as e:
+                                        self.stdout.write(self.style.WARNING(f'Redis connection error during game_end lock: {e}'))
+                                        # Reconnect for next iteration
+                                        redis_client = get_or_reconnect_redis()
+
+                                if channel_layer and end_lock_acquired:
+                                    try:
+                                        async_to_sync(channel_layer.group_send)(
+                                            'game_room',
+                                            {
+                                                'type': 'game_end',
+                                                'round_id': old_round.round_id,
+                                                'status': 'COMPLETED',
+                                                'timer': round_end_time,
+                                                'end_time': now.isoformat(),
+                                                'start_time': old_round.start_time.isoformat(),
+                                                'result_time': old_round.result_time.isoformat() if old_round.result_time else None,
+                                            }
+                                        )
+                                    except Exception:
+                                        pass
+                            old_rounds.update(status='COMPLETED', end_time=now)
+                            self.stdout.write(self.style.WARNING(f'Marked {count} old round(s) as COMPLETED'))
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"Cleanup error (ignoring): {e}"))
+                        # Close broken connections
+                        from django.db import connections
+                        for conn in connections.all():
+                            conn.close()
+
                 
                 # Get current active round from database (SINGLE SOURCE OF TRUTH)
                 # IMPORTANT: Use select_for_update with nowait=True to prevent blocking
                 # Don't use Redis - it might have stale data from a different round
-                from django.db import transaction
+                from django.db import transaction, connections
                 try:
                     with transaction.atomic():
                         # Use nowait=True to fail fast if row is locked, preventing blocking
@@ -204,6 +227,12 @@ class Command(BaseCommand):
                                 round_obj.end_time = now
                                 round_obj.save()
                                 round_obj = None  # Force creation of new round
+                except (django.db.utils.InterfaceError, django.db.utils.OperationalError) as db_err:
+                    self.stdout.write(self.style.ERROR(f'Database connection error in main loop: {db_err}'))
+                    for conn in connections.all():
+                        conn.close()
+                    time.sleep(1.0)
+                    continue
                 except Exception as db_lock_error:
                     # If row is locked, skip this iteration and continue (prevents blocking)
                     # Increased sleep time to 1.0s to reduce hammer and allow the current process to finish
@@ -219,10 +248,10 @@ class Command(BaseCommand):
                     round_obj = GameRound.objects.create(
                         round_id=f"R{int(timezone.now().timestamp())}",
                         status='BETTING',
-                        betting_close_seconds=get_game_setting('BETTING_CLOSE_TIME', 30),
-                        dice_roll_seconds=get_game_setting('DICE_ROLL_TIME', 7),
-                        dice_result_seconds=get_game_setting('DICE_RESULT_TIME', 51),
-                        round_end_seconds=get_game_setting('ROUND_END_TIME', 80)
+                        betting_close_seconds=betting_close_time,
+                        dice_roll_seconds=dice_rolling_time,
+                        dice_result_seconds=dice_result_time,
+                        round_end_seconds=round_end_time
                     )
                     # Reset flags for new round
                     round_obj._dice_roll_sent = False
@@ -248,7 +277,10 @@ class Command(BaseCommand):
                             pipe = redis_client.pipeline()
                             pipe.set('current_round', json.dumps(round_data), ex=60)
                             pipe.set('round_timer', '1', ex=60)
-                            pipe.execute()  # Execute both writes in one round trip
+                            # Initialize totals in Redis for new round
+                            pipe.set(f"round_total_bets:{round_obj.round_id}", "0", ex=3600)
+                            pipe.set(f"round_total_amount:{round_obj.round_id}", "0.00", ex=3600)
+                            pipe.execute()  # Execute all writes in one round trip
                         except Exception as e:
                             self.stdout.write(self.style.WARNING(f'Redis write error: {e}, reconnecting...'))
                             redis_client = get_or_reconnect_redis()
@@ -266,14 +298,21 @@ class Command(BaseCommand):
 
                     if channel_layer and start_lock_acquired:
                         try:
+                            # Pre-serialize for high performance
+                            game_start_message = {
+                                'type': 'game_start',
+                                'round_id': round_obj.round_id,
+                                'status': 'BETTING',
+                                'timer': 1,
+                                'is_rolling': False,
+                            }
+                            game_start_payload = json.dumps(game_start_message)
+
                             async_to_sync(channel_layer.group_send)(
                                 'game_room',
                                 {
-                                    'type': 'game_start',
-                                    'round_id': round_obj.round_id,
-                                    'status': 'BETTING',
-                                    'timer': 1,
-                                    'is_rolling': False,
+                                    'type': 'broadcast_raw',
+                                    'payload': game_start_payload,
                                 }
                             )
                             just_sent_game_start = True
@@ -307,17 +346,24 @@ class Command(BaseCommand):
 
                         if channel_layer and end_lock_acquired:
                             try:
+                                # Pre-serialize for high performance
+                                game_end_message = {
+                                    'type': 'game_end',
+                                    'round_id': round_obj.round_id,
+                                    'status': 'COMPLETED',
+                                    'timer': round_end_time,
+                                    'is_rolling': False,
+                                    'end_time': round_obj.end_time.isoformat(),
+                                    'start_time': round_obj.start_time.isoformat(),
+                                    'result_time': round_obj.result_time.isoformat() if round_obj.result_time else None,
+                                }
+                                game_end_payload = json.dumps(game_end_message)
+
                                 async_to_sync(channel_layer.group_send)(
                                     'game_room',
                                     {
-                                        'type': 'game_end',
-                                        'round_id': round_obj.round_id,
-                                        'status': 'COMPLETED',
-                                        'timer': round_end_time,
-                                        'is_rolling': False,
-                                        'end_time': round_obj.end_time.isoformat(),
-                                        'start_time': round_obj.start_time.isoformat(),
-                                        'result_time': round_obj.result_time.isoformat() if round_obj.result_time else None,
+                                        'type': 'broadcast_raw',
+                                        'payload': game_end_payload,
                                     }
                                 )
                                 self.stdout.write(self.style.SUCCESS(f'📤 Sent game_end message for round {round_obj.round_id}'))
@@ -328,10 +374,10 @@ class Command(BaseCommand):
                         round_obj = GameRound.objects.create(
                             round_id=f"R{int(now.timestamp())}",
                             status='BETTING',
-                            betting_close_seconds=get_game_setting('BETTING_CLOSE_TIME', 30),
-                            dice_roll_seconds=get_game_setting('DICE_ROLL_TIME', 7),
-                            dice_result_seconds=get_game_setting('DICE_RESULT_TIME', 51),
-                            round_end_seconds=get_game_setting('ROUND_END_TIME', 80)
+                            betting_close_seconds=betting_close_time,
+                            dice_roll_seconds=dice_rolling_time,
+                            dice_result_seconds=dice_result_time,
+                            round_end_seconds=round_end_time
                         )
                         # Reset flags for new round
                         round_obj._dice_roll_sent = False
@@ -439,15 +485,22 @@ class Command(BaseCommand):
                                 redis_client = get_or_reconnect_redis()
 
                         if roll_lock_acquired:
+                            # Pre-serialize for high performance
+                            dice_roll_message = {
+                                'type': 'dice_roll',
+                                'round_id': round_obj.round_id,
+                                'timer': timer,
+                                'dice_roll_time': dice_rolling_time,
+                                'is_rolling': True,
+                            }
+                            dice_roll_payload = json.dumps(dice_roll_message)
+
                             # Send dice_roll event to trigger animation
                             async_to_sync(channel_layer.group_send)(
                                 'game_room',
                                 {
-                                    'type': 'dice_roll',
-                                    'round_id': round_obj.round_id,
-                                    'timer': timer,
-                                    'dice_roll_time': dice_rolling_time,
-                                    'is_rolling': True,
+                                    'type': 'broadcast_raw',
+                                    'payload': dice_roll_payload,
                                 }
                             )
                             # Mark as sent to avoid duplicates (local + distributed)
@@ -580,16 +633,23 @@ class Command(BaseCommand):
                                         round_obj, round_data, fallback=round_obj.dice_result
                                     )
                                 
+                                # Pre-serialize the message for high performance
+                                dice_result_message = {
+                                    'type': 'dice_result',
+                                    'result': round_obj.dice_result,
+                                    'round_id': round_obj.round_id,
+                                    'timer': timer,
+                                    'dice_values': dice_values_for_broadcast,
+                                    'is_rolling': False,
+                                }
+                                dice_result_payload = json.dumps(dice_result_message)
+
                                 # Send dice_result event to display the result
                                 async_to_sync(channel_layer.group_send)(
                                     'game_room',
                                     {
-                                        'type': 'dice_result',
-                                        'result': round_obj.dice_result,
-                                        'round_id': round_obj.round_id,
-                                        'timer': timer,
-                                        'dice_values': dice_values_for_broadcast,
-                                        'is_rolling': False,
+                                        'type': 'broadcast_raw',
+                                        'payload': dice_result_payload,
                                     }
                                 )
                                 # Mark as sent
@@ -614,10 +674,26 @@ class Command(BaseCommand):
                             except Exception:
                                 pass
                 
-                # Save round object (ensures all changes including dice values are persisted)
-                # CRITICAL: Django uses autocommit mode, so save() commits immediately
-                # No need for explicit transaction.commit() - Django handles it automatically
-                round_obj.save()
+                # CRITICAL: Only sync totals from Redis every 5 seconds to reduce DB load
+                if iteration_count % 5 == 0 and redis_client:
+                    try:
+                        total_bets_val = redis_client.get(f"round_total_bets:{round_obj.round_id}")
+                        if total_bets_val:
+                            round_obj.total_bets = int(total_bets_val)
+                        
+                        total_amount_val = redis_client.get(f"round_total_amount:{round_obj.round_id}")
+                        if total_amount_val:
+                            from decimal import Decimal
+                            round_obj.total_amount = Decimal(str(total_amount_val))
+                        
+                        # Only save if we updated something
+                        round_obj.save(update_fields=['total_bets', 'total_amount'])
+                    except Exception as e:
+                        self.stdout.write(self.style.WARNING(f'Redis totals sync error: {e}'))
+
+                # We already save round_obj in specific places when status or dice change.
+                # Removing the global round_obj.save() to significantly reduce DB load.
+                # round_obj.save()  <-- REMOVED
                 
                 # Update Redis with latest dice values if they exist in database
                 if redis_client and round_obj.dice_1 is not None:
@@ -689,11 +765,17 @@ class Command(BaseCommand):
                     
                         if channel_layer:
                             try:
+                                # Pre-serialize the message for high performance
+                                timer_payload = json.dumps(timer_message)
+                                
                                 # Use send_nowait=False to prevent blocking on full channels
                                 # This ensures messages are queued even if channel is busy
                                 async_to_sync(channel_layer.group_send)(
                                     'game_room',
-                                    timer_message
+                                    {
+                                        'type': 'broadcast_raw',
+                                        'payload': timer_payload
+                                    }
                                 )
                                 # Log every 10 seconds to avoid spam
                                 if timer % 10 == 0:

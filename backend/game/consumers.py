@@ -292,6 +292,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def game_start(self, event):
         """Send game start message to WebSocket - NEVER closes connection on error"""
         try:
+            # Check if we have a pre-serialized payload for high performance
+            if 'payload' in event:
+                await self.send(text_data=event['payload'])
+                return
+
             await self.send(text_data=json.dumps({
                 'type': 'game_start',
                 'timer': event.get('timer', 1),
@@ -302,9 +307,21 @@ class GameConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             logger.warning(f"Error sending game_start message (connection remains open): {e}")
     
+    async def broadcast_raw(self, event):
+        """High-speed broadcast: sends pre-serialized JSON directly to the client"""
+        try:
+            await self.send(text_data=event['payload'])
+        except Exception:
+            pass # Connection might be closed, ignore and move to next user
+
     async def timer(self, event):
         """Send timer update to WebSocket - NEVER closes connection on error"""
         try:
+            # Check if we have a pre-serialized payload for high performance
+            if 'payload' in event:
+                await self.send(text_data=event['payload'])
+                return
+
             message = {
                 'type': 'timer',
                 'timer': event.get('timer', 0),
@@ -312,18 +329,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'round_id': event.get('round_id'),
                 'is_rolling': event.get('is_rolling', False),
             }
-            
-            # Timer messages should NOT include dice values
-            # Dice values are sent ONLY via dedicated dice_result message type at dice_result_time
-            # This prevents dice values from appearing in every timer message
-            
             await self.send(text_data=json.dumps(message))
-            # Log every 10 seconds to avoid spam
-            if message.get('timer', 0) % 10 == 0:
-                logger.info(f"📤 Sent timer message: {message}")
         except Exception as e:
-            # Log error but NEVER close connection - just skip this message
-            logger.warning(f"Error sending timer message (connection remains open): {e}")
+            logger.warning(f"Error sending timer message: {e}")
     
     async def game_timer(self, event):
         """Legacy handler - redirects to timer"""
@@ -332,6 +340,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def dice_result(self, event):
         """Send dice result to WebSocket - sent ONLY once at dice_result_time - NEVER closes connection on error"""
         try:
+            # Check if we have a pre-serialized payload for high performance
+            if 'payload' in event:
+                await self.send(text_data=event['payload'])
+                return
+
             timer = event.get('timer')
             # Ensure timer is not 0 - use dice_result_time if timer is missing or 0
             if not timer or timer == 0:
@@ -367,6 +380,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def result(self, event):
         """Send result message to WebSocket - NEVER closes connection on error"""
         try:
+            # Check if we have a pre-serialized payload for high performance
+            if 'payload' in event:
+                await self.send(text_data=event['payload'])
+                return
+
             await self.send(text_data=json.dumps({
                 'type': 'result',
                 'timer': event.get('timer', 0),
@@ -380,6 +398,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def game_end(self, event):
         """Send game end message to WebSocket - triggered when round ends - NEVER closes connection on error"""
         try:
+            # Check if we have a pre-serialized payload for high performance
+            if 'payload' in event:
+                await self.send(text_data=event['payload'])
+                return
+
             message = {
                 'type': 'game_end',
                 'timer': event.get('timer', 0),
@@ -417,6 +440,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def dice_roll(self, event):
         """Handle dice roll warning event - sent at configured dice_roll_time from dashboard - NEVER closes connection on error"""
         try:
+            # Check if we have a pre-serialized payload for high performance
+            if 'payload' in event:
+                await self.send(text_data=event['payload'])
+                return
+
             message = {
                 'type': 'dice_roll',
                 'timer': event.get('timer', 0),

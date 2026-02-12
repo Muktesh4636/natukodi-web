@@ -3,7 +3,7 @@ URL configuration for dice_game project.
 All URLs consolidated into a single file.
 """
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
@@ -47,22 +47,7 @@ urlpatterns = [
     path('api/auth/bank-details/<int:pk>/', accounts_views.bank_detail_action, name='bank_detail_action'),
     
     # Game endpoints (api/game/)
-    path('api/game/round/', game_views.current_round, name='current_round'),
-    path('api/game/round/exposure/', game_views.round_exposure, name='round_exposure_current'),
-    path('api/game/round/<str:round_id>/exposure/', game_views.round_exposure, name='round_exposure'),
-    path('api/game/bet/', game_views.place_bet, name='place_bet'),
-    path('api/game/bet/last/', game_views.remove_last_bet, name='remove_last_bet'),
-    path('api/game/bet/<int:number>/', game_views.remove_bet, name='remove_bet'),
-    path('api/game/bets/', game_views.my_bets, name='my_bets'),
-    path('api/game/results/', game_views.round_results, name='round_results'),
-    path('api/game/results/<str:round_id>/', game_views.round_results, name='round_results_by_id'),
-    re_path(r'^api/game/winning-results/?\s*$', game_views.winning_results, name='winning_results'),
-    re_path(r'^api/game/winning-results/(?P<round_id>[A-Za-z0-9_-]+)/?\s*$', game_views.winning_results, name='winning_results_by_id'),
-    path('api/game/last-round-results/', game_views.last_round_results, name='last_round_results'),
-    path('api/game/set-dice/', game_views.set_dice_result, name='set_dice_result'),
-    path('api/game/dice-mode/', game_views.dice_mode, name='dice_mode'),
-    path('api/game/stats/', game_views.game_stats, name='game_stats'),
-    path('api/game/settings/', game_views.game_settings_api, name='game_settings_api'),
+    path('api/game/', include('game.urls')),
     
     # Game admin endpoints (game-admin/)
     # Base game-admin path - redirect to login or dashboard based on auth status

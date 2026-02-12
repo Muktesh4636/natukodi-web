@@ -243,22 +243,23 @@ def sync_database_to_redis(redis_client):
         return False
 
 
+# In-memory cache for game settings to reduce DB load
+_SETTINGS_CACHE = {}
+_SETTINGS_CACHE_TIME = {}
+
 def get_game_setting(key, default=None):
     """
     Get a game setting from the database, with fallback to settings.py defaults.
-    Always reads fresh from database (no caching).
-    
-    Args:
-        key: The setting key (e.g., 'BETTING_CLOSE_TIME')
-        default: Default value if not found in database or settings.py
-    
-    Returns:
-        The setting value (converted to int if it's a numeric setting)
+    Uses in-memory caching to reduce database load.
     """
+    now = timezone.now().timestamp()
+    
+    # Check in-memory cache (valid for 30 seconds)
+    if key in _SETTINGS_CACHE and (now - _SETTINGS_CACHE_TIME.get(key, 0)) < 30:
+        return _SETTINGS_CACHE[key]
+
     try:
         # Query directly using values_list to bypass any ORM instance caching
-        # This ensures we always get the latest value from the database
-        # Using values_list avoids creating model instances, which can be cached
         result = GameSettings.objects.filter(key=key).values_list('value', flat=True).first()
         if result is None:
             raise GameSettings.DoesNotExist(f"GameSettings matching query does not exist.")
@@ -273,15 +274,25 @@ def get_game_setting(key, default=None):
         ]
         if key in numeric_keys:
             try:
-                return int(value)
+                value = int(value)
             except (ValueError, TypeError):
                 pass
+        
+        # Update cache
+        _SETTINGS_CACHE[key] = value
+        _SETTINGS_CACHE_TIME[key] = now
         
         return value
     except GameSettings.DoesNotExist:
         # Fallback to settings.py defaults
         game_settings = getattr(settings, 'GAME_SETTINGS', {})
-        return game_settings.get(key, default)
+        value = game_settings.get(key, default)
+        
+        # Update cache for fallback too
+        _SETTINGS_CACHE[key] = value
+        _SETTINGS_CACHE_TIME[key] = now
+        
+        return value
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)

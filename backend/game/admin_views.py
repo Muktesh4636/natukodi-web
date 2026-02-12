@@ -255,15 +255,10 @@ def admin_dashboard(request):
     })
     return render(request, 'admin/game_dashboard.html', context)
 
-# @admin_required - REMOVED FOR DEBUGGING v6
+@admin_required
 def set_dice_result_view(request):
     """Admin view to set dice result (1-6)"""
     if request.method == 'POST':
-        # Manual Auth Check
-        if not request.user.is_authenticated or not request.user.is_staff:
-             print("DEBUG: Manual Auth Fail in set_dice_result_view")
-             from django.http import HttpResponse
-             return HttpResponse("Unauthorized", status=401)
         try:
             # Get current round state using helper
             from .utils import get_current_round_state, get_game_setting
@@ -377,7 +372,6 @@ def set_dice_result_view(request):
         except Exception as e:
             import traceback
             error_trace = traceback.format_exc()
-            print(f"ERROR in set_dice_result_view: {error_trace}")
             from django.http import HttpResponse
             return HttpResponse(f"<html><body><h1>Error setting dice result</h1><pre>{error_trace}</pre><br><a href='/game-admin/dice-control/'>Back to Dice Control</a></body></html>")
             
@@ -458,12 +452,11 @@ def admin_dashboard_data(request):
     
     return JsonResponse(data)
 
-# @admin_required - REMOVED FOR DEBUGGING v6
+@admin_required
 def set_individual_dice_view(request):
     """Admin view to set individual dice values (1-6 for each of 6 dice)
     All dice values must be provided and time restrictions are enforced
     """
-    print("DEBUG: Entering set_individual_dice_view") # Debug log
     if request.method == 'POST':
         try:
             # Get current round state using helper
@@ -611,19 +604,15 @@ def set_individual_dice_view(request):
         except Exception as e:
             import traceback
             error_trace = traceback.format_exc()
-            print(f"ERROR in set_individual_dice_view: {error_trace}")
             from django.http import HttpResponse
             return HttpResponse(f"<html><body><h1>Error setting dice values</h1><pre>{error_trace}</pre><br><a href='/game-admin/dice-control/'>Back to Dice Control</a></body></html>")
     
     return redirect('dice_control')
 
-# @admin_required - REMOVED FOR DEBUGGING v6
+@admin_required
 def dice_control(request):
     """Dice control page"""
     try:
-        # Manual Auth Check
-        if not request.user.is_authenticated: # relaxed for debug
-             return redirect('admin_login')
 
         if not has_menu_permission(request.user, 'dice_control'):
             messages.error(request, 'You do not have permission to access dice control.')
@@ -690,9 +679,8 @@ def dice_control(request):
     except Exception as e:
         import traceback
         error_trace = traceback.format_exc()
-        print(f"ERROR in dice_control view: {error_trace}")
         from django.http import HttpResponse
-        return HttpResponse(f"<html><body><h1>Error loading Dice Control Page (v8)</h1><pre>{error_trace}</pre><br><a href='/game-admin/dashboard/'>Back to Dashboard</a></body></html>")
+        return HttpResponse(f"<html><body><h1>Error loading Dice Control Page</h1><pre>{error_trace}</pre><br><a href='/game-admin/dashboard/'>Back to Dashboard</a></body></html>")
 
 @admin_required
 def recent_rounds(request):
@@ -1395,7 +1383,7 @@ def approve_withdraw(request, pk):
                             upi_id=upi_id
                         )
             except Exception as e:
-                print(f"Error auto-saving bank details: {e}")
+                pass
             
             Transaction.objects.create(
                 user=withdraw.user,
