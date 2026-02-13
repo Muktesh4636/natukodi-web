@@ -109,6 +109,47 @@ services:
           cpus: '0.5'
           memory: 512M
 
+  # Bet Queue Worker (processes bets from Redis queue to Database)
+  bet_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dice_game_bet_worker
+    command: python manage.py process_bet_queue
+    volumes:
+      - ./backend:/app
+      - logs_volume:/app/logs
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+      - USE_SQLITE=${USE_SQLITE:-False}
+      - DB_NAME=${DB_NAME:-dice_game}
+      - DB_USER=${DB_USER:-muktesh}
+      - DB_PASSWORD=${DB_PASSWORD:-muktesh123}
+      - DB_HOST=72.61.254.74
+      - DB_PORT=6432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-0}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password_change_me}
+      - REDIS_POOL_SIZE=${REDIS_POOL_SIZE:-200}
+    depends_on:
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - dice_game_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
 volumes:
   redis_data:
     driver: local

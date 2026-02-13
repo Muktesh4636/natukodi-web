@@ -39,6 +39,26 @@ from .serializers import (
     UserBankDetailSerializer,
 )
 
+# Redis connection for high-performance betting
+try:
+    import redis
+    if hasattr(settings, 'REDIS_POOL') and settings.REDIS_POOL:
+        redis_client = redis.Redis(connection_pool=settings.REDIS_POOL)
+        redis_client.ping()
+    else:
+        redis_kwargs = {
+            'host': getattr(settings, 'REDIS_HOST', 'localhost'),
+            'port': getattr(settings, 'REDIS_PORT', 6379),
+            'db': getattr(settings, 'REDIS_DB', 0),
+            'decode_responses': True
+        }
+        if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
+            redis_kwargs['password'] = settings.REDIS_PASSWORD
+        redis_client = redis.Redis(**redis_kwargs)
+        redis_client.ping()
+except (redis.ConnectionError, redis.TimeoutError, AttributeError, ImportError):
+    redis_client = None
+
 
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for registration
@@ -195,6 +215,14 @@ def login(request):
                 'email': getattr(user, 'email', ''),
                 'is_staff': getattr(user, 'is_staff', False),
             }
+
+        # Sync balance to Redis for high-performance betting
+        if redis_client:
+            try:
+                wallet_obj, _ = Wallet.objects.get_or_create(user=user)
+                redis_client.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
+            except Exception as re:
+                logger.error(f"Redis balance sync error: {re}")
 
         return Response({
             'user': user_data,
@@ -367,6 +395,14 @@ def verify_otp_login(request):
             'is_staff': getattr(user, 'is_staff', False),
         }
 
+        # Sync balance to Redis for high-performance betting
+        if redis_client:
+            try:
+                wallet_obj, _ = Wallet.objects.get_or_create(user=user)
+                redis_client.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
+            except Exception as re:
+                logger.error(f"Redis balance sync error: {re}")
+
         return Response({
             'user': user_data,
             'refresh': refresh_token,
@@ -421,6 +457,14 @@ def wallet(request):
     """Get user wallet"""
     logger.info(f"Wallet balance check for user: {request.user.username} (ID: {request.user.id})")
     wallet, created = Wallet.objects.get_or_create(user=request.user)
+    
+    # Sync balance to Redis for high-performance betting
+    if redis_client:
+        try:
+            redis_client.set(f"user_balance:{request.user.id}", str(wallet.balance), ex=3600)
+        except Exception as re:
+            logger.error(f"Redis balance sync error: {re}")
+            
     serializer = WalletSerializer(wallet)
     return Response(serializer.data)
 
