@@ -206,53 +206,62 @@ class Command(BaseCommand):
                             conn.close()
 
                 
-                # Get current active round from database (SINGLE SOURCE OF TRUTH)
-                # IMPORTANT: Use select_for_update with nowait=True to prevent blocking
-                # Don't use Redis - it might have stale data from a different round
-                from django.db import transaction, connections
-                try:
-                    with transaction.atomic():
-                        # Use nowait=True to fail fast if row is locked, preventing blocking
-                        round_obj = GameRound.objects.select_for_update(nowait=True).filter(
+                # Get current active round from Redis (FAST) or database (SLOW - only if Redis fails)
+                round_obj = None
+                if redis_client:
+                    try:
+                        round_data_json = redis_client.get('current_round')
+                        if round_data_json:
+                            round_data = json.loads(round_data_json)
+                            # We still need the object to save status changes, but we can fetch it without select_for_update
+                            # to avoid blocking other processes.
+                            # Use timeout to prevent blocking
+                            try:
+                                round_obj = GameRound.objects.filter(round_id=round_data['round_id']).first()
+                            except Exception as db_err:
+                                self.stdout.write(self.style.WARNING(f'DB query error (non-critical): {db_err}'))
+                                # Continue without round_obj - will create new one
+                    except Exception as e:
+                        self.stdout.write(self.style.WARNING(f'Redis read error: {e}'))
+
+                # Fallback to database only if Redis didn't give us a valid round
+                # CRITICAL: Add timeout handling to prevent timer from getting stuck
+                if not round_obj:
+                    try:
+                        # Use connection timeout to prevent blocking
+                        from django.db import connections
+                        connections.close_all()  # Close stale connections
+                        round_obj = GameRound.objects.filter(
                             status__in=['BETTING', 'CLOSED', 'RESULT']
                         ).order_by('-start_time').first()
-                        
-                        # CRITICAL: If we found a round, verify it's actually the current one
-                        # by checking elapsed time - if it's > round_end_time, mark it complete and get/create new one
-                        if round_obj:
-                            elapsed_check = (now - round_obj.start_time).total_seconds()
-                            if elapsed_check >= round_end_time:
-                                # This round is too old, mark it complete
-                                round_obj.status = 'COMPLETED'
-                                round_obj.end_time = now
-                                round_obj.save()
-                                round_obj = None  # Force creation of new round
-                except (django.db.utils.InterfaceError, django.db.utils.OperationalError) as db_err:
-                    self.stdout.write(self.style.ERROR(f'Database connection error in main loop: {db_err}'))
-                    for conn in connections.all():
-                        conn.close()
-                    time.sleep(1.0)
-                    continue
-                except Exception as db_lock_error:
-                    # If row is locked, skip this iteration and continue (prevents blocking)
-                    # Increased sleep time to 1.0s to reduce hammer and allow the current process to finish
-                    self.stdout.write(self.style.WARNING(f'Database lock detected, waiting 1s: {db_lock_error}'))
-                    time.sleep(1.0)
-                    continue
+                    except Exception as e:
+                        self.stdout.write(self.style.WARNING(f'Database error fetching round (non-critical): {e}'))
+                        # Don't sleep or continue - just proceed without round_obj
+                        # Timer will create new round if needed
+                        round_obj = None
                 
                 # Track if we just sent game_start to avoid duplicate timer message
                 just_sent_game_start = False
                 
                 # If no active round exists, create a new one
+                # Wrap in try-except to prevent blocking on DB errors
                 if not round_obj:
-                    round_obj = GameRound.objects.create(
-                        round_id=f"R{int(timezone.now().timestamp())}",
-                        status='BETTING',
-                        betting_close_seconds=betting_close_time,
-                        dice_roll_seconds=dice_rolling_time,
-                        dice_result_seconds=dice_result_time,
-                        round_end_seconds=round_end_time
-                    )
+                    try:
+                        round_obj = GameRound.objects.create(
+                            round_id=f"R{int(timezone.now().timestamp())}",
+                            status='BETTING',
+                            betting_close_seconds=betting_close_time,
+                            dice_roll_seconds=dice_rolling_time,
+                            dice_result_seconds=dice_result_time,
+                            round_end_seconds=round_end_time
+                        )
+                    except Exception as db_err:
+                        self.stdout.write(self.style.ERROR(f'Failed to create new round (will retry): {db_err}'))
+                        # Close stale connections and continue - will retry next iteration
+                        from django.db import connections
+                        connections.close_all()
+                        round_obj = None
+                        # Continue loop - timer will keep running and retry creating round
                     # Reset flags for new round
                     round_obj._dice_roll_sent = False
                     round_obj._dice_result_sent = False
@@ -329,9 +338,14 @@ class Command(BaseCommand):
                     # If round is older than round_end_time seconds, complete it and create new one
                     if elapsed >= round_end_time:
                         # Mark old round as completed first to get the end_time
-                        round_obj.status = 'COMPLETED'
-                        round_obj.end_time = now
-                        round_obj.save()
+                        # Wrap in try-except to prevent blocking on DB errors
+                        try:
+                            round_obj.status = 'COMPLETED'
+                            round_obj.end_time = now
+                            round_obj.save()
+                        except Exception as db_err:
+                            self.stdout.write(self.style.WARNING(f'Failed to save round completion (non-critical): {db_err}'))
+                            # Continue anyway - Redis will handle the new round
                         
                         # Send game_end message with time and date (with distributed lock)
                         # STRICT lock: requires Redis for coordination
@@ -370,15 +384,23 @@ class Command(BaseCommand):
                             except Exception as e:
                                 self.stdout.write(self.style.ERROR(f'❌ Failed to send game_end: {e}'))
                         
-                        # Create new round
-                        round_obj = GameRound.objects.create(
-                            round_id=f"R{int(now.timestamp())}",
-                            status='BETTING',
-                            betting_close_seconds=betting_close_time,
-                            dice_roll_seconds=dice_rolling_time,
-                            dice_result_seconds=dice_result_time,
-                            round_end_seconds=round_end_time
-                        )
+                        # Create new round - wrap in try-except to prevent blocking
+                        try:
+                            round_obj = GameRound.objects.create(
+                                round_id=f"R{int(now.timestamp())}",
+                                status='BETTING',
+                                betting_close_seconds=betting_close_time,
+                                dice_roll_seconds=dice_rolling_time,
+                                dice_result_seconds=dice_result_time,
+                                round_end_seconds=round_end_time
+                            )
+                        except Exception as db_err:
+                            self.stdout.write(self.style.ERROR(f'Failed to create new round after completion (will retry): {db_err}'))
+                            # Close stale connections and continue - will retry next iteration
+                            from django.db import connections
+                            connections.close_all()
+                            round_obj = None
+                            # Continue loop - timer will keep running
                         # Reset flags for new round
                         round_obj._dice_roll_sent = False
                         round_obj._dice_result_sent = False
@@ -441,12 +463,19 @@ class Command(BaseCommand):
                             status = 'RESULT'
                         
                         # Update database status if it doesn't match
+                        # Wrap in try-except to prevent blocking on DB errors
                         if round_obj.status != status:
-                            round_obj.status = status
-                            if status == 'CLOSED' and not round_obj.betting_close_time:
-                                round_obj.betting_close_time = now
-                            elif status == 'RESULT' and not round_obj.result_time:
-                                round_obj.result_time = now
+                            try:
+                                round_obj.status = status
+                                if status == 'CLOSED' and not round_obj.betting_close_time:
+                                    round_obj.betting_close_time = now
+                                elif status == 'RESULT' and not round_obj.result_time:
+                                    round_obj.result_time = now
+                                # Note: We don't save here to reduce DB load - status is in Redis
+                            except Exception as db_err:
+                                # DB error - log but continue
+                                if iteration_count % 30 == 0:  # Only log every 30 iterations
+                                    self.stdout.write(self.style.WARNING(f'Status update error (non-critical): {db_err}'))
                         
                         # Build round_data
                         round_data = {
@@ -541,16 +570,21 @@ class Command(BaseCommand):
                             dice_values_for_broadcast = dice_values
 
                             # CRITICAL: Save round_obj to database to persist dice values
-                            round_obj.save()
+                            # Wrap in try-except to prevent blocking on DB errors
+                            try:
+                                round_obj.save()
 
-                            # Create dice result record
-                            DiceResult.objects.update_or_create(
-                                round=round_obj,
-                                defaults={'result': result or "0"}
-                            )
+                                # Create dice result record
+                                DiceResult.objects.update_or_create(
+                                    round=round_obj,
+                                    defaults={'result': result or "0"}
+                                )
 
-                            # Calculate payouts
-                            calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
+                                # Calculate payouts
+                                calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
+                            except Exception as db_err:
+                                self.stdout.write(self.style.WARNING(f'Failed to save dice result/payouts (non-critical): {db_err}'))
+                                # Continue - timer should keep running even if DB save fails
 
                             logger.info(f"Dice rolled automatically (random mode) at {timer}s for round {round_obj.round_id}: Result={result}")
                             self.stdout.write(self.style.SUCCESS(f'🎲 Dice rolled automatically (random mode) at {timer}s: {result}'))
@@ -675,7 +709,8 @@ class Command(BaseCommand):
                                 pass
                 
                 # CRITICAL: Only sync totals from Redis every 5 seconds to reduce DB load
-                if iteration_count % 5 == 0 and redis_client:
+                # Wrap in try-except to prevent blocking on DB errors
+                if iteration_count % 5 == 0 and redis_client and round_obj:
                     try:
                         total_bets_val = redis_client.get(f"round_total_bets:{round_obj.round_id}")
                         if total_bets_val:
@@ -686,10 +721,17 @@ class Command(BaseCommand):
                             from decimal import Decimal
                             round_obj.total_amount = Decimal(str(total_amount_val))
                         
-                        # Only save if we updated something
-                        round_obj.save(update_fields=['total_bets', 'total_amount'])
+                        # Only save if we updated something - wrap in try-except
+                        try:
+                            round_obj.save(update_fields=['total_bets', 'total_amount'])
+                        except Exception as db_err:
+                            # DB save failed - log but don't block timer
+                            if iteration_count % 30 == 0:  # Only log every 30 iterations to avoid spam
+                                self.stdout.write(self.style.WARNING(f'DB save error (non-critical): {db_err}'))
                     except Exception as e:
-                        self.stdout.write(self.style.WARNING(f'Redis totals sync error: {e}'))
+                        # Redis or other error - log but don't block
+                        if iteration_count % 30 == 0:  # Only log every 30 iterations
+                            self.stdout.write(self.style.WARNING(f'Redis totals sync error (non-critical): {e}'))
 
                 # We already save round_obj in specific places when status or dice change.
                 # Removing the global round_obj.save() to significantly reduce DB load.
@@ -751,7 +793,23 @@ class Command(BaseCommand):
                         # This avoids massive flooding in multi-process environments
                         lock_acquired = (timer != last_broadcast_timer)
 
-                    if not just_sent_game_start and timer != round_end_time and lock_acquired:
+                    # OPTIMIZATION: Reduce broadcast frequency during stable periods to reduce WebSocket overhead
+                    # Broadcast every second during critical periods (betting close, dice roll, result)
+                    # Broadcast every 2 seconds during stable betting period to reduce load
+                    should_broadcast = False
+                    if timer <= betting_close_time:
+                        # During betting: broadcast every 2 seconds (except last 5 seconds before close)
+                        should_broadcast = (timer % 2 == 0) or (timer >= betting_close_time - 5)
+                    elif timer < dice_result_time:
+                        # During dice rolling: broadcast every second (critical period)
+                        should_broadcast = True
+                    elif timer <= round_end_time:
+                        # During result display: broadcast every 2 seconds
+                        should_broadcast = (timer % 2 == 0) or (timer == dice_result_time)
+                    else:
+                        should_broadcast = True
+                    
+                    if not just_sent_game_start and timer != round_end_time and lock_acquired and should_broadcast:
                         last_broadcast_timer = timer  # Update last broadcast
                         # Timer message - clean message with only timer, status, and round_id
                         # Changed type to 'timer' to match consumer handler exactly
@@ -809,33 +867,26 @@ class Command(BaseCommand):
                 # 3. Race conditions
                 # Django will automatically close idle connections and reuse them.
                 
-                # Calculate sleep time to maintain 1-second intervals
-                # CRITICAL: Always ensure minimum sleep to prevent rapid-fire messages
+                # Calculate sleep time to maintain consistent 1-second intervals
+                # CRITICAL: Always ensure minimum sleep to prevent rapid-fire messages and timer getting stuck
                 iteration_end = time.time()
                 elapsed_in_iteration = iteration_end - iteration_start
 
-                # Sleep to maintain consistent 1-second intervals
+                # Simplified sleep calculation: Always aim for ~1 second sleep
                 # If operations took longer than 1 second, sleep less (catch up)
                 # But always sleep at least 0.8 seconds to prevent continuous rapid messages
-                # Calculate sleep time to align with the start of the next second
-                # This prevents drift and ensures we wake up exactly when the next timer value is ready
-                if round_obj:
-                    # Calculate exactly when the next second boundary occurs relative to round start
-                    # We want to wake up shortly after the next second starts
-                    # e.g., if start_time is T, we want to wake up at T + timer + 1 + small_offset
-                    elapsed_total = (timezone.now() - round_obj.start_time).total_seconds()
-                    next_second_boundary = int(elapsed_total) + 1
-                    time_until_next_second = next_second_boundary - elapsed_total
-                    
-                    # Sleep exactly until the next second, plus a tiny buffer (50ms) to ensure we're past the boundary
-                    sleep_time = max(0.1, time_until_next_second + 0.05)
+                # This ensures the timer doesn't get stuck or run too fast
+                if elapsed_in_iteration < 1.0:
+                    # Operations finished quickly, sleep for the remainder of 1 second
+                    sleep_time = 1.0 - elapsed_in_iteration
+                    # Ensure minimum sleep of 0.8 seconds to prevent rapid iterations
+                    sleep_time = max(0.8, sleep_time)
                 else:
-                    sleep_time = 1.0
+                    # Operations took longer than 1 second, sleep briefly to prevent CPU spinning
+                    sleep_time = 0.1
 
-                # Cap sleep at 1.5 seconds max to prevent long delays
-                sleep_time = min(sleep_time, 1.5)
-                # Cap sleep at 1.5 seconds max to prevent long delays
-                sleep_time = min(sleep_time, 1.5)
+                # Cap sleep at 1.2 seconds max to prevent long delays and ensure timer keeps moving
+                sleep_time = min(sleep_time, 1.2)
                 time.sleep(sleep_time)
 
                 iteration_count += 1

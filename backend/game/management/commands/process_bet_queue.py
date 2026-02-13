@@ -23,15 +23,23 @@ class Command(BaseCommand):
             if hasattr(settings, 'REDIS_POOL') and settings.REDIS_POOL:
                 redis_client = redis.Redis(connection_pool=settings.REDIS_POOL)
             else:
-                redis_client = redis.Redis(
-                    host=settings.REDIS_HOST,
-                    port=settings.REDIS_PORT,
-                    db=settings.REDIS_DB,
-                    decode_responses=True
-                )
+                redis_kwargs = {
+                    'host': settings.REDIS_HOST,
+                    'port': settings.REDIS_PORT,
+                    'db': settings.REDIS_DB,
+                    'decode_responses': True,
+                    'socket_connect_timeout': 5,
+                    'socket_timeout': 5,
+                }
+                if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
+                    redis_kwargs['password'] = settings.REDIS_PASSWORD
+                redis_client = redis.Redis(**redis_kwargs)
             redis_client.ping()
+            self.stdout.write(self.style.SUCCESS('✅ Redis connected successfully'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Redis connection failed: {e}'))
+            import traceback
+            traceback.print_exc()
             return
 
         batch_size = 50  # Process 50 bets at a time
@@ -57,7 +65,9 @@ class Command(BaseCommand):
                     time.sleep(0.5)
                     continue
 
-                self.stdout.write(f"Processing batch of {len(bets_to_process)} bets...")
+                # Log processing (but not too frequently to avoid spam)
+                if len(bets_to_process) >= 10:
+                    self.stdout.write(f"Processing batch of {len(bets_to_process)} bets...")
 
                 # 2. Process Batch in a single DB Transaction
                 with transaction.atomic():
