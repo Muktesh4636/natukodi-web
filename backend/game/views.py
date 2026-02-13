@@ -1139,6 +1139,7 @@ def winning_results(request, round_id=None):
     # Filter out None values but keep all valid dice values (1-6)
     dice_values = [d for d in dice_values if d is not None and 1 <= d <= 6]
     
+    # Get all winning numbers and frequencies
     winning_numbers_info = []
     if dice_values and len(dice_values) == 6:
         counts = Counter(dice_values)
@@ -1148,39 +1149,15 @@ def winning_results(request, round_id=None):
         # Process each winning number
         for winning_number in winning_numbers:
             frequency = counts[winning_number]
-            number_bets = winning_bets_query.filter(number=winning_number)
-            number_total_bets = number_bets.count()
-            number_total_payout = number_bets.aggregate(Sum('payout_amount'))['payout_amount__sum'] or Decimal('0.00')
-            number_total_bet_amount = number_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or Decimal('0.00')
+            # No longer fetching individual winning bets for winning_numbers_info
             
             winning_numbers_info.append({
                 'number': winning_number,
                 'frequency': frequency,
                 'payout_multiplier': float(frequency),
-                'total_bets': number_total_bets,
-                'total_bet_amount': str(number_total_bet_amount),
-                'total_payout': str(number_total_payout),
             })
     
-    # Get all winning bets with user info (sorted by payout amount descending)
-    winning_bets = winning_bets_query.order_by('-payout_amount')[:limit]
-    
-    # Serialize winning bets
-    winning_bets_data = []
-    for bet in winning_bets:
-        winning_bets_data.append({
-            'id': bet.id,
-            'user': {
-                'id': bet.user.id,
-                'username': bet.user.username,
-            },
-            'number': bet.number,
-            'chip_amount': str(bet.chip_amount),
-            'payout_amount': str(bet.payout_amount),
-            'created_at': bet.created_at.isoformat(),
-        })
-    
-    # Calculate aggregate statistics
+    # Aggregate statistics
     total_winners = winning_bets_query.count()
     total_winning_bets_amount = winning_bets_query.aggregate(Sum('chip_amount'))['chip_amount__sum'] or Decimal('0.00')
     total_payouts = winning_bets_query.aggregate(Sum('payout_amount'))['payout_amount__sum'] or Decimal('0.00')
@@ -1203,7 +1180,7 @@ def winning_results(request, round_id=None):
             'end_time': round_obj.end_time.isoformat() if round_obj.end_time else None,
         },
         'winning_numbers': winning_numbers_info,
-        'winning_bets': winning_bets_data,
+        'winning_bets': [], # Removed individual winning bets for privacy/performance
         'statistics': {
             'total_bets': total_bets,
             'total_bet_amount': str(total_bet_amount),
@@ -1267,37 +1244,77 @@ def game_settings_api(request):
 
 
 @api_view(['GET'])
-@authentication_classes([])  # Disable authentication
-@permission_classes([AllowAny])  # Public endpoint - no authentication required
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def last_round_results(request):
     """
     API endpoint to get the last completed round results.
     Returns: round_id and all 6 dice results (dice_1 through dice_6).
     """
-    logger.info("Public last round results API access")
-    # Get the last completed round (status is 'RESULT' or 'COMPLETED')
-    last_round = GameRound.objects.filter(
-        status__in=['RESULT', 'COMPLETED']
-    ).order_by('-start_time').first()
-    
-    if not last_round:
-        logger.warning("Last round results requested but no completed rounds found")
+    try:
+        logger.info("Public last round results API access")
+        
+        # Try to get from Redis first for maximum performance and to avoid DB timeouts
+        if redis_client:
+            try:
+                last_results = redis_client.get('last_round_results_cache')
+                if last_results:
+                    logger.info("Returning last round results from Redis cache")
+                    return Response(json.loads(last_results))
+            except Exception as re:
+                logger.error(f"Redis cache read error: {re}")
+
+        # Fallback to DB if not in Redis or Redis fails
+        # Get the last completed round (status is 'RESULT' or 'COMPLETED')
+        last_round = GameRound.objects.filter(
+            status__in=['RESULT', 'COMPLETED'],
+            dice_result__isnull=False
+        ).order_by('-end_time').first()
+
+        if not last_round:
+            # Try order by start_time if end_time is null
+            last_round = GameRound.objects.filter(
+                status__in=['RESULT', 'COMPLETED'],
+                dice_result__isnull=False
+            ).order_by('-start_time').first()
+
+        if not last_round:
+            logger.warning("Last round results requested but no completed rounds found")
+            return Response({
+                'error': 'No completed round found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Return round_id and all 6 dice values
+        result = {
+            'round_id': last_round.round_id,
+            'dice_1': last_round.dice_1,
+            'dice_2': last_round.dice_2,
+            'dice_3': last_round.dice_3,
+            'dice_4': last_round.dice_4,
+            'dice_5': last_round.dice_5,
+            'dice_6': last_round.dice_6,
+            'dice_result': last_round.dice_result,
+            'timestamp': last_round.end_time.isoformat() if last_round.end_time else None
+        }
+
+        # Cache in Redis for 30 seconds to reduce DB load
+        if redis_client:
+            try:
+                redis_client.set('last_round_results_cache', json.dumps(result), ex=30)
+            except Exception as re:
+                logger.error(f"Redis cache write error: {re}")
+
+        logger.info(f"Returning last round results: {result}")
+        return Response(result)
+    except Exception as e:
+        logger.error(f"Error in last_round_results: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return Response({
-            'error': 'No completed round found'
-        }, status=status.HTTP_404_NOT_FOUND)
-    
-    # Return round_id and all 6 dice values
-    result = {
-        'round_id': last_round.round_id,
-        'dice_1': last_round.dice_1,
-        'dice_2': last_round.dice_2,
-        'dice_3': last_round.dice_3,
-        'dice_4': last_round.dice_4,
-        'dice_5': last_round.dice_5,
-        'dice_6': last_round.dice_6,
-    }
-    
-    return Response(result)
+            'error': 'Internal server error',
+            'details': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
