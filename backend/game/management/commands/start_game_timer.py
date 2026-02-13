@@ -793,23 +793,7 @@ class Command(BaseCommand):
                         # This avoids massive flooding in multi-process environments
                         lock_acquired = (timer != last_broadcast_timer)
 
-                    # OPTIMIZATION: Reduce broadcast frequency during stable periods to reduce WebSocket overhead
-                    # Broadcast every second during critical periods (betting close, dice roll, result)
-                    # Broadcast every 2 seconds during stable betting period to reduce load
-                    should_broadcast = False
-                    if timer <= betting_close_time:
-                        # During betting: broadcast every 2 seconds (except last 5 seconds before close)
-                        should_broadcast = (timer % 2 == 0) or (timer >= betting_close_time - 5)
-                    elif timer < dice_result_time:
-                        # During dice rolling: broadcast every second (critical period)
-                        should_broadcast = True
-                    elif timer <= round_end_time:
-                        # During result display: broadcast every 2 seconds
-                        should_broadcast = (timer % 2 == 0) or (timer == dice_result_time)
-                    else:
-                        should_broadcast = True
-                    
-                    if not just_sent_game_start and timer != round_end_time and lock_acquired and should_broadcast:
+                    if not just_sent_game_start and timer != round_end_time and lock_acquired:
                         last_broadcast_timer = timer  # Update last broadcast
                         # Timer message - clean message with only timer, status, and round_id
                         # Changed type to 'timer' to match consumer handler exactly
