@@ -35,13 +35,16 @@ try:
             'host': settings.REDIS_HOST,
             'port': settings.REDIS_PORT,
             'db': settings.REDIS_DB,
-            'decode_responses': True
+            'decode_responses': True,
+            'socket_connect_timeout': 5,
+            'socket_timeout': 5,
         }
         if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
             redis_kwargs['password'] = settings.REDIS_PASSWORD
         redis_client = redis.Redis(**redis_kwargs)
         redis_client.ping()
-except (redis.ConnectionError, redis.TimeoutError, AttributeError):
+except (redis.ConnectionError, redis.TimeoutError, redis.AuthenticationError, AttributeError, Exception) as e:
+    logger.warning(f"Redis connection failed: {e}. Falling back to database-only mode.")
     redis_client = None
 
 
@@ -314,10 +317,15 @@ def place_bet(request):
             # Ensure balance is in Redis
             current_balance = redis_client.get(balance_key)
             if current_balance is None:
-                # Sync from DB to Redis if missing
-                wallet = Wallet.objects.get(user_id=user_id)
-                current_balance = float(wallet.balance)
-                redis_client.set(balance_key, str(current_balance), ex=3600) # Cache for 1 hour
+                # Sync from DB to Redis if missing (with timeout protection)
+                try:
+                    wallet = Wallet.objects.select_related('user').get(user_id=user_id)
+                    current_balance = float(wallet.balance)
+                    redis_client.set(balance_key, str(current_balance), ex=3600) # Cache for 1 hour
+                except Exception as db_err:
+                    logger.error(f"Failed to sync balance from DB to Redis: {db_err}")
+                    # If DB sync fails, fall through to database fallback
+                    raise
             else:
                 current_balance = float(current_balance)
 
@@ -360,9 +368,68 @@ def place_bet(request):
 
         except Exception as e:
             logger.error(f"Redis-First betting failed, falling back to DB: {e}")
-            # Fallback logic would go here, but for 1000 members, we want Redis to work.
+            # Fallback to old database method when Redis fails
+            pass  # Continue to fallback logic below
     
-    return Response({'error': 'System busy, please try again'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    # FALLBACK: Use old database method when Redis is unavailable
+    try:
+        # Get round object
+        round_obj = GameRound.objects.order_by('-start_time').first()
+        if not round_obj:
+            return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check timing
+        timer = calculate_current_timer(round_obj.start_time)
+        betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
+        if timer >= betting_close_time:
+            return Response({'error': f'Betting closed at {betting_close_time}s'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get wallet and check balance
+        wallet = Wallet.objects.get(user=request.user)
+        if wallet.balance < chip_amount:
+            return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create bet in database
+        with transaction.atomic():
+            bet = Bet.objects.create(
+                user=request.user,
+                round=round_obj,
+                number=number,
+                chip_amount=chip_amount
+            )
+            
+            balance_before = wallet.balance
+            wallet.deduct(chip_amount)
+            balance_after = wallet.balance
+            
+            Transaction.objects.create(
+                user=request.user,
+                transaction_type='BET',
+                amount=chip_amount,
+                balance_before=balance_before,
+                balance_after=balance_after,
+                description=f"Bet on number {number} in round {round_obj.round_id}"
+            )
+            
+            # Update round stats
+            round_obj.total_bets += 1
+            round_obj.total_amount += chip_amount
+            round_obj.save()
+        
+        serializer = BetSerializer(bet)
+        return Response({
+            'bet': serializer.data,
+            'wallet_balance': str(wallet.balance),
+            'round': {
+                'round_id': round_obj.round_id,
+                'total_bets': round_obj.total_bets,
+                'total_amount': str(round_obj.total_amount)
+            }
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        logger.exception(f"Database fallback betting failed: {e}")
+        return Response({'error': 'Failed to place bet. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['DELETE'])
