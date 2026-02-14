@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import UnityDiceGame from './UnityDiceGame';
 
 const DiceGamePage: React.FC = () => {
@@ -7,6 +7,24 @@ const DiceGamePage: React.FC = () => {
   const [gameState, setGameState] = useState<string>('waiting');
   const [betAmount, setBetAmount] = useState<string>('10');
   const [selectedNumbers, setSelectedNumbers] = useState<Set<number>>(new Set());
+  const [recentResults, setRecentResults] = useState<any[]>([]);
+
+  // Fetch recent results on mount and when a round completes
+  const fetchRecentResults = async () => {
+    try {
+      const response = await fetch('/api/game/recent-round-results/?count=3');
+      if (response.ok) {
+        const data = await response.json();
+        setRecentResults(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch recent results:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentResults();
+  }, []);
 
   const handleDiceRollComplete = (results: number[]) => {
     setDiceResults(results);
@@ -16,6 +34,9 @@ const DiceGamePage: React.FC = () => {
     const winnings = calculateWinnings(results, selectedNumbers, parseFloat(betAmount));
     console.log('Dice results:', results);
     console.log('Winnings:', winnings);
+    
+    // Refresh recent results after a short delay to allow backend to process
+    setTimeout(fetchRecentResults, 2000);
   };
 
   const handleGameStateChange = (state: string) => {
@@ -173,6 +194,61 @@ const DiceGamePage: React.FC = () => {
           width={960}
           height={600}
         />
+      </div>
+
+      {/* Recent Results - Scrollable Section */}
+      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
+        <h2 style={{ color: '#FF9800', marginBottom: '15px' }}>Recent Round Results</h2>
+        <div style={{ 
+          maxHeight: '300px', 
+          overflowY: 'auto', 
+          padding: '10px',
+          border: '1px solid #444',
+          borderRadius: '8px',
+          backgroundColor: '#1a1a1a'
+        }}>
+          {recentResults.length > 0 ? (
+            recentResults.map((result, index) => (
+              <div key={result.round_id} style={{ 
+                padding: '15px', 
+                borderBottom: index < recentResults.length - 1 ? '1px solid #333' : 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 'bold', color: '#4CAF50' }}>Round: {result.round_id}</div>
+                  <div style={{ fontSize: '12px', color: '#888' }}>{new Date(result.timestamp).toLocaleString()}</div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[1, 2, 3, 4, 5, 6].map(i => (
+                    <div key={i} style={{ 
+                      width: '30px', 
+                      height: '30px', 
+                      backgroundColor: '#333', 
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      border: '1px solid #555'
+                    }}>
+                      {result[`dice_${i}`]}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontWeight: 'bold', color: '#FF9800' }}>
+                  Result: {result.dice_result}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
+              No recent results found.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Instructions */}

@@ -16,6 +16,27 @@ class GunduAtaHighTrafficPlayer(HttpUser):
     username = None
     last_login_time = 0
     TOKEN_REFRESH_INTERVAL = 300  # Refresh token every 5 minutes (300 seconds)
+    
+    def on_start(self):
+        """Pick a random test user and log in"""
+        # Ensure login completes before starting tasks
+        max_retries = 5
+        retry_delay = 1.0  # Increased delay between retries
+        for attempt in range(max_retries):
+            if self.login() and self.token:
+                logging.info(f"Successfully logged in as {self.username}")
+                return
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
+        # If login fails after all retries, wait longer before retrying
+        logging.warning(f"Login failed after {max_retries} attempts for {self.username}, will retry in tasks")
+    
+    def setup(self):
+        """Setup method called once per user before on_start"""
+        # Disable SSL verification warnings if needed (not recommended for production)
+        # But useful for testing
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     def login(self):
         """Login and get tokens"""
@@ -23,30 +44,70 @@ class GunduAtaHighTrafficPlayer(HttpUser):
         self.username = f"testuser_{user_id}"
         
         try:
-            with self.client.post("/api/auth/login/", json={
-                "username": self.username,
-                "password": PASSWORD
-            }, catch_response=True) as response:
-                if response.status_code == 200:
-                    data = response.json()
-                    self.token = data.get("access")
-                    self.refresh_token = data.get("refresh")
-                    self.last_login_time = time.time()
-                    
-                    # Validate token was received
-                    if not self.token:
-                        response.failure(f"Login succeeded but no token received for {self.username}")
+            # Use absolute URL to avoid any redirect issues
+            # Ensure trailing slash is present
+            login_url = "/api/auth/login/"
+            
+            # Make POST request with explicit headers and timeout
+            response = self.client.post(
+                login_url, 
+                json={
+                    "username": self.username,
+                    "password": PASSWORD
+                },
+                headers={"Content-Type": "application/json"},
+                catch_response=True,
+                allow_redirects=True,
+                timeout=10,  # 10 second timeout
+                name="API: Login"
+            )
+            
+            with response as resp:
+                if resp.status_code == 200:
+                    try:
+                        data = resp.json()
+                        # Handle both response formats: {"access": "...", "refresh": "..."} 
+                        # and {"user": {...}, "access": "...", "refresh": "..."}
+                        self.token = data.get("access")
+                        self.refresh_token = data.get("refresh")
+                        
+                        if not self.token:
+                            # Try alternative response format
+                            if "user" in data and isinstance(data["user"], dict):
+                                # Response has user object, tokens should be at root level
+                                logging.warning(f"Login response format: {list(data.keys())}")
+                            
+                            resp.failure(f"Login succeeded but no access token received for {self.username}. Response keys: {list(data.keys()) if isinstance(data, dict) else 'not a dict'}")
+                            return False
+                        
+                        if not self.refresh_token:
+                            logging.warning(f"Login succeeded but no refresh token received for {self.username}")
+                            # Don't fail if refresh token is missing, access token is more important
+                        
+                        self.last_login_time = time.time()
+                        resp.success()
+                        logging.debug(f"Login successful for {self.username}, token length: {len(self.token) if self.token else 0}")
+                        return True
+                    except ValueError as e:
+                        # JSON parsing error
+                        resp.failure(f"Failed to parse login response as JSON: {e}. Response text: {resp.text[:200]}")
                         return False
-                    
-                    response.success()
-                    return True
+                    except Exception as e:
+                        resp.failure(f"Unexpected error parsing login response: {e}. Response: {resp.text[:200]}")
+                        return False
+                elif resp.status_code in [301, 302, 303, 307, 308]:
+                    # Redirect occurred - this shouldn't happen with HTTPS and trailing slash
+                    # But if it does, the redirect should have been followed
+                    resp.failure(f"Unexpected redirect (status {resp.status_code}). URL: {login_url}")
+                    return False
                 else:
-                    response.failure(f"Failed to login as {self.username}: {response.text}")
+                    # If status is not 200, it's a failure
+                    resp.failure(f"Failed to login as {self.username}: Status {resp.status_code} - {resp.text[:200]}")
                     self.token = None
                     self.refresh_token = None
                     return False
         except Exception as e:
-            logging.error(f"Login error for {self.username}: {e}")
+            logging.error(f"Login exception for {self.username}: {e}")
             self.token = None
             self.refresh_token = None
             return False
@@ -59,7 +120,7 @@ class GunduAtaHighTrafficPlayer(HttpUser):
         try:
             with self.client.post("/api/auth/token/refresh/", json={
                 "refresh": self.refresh_token
-            }, catch_response=True) as response:
+            }, catch_response=True, allow_redirects=False, name="API: Refresh Token") as response:
                 if response.status_code == 200:
                     data = response.json()
                     self.token = data.get("access")
