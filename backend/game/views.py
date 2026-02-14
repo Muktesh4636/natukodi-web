@@ -74,6 +74,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def current_round(request):
     """Get current game round status"""
     logger.info(f"User {request.user.username} (ID: {request.user.id}) fetching current round")
@@ -269,6 +270,32 @@ def current_round(request):
     return Response(data)
 
 
+# Redis Lua Script for Atomic Bet Placement
+# Keys: [user_balance_key, total_exposure_key, user_exposure_key, bet_count_key, total_amount_key]
+# Args: [bet_amount, user_id]
+PLACE_BET_LUA = """
+local balance = tonumber(redis.call('GET', KEYS[1]) or "0")
+local amount = tonumber(ARGV[1])
+local user_id = ARGV[2]
+
+if balance >= amount then
+    -- 1. Deduct from user balance
+    local new_balance = redis.call('INCRBYFLOAT', KEYS[1], -amount)
+    -- 2. Increase total round exposure
+    redis.call('INCRBYFLOAT', KEYS[2], amount)
+    -- 3. Increase user-specific exposure in the Hash
+    redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount)
+    -- 4. Increment total bet count
+    redis.call('INCR', KEYS[4])
+    -- 5. Update round total amount (legacy key)
+    redis.call('INCRBYFLOAT', KEYS[5], amount)
+    
+    return {true, tostring(new_balance)}
+else
+    return {false, "Insufficient balance"}
+end
+"""
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @csrf_exempt
@@ -279,7 +306,7 @@ def place_bet(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     number = serializer.validated_data['number']
-    chip_amount = serializer.validated_data['chip_amount']
+    chip_amount = float(serializer.validated_data['chip_amount'])
     user_id = request.user.id
     username = request.user.username
 
@@ -309,37 +336,32 @@ def place_bet(request):
     if timer >= betting_close_time:
         return Response({'error': f'Betting closed at {betting_close_time}s'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # 3. Redis-First Balance Check & Deduction
+    # 3. Redis-First Atomic Placement (Lua Script)
     if redis_client:
         try:
             balance_key = f"user_balance:{user_id}"
             
-            # Ensure balance is in Redis
-            current_balance = redis_client.get(balance_key)
-            if current_balance is None:
-                # Sync from DB to Redis if missing (with timeout protection)
-                try:
-                    wallet = Wallet.objects.select_related('user').get(user_id=user_id)
-                    current_balance = float(wallet.balance)
-                    redis_client.set(balance_key, str(current_balance), ex=3600) # Cache for 1 hour
-                except Exception as db_err:
-                    logger.error(f"Failed to sync balance from DB to Redis: {db_err}")
-                    # If DB sync fails, fall through to database fallback
-                    raise
-            else:
-                current_balance = float(current_balance)
+            # Ensure balance is in Redis (warm up if needed)
+            if redis_client.get(balance_key) is None:
+                wallet = Wallet.objects.get(user_id=user_id)
+                redis_client.set(balance_key, str(wallet.balance), ex=3600)
 
-            if current_balance < float(chip_amount):
-                return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # ATOMIC Deduction in Redis
-            # We use a Lua script or simple DECRBYFLOAT to ensure no race conditions
-            new_balance = redis_client.incrbyfloat(balance_key, -float(chip_amount))
+            keys = [
+                balance_key,
+                f"round:{round_id}:total_exposure",
+                f"round:{round_id}:user_exposure",
+                f"round:{round_id}:bet_count",
+                f"round_total_amount:{round_id}" # Legacy key for compatibility
+            ]
             
-            if new_balance < 0:
-                # Rollback if someone managed to bet twice simultaneously
-                redis_client.incrbyfloat(balance_key, float(chip_amount))
-                return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+            # Execute Lua script
+            result = redis_client.eval(PLACE_BET_LUA, 5, *keys, chip_amount, user_id)
+            success, response_val = result[0], result[1]
+
+            if not success:
+                return Response({'error': response_val}, status=status.HTTP_400_BAD_REQUEST)
+
+            new_balance = response_val
 
             # 4. Queue the Bet for DB processing
             bet_data = {
@@ -352,13 +374,12 @@ def place_bet(request):
             }
             redis_client.rpush('bet_queue', json.dumps(bet_data))
 
-            # 5. Update Round Totals in Redis (Instant UI update)
+            # 5. Update Round Totals counter (legacy)
             redis_client.incr(f"round_total_bets:{round_id}")
-            redis_client.incrbyfloat(f"round_total_amount:{round_id}", float(chip_amount))
 
             return Response({
                 'message': 'Bet placed successfully',
-                'wallet_balance': "{:.2f}".format(new_balance),
+                'wallet_balance': "{:.2f}".format(float(new_balance)),
                 'round': {
                     'round_id': round_id,
                     'total_bets': int(redis_client.get(f"round_total_bets:{round_id}") or 0),
@@ -369,7 +390,7 @@ def place_bet(request):
         except Exception as e:
             logger.error(f"Redis-First betting failed, falling back to DB: {e}")
             # Fallback to old database method when Redis fails
-            pass  # Continue to fallback logic below
+            pass
     
     # FALLBACK: Use old database method when Redis is unavailable
     try:
@@ -386,7 +407,7 @@ def place_bet(request):
         
         # Get wallet and check balance
         wallet = Wallet.objects.get(user=request.user)
-        if wallet.balance < chip_amount:
+        if wallet.balance < Decimal(str(chip_amount)):
             return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create bet in database
@@ -395,17 +416,17 @@ def place_bet(request):
                 user=request.user,
                 round=round_obj,
                 number=number,
-                chip_amount=chip_amount
+                chip_amount=Decimal(str(chip_amount))
             )
             
             balance_before = wallet.balance
-            wallet.deduct(chip_amount)
+            wallet.deduct(Decimal(str(chip_amount)))
             balance_after = wallet.balance
             
             Transaction.objects.create(
                 user=request.user,
                 transaction_type='BET',
-                amount=chip_amount,
+                amount=Decimal(str(chip_amount)),
                 balance_before=balance_before,
                 balance_after=balance_after,
                 description=f"Bet on number {number} in round {round_obj.round_id}"
@@ -413,7 +434,7 @@ def place_bet(request):
             
             # Update round stats
             round_obj.total_bets += 1
-            round_obj.total_amount += chip_amount
+            round_obj.total_amount += Decimal(str(chip_amount))
             round_obj.save()
         
         serializer = BetSerializer(bet)
@@ -789,6 +810,96 @@ def betting_history(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
+def round_results(request, round_id=None):
+    """
+    User's round results API with specific format.
+    Shows user's bets, win/loss status, and wallet balance for a given round.
+    """
+    # Get round by ID or use latest completed round
+    if round_id:
+        try:
+            round_obj = GameRound.objects.get(round_id=round_id)
+        except GameRound.DoesNotExist:
+            return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        # Get the most recently COMPLETED round with dice results
+        round_obj = GameRound.objects.filter(
+            status__in=['RESULT', 'COMPLETED'],
+            dice_result__isnull=False
+        ).order_by('-end_time').first()
+
+        if not round_obj:
+            return Response({'error': 'No completed round found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Get user's bets for this round
+    user_bets = Bet.objects.filter(user=request.user, round=round_obj).order_by('created_at')
+    
+    bets_data = []
+    total_bet_amount = Decimal('0.00')
+    total_payout = Decimal('0.00')
+    winning_bets_count = 0
+    losing_bets_count = 0
+
+    for bet in user_bets:
+        total_bet_amount += bet.chip_amount
+        payout = bet.payout_amount or Decimal('0.00')
+        total_payout += payout
+        
+        if bet.is_winner:
+            winning_bets_count += 1
+        else:
+            losing_bets_count += 1
+            
+        bets_data.append({
+            'id': bet.id,
+            'number': bet.number,
+            'chip_amount': "{:.2f}".format(float(bet.chip_amount)),
+            'is_winner': bet.is_winner,
+            'payout_amount': "{:.2f}".format(float(payout))
+        })
+
+    net_result = total_payout - total_bet_amount
+    net_result_str = "{:+.2f}".format(float(net_result))
+
+    # Get user's current wallet balance
+    wallet_balance = "0.00"
+    try:
+        wallet_balance = "{:.2f}".format(float(request.user.wallet.balance))
+    except Exception:
+        pass
+
+    response_data = {
+        "round": {
+            "round_id": round_obj.round_id,
+            "status": round_obj.status,
+            "dice_result": round_obj.dice_result,
+            "dice_1": round_obj.dice_1,
+            "dice_2": round_obj.dice_2,
+            "dice_3": round_obj.dice_3,
+            "dice_4": round_obj.dice_4,
+            "dice_5": round_obj.dice_5,
+            "dice_6": round_obj.dice_6,
+            "start_time": round_obj.start_time.isoformat() if round_obj.start_time else None,
+            "result_time": round_obj.result_time.isoformat() if round_obj.result_time else (round_obj.end_time.isoformat() if round_obj.end_time else None)
+        },
+        "bets": bets_data,
+        "summary": {
+            "total_bets": user_bets.count(),
+            "total_bet_amount": "{:.2f}".format(float(total_bet_amount)),
+            "total_payout": "{:.2f}".format(float(total_payout)),
+            "net_result": net_result_str,
+            "winning_bets": winning_bets_count,
+            "losing_bets": losing_bets_count
+        },
+        "wallet_balance": wallet_balance
+    }
+
+    return Response(response_data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def round_results_api(request, round_id=None):
     """
     User's round results API
@@ -1097,16 +1208,13 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
+@csrf_exempt
 def winning_results(request, round_id=None):
     """
     Get winning results for a specific round.
     Returns: All winning bets, statistics, and winning numbers with frequencies.
-
-    Query params:
-    - round_id: (optional) Specific round ID. If not provided, uses current/latest round.
-    - limit: (optional) Limit number of winning bets returned (default: 100)
-    - top_winners: (optional) If true, returns only top winners by payout amount
     """
     from collections import Counter
     from django.db.models import Sum
@@ -1117,7 +1225,7 @@ def winning_results(request, round_id=None):
         if not round_id or len(round_id) == 0:
             round_id = None
 
-    # Get round by ID or use current round
+    # Get round by ID or use latest completed round
     if round_id:
         try:
             round_obj = GameRound.objects.get(round_id=round_id)
@@ -1128,89 +1236,80 @@ def winning_results(request, round_id=None):
                 'message': f'Round {round_id} does not exist in the database'
             }, status=status.HTTP_404_NOT_FOUND)
     else:
-        # Get the most recently COMPLETED round with dice results (for "last round results")
+        # Get the most recently COMPLETED round with dice results
         round_obj = GameRound.objects.filter(
-            status='COMPLETED',
+            status__in=['RESULT', 'COMPLETED'],
             dice_result__isnull=False
         ).order_by('-end_time').first()
 
         if not round_obj:
-            # If no completed rounds with results, check if any rounds exist at all
-            total_rounds = GameRound.objects.count()
-            completed_rounds = GameRound.objects.filter(status='COMPLETED').count()
             return Response({
                 'error': 'No completed round results found',
-                'total_rounds_in_db': total_rounds,
-                'completed_rounds': completed_rounds,
-                'message': 'No completed rounds with dice results available yet. Please wait for a round to complete.'
+                'message': 'No completed rounds with dice results available yet.'
             }, status=status.HTTP_404_NOT_FOUND)
     
-    # Get query parameters
-    limit = int(request.query_params.get('limit', 100))
-    top_winners = request.query_params.get('top_winners', 'false').lower() == 'true'
-    
-    # Get all winning bets for this round
-    winning_bets_query = Bet.objects.filter(round=round_obj, is_winner=True).select_related('user')
-    
-    # Get dice values and calculate frequencies
-    dice_values = [
-        round_obj.dice_1, round_obj.dice_2, round_obj.dice_3,
-        round_obj.dice_4, round_obj.dice_5, round_obj.dice_6
-    ]
-    # Filter out None values but keep all valid dice values (1-6)
-    dice_values = [d for d in dice_values if d is not None and 1 <= d <= 6]
-    
-    # Get all winning numbers and frequencies
-    winning_numbers_info = []
-    if dice_values and len(dice_values) == 6:
-        counts = Counter(dice_values)
-        # Find ALL winning numbers (appearing 2+ times)
-        winning_numbers = sorted([num for num, count in counts.items() if count >= 2])
-        
-        # Process each winning number
-        for winning_number in winning_numbers:
-            frequency = counts[winning_number]
-            # No longer fetching individual winning bets for winning_numbers_info
-            
-            winning_numbers_info.append({
-                'number': winning_number,
-                'frequency': frequency,
-                'payout_multiplier': float(frequency),
+    # Get user's bets for this round if authenticated
+    bets_data = []
+    user_total_bet_amount = Decimal('0.00')
+    user_total_payout = Decimal('0.00')
+    user_winning_bets = 0
+    user_losing_bets = 0
+    wallet_balance = "0.00"
+
+    if request.user.is_authenticated:
+        user_bets = Bet.objects.filter(user=request.user, round=round_obj).order_by('created_at')
+        for bet in user_bets:
+            user_total_bet_amount += bet.chip_amount
+            payout = bet.payout_amount or Decimal('0.00')
+            user_total_payout += payout
+            if bet.is_winner:
+                user_winning_bets += 1
+            else:
+                user_losing_bets += 1
+            bets_data.append({
+                'id': bet.id,
+                'number': bet.number,
+                'chip_amount': "{:.2f}".format(float(bet.chip_amount)),
+                'is_winner': bet.is_winner,
+                'payout_amount': "{:.2f}".format(float(payout))
             })
-    
-    # Aggregate statistics
-    total_winners = winning_bets_query.count()
-    total_winning_bets_amount = winning_bets_query.aggregate(Sum('chip_amount'))['chip_amount__sum'] or Decimal('0.00')
-    total_payouts = winning_bets_query.aggregate(Sum('payout_amount'))['payout_amount__sum'] or Decimal('0.00')
-    
-    # Get all bets for comparison
-    all_bets = Bet.objects.filter(round=round_obj)
-    total_bets = all_bets.count()
-    total_bet_amount = all_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or Decimal('0.00')
-    
-    return Response({
-        'round_id': round_obj.round_id,  # Current round ID (prominent)
-        'dice_result': round_obj.dice_result,  # Current round result (prominent)
-        'round': {
-            'round_id': round_obj.round_id,
-            'status': round_obj.status,
-            'dice_result': round_obj.dice_result,
-            'dice_values': dice_values if dice_values and len(dice_values) == 6 else None,
-            'start_time': round_obj.start_time.isoformat(),
-            'result_time': round_obj.result_time.isoformat() if round_obj.result_time else None,
-            'end_time': round_obj.end_time.isoformat() if round_obj.end_time else None,
+        try:
+            from accounts.models import Wallet
+            wallet, _ = Wallet.objects.get_or_create(user=request.user)
+            wallet_balance = "{:.2f}".format(float(wallet.balance))
+        except Exception:
+            pass
+
+    user_net_result = user_total_payout - user_total_bet_amount
+    net_result_str = "{:+.2f}".format(float(user_net_result))
+
+    response_data = {
+        "round": {
+            "round_id": round_obj.round_id,
+            "status": round_obj.status,
+            "dice_result": round_obj.dice_result,
+            "dice_1": round_obj.dice_1,
+            "dice_2": round_obj.dice_2,
+            "dice_3": round_obj.dice_3,
+            "dice_4": round_obj.dice_4,
+            "dice_5": round_obj.dice_5,
+            "dice_6": round_obj.dice_6,
+            "start_time": round_obj.start_time.isoformat() if round_obj.start_time else None,
+            "result_time": round_obj.result_time.isoformat() if round_obj.result_time else (round_obj.end_time.isoformat() if round_obj.end_time else None)
         },
-        'winning_numbers': winning_numbers_info,
-        'winning_bets': [], # Removed individual winning bets for privacy/performance
-        'statistics': {
-            'total_bets': total_bets,
-            'total_bet_amount': str(total_bet_amount),
-            'total_winners': total_winners,
-            'total_winning_bets_amount': str(total_winning_bets_amount),
-            'total_payouts': str(total_payouts),
-            'win_rate': round(float(total_winners / total_bets * 100), 2) if total_bets > 0 else 0,
+        "bets": bets_data,
+        "summary": {
+            "total_bets": len(bets_data),
+            "total_bet_amount": "{:.2f}".format(float(user_total_bet_amount)),
+            "total_payout": "{:.2f}".format(float(user_total_payout)),
+            "net_result": net_result_str,
+            "winning_bets": user_winning_bets,
+            "losing_bets": user_losing_bets
         },
-    })
+        "wallet_balance": wallet_balance
+    }
+
+    return Response(response_data)
 
 
 @api_view(['GET'])
@@ -1264,7 +1363,53 @@ def game_settings_api(request):
     return Response(settings_data)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def game_timer_settings(request):
+    """Admin: Get or set game timer settings"""
+    timer_keys = [
+        'BETTING_CLOSE_TIME', 
+        'DICE_ROLL_TIME', 
+        'DICE_RESULT_TIME', 
+        'ROUND_END_TIME'
+    ]
+    
+    if request.method == 'GET':
+        settings_data = {}
+        for key in timer_keys:
+            settings_data[key] = get_game_setting(key)
+        return Response(settings_data)
+    
+    elif request.method == 'POST':
+        updated_settings = {}
+        for key in timer_keys:
+            if key in request.data:
+                value = request.data[key]
+                try:
+                    # Validate as integer
+                    int_value = int(value)
+                    GameSettings.objects.update_or_create(
+                        key=key,
+                        defaults={'value': str(int_value)}
+                    )
+                    updated_settings[key] = int_value
+                    
+                    # Clear in-memory cache in utils
+                    from .utils import _SETTINGS_CACHE
+                    if key in _SETTINGS_CACHE:
+                        del _SETTINGS_CACHE[key]
+                except (ValueError, TypeError):
+                    return Response(
+                        {'error': f'Invalid value for {key}. Must be an integer.'}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+        
+        return Response({
+            'message': 'Timer settings updated successfully',
+            'updated_settings': updated_settings
+        })
+
+
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([AllowAny])
@@ -1607,115 +1752,72 @@ def round_bets(request, round_id=None):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def round_exposure(request, round_id=None):
     """
-    Get total exposure (total bet amount) for each player in a specific round.
-    
-    Query params:
-    - round_id: (optional) Specific round ID. If not provided, uses current/latest round.
-    - user_id: (optional) Filter by specific user ID.
+    High-speed Exposure API: Calculates totals entirely from Redis.
     """
-    # Get round by ID or use current round
-    if round_id:
-        try:
-            round_obj = GameRound.objects.get(round_id=round_id)
-        except GameRound.DoesNotExist:
-            return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
-    else:
-        # Get current/latest round
-        round_obj = None
+    # 1. Determine Round ID
+    if not round_id:
         if redis_client:
             try:
                 round_data = redis_client.get('current_round')
                 if round_data:
-                    round_data = json.loads(round_data)
-                    try:
-                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                    except GameRound.DoesNotExist:
-                        pass
-            except Exception:
-                pass
+                    round_id = json.loads(round_data).get('round_id')
+            except: pass
         
-        if not round_obj:
+        if not round_id:
             round_obj = GameRound.objects.order_by('-start_time').first()
-        
-        if not round_obj:
-            return Response({'error': 'No round found'}, status=status.HTTP_404_NOT_FOUND)
+            if not round_obj:
+                return Response({'error': 'No round found'}, status=404)
+            round_id = round_obj.round_id
 
-    # Build query
+    # 2. Fetch from Redis (RAM)
+    if redis_client:
+        try:
+            pipe = redis_client.pipeline()
+            pipe.get(f"round:{round_id}:total_exposure")
+            pipe.get(f"round:{round_id}:bet_count")
+            pipe.hgetall(f"round:{round_id}:user_exposure")
+            results = pipe.execute()
+
+            total_exposure = results[0] or "0.00"
+            bet_count = results[1] or "0"
+            user_exposure_map = results[2] or {}
+
+            # Filter for specific user if not staff
+            if not (request.user.is_staff or request.user.is_superuser):
+                user_id_str = str(request.user.id)
+                user_exposure = user_exposure_map.get(user_id_str, "0.00")
+                user_exposure_map = {user_id_str: user_exposure}
+
+            return Response({
+                'round_id': round_id,
+                'total_exposure': total_exposure,
+                'total_bets': int(bet_count),
+                'unique_players': len(results[2] or {}),
+                'exposure_list': user_exposure_map
+            })
+        except Exception as e:
+            logger.error(f"Redis exposure fetch failed: {e}")
+
+    # 3. Fallback to DB (Only if Redis fails)
+    round_obj = get_object_or_404(GameRound, round_id=round_id)
     bets_query = Bet.objects.filter(round=round_obj)
-    
-    # Check if user is admin
-    is_admin = request.user.is_staff or request.user.is_superuser
-    
-    # Support filtering by user_id via query param (admin only)
-    user_id_param = request.query_params.get('user_id')
-    if user_id_param:
-        if is_admin:
-            try:
-                bets_query = bets_query.filter(user_id=int(user_id_param))
-            except ValueError:
-                return Response({'error': 'Invalid user_id'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(
-                {'error': 'Only admins can filter by user_id'}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
-    elif not is_admin:
-        # Non-admin users can only see their own exposure
+    if not (request.user.is_staff or request.user.is_superuser):
         bets_query = bets_query.filter(user=request.user)
 
-    # Aggregate exposure by user
     from django.db.models import Sum, Count
     exposure_data = bets_query.values('user_id', 'user__username').annotate(
         exposure_amount=Sum('chip_amount'),
         bet_count=Count('id')
-    ).order_by('-exposure_amount')
-
-    # Format response
-    results = []
-    total_exposure = Decimal('0.00')
-    for entry in exposure_data:
-        exposure_amt = entry['exposure_amount'] or Decimal('0.00')
-        total_exposure += exposure_amt
-        results.append({
-            'player_id': entry['user_id'],
-            'username': entry['user__username'],
-            'exposure_amount': str(exposure_amt),
-            'bet_count': entry['bet_count']
-        })
-
-    # Calculate overall statistics (only for filtered bets if non-admin)
-    stats_bets_query = bets_query  # Use the same filtered query
-    overall_stats = stats_bets_query.aggregate(
-        total_bets=Count('id'),
-        total_amount=Sum('chip_amount'),
-        total_unique_players=Count('user_id', distinct=True)
     )
 
     return Response({
-        'round': {
-            'round_id': round_obj.round_id,
-            'status': round_obj.status,
-            'dice_result': round_obj.dice_result,
-            'dice_1': round_obj.dice_1,
-            'dice_2': round_obj.dice_2,
-            'dice_3': round_obj.dice_3,
-            'dice_4': round_obj.dice_4,
-            'dice_5': round_obj.dice_5,
-            'dice_6': round_obj.dice_6,
-            'start_time': round_obj.start_time.isoformat(),
-            'betting_close_time': round_obj.betting_close_time.isoformat() if round_obj.betting_close_time else None,
-            'result_time': round_obj.result_time.isoformat() if round_obj.result_time else None,
-            'end_time': round_obj.end_time.isoformat() if round_obj.end_time else None,
-        },
-        'exposure': results,
-        'statistics': {
-            'total_exposure': str(total_exposure),
-            'total_bets': overall_stats['total_bets'] or 0,
-            'total_amount': str(overall_stats['total_amount'] or Decimal('0.00')),
-            'total_unique_players': overall_stats['total_unique_players'] or 0,
-        }
+        'round_id': round_id,
+        'total_exposure': str(bets_query.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0),
+        'total_bets': bets_query.count(),
+        'exposure_list': {str(e['user_id']): str(e['exposure_amount']) for e in exposure_data}
     })
 
 

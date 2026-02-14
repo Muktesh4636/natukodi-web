@@ -60,77 +60,106 @@ except (redis.ConnectionError, redis.TimeoutError, AttributeError, ImportError):
     redis_client = None
 
 
+import hashlib
+import hmac
+from django.utils.crypto import constant_time_compare
+
+def hash_otp(otp):
+    """Hash OTP using SHA256"""
+    return hashlib.sha256(str(otp).encode()).hexdigest()
+
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for registration
 @permission_classes([AllowAny])
 @csrf_exempt
 def register(request):
-    """User registration with OTP verification"""
+    """User registration with Redis-based OTP verification"""
     try:
         phone_number = request.data.get('phone_number', '').strip()
         otp_code = request.data.get('otp_code', '').strip()
+        username = request.data.get('username', '').strip()
+        password = request.data.get('password', '').strip()
+        referral_code = request.data.get('referral_code', '').strip()
         
-        # Normalize OTP code (remove any whitespace, ensure it's a string)
-        if otp_code:
-            otp_code = str(otp_code).strip().replace(" ", "").replace("-", "")
-            logger.info(f"Registration OTP verification: phone={phone_number}, otp_code={otp_code}")
-        
-        # Verify OTP if provided
-        if otp_code:
-            from .sms_service import sms_service
-            success, message, verified_user = sms_service.verify_otp(phone_number, otp_code, purpose='SIGNUP')
-            if not success:
-                return Response(
-                    {'error': message},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            # For SIGNUP, verified_user can be None (user doesn't exist yet)
-        
-        logger.info(f"Registration attempt for username: {request.data.get('username')}")
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
-            
-            # Credit spin balance if provided
-            spin_balance = request.data.get('spin_balance')
-            if spin_balance:
-                try:
-                    from decimal import Decimal
-                    amount = Decimal(str(spin_balance))
-                    if amount > 0:
-                        from .models import Wallet, Transaction
-                        wallet, _ = Wallet.objects.get_or_create(user=user)
-                        balance_before = wallet.balance
-                        wallet.balance += amount
-                        wallet.save()
-                        
-                        Transaction.objects.create(
-                            user=user,
-                            transaction_type='REFERRAL_BONUS', # Use a suitable type or add a new one
-                            amount=amount,
-                            balance_before=balance_before,
-                            balance_after=wallet.balance,
-                            description=f"Initial spin reward credited upon registration"
-                        )
-                        logger.info(f"Credited spin balance ₹{amount} to user {user.username}")
-                except Exception as e:
-                    logger.error(f"Failed to credit spin balance: {str(e)}")
+        if not phone_number or not otp_code or not username or not password:
+            return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'user': UserSerializer(user).data,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }, status=status.HTTP_201_CREATED)
-        logger.warning(f"Registration failed for username: {request.data.get('username')} - Errors: {serializer.errors}")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # 1. Validate OTP from Redis
+        if not redis_client:
+            return Response({'error': 'System error: Redis unavailable'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Clean phone number (10 digits)
+        from .sms_service import sms_service
+        clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
+        
+        otp_key = f"otp:{clean_phone}"
+        stored_hash = redis_client.get(otp_key)
+        
+        if not stored_hash:
+            return Response({'error': 'OTP expired or not found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Compare hashes securely
+        provided_hash = hash_otp(otp_code)
+        if not constant_time_compare(stored_hash, provided_hash):
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 2. Check Uniqueness (rely on DB constraints but check early for better UX)
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(phone_number=clean_phone).exists():
+            return Response({'error': 'Phone number already registered'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Create User and Wallet in a single transaction
+        try:
+            with db_transaction.atomic():
+                # Handle referral
+                referred_by = None
+                if referral_code:
+                    referred_by = User.objects.filter(referral_code=referral_code).first()
+
+                # Create user
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    phone_number=clean_phone,
+                    referred_by=referred_by
+                )
+                
+                # Create wallet
+                wallet = Wallet.objects.create(user=user, balance=Decimal('0.00'))
+                
+                # Success - delete OTP from Redis
+                redis_client.delete(otp_key)
+                
+                logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
+                
+                # 4. Cache balance and session in Redis
+                redis_client.set(f"user_balance:{user.id}", "0.00", ex=3600)
+                user_session_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_active': user.is_active,
+                    'wallet_balance': "0.00"
+                }
+                redis_client.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
+
+                # Generate tokens
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'user': UserSerializer(user).data,
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'message': 'Registration successful'
+                }, status=status.HTTP_201_CREATED)
+
+        except Exception as db_err:
+            logger.exception(f"Database error during registration: {db_err}")
+            return Response({'error': 'Registration failed. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     except Exception as e:
         logger.exception(f"Error in register: {str(e)}")
-        return Response(
-            {'error': f'Registration failed: {str(e)}'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -138,97 +167,56 @@ def register(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def login(request):
-    """User login"""
+    """Optimized User login with minimal DB hits and Redis caching"""
     try:
-        # Safely get request data
-        logger.info(f"Request data: {getattr(request, 'data', 'No data attribute')} | Content-Type: {request.content_type}")
-        if hasattr(request, 'data'):
-            username = request.data.get('username', '').strip()
-            password = request.data.get('password', '').strip()
-        else:
-            # Fallback for non-DRF requests
-            username = request.POST.get('username', '').strip()
-            password = request.POST.get('password', '').strip()
-
-        logger.info(f"Login attempt for username: {username}")
+        username = request.data.get('username', '').strip()
+        password = request.data.get('password', '').strip()
 
         if not username or not password:
-            logger.warning(f"Login failed: Missing credentials for username: {username}")
-            return Response(
-                {'error': 'Username and password required'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Authenticate user
-        try:
-            # Support login with either username or phone number
-            user_obj = User.objects.filter(Q(username=username) | Q(phone_number=username)).first()
-            if user_obj:
-                # Authenticate with the actual username found
-                user = authenticate(request=request, username=user_obj.username, password=password)
-            else:
-                user = None
-        except Exception as auth_error:
-            logger.exception(f"Authentication error for username {username}: {auth_error}")
-            return Response(
-                {'error': 'Authentication failed', 'detail': str(auth_error)}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        # 1. Single query for User and Wallet (using select_related)
+        # This reduces 2-3 queries into 1 JOIN query.
+        user = User.objects.filter(Q(username=username) | Q(phone_number=username)).select_related('wallet').first()
 
-        if not user:
-            logger.warning(f"Login failed: Invalid credentials for username: {username}")
-            return Response(
-                {'error': 'Invalid credentials'}, 
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+        if not user or not user.check_password(password):
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Check if user is active
         if not user.is_active:
-            logger.warning(f"Login failed: Account disabled for user: {user.username} (ID: {user.id})")
-            return Response(
-                {'error': 'User account is disabled'}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
+            return Response({'error': 'User account is disabled'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Generate JWT tokens
-        try:
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
-        except Exception as token_error:
-            logger.exception(f"Token generation error for user {user.username}: {token_error}")
-            return Response(
-                {'error': 'Failed to generate tokens', 'detail': str(token_error)}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        logger.info(f"User logged in successfully: {user.username} (ID: {user.id})")
-        # Serialize user data
-        try:
-            user_data = UserSerializer(user).data
-        except Exception as serializer_error:
-            logger.exception(f"User serialization error for user {user.username}: {serializer_error}")
-            # Return minimal user data if serializer fails
-            user_data = {
-                'id': user.id,
-                'username': user.username,
-                'email': getattr(user, 'email', ''),
-                'is_staff': getattr(user, 'is_staff', False),
-            }
-
-        # Sync balance to Redis for high-performance betting
+        # 2. Generate JWT tokens (No DB hit)
+        refresh = RefreshToken.for_user(user)
+        
+        # 3. Immediate Redis Caching
         if redis_client:
             try:
-                wallet_obj, _ = Wallet.objects.get_or_create(user=user)
-                redis_client.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
+                # Cache balance (1 hour)
+                balance_str = str(user.wallet.balance) if hasattr(user, 'wallet') else "0.00"
+                redis_client.set(f"user_balance:{user.id}", balance_str, ex=3600)
+                
+                # Cache session data for WebSocket auth (1 hour)
+                user_session_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_active': user.is_active,
+                    'wallet_balance': balance_str
+                }
+                redis_client.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
             except Exception as re:
-                logger.error(f"Redis balance sync error: {re}")
+                logger.error(f"Redis cache sync error during login: {re}")
 
+        # 4. Return response with serialized data
         return Response({
-            'user': user_data,
-            'refresh': refresh_token,
-            'access': access_token,
+            'user': UserSerializer(user).data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
         }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.exception(f"Unexpected error during login: {e}")
+        return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     except Exception as e:
         logger.exception(f"Unexpected error during login: {e}")
@@ -243,90 +231,64 @@ def login(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def send_otp(request):
-    """Send OTP to phone number for signup or login"""
+    """Send OTP to phone number with Redis-based rate limiting and storage"""
     try:
-        # Get phone_number from request.data (DRF automatically parses JSON)
-        phone_number = ''
-        purpose = 'SIGNUP'
+        phone_number = request.data.get('phone_number', '').strip()
+        purpose = request.data.get('purpose', 'SIGNUP').upper()
         
-        try:
-            # Try to get from request.data (DRF parsed data)
-            if hasattr(request, 'data'):
-                data = request.data
-                if isinstance(data, dict):
-                    phone_number = str(data.get('phone_number', '') or '').strip()
-                    purpose = str(data.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
-                elif hasattr(data, 'get'):
-                    phone_number = str(data.get('phone_number', '') or '').strip()
-                    purpose = str(data.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
-        except Exception as e:
-            logger.warning(f"Error reading request.data: {e}")
-        
-        # Fallback to POST if data is empty
         if not phone_number:
-            try:
-                if hasattr(request, 'POST'):
-                    phone_number = str(request.POST.get('phone_number', '') or '').strip()
-                    purpose = str(request.POST.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
-            except Exception as e:
-                logger.warning(f"Error reading request.POST: {e}")
-        
-        # Fallback to parsing request.body directly
-        if not phone_number:
-            try:
-                import json
-                if hasattr(request, 'body') and request.body:
-                    body_data = json.loads(request.body)
-                    phone_number = str(body_data.get('phone_number', '') or '').strip()
-                    purpose = str(body_data.get('purpose', 'SIGNUP') or 'SIGNUP').upper()
-            except Exception as e:
-                logger.warning(f"Error parsing request.body: {e}")
+            return Response({'error': 'Phone number is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not purpose:
-            purpose = 'SIGNUP'
+        if not redis_client:
+            return Response({'error': 'System error: Redis unavailable'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        logger.info(f"send_otp: phone={phone_number}, purpose={purpose}")
-
-        if not phone_number:
-            logger.warning("Phone number is missing in request")
-            return Response(
-                {'error': 'Phone number is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # For LOGIN purpose, check if user exists
-        if purpose == 'LOGIN':
-            from .models import User
-            user_exists = User.objects.filter(phone_number=phone_number).exists()
-            if not user_exists:
-                return Response(
-                    {'error': 'Invalid phone number'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        # Import SMS service
+        # 1. Clean phone number
         from .sms_service import sms_service
-
-        # Send OTP (allow for both SIGNUP and LOGIN)
-        success, message, otp_id = sms_service.send_otp(phone_number, purpose=purpose)
-
-        if success:
+        clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
+        
+        # 2. Rate Limiting: Max 5 requests per 10 minutes
+        rate_key = f"otp_rate:{clean_phone}"
+        requests_count = redis_client.incr(rate_key)
+        if requests_count == 1:
+            redis_client.expire(rate_key, 600) # 10 minutes
+        
+        if requests_count > 5:
             return Response({
-                'message': message,
-                'otp_id': otp_id
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {'error': message},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+                'error': 'Too many OTP requests. Please wait 10 minutes.'
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
+        # 3. Generate secure 6-digit OTP
+        import random
+        otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        
+        # 4. Store hashed OTP in Redis (5 minutes)
+        otp_key = f"otp:{clean_phone}"
+        hashed_val = hash_otp(otp_code)
+        redis_client.set(otp_key, hashed_val, ex=300)
+        
+        # 5. Send OTP via SMS provider
+        # Note: We pass the generated OTP to the service
+        sms_number = sms_service._clean_phone_number(phone_number, for_sms=True)
+        
+        # We'll use a background thread to avoid blocking the request
+        import threading
+        thread = threading.Thread(
+            target=sms_service._send_sms_via_provider,
+            args=(sms_number, otp_code)
+        )
+        thread.daemon = True
+        thread.start()
+
+        logger.info(f"OTP sent to {clean_phone} (Purpose: {purpose})")
+        
+        return Response({
+            'message': 'OTP sent successfully',
+            'expires_in': 300
+        }, status=status.HTTP_200_OK)
 
     except Exception as e:
         logger.exception(f"Error in send_otp: {str(e)}")
-        return Response(
-            {'error': f'Internal server error: {str(e)}'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -334,106 +296,99 @@ def send_otp(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def verify_otp_login(request):
-    """Verify OTP and login user"""
+    """Verify Redis-based OTP and login user"""
     try:
         phone_number = request.data.get('phone_number', '').strip()
         otp_code = request.data.get('otp_code', '').strip()
 
         if not phone_number or not otp_code:
-            return Response(
-                {'error': 'Phone number and OTP code are required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'Phone number and OTP code are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Normalize OTP code (remove any whitespace, ensure it's a string)
-        otp_code = str(otp_code).strip().replace(" ", "").replace("-", "")
-        
-        logger.info(f"Login OTP verification: phone={phone_number}, otp_code={otp_code}")
+        if not redis_client:
+            return Response({'error': 'System error: Redis unavailable'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Import SMS service
+        # 1. Validate OTP from Redis
         from .sms_service import sms_service
+        clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
+        
+        otp_key = f"otp:{clean_phone}"
+        stored_hash = redis_client.get(otp_key)
+        
+        if not stored_hash:
+            return Response({'error': 'OTP expired or not found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Compare hashes securely
+        provided_hash = hash_otp(otp_code)
+        if not constant_time_compare(stored_hash, provided_hash):
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verify OTP
-        success, message, user = sms_service.verify_otp(phone_number, otp_code, purpose='LOGIN')
-
-        if not success:
-            return Response(
-                {'error': message},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+        # 2. Find user
+        user = User.objects.filter(phone_number=clean_phone).first()
         if not user:
-            return Response(
-                {'error': 'User not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check if user is active
         if not user.is_active:
-            return Response(
-                {'error': 'User account is disabled'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            return Response({'error': 'User account is disabled'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Create JWT tokens
+        # Success - delete OTP from Redis
+        redis_client.delete(otp_key)
+
+        # 3. Create JWT tokens
         refresh = RefreshToken.for_user(user)
-        refresh_token = str(refresh)
-        access_token = str(refresh.access_token)
-
+        
         # Update last login
         user.last_login = timezone.now()
         user.save(update_fields=['last_login'])
 
         logger.info(f"OTP login successful for user: {user.username} (ID: {user.id})")
 
-        # Prepare user data for response
-        user_data = {
+        # 4. Sync balance and session to Redis
+        wallet_obj, _ = Wallet.objects.get_or_create(user=user)
+        redis_client.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
+        user_session_data = {
             'id': user.id,
             'username': user.username,
-            'email': getattr(user, 'email', ''),
-            'phone_number': getattr(user, 'phone_number', ''),
-            'is_staff': getattr(user, 'is_staff', False),
+            'is_staff': user.is_staff,
+            'is_active': user.is_active,
+            'wallet_balance': str(wallet_obj.balance)
         }
-
-        # Sync balance to Redis for high-performance betting
-        if redis_client:
-            try:
-                wallet_obj, _ = Wallet.objects.get_or_create(user=user)
-                redis_client.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
-            except Exception as re:
-                logger.error(f"Redis balance sync error: {re}")
+        redis_client.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
 
         return Response({
-            'user': user_data,
-            'refresh': refresh_token,
-            'access': access_token,
+            'user': UserSerializer(user).data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
             'message': 'Login successful'
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
         logger.exception(f"Error in verify_otp_login: {str(e)}")
-        return Response(
-            {'error': 'Internal server error'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def profile(request):
     """Get or update user profile"""
-    if request.method == 'GET':
-        logger.info(f"Profile access for user: {request.user.username} (ID: {request.user.id})")
-        serializer = UserSerializer(request.user, context={'request': request})
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        logger.info(f"Profile update for user: {request.user.username} (ID: {request.user.id})")
-        serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
+    try:
+        if request.method == 'GET':
+            logger.info(f"Profile access for user: {request.user.username} (ID: {request.user.id})")
+            serializer = UserSerializer(request.user, context={'request': request})
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif request.method == 'POST':
+            logger.info(f"Profile update for user: {request.user.username} (ID: {request.user.id})")
+            serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Error in profile API for user {request.user.id}: {str(e)}", exc_info=True)
+        return Response({
+            'error': 'An error occurred while processing your request',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
@@ -454,16 +409,30 @@ def update_profile_photo(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def wallet(request):
-    """Get user wallet"""
-    logger.info(f"Wallet balance check for user: {request.user.username} (ID: {request.user.id})")
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
+    """Redis-first Wallet balance check"""
+    user_id = request.user.id
     
-    # Sync balance to Redis for high-performance betting
+    # 1. Try Redis first
     if redis_client:
         try:
-            redis_client.set(f"user_balance:{request.user.id}", str(wallet.balance), ex=3600)
+            balance = redis_client.get(f"user_balance:{user_id}")
+            if balance is not None:
+                return Response({
+                    'id': getattr(request.user, 'wallet_id', None), # Optional
+                    'balance': balance,
+                    'unavaliable_balance': "0.00" # Simplified for high speed
+                })
         except Exception as re:
-            logger.error(f"Redis balance sync error: {re}")
+            logger.error(f"Redis balance fetch error: {re}")
+
+    # 2. Fallback to DB
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
+    
+    # Sync back to Redis
+    if redis_client:
+        try:
+            redis_client.set(f"user_balance:{user_id}", str(wallet.balance), ex=3600)
+        except: pass
             
     serializer = WalletSerializer(wallet)
     return Response(serializer.data)

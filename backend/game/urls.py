@@ -16,6 +16,8 @@ urlpatterns = [
     path('round/<str:round_id>/predictions/', views.round_predictions, name='round_predictions'),
     path('round/predictions/', views.round_predictions, name='round_predictions_current'),
     path('betting-history/', views.betting_history, name='betting_history'),
+    path('last-round-results/', views.last_round_results, name='last_round_results'),
+    path('recent-round-results/', views.recent_round_results, name='recent_round_results'),
     path('user-round-results/<str:round_id>/', views.round_results_api, name='round_results'),
     path('winning-results/', views.winning_results, name='winning_results_current'),
     path('winning-results/<str:round_id>/', views.winning_results, name='winning_results'),
@@ -25,5 +27,6 @@ urlpatterns = [
     path('stats/', views.game_stats, name='game_stats'),
     path('settings/', views.game_settings_api, name='game_settings_api'),
     path('settings', views.game_settings_api, name='game_settings_api_no_slash'),
+    path('settings/timer/', views.game_timer_settings, name='game_timer_settings'),
 ]
 
