@@ -97,15 +97,30 @@ class GameEngine:
         result_str = ",".join(map(str, winners)) if winners else "0"
         return dice, result_str
 
-    async def publish_state(self, timer_val):
+    async def publish_state(self):
+        # Calculate absolute end_time for the current status
+        now_mono = time.monotonic()
+        
+        # Calculate when the CURRENT phase ends
+        if self.status == "BETTING":
+            phase_end_mono = self.start_monotonic + BETTING_DURATION
+        elif self.status == "ROLLING":
+            phase_end_mono = self.start_monotonic + BETTING_DURATION + DICE_ROLL_DURATION
+        else: # RESULT
+            phase_end_mono = self.start_monotonic + TOTAL_ROUND_DURATION
+            
+        # Convert monotonic end to absolute UNIX timestamp
+        # (time.time() + (phase_end_mono - now_mono))
+        end_timestamp = int(time.time() + (phase_end_mono - now_mono))
+
         state = {
-            "type": "timer", # Match consumer expectation
+            "type": "game_state",
             "round_id": self.round_id,
-            "timer": timer_val,
+            "end_time": end_timestamp,
             "status": self.status,
             "dice_result": self.dice_result,
             "is_rolling": self.status == "ROLLING",
-            "timestamp": datetime.utcnow().isoformat()
+            "server_time": int(time.time())
         }
         payload = json.dumps(state)
         # Store for instant recovery
@@ -121,40 +136,49 @@ class GameEngine:
         while True:
             await self.start_new_round()
             
+            last_publish_time = 0
             while True:
                 now = time.monotonic()
                 elapsed = now - self.start_monotonic
-                remaining = max(0, int(TOTAL_ROUND_DURATION - elapsed))
                 
                 # Update status based on elapsed time
                 if elapsed < BETTING_DURATION:
-                    self.status = "BETTING"
+                    new_status = "BETTING"
                 elif elapsed < (BETTING_DURATION + DICE_ROLL_DURATION):
-                    if self.status != "ROLLING":
-                        self.status = "ROLLING"
-                        logger.info(f"Round {self.round_id}: Rolling started")
+                    new_status = "ROLLING"
                 elif elapsed < TOTAL_ROUND_DURATION:
-                    if self.status != "RESULT":
-                        self.status = "RESULT"
-                        dice_values, result_str = self.generate_dice_result()
-                        self.dice_result = result_str
-                        logger.info(f"Round {self.round_id}: Result {result_str}")
-                        
-                        # Push settlement/end event to stream
-                        await self.redis.xadd(ROUND_EVENTS_STREAM, {
-                            "type": "round_result",
-                            "round_id": self.round_id,
-                            "dice_values": json.dumps(dice_values),
-                            "result": result_str,
-                            "end_time": datetime.utcnow().isoformat()
-                        })
+                    new_status = "RESULT"
                 else:
                     break # Round finished
 
-                await self.publish_state(remaining)
-                # High-frequency check (0.2s) to ensure no drift, but only publish every 1s roughly
-                # Or just publish every 0.2s for super smooth UI if bandwidth allows
-                await asyncio.sleep(0.5) 
+                # If status changed, publish immediately
+                status_changed = (new_status != self.status)
+                self.status = new_status
+
+                if self.status == "ROLLING" and status_changed:
+                    logger.info(f"Round {self.round_id}: Rolling started")
+                
+                if self.status == "RESULT" and status_changed:
+                    dice_values, result_str = self.generate_dice_result()
+                    self.dice_result = result_str
+                    logger.info(f"Round {self.round_id}: Result {result_str}")
+                    
+                    # Push settlement/end event to stream
+                    await self.redis.xadd(ROUND_EVENTS_STREAM, {
+                        "type": "round_result",
+                        "round_id": self.round_id,
+                        "dice_values": json.dumps(dice_values),
+                        "result": result_str,
+                        "end_time": datetime.utcnow().isoformat()
+                    })
+
+                # Publish state every 1s OR on status change
+                if status_changed or (now - last_publish_time) >= 1.0:
+                    await self.publish_state()
+                    last_publish_time = now
+
+                # High-frequency check (0.1s) to ensure status changes are caught immediately
+                await asyncio.sleep(0.1) 
 
             logger.info(f"Round {self.round_id} completed")
             await asyncio.sleep(1) # Gap between rounds

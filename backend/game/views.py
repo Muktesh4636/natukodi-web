@@ -76,198 +76,32 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 @permission_classes([IsAuthenticated])
 @csrf_exempt
 def current_round(request):
-    """Get current game round status"""
-    logger.info(f"User {request.user.username} (ID: {request.user.id}) fetching current round")
-    # Get current round from Redis or database
-    round_obj = None
-    
+    """Get current game round status from Redis (High Performance)"""
     if redis_client:
         try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                
-                # Check for staleness even if in Redis
-                is_stale = False
-                if 'start_time' in round_data:
-                    from django.utils import timezone
-                    from datetime import datetime
-                    try:
-                        start_time = datetime.fromisoformat(round_data['start_time'])
-                        # Ensure timezone awareness if needed
-                        if timezone.is_aware(timezone.now()) and not timezone.is_aware(start_time):
-                            start_time = timezone.make_aware(start_time)
-                        
-                        elapsed = (timezone.now() - start_time).total_seconds()
-                        round_end_time = get_game_setting('ROUND_END_TIME', 80)
-                        if elapsed > round_end_time + 10:  # 10s buffer
-                            is_stale = True
-                    except (ValueError, TypeError):
-                        pass
-                
-                if not is_stale:
-                    # Return data directly from Redis if available, instead of querying DB
-                    # This is a major optimization for high load
-                    timer = 0
-                    try:
-                        redis_timer = redis_client.get('round_timer')
-                        if redis_timer:
-                            timer = int(redis_timer)
-                    except Exception:
-                        pass
-                        
-                    if timer <= 0:
-                        # Calculate from start_time in round_data
-                        try:
-                            start_time = datetime.fromisoformat(round_data['start_time'])
-                            if timezone.is_aware(timezone.now()) and not timezone.is_aware(start_time):
-                                start_time = timezone.make_aware(start_time)
-                            timer = max(0, int(round_data.get('round_end_seconds', 80) - (timezone.now() - start_time).total_seconds()))
-                        except:
-                            timer = 0
-
-                    # Add is_rolling flag
-                    rolling_start = get_game_setting('DICE_ROLL_TIME', 19)
-                    result_start = get_game_setting('DICE_RESULT_TIME', 51)
-                    
-                    # Fetch real-time totals from Redis
-                    total_bets = 0
-                    total_amount = "0.00"
-                    try:
-                        total_bets_val = redis_client.get(f"round_total_bets:{round_data['round_id']}")
-                        if total_bets_val:
-                            total_bets = int(total_bets_val)
-                        
-                        total_amount_val = redis_client.get(f"round_total_amount:{round_data['round_id']}")
-                        if total_amount_val:
-                            total_amount = "{:.2f}".format(float(total_amount_val))
-                    except Exception as redis_err:
-                        logger.error(f"Error fetching totals from Redis in current_round: {redis_err}")
-
-                    response_data = {
-                        'round_id': round_data['round_id'],
-                        'status': round_data['status'],
-                        'start_time': round_data['start_time'],
-                        'timer': timer,
-                        'is_rolling': (rolling_start <= timer < result_start),
-                        'dice_result': round_data.get('dice_result'),
-                        'dice_1': round_data.get('dice_1'),
-                        'dice_2': round_data.get('dice_2'),
-                        'dice_3': round_data.get('dice_3'),
-                        'dice_4': round_data.get('dice_4'),
-                        'dice_5': round_data.get('dice_5'),
-                        'dice_6': round_data.get('dice_6'),
-                        'total_bets': total_bets,
-                        'total_amount': total_amount,
-                    }
-                    return Response(response_data)
+            state = redis_client.get('current_game_state')
+            if state:
+                return Response(json.loads(state))
         except Exception as e:
             logger.error(f"Redis error in current_round: {e}")
     
-    # Fallback to database if Redis fails or data not found
-    # ... rest of the function ...
-    
-    # Fallback to latest round or create new one
+    # Fallback to database if Redis fails
+    round_obj = GameRound.objects.order_by('-start_time').first()
     if not round_obj:
-        round_obj = GameRound.objects.order_by('-start_time').first()
-        
-        round_end_time = get_game_setting('ROUND_END_TIME', 80)
-        # Check if we need to create a new round
-        should_create_new = False
-        if not round_obj:
-            should_create_new = True
-            logger.info("No existing rounds found, creating new one")
-        else:
-            elapsed = (timezone.now() - round_obj.start_time).total_seconds()
-            if round_obj.status == 'COMPLETED':
-                should_create_new = True
-                logger.info(f"Round {round_obj.round_id} is completed, creating new one")
-            elif round_obj.status in ['RESULT', 'CLOSED']:
-                # Check if round is old (past ROUND_END_TIME seconds) - create new round
-                if elapsed >= round_end_time:
-                    should_create_new = True
-                    logger.info(f"Round {round_obj.round_id} is stale (Status: {round_obj.status}), creating new one")
-            elif elapsed >= round_end_time:
-                # Round is stale even if status wasn't updated (e.g., still BETTING/WAITING)
-                should_create_new = True
-                logger.info(f"Round {round_obj.round_id} is stale (Elapsed: {elapsed}s), creating new one")
-        
-        if should_create_new:
-            # Mark old round as completed if it exists
-            if round_obj and round_obj.status != 'COMPLETED':
-                round_obj.status = 'COMPLETED'
-                round_obj.end_time = timezone.now()
-                round_obj.save()
-                logger.info(f"Marked round {round_obj.round_id} as completed")
-            
-            # Create new round
-            round_obj = GameRound.objects.create(
-                round_id=f"R{int(timezone.now().timestamp())}",
-                status='BETTING',
-                betting_close_seconds=get_game_setting('BETTING_CLOSE_TIME', 30),
-                dice_roll_seconds=get_game_setting('DICE_ROLL_TIME', 7),
-                dice_result_seconds=get_game_setting('DICE_RESULT_TIME', 51),
-                round_end_seconds=get_game_setting('ROUND_END_TIME', 80)
-            )
-            logger.info(f"Created new round: {round_obj.round_id}")
-        
-        # Store in Redis if available (use pipeline for efficient batch writes)
-        if redis_client:
-            try:
-                # Calculate timer from start time
-                timer = calculate_current_timer(round_obj.start_time)
-                
-                round_data = {
-                    'round_id': round_obj.round_id,
-                    'status': round_obj.status,
-                    'start_time': round_obj.start_time.isoformat(),
-                    'timer': timer,
-                }
-                pipe = redis_client.pipeline()
-                pipe.set('current_round', json.dumps(round_data))
-                pipe.set('round_timer', str(timer))
-                pipe.execute()
-                logger.info(f"Synced round {round_obj.round_id} to Redis")
-            except Exception as e:
-                logger.error(f"Failed to sync round to Redis: {e}")
-    
-    serializer = GameRoundSerializer(round_obj)
-    data = serializer.data
-    
-    # Add dynamic timer to response
-    timer = 0
-    if redis_client:
-        try:
-            redis_timer = redis_client.get('round_timer')
-            if redis_timer:
-                timer = int(redis_timer)
-        except Exception:
-            pass
-            
-    if timer <= 0:
-        timer = calculate_current_timer(round_obj.start_time, round_obj.round_end_seconds)
-        
-    data['timer'] = timer
-    
-    # Fetch real-time totals from Redis if available
-    if redis_client:
-        try:
-            total_bets_val = redis_client.get(f"round_total_bets:{round_obj.round_id}")
-            if total_bets_val:
-                data['total_bets'] = int(total_bets_val)
-            
-            total_amount_val = redis_client.get(f"round_total_amount:{round_obj.round_id}")
-            if total_amount_val:
-                data['total_amount'] = "{:.2f}".format(float(total_amount_val))
-        except Exception as redis_err:
-            logger.error(f"Error fetching totals from Redis: {redis_err}")
+        return Response({'status': 'WAITING', 'message': 'No rounds found'}, status=404)
 
-    # Add is_rolling flag to ensure animation state is synced
-    rolling_start = get_game_setting('DICE_ROLL_TIME', 19)
-    result_start = get_game_setting('DICE_RESULT_TIME', 51)
-    data['is_rolling'] = (rolling_start <= timer < result_start)
-    
-    return Response(data)
+    # Calculate absolute end_time for fallback
+    # Assuming 80s total round duration
+    round_end_time = get_game_setting('ROUND_END_TIME', 80)
+    end_timestamp = int(round_obj.start_time.timestamp() + round_end_time)
+
+    return Response({
+        'round_id': round_obj.round_id,
+        'status': round_obj.status,
+        'end_time': end_timestamp,
+        'server_time': int(timezone.now().timestamp()),
+        'is_rolling': round_obj.status == 'ROLLING'
+    })
 
 
 # Redis Lua Script for Atomic Bet Placement
@@ -312,29 +146,32 @@ def place_bet(request):
 
     # 1. Get current round state (Prefer Redis)
     round_id = None
-    timer = 0
+    status_val = "WAITING"
     if redis_client:
         try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                round_id = round_data['round_id']
-                timer = int(redis_client.get('round_timer') or '0')
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+                round_id = state.get('round_id')
+                status_val = state.get('status')
+                end_time = state.get('end_time', 0)
+                
+                # Check if betting is closed
+                if status_val != "BETTING":
+                    return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # Safety check: if end_time is in the past, engine might be lagging
+                if end_time > 0 and int(timezone.now().timestamp()) > end_time:
+                    return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Redis error fetching round: {e}")
 
     # Fallback to DB for round if Redis fails
     if not round_id:
         round_obj = GameRound.objects.order_by('-start_time').first()
-        if not round_obj:
-            return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
+        if not round_obj or round_obj.status != 'BETTING':
+            return Response({'error': 'No active betting round'}, status=status.HTTP_400_BAD_REQUEST)
         round_id = round_obj.round_id
-        timer = calculate_current_timer(round_obj.start_time)
-
-    # 2. Check timing restrictions
-    betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-    if timer >= betting_close_time:
-        return Response({'error': f'Betting closed at {betting_close_time}s'}, status=status.HTTP_400_BAD_REQUEST)
 
     # 3. Redis-First Atomic Placement (Lua Script)
     if redis_client:
@@ -459,57 +296,33 @@ def place_bet(request):
 def remove_bet(request, number):
     """Remove a bet for a specific number"""
     logger.info(f"Remove bet request by user {request.user.username} (ID: {request.user.id}) for number {number}")
-    # Get current round
-    round_obj = None
-    timer = 0
     
+    # 1. Get current round state (Prefer Redis)
+    round_id = None
     if redis_client:
         try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                timer = int(redis_client.get('round_timer') or '0')
-                try:
-                    round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                except GameRound.DoesNotExist:
-                    pass
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+                round_id = state.get('round_id')
+                status_val = state.get('status')
+                
+                if status_val != "BETTING":
+                    return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Redis error in remove_bet: {e}")
-    
-    # Fallback to latest round
-    if not round_obj:
-        round_obj = GameRound.objects.order_by('-start_time').first()
-        if not round_obj:
-            logger.warning(f"Remove bet failed for user {request.user.username}: No active round")
-            return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Calculate timer from start time if Redis not available or timer seems wrong
-    if not redis_client or timer == 0:
-        timer = calculate_current_timer(round_obj.start_time)
-    
-    # Check if betting is open based on timer AND status
-    betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-    round_end_time = get_game_setting('ROUND_END_TIME', 80)
-    
-    # Allow betting if:
-    # 1. Timer is within betting window (0-30s) AND
-    # 2. Round status is BETTING OR (round is new and timer < 30)
-    is_within_betting_window = timer < betting_close_time
-    is_round_active = round_obj.status in ['BETTING', 'WAITING'] or (round_obj.status == 'RESULT' and timer < betting_close_time)
-    
-    # Also check if round is very old (past 60s) - should create new round
-    elapsed_total = (timezone.now() - round_obj.start_time).total_seconds()
-    if elapsed_total >= round_end_time:
-        logger.warning(f"Remove bet failed for user {request.user.username}: Round {round_obj.round_id} has ended")
-        return Response({'error': 'Round has ended. Please refresh to see the new round.'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    if not is_within_betting_window or not is_round_active:
-        if timer >= betting_close_time:
-            logger.warning(f"Remove bet failed for user {request.user.username}: Betting period ended (Timer: {timer}s, Limit: {betting_close_time}s)")
-            return Response({'error': f'Betting period has ended. Betting closes at {betting_close_time} seconds.'}, status=status.HTTP_400_BAD_REQUEST)
+    # 2. Get round object
+    try:
+        if round_id:
+            round_obj = GameRound.objects.get(round_id=round_id)
         else:
-            logger.warning(f"Remove bet failed for user {request.user.username}: Betting is closed (Status: {round_obj.status})")
-            return Response({'error': 'Betting is closed'}, status=status.HTTP_400_BAD_REQUEST)
+            round_obj = GameRound.objects.order_by('-start_time').first()
+    except GameRound.DoesNotExist:
+        return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if not round_obj or round_obj.status != 'BETTING':
+        return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Get the bet
     try:
@@ -597,38 +410,38 @@ def remove_last_bet(request):
     """
     logger.info(f"{request.method} last bet request by user {request.user.username} (ID: {request.user.id})")
     
-    # Get current round
-    round_obj = None
-    timer = 0
-    
+    # 1. Get current round state (Prefer Redis)
+    round_id = None
+    status_val = "WAITING"
     if redis_client:
         try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                timer = int(redis_client.get('round_timer') or '0')
-                try:
-                    round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                except GameRound.DoesNotExist:
-                    pass
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+                round_id = state.get('round_id')
+                status_val = state.get('status')
         except Exception as e:
             logger.error(f"Redis error in remove_last_bet: {e}")
-    
-    # Fallback to latest round
+
+    # 2. Get round object
+    try:
+        if round_id:
+            round_obj = GameRound.objects.get(round_id=round_id)
+        else:
+            round_obj = GameRound.objects.order_by('-start_time').first()
+    except GameRound.DoesNotExist:
+        return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
+
     if not round_obj:
-        round_obj = GameRound.objects.order_by('-start_time').first()
-        if not round_obj:
-            logger.warning(f"Last bet request failed for user {request.user.username}: No active round")
-            return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Get the user's last (most recent) bet for this round
     try:
         bet = Bet.objects.filter(user=request.user, round=round_obj).order_by('-created_at').first()
         if not bet:
-            logger.warning(f"Last bet request failed for user {request.user.username}: No bets found in round {round_obj.round_id}")
-            return Response({'error': 'No bets found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'No bets found in this round'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        logger.exception(f"Error finding last bet for user {request.user.username}: {e}")
+        logger.exception(f"Error finding last bet: {e}")
         return Response({'error': 'Error finding last bet'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # If it's a GET request, just return the bet details
@@ -649,29 +462,8 @@ def remove_last_bet(request):
         })
 
     # If it's a DELETE request, proceed with removal
-    # Calculate timer from start time if Redis not available or timer seems wrong
-    if not redis_client or timer == 0:
-        timer = calculate_current_timer(round_obj.start_time)
-    
-    # Check if betting is open based on timer AND status
-    betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-    round_end_time = get_game_setting('ROUND_END_TIME', 80)
-    
-    is_within_betting_window = timer < betting_close_time
-    is_round_active = round_obj.status in ['BETTING', 'WAITING'] or (round_obj.status == 'RESULT' and timer < betting_close_time)
-    
-    elapsed_total = (timezone.now() - round_obj.start_time).total_seconds()
-    if elapsed_total >= round_end_time:
-        logger.warning(f"Remove last bet failed for user {request.user.username}: Round {round_obj.round_id} has ended")
-        return Response({'error': 'Round has ended. Please refresh to see the new round.'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    if not is_within_betting_window or not is_round_active:
-        if timer >= betting_close_time:
-            logger.warning(f"Remove last bet failed for user {request.user.username}: Betting period ended (Timer: {timer}s, Limit: {betting_close_time}s)")
-            return Response({'error': f'Betting period has ended. Betting closes at {betting_close_time} seconds.'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            logger.warning(f"Remove last bet failed for user {request.user.username}: Betting is closed (Status: {round_obj.status})")
-            return Response({'error': 'Betting is closed'}, status=status.HTTP_400_BAD_REQUEST)
+    if status_val != "BETTING" and round_obj.status != "BETTING":
+        return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Store bet details before deleting
     refund_amount = bet.chip_amount

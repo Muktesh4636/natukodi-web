@@ -159,88 +159,16 @@ def calculate_current_timer(start_time, round_end_time=None):
 
 def sync_round_to_redis(round_obj, redis_client):
     """
-    Sync a GameRound object from database to Redis.
-    Calculates timer based on elapsed time since round start.
+    Deprecated: The new GameEngine handles its own state in 'current_game_state'.
     """
-    if not redis_client or not round_obj:
-        return False
-    
-    try:
-        # Get dynamic round_end_time from settings
-        round_end_time = get_game_setting('ROUND_END_TIME', 80)
-        
-        # Calculate timer using helper
-        timer = calculate_current_timer(round_obj.start_time, round_end_time)
-        
-        # Build round data dict
-        round_data = {
-            'round_id': round_obj.round_id,
-            'status': round_obj.status,
-            'start_time': round_obj.start_time.isoformat(),
-            'timer': timer,
-        }
-        
-        # Add dice result if available
-        if round_obj.dice_result:
-            round_data['dice_result'] = round_obj.dice_result
-        
-        # Add individual dice values
-        dice_values = extract_dice_values(round_obj)
-        for i, value in enumerate(dice_values, start=1):
-            if value is not None:
-                round_data[f'dice_{i}'] = value
-        
-        # Update Redis using pipeline for efficient batch writes
-        import json
-        pipe = redis_client.pipeline()
-        pipe.set('current_round', json.dumps(round_data))
-        pipe.set('round_timer', str(timer))
-        pipe.execute()  # Execute both writes in one round trip
-        
-        return True
-    except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error syncing round to Redis: {e}")
-        return False
+    return True
 
 
 def sync_database_to_redis(redis_client):
     """
-    Sync the current active round from database to Redis.
-    Returns True if successful, False otherwise.
+    Deprecated: The new GameEngine handles its own state in 'current_game_state'.
     """
-    if not redis_client:
-        return False
-    
-    try:
-        # Get current active round from database
-        round_obj = GameRound.objects.filter(
-            status__in=['BETTING', 'CLOSED', 'RESULT']
-        ).order_by('-start_time').first()
-        
-        if not round_obj:
-            # No active round - check if we should create one
-            latest_round = GameRound.objects.order_by('-start_time').first()
-            if latest_round and latest_round.status == 'COMPLETED':
-                # All rounds completed, create new one
-                round_obj = GameRound.objects.create(
-                    round_id=f"R{int(timezone.now().timestamp())}",
-                    status='BETTING',
-                    betting_close_seconds=get_game_setting('BETTING_CLOSE_TIME', 30),
-                    dice_roll_seconds=get_game_setting('DICE_ROLL_TIME', 7),
-                    dice_result_seconds=get_game_setting('DICE_RESULT_TIME', 51),
-                    round_end_seconds=get_game_setting('ROUND_END_TIME', 80)
-                )
-            else:
-                return False
-        
-        return sync_round_to_redis(round_obj, redis_client)
-    except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error syncing database to Redis: {e}")
-        return False
+    return True
 
 
 # In-memory cache for game settings to reduce DB load

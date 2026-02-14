@@ -15,6 +15,21 @@ from game import views as game_views
 from game import admin_views as game_admin_views
 
 urlpatterns = [
+    # APK Download endpoints (MUST come first, before everything else)
+    # Using paths with file extensions that won't be caught by React routing
+    # Include both with and without trailing slashes to handle Django's APPEND_SLASH
+    path('gundu-ata.apk', project_views.download_apk, name='download_apk'),
+    path('gundu-ata.apk/', project_views.download_apk, name='download_apk_slash'),
+    path('app.apk', project_views.download_apk, name='download_apk_file'),
+    path('app.apk/', project_views.download_apk, name='download_apk_file_slash'),
+    path('download.apk', project_views.download_apk, name='download_apk_alt'),
+    path('download.apk/', project_views.download_apk, name='download_apk_alt_slash'),
+    # Also keep simple paths for convenience
+    path('apk', project_views.download_apk, name='download_apk_simple'),
+    path('apk/', project_views.download_apk, name='download_apk_simple_slash'),
+    path('download-apk', project_views.download_apk, name='download_apk_dash'),
+    path('download-apk/', project_views.download_apk, name='download_apk_dash_slash'),
+    
     # Admin (must come before catch-all)
     path('admin/', admin.site.urls),
     path('api/', project_views.api_root, name='api_root'),
@@ -45,6 +60,10 @@ urlpatterns = [
     path('api/auth/payment-methods/', accounts_views.get_payment_methods, name='get_payment_methods'),
     path('api/auth/bank-details/', accounts_views.my_bank_details, name='my_bank_details'),
     path('api/auth/bank-details/<int:pk>/', accounts_views.bank_detail_action, name='bank_detail_action'),
+    
+    # APK Download via API (guaranteed to work since API routes come before React)
+    path('api/download/apk/', project_views.download_apk, name='api_download_apk'),
+    path('api/apk/', project_views.download_apk, name='api_apk'),
     
     # Game endpoints (api/game/)
     path('api/game/', include('game.urls')),
@@ -102,9 +121,10 @@ urlpatterns = [
     
     # Catch-all route for React app (must be last)
     # This will serve the React app for all routes not matched above
-    # Updated regex to properly match all paths except API/admin/static/media/ws/assets
+    # Updated regex to properly match all paths except API/admin/static/media/ws/assets/apk/download paths
     # Handles potential double slashes and varying prefixes
-    re_path(r'^(?!/?api/|/?admin/|/?game-admin/|/?static/|/?media/|/?ws/|/?assets/).*', project_views.serve_react_app, name='react_app'),
+    # Explicitly exclude download paths and .apk files
+    re_path(r'^(?!/?api/|/?admin/|/?game-admin/|/?static/|/?media/|/?ws/|/?assets/|^apk$|^download-apk$|.*\.apk$).*', project_views.serve_react_app, name='react_app'),
 ]
 
 # Serve static and media files (always in development, only static in production)

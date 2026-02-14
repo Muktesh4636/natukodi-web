@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse, FileResponse
+from django.http import HttpResponse, JsonResponse, FileResponse, StreamingHttpResponse
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from rest_framework.decorators import api_view
@@ -118,7 +118,13 @@ def root_status(request):
 
 @never_cache
 def serve_react_app(request, path=''):
-    """Serve React app - serves index.html for all routes except API/admin"""
+    """Serve React app - serves index.html for all routes except API/admin/download"""
+    # CRITICAL: Explicitly exclude download paths - these should NEVER be served by React
+    request_path = request.path.strip('/')
+    download_paths = ['apk', 'download-apk', 'app.apk', 'gundu-ata.apk', 'download.apk']
+    if request_path in download_paths or request_path.endswith('.apk') or request_path.startswith('download/apk') or request_path.startswith('apk/download'):
+        return HttpResponse("This endpoint should be handled by download_apk view. If you see this, there's a URL routing issue.", status=404)
+    
     react_build_dir = getattr(settings, 'REACT_BUILD_DIR', None)
     
     if not react_build_dir or not os.path.exists(react_build_dir):
@@ -169,6 +175,84 @@ def serve_react_app(request, path=''):
         return HttpResponse(content, content_type='text/html')
     
     return HttpResponse("React app index.html not found", status=404)
+
+
+@never_cache
+def download_apk(request):
+    """Serve the latest APK file for download"""
+    import logging
+    logger = logging.getLogger('django')
+    
+    # Log that this view was called
+    logger.info(f"DOWNLOAD_APK VIEW CALLED - Path: {request.path}, Method: {request.method}")
+    print(f"DOWNLOAD_APK VIEW CALLED - Path: {request.path}, Method: {request.method}")
+    
+    # Try multiple possible locations (check both string and Path objects)
+    possible_paths = [
+        # STATIC_ROOT paths
+        str(settings.STATIC_ROOT / 'assets' / 'gundu_ata_latest.apk'),
+        str(settings.STATIC_ROOT / 'apks' / 'gundu_ata_latest.apk'),
+        # BASE_DIR paths
+        str(settings.BASE_DIR / 'staticfiles' / 'assets' / 'gundu_ata_latest.apk'),
+        str(settings.BASE_DIR / 'staticfiles' / 'apks' / 'gundu_ata_latest.apk'),
+        str(settings.BASE_DIR / 'static' / 'apks' / 'gundu_ata_latest.apk'),
+        str(settings.BASE_DIR / 'static' / 'assets' / 'gundu_ata_latest.apk'),
+        # Android app build output (if building locally)
+        str(settings.BASE_DIR.parent / 'android_app' / 'app' / 'build' / 'outputs' / 'apk' / 'debug' / 'app-debug.apk'),
+        # Absolute paths (server locations)
+        '/var/www/gunduata.online/staticfiles/assets/gundu_ata_latest.apk',
+        '/var/www/gunduata.online/staticfiles/apks/gundu_ata_latest.apk',
+        '/home/ubuntu/apk_of_ata/backend/staticfiles/assets/gundu_ata_latest.apk',
+        '/root/apk_of_ata/backend/staticfiles/assets/gundu_ata_latest.apk',
+    ]
+    
+    apk_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            apk_path = path
+            logger.info(f"APK found at: {apk_path}")
+            print(f"APK found at: {apk_path}")
+            break
+    
+    if not apk_path:
+        error_msg = f"APK file not found in any of these locations:\n" + "\n".join([f"  - {p}" for p in possible_paths])
+        logger.error(error_msg)
+        print(error_msg)
+        return HttpResponse(f"APK file not found. Please contact support.\n\nChecked locations:\n{error_msg}", status=404, content_type='text/plain')
+    
+    try:
+        file_size = os.path.getsize(apk_path)
+        logger.info(f"Serving APK file: {apk_path} ({file_size} bytes)")
+        
+        # Use StreamingHttpResponse for large files (better performance)
+        def file_iterator(file_path, chunk_size=8192):
+            with open(file_path, 'rb') as f:
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    yield chunk
+        
+        response = StreamingHttpResponse(
+            file_iterator(apk_path),
+            content_type='application/vnd.android.package-archive'
+        )
+        
+        # Set headers to force download
+        response['Content-Disposition'] = 'attachment; filename="gundu_ata_latest.apk"'
+        response['Content-Length'] = str(file_size)
+        response['Content-Type'] = 'application/vnd.android.package-archive'
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        response['X-Content-Type-Options'] = 'nosniff'
+        
+        return response
+    except Exception as e:
+        logger.error(f"Error serving APK file: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return HttpResponse(f"Error serving APK file: {str(e)}", status=500, content_type='text/plain')
 
 
 def custom_404_handler(request, exception):
