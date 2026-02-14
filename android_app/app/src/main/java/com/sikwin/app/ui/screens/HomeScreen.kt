@@ -86,12 +86,18 @@ fun HomeScreen(
                 if (viewModel.loginSuccess) {
                     viewModel.fetchWallet()
                     viewModel.fetchProfile()
+                    // Start pre-loading timer when app is resumed
+                    viewModel.startTimerPreloading()
                 }
+            } else if (event == Lifecycle.Event.ON_PAUSE) {
+                // Stop pre-loading when app goes to background to save battery
+                viewModel.stopTimerPreloading()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.stopTimerPreloading()
         }
     }
 

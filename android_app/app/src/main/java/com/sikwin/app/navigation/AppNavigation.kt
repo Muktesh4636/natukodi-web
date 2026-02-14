@@ -2,7 +2,7 @@ package com.sikwin.app.navigation
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
+import android.net.Uri as AndroidUri
 import java.io.File
 import java.io.FileOutputStream
 import android.widget.Toast
@@ -24,6 +24,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.font.FontWeight
 import com.sikwin.app.ui.theme.PrimaryYellow
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
 
 @Composable
 fun AppNavigation(
@@ -50,14 +62,14 @@ fun AppNavigation(
     if (showAuthDialog) {
         AlertDialog(
             onDismissRequest = { showAuthDialog = false },
-            title = { Text("Sign In Required", fontWeight = FontWeight.Bold) },
+            title = { Text("Sign In Required", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
             text = { Text("Please sign in or sign up to play Gundu Ata and start winning!") },
             confirmButton = {
                 TextButton(onClick = {
                     showAuthDialog = false
                     navController.navigate("login")
                 }) {
-                    Text("Sign In", color = PrimaryYellow, fontWeight = FontWeight.Bold)
+                    Text("Sign In", color = PrimaryYellow, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -65,7 +77,7 @@ fun AppNavigation(
                     showAuthDialog = false
                     navController.navigate("signup")
                 }) {
-                    Text("Sign Up", fontWeight = FontWeight.Bold)
+                    Text("Sign Up", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 }
             }
         )
@@ -80,6 +92,18 @@ fun AppNavigation(
                 return
             }
 
+            // CRITICAL: Force a fresh timer fetch right before showing the loading screen
+            viewModel.startTimerPreloading()
+
+            // Show loading screen state
+            navController.navigate("game_loading")
+        } catch (e: Exception) {
+            Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun executeGameLaunch() {
+        try {
             // Get authentication data
             val authToken = sessionManager.fetchAuthToken()
             val refreshToken = sessionManager.fetchRefreshToken()
@@ -93,40 +117,22 @@ fun AppNavigation(
                 return
             }
 
-            android.util.Log.d("AppNavigation", "Launching Unity with auth - user: $username, userId: $userId, token: ${authToken.take(20)}...")
-
-            // Sync auth to Unity PlayerPrefs BEFORE launching (this is critical)
+            // Sync auth to Unity PlayerPrefs BEFORE launching
             sessionManager.syncAuthToUnity()
-
-            // Verify Unity PlayerPrefs were set
-            try {
-                val unityPrefsName = "${context.packageName}.v2.playerprefs"
-                val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
-                val storedToken = unityPrefs.getString("auth_token", null)
-                val isLoggedIn = unityPrefs.getString("is_logged_in", "false")
-                android.util.Log.d("AppNavigation", "Unity PlayerPrefs verification - token exists: ${storedToken != null}, is_logged_in: $isLoggedIn")
-            } catch (e: Exception) {
-                android.util.Log.e("AppNavigation", "Failed to verify Unity PlayerPrefs", e)
-            }
 
             // Launch Unity with Intent extras
             val intent = Intent(context, com.unity3d.player.UnityPlayerGameActivity::class.java)
-
-            // Pass authentication data to Unity via Intent extras
-            // Unity's UnityPlayerGameActivity reads from SharedPreferences first, then Intent extras
-            // Make sure we use the exact keys Unity expects
             val password = sessionManager.fetchPassword()
             
-            intent.putExtra("token", authToken) // Unity looks for "token" first in Intent
-            intent.putExtra("auth_token", authToken) // Also pass as auth_token
+            intent.putExtra("token", authToken)
+            intent.putExtra("auth_token", authToken)
             intent.putExtra("refresh_token", refreshToken)
             intent.putExtra("username", username)
             intent.putExtra("user_id", userId)
             if (password != null) {
-                intent.putExtra("password", password) // Unity also looks for password
+                intent.putExtra("password", password)
             }
             
-            // Additional metadata
             intent.putExtra("base_url", "https://gunduata.online")
             intent.putExtra("api_url", "https://gunduata.online/api/")
             intent.putExtra("is_logged_in", true)
@@ -136,45 +142,19 @@ fun AppNavigation(
             intent.putExtra("auth_timestamp", System.currentTimeMillis())
             intent.putExtra("login_timestamp", System.currentTimeMillis())
             
-            android.util.Log.d("AppNavigation", "Intent extras set - token: ${authToken?.take(10)}..., username: $username, userId: $userId")
-
-            // Also store in Unity PlayerPrefs again (redundant but ensures it's there)
-            try {
-                val unityPrefsName = "${context.packageName}.v2.playerprefs"
-                val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
-                
-                // Don't clear - just update to ensure latest data
-                unityPrefs.edit()
-                    .putString("user_token", authToken)
-                    .putString("auth_token", authToken)
-                    .putString("bearer_token", authToken)
-                    .putString("access_token", authToken)
-                    .putString("token", authToken)
-                    .putString("refresh_token", refreshToken)
-                    .putString("username", username)
-                    .putString("user_id", userId)
-                    .putString("base_url", "https://gunduata.online")
-                    .putString("api_url", "https://gunduata.online/api/")
-                    .putString("is_logged_in", "true")
-                    .putString("auto_login", "true")
-                    .putString("from_android_app", "true")
-                    .putString("login_method", "android_app")
-                    .putLong("auth_timestamp", System.currentTimeMillis())
-                    .putLong("login_timestamp", System.currentTimeMillis())
-                    .remove("logout_requested")
-                    .remove("logout_timestamp")
-                    .apply()
-
-                android.util.Log.d("AppNavigation", "Unity PlayerPrefs updated successfully")
-            } catch (e: Exception) {
-                android.util.Log.e("AppNavigation", "Failed to update Unity PlayerPrefs", e)
+            // CRITICAL: Ensure we pass the ABSOLUTE LATEST timer data available
+            // This prevents the "70 second freeze" which happens if old data is passed
+            viewModel.preLoadedTimer?.let { 
+                intent.putExtra("preloaded_timer", it) 
+                android.util.Log.d("AppNavigation", "Passing FRESH timer to Unity: $it")
             }
-
+            viewModel.preLoadedStatus?.let { intent.putExtra("preloaded_status", it) }
+            viewModel.preLoadedRoundId?.let { intent.putExtra("preloaded_round_id", it) }
+            intent.putExtra("preloaded_timestamp", System.currentTimeMillis())
+            
             context.startActivity(intent)
-            Toast.makeText(context, "🎲 Launching Gundu Ata Unity game...", Toast.LENGTH_SHORT).show()
-
         } catch (e: Exception) {
-            Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()
+            android.util.Log.e("AppNavigation", "Final launch failed", e)
         }
     }
     
@@ -440,6 +420,68 @@ fun AppNavigation(
         composable("game_guidelines") {
             GameGuidelinesScreen(
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable("game_loading") {
+            GameLoadingScreen(
+                onLoadingComplete = { 
+                    executeGameLaunch()
+                    navController.popBackStack()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun GameLoadingScreen(onLoadingComplete: () -> Unit) {
+    var progress by remember { mutableStateOf(0f) }
+    
+    LaunchedEffect(Unit) {
+        val duration = 7000L // 7 seconds
+        val interval = 50L
+        val steps = duration / interval
+        
+        for (i in 1..steps) {
+            delay(interval)
+            progress = i.toFloat() / steps
+        }
+        onLoadingComplete()
+    }
+
+    Box(
+        modifier = androidx.compose.ui.Modifier
+            .fillMaxSize()
+            .background(com.sikwin.app.ui.theme.BlackBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painter = painterResource(id = com.sikwin.app.R.drawable.app_logo),
+                contentDescription = null,
+                modifier = androidx.compose.ui.Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            )
+            Spacer(modifier = androidx.compose.ui.Modifier.height(24.dp))
+            Text(
+                text = "Gundu Ata",
+                color = com.sikwin.app.ui.theme.TextWhite,
+                fontSize = 32.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+            )
+            Spacer(modifier = androidx.compose.ui.Modifier.height(48.dp))
+            CircularProgressIndicator(
+                progress = { progress },
+                color = com.sikwin.app.ui.theme.PrimaryYellow,
+                strokeWidth = 4.dp,
+                modifier = androidx.compose.ui.Modifier.size(64.dp)
+            )
+            Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
+            Text(
+                text = "Loading game assets...",
+                color = com.sikwin.app.ui.theme.TextGrey,
+                fontSize = 16.sp
             )
         }
     }

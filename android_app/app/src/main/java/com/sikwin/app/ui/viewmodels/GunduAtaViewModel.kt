@@ -26,43 +26,58 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     private fun parseError(errorBody: String?): String {
         if (errorBody.isNullOrEmpty()) return "Something went wrong. Please try again."
         return try {
-            val json = JSONObject(errorBody)
-            when {
-                json.has("error") -> json.getString("error")
-                json.has("message") -> json.getString("message")
-                json.has("detail") -> json.getString("detail")
-                else -> {
-                    // Handle DRF serializer errors like {"field": ["error message"]}
-                    val keys = json.keys()
-                    if (keys.hasNext()) {
-                        val firstKey = keys.next()
-                        val value = json.get(firstKey)
-                        if (value is org.json.JSONArray && value.length() > 0) {
-                            value.getString(0)
-                        } else if (value is org.json.JSONObject) {
-                            // Nested object error
-                            val nestedKeys = value.keys()
-                            if (nestedKeys.hasNext()) {
-                                val firstNestedKey = nestedKeys.next()
-                                val nestedValue = value.get(firstNestedKey)
-                                if (nestedValue is org.json.JSONArray && nestedValue.length() > 0) {
-                                    nestedValue.getString(0)
+            val raw = try {
+                val json = JSONObject(errorBody)
+                when {
+                    json.has("error") -> json.getString("error")
+                    json.has("message") -> json.getString("message")
+                    json.has("detail") -> json.getString("detail")
+                    else -> {
+                        val keys = json.keys()
+                        if (keys.hasNext()) {
+                            val firstKey = keys.next()
+                            val value = json.get(firstKey)
+                            if (value is org.json.JSONArray && value.length() > 0) {
+                                value.getString(0)
+                            } else if (value is org.json.JSONObject) {
+                                val nestedKeys = value.keys()
+                                if (nestedKeys.hasNext()) {
+                                    val firstNestedKey = nestedKeys.next()
+                                    value.get(firstNestedKey).toString()
                                 } else {
-                                    nestedValue.toString()
+                                    "Invalid input. Please try again."
                                 }
                             } else {
-                                "Invalid input in $firstKey"
+                                value.toString()
                             }
                         } else {
-                            value.toString()
+                            "An unexpected error occurred."
                         }
-                    } else {
-                        "An unexpected error occurred."
                     }
                 }
+            } catch (e: Exception) {
+                if (errorBody.length < 200 && !errorBody.trim().startsWith("{")) errorBody.trim()
+                else "Something went wrong. Please try again."
             }
+            sanitizeErrorMessage(raw)
         } catch (e: Exception) {
-            "An unexpected error occurred. Please try again later."
+            "Something went wrong. Please try again."
+        }
+    }
+
+    private fun sanitizeErrorMessage(raw: String): String {
+        if (raw.isBlank()) return "Something went wrong. Please try again."
+        val lower = raw.lowercase()
+        return when {
+            lower.contains("500") || lower.contains("internal server error") -> "Server error. Please try again later."
+            lower.contains("502") || lower.contains("bad gateway") -> "Server is busy. Please try again later."
+            lower.contains("503") || lower.contains("service unavailable") -> "Service temporarily unavailable. Please try again."
+            lower.contains("404") || lower.contains("not found") -> "Request could not be completed. Please try again."
+            lower.contains("403") || lower.contains("forbidden") -> "Access denied. Please try again."
+            lower.contains("401") || lower.contains("unauthorized") || lower.contains("authentication") -> "Please sign in again."
+            lower.contains("connection refused") || lower.contains("failed to connect") -> "Unable to connect. Please check your network."
+            lower.contains("timeout") || lower.contains("timed out") -> "Request timed out. Please try again."
+            else -> raw
         }
     }
 
@@ -93,6 +108,71 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     
     var loginSuccess by mutableStateOf(false)
     
+    // Timer pre-loading state
+    var preLoadedTimer by mutableStateOf<Int?>(null)
+    var preLoadedStatus by mutableStateOf<String?>(null)
+    var preLoadedRoundId by mutableStateOf<String?>(null)
+    private var timerJob: kotlinx.coroutines.Job? = null
+
+    fun startTimerPreloading() {
+        if (timerJob != null && timerJob?.isActive == true) return
+        
+        timerJob = viewModelScope.launch {
+            while (true) {
+                try {
+                    val response = RetrofitClient.apiService.getCurrentRound()
+                    if (response.isSuccessful) {
+                        val data = response.body()
+                        preLoadedTimer = (data?.get("timer") as? Double)?.toInt() ?: (data?.get("timer") as? Int)
+                        preLoadedStatus = data?.get("status") as? String
+                        preLoadedRoundId = data?.get("round_id") as? String
+                        
+                        // Sync to Unity immediately so it's ready
+                        preLoadedTimer?.let { t ->
+                            preLoadedStatus?.let { s ->
+                                preLoadedRoundId?.let { r ->
+                                    syncTimerToUnity(t, s, r)
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("GunduAtaViewModel", "Timer pre-load failed: ${e.message}")
+                }
+                kotlinx.coroutines.delay(500) // Update every 500ms for ultra-fresh 0-lag sync
+            }
+        }
+    }
+
+    fun stopTimerPreloading() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    private fun syncTimerToUnity(timer: Int, status: String, roundId: String) {
+        try {
+            // We use PlayerPrefs via a helper or direct SharedPreferences
+            // This ensures Unity sees the timer the moment it starts
+            val sessionManager = com.sikwin.app.data.api.RetrofitClient.getSessionManager()
+            if (sessionManager != null) {
+                sessionManager.syncAuthToUnity() // Use existing helper to get context/prefs
+                
+                // Now add the timer specific fields
+                val context = sessionManager.getContext()
+                val unityPrefsName = "${context.packageName}.v2.playerprefs"
+                val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
+                unityPrefs.edit()
+                    .putInt("preloaded_timer", timer)
+                    .putString("preloaded_status", status)
+                    .putString("preloaded_round_id", roundId)
+                    .putString("preloaded_timestamp", System.currentTimeMillis().toString())
+                    .apply()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("GunduAtaViewModel", "Failed to sync timer to Unity: ${e.message}")
+        }
+    }
+
     // Check if session is still valid
     fun checkSession() {
         if (sessionManager.fetchAuthToken() == null) {
@@ -249,10 +329,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     onSuccess()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Reset failed: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -294,10 +374,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Registration failed: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -312,7 +392,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     userProfile = response.body()
                 }
             } catch (e: Exception) {
-                errorMessage = e.message
+                errorMessage = handleException(e)
             }
         }
     }
@@ -325,7 +405,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     wallet = response.body()
                 }
             } catch (e: Exception) {
-                errorMessage = e.message
+                errorMessage = handleException(e)
             }
         }
     }
@@ -339,7 +419,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     transactions = response.body() ?: emptyList()
                 }
             } catch (e: Exception) {
-                errorMessage = e.message
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -355,7 +435,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     depositRequests = response.body() ?: emptyList()
                 }
             } catch (e: Exception) {
-                errorMessage = e.message
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -371,7 +451,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     withdrawRequests = response.body() ?: emptyList()
                 }
             } catch (e: Exception) {
-                errorMessage = e.message
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -437,7 +517,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -454,10 +534,11 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     fetchBankDetails()
                     onSuccess()
                 } else {
-                    errorMessage = "Failed to add bank detail: ${response.message()}"
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = parseError(errorBody).ifEmpty { "Could not add bank account. Please try again." }
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -473,10 +554,11 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 if (response.isSuccessful) {
                     fetchBankDetails()
                 } else {
-                    errorMessage = "Failed to delete bank detail: ${response.message()}"
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = parseError(errorBody).ifEmpty { "Could not remove bank account. Please try again." }
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -493,10 +575,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     onSuccess()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Failed to submit UTR: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -521,10 +603,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     onSuccess()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Upload failed: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -549,10 +631,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     onSuccess()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Failed to update password: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -582,10 +664,11 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     // Re-fetch profile to ensure UI is in sync with server state
                     fetchProfile()
                 } else {
-                    errorMessage = "Failed to update profile: ${response.message()}"
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = parseError(errorBody).ifEmpty { "Could not update profile. Please try again." }
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -601,10 +684,11 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 if (response.isSuccessful) {
                     userProfile = response.body()
                 } else {
-                    errorMessage = "Failed to update photo: ${response.message()}"
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage = parseError(errorBody).ifEmpty { "Could not update photo. Please try again." }
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -628,10 +712,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     fetchWallet() // Refresh balance
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    errorMessage = "Withdrawal failed: ${parseError(errorBody)}"
+                    errorMessage = parseError(errorBody)
                 }
             } catch (e: Exception) {
-                errorMessage = "Error: ${e.message}"
+                errorMessage = handleException(e)
             } finally {
                 isLoading = false
             }
@@ -650,10 +734,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     val amount = reward?.get("amount")?.toString()
                     onResult(claimed, message, amount)
                 } else {
-                    onResult(false, "Failed to check status", null)
+                    onResult(false, "Unable to check reward status. Please try again.", null)
                 }
             } catch (e: Exception) {
-                onResult(false, e.message, null)
+                onResult(false, handleException(e), null)
             }
         }
     }
@@ -677,14 +761,14 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         
                         onResult(true, amount, type, message)
                     } else {
-                        onResult(false, null, "TRY_AGAIN", "No reward found in response")
+                        onResult(false, null, "TRY_AGAIN", "Something went wrong. Please try again.")
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     onResult(false, null, "TRY_AGAIN", parseError(errorBody))
                 }
             } catch (e: Exception) {
-                onResult(false, null, "TRY_AGAIN", e.message)
+                onResult(false, null, "TRY_AGAIN", handleException(e))
             }
         }
     }
@@ -702,10 +786,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     val depositAmount = body?.get("deposit_amount")?.toString()?.toDoubleOrNull()
                     onResult(claimed, message, amount, depositAmount)
                 } else {
-                    onResult(false, "Failed to check status", null, null)
+                    onResult(false, "Unable to check lucky draw status. Please try again.", null, null)
                 }
             } catch (e: Exception) {
-                onResult(false, e.message, null, null)
+                onResult(false, handleException(e), null, null)
             }
         }
     }
@@ -728,14 +812,14 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         
                         onResult(true, amount, message)
                     } else {
-                        onResult(false, null, "No reward found in response")
+                        onResult(false, null, "Something went wrong. Please try again.")
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     onResult(false, null, parseError(errorBody))
                 }
             } catch (e: Exception) {
-                onResult(false, null, e.message)
+                onResult(false, null, handleException(e))
             }
         }
     }

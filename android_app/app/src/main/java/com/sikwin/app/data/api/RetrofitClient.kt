@@ -15,6 +15,8 @@ object RetrofitClient {
         sessionManager = manager
     }
 
+    fun getSessionManager(): SessionManager? = sessionManager
+
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }

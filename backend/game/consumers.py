@@ -66,6 +66,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             except Exception as group_error:
                 logger.warning(f"Failed to join game group: {group_error}")
             
+            # Join direct Redis channel for high-speed updates
+            if redis_client:
+                asyncio.create_task(self.redis_listener())
+
             # If user is staff, join admin notifications group
             if user and hasattr(user, 'is_staff') and user.is_staff:
                 try:
@@ -81,28 +85,34 @@ class GameConsumer(AsyncWebsocketConsumer):
             
             logger.info(f"WebSocket connected successfully: {self.channel_name}")
             
-            # Send current state
-            try:
-                await self.send_current_state()
-                # Also send a small timer update to "kickstart" the client UI
-                # this helps if the client only listens to 'timer' for updates
-                # but 'game_state' for initial setup
-                round_obj = await self.get_current_round_from_db()
-                if round_obj:
-                    # calculate_current_timer performs DB queries for settings, must be sync_to_async
-                    from channels.db import database_sync_to_async
-                    timer = await database_sync_to_async(calculate_current_timer)(round_obj.start_time)
-                    await self.send(text_data=json.dumps({
-                        'type': 'timer',
-                        'timer': timer,
-                        'status': round_obj.status,
-                        'round_id': round_obj.round_id,
-                        'is_rolling': (await database_sync_to_async(get_game_setting)('DICE_ROLL_TIME', 19) <= timer < await database_sync_to_async(get_game_setting)('DICE_RESULT_TIME', 51))
-                    }))
-            except Exception as state_error:
-                logger.error(f"Failed to send initial state: {state_error}")
+            # CRITICAL: Offload initial state sending to background to prevent connection blocking
+            # This prevents the initial "freeze" when many users connect at once
+            asyncio.create_task(self.send_initial_state_background())
+            
         except Exception as e:
             logger.exception(f"WebSocket connect error: {e}")
+
+    async def send_initial_state_background(self):
+        """Send current state and initial timer in background to avoid blocking connect()"""
+        try:
+            # Add a small random jitter to spread out the load
+            import random
+            await asyncio.sleep(0.1 + random.uniform(0, 0.2))
+            
+            # Try to get from Redis first (New Engine State)
+            if redis_client:
+                try:
+                    state = redis_client.get('current_game_state')
+                    if state:
+                        await self.send(text_data=state)
+                        return
+                except Exception:
+                    pass
+
+            # Fallback to old logic if new engine state not found
+            await self.send_current_state()
+        except Exception as state_error:
+            logger.error(f"Failed to send initial state in background: {state_error}")
 
     async def disconnect(self, close_code):
         # Leave room groups
@@ -157,15 +167,14 @@ class GameConsumer(AsyncWebsocketConsumer):
                     
                     round_data = results[0]
                     timer_raw = int(results[1] or '1')
-                    # Get round_end_time from settings - always fresh from database
-                    from .utils import get_game_setting
-                    round_end_time = await database_sync_to_async(get_game_setting)('ROUND_END_TIME', 80)
+                    # Use fixed defaults for high-speed response
+                    round_end_time = 80
                     # Convert 0-(round_end_time-1) to 1-round_end_time format
                     timer = round_end_time if timer_raw == 0 else timer_raw
                     
                     if not round_data:
-                        # Redis key expired or missing - force sync from DB
-                        await self.sync_db_to_redis()
+                        # Redis key expired or missing - force sync from DB in background
+                        asyncio.create_task(self.sync_db_to_redis())
                         # Allow fallback to DB logic below by keeping round_data=None
                         pass
                 except Exception as e:
@@ -177,29 +186,24 @@ class GameConsumer(AsyncWebsocketConsumer):
                 try:
                     round_obj = await self.get_current_round_from_db()
                     if round_obj:
-                        from .utils import get_game_setting
-                        round_end_time = await database_sync_to_async(get_game_setting)('ROUND_END_TIME', 80)
+                        round_end_time = 80
                         elapsed = (timezone.now() - round_obj.start_time).total_seconds()
                         # If round is older than round_end_time seconds, it should be completed
                         if elapsed >= round_end_time:
                             timer = 1  # Start new round at 1
                             status = 'WAITING'
                         else:
-                            # Calculate timer using helper (1 to round_end_time)
-                            timer = calculate_current_timer(round_obj.start_time, round_end_time)
+                            # Calculate timer locally
+                            timer = int(elapsed) % round_end_time
+                            if timer == 0: timer = 1
                             status = round_obj.status
-                        # Try to sync to Redis if available
-                        if redis_client:
-                            try:
-                                await self.sync_round_to_redis_async(round_obj)
-                            except Exception:
-                                pass  # Non-critical
+                        
                         await self.send(text_data=json.dumps({
                             'type': 'game_state',
                             'round_id': round_obj.round_id,
                             'status': status,
                             'timer': timer,
-                            'is_rolling': (await database_sync_to_async(get_game_setting)('DICE_ROLL_TIME', 19) <= timer < await database_sync_to_async(get_game_setting)('DICE_RESULT_TIME', 51))
+                            'is_rolling': (19 <= timer < 51)
                         }))
                         return
                     else:
@@ -220,16 +224,14 @@ class GameConsumer(AsyncWebsocketConsumer):
                 try:
                     round_data = json.loads(round_data)
                     # Ensure timer is in 1-round_end_time format (convert 0 to round_end_time)
-                    from .utils import get_game_setting
-                    round_end_time = await database_sync_to_async(get_game_setting)('ROUND_END_TIME', 80)
                     if timer == 0:
-                        timer = round_end_time
+                        timer = 80
                     await self.send(text_data=json.dumps({
                         'type': 'game_state',
                         'round_id': round_data.get('round_id'),
                         'status': round_data.get('status'),
                         'timer': timer,
-                        'is_rolling': (await database_sync_to_async(get_game_setting)('DICE_ROLL_TIME', 19) <= timer < await database_sync_to_async(get_game_setting)('DICE_RESULT_TIME', 51))
+                        'is_rolling': (19 <= timer < 51)
                     }))
                 except Exception as parse_error:
                     logger.warning(f"Error parsing round_data, sending default state: {parse_error}")
@@ -288,6 +290,27 @@ class GameConsumer(AsyncWebsocketConsumer):
             from .utils import sync_round_to_redis
             return sync_round_to_redis(round_obj, redis_client)
         return False
+
+    async def redis_listener(self):
+        """Listen for direct Redis Pub/Sub messages for high-speed updates"""
+        if not redis_client:
+            return
+            
+        pubsub = redis_client.pubsub()
+        await database_sync_to_async(pubsub.subscribe)('game_room')
+        
+        try:
+            # We use a while loop with a small sleep to check for messages
+            # without blocking the consumer
+            while True:
+                message = await database_sync_to_async(pubsub.get_message)(ignore_subscribe_mono=True)
+                if message and message['type'] == 'message':
+                    await self.send(text_data=message['data'])
+                await asyncio.sleep(0.1)
+        except Exception as e:
+            logger.error(f"Redis listener error: {e}")
+        finally:
+            await database_sync_to_async(pubsub.unsubscribe)('game_room')
 
     async def game_start(self, event):
         """Send game start message to WebSocket - NEVER closes connection on error"""

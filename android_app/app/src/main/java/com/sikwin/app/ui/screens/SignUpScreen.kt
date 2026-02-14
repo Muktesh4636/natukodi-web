@@ -48,6 +48,7 @@ fun SignUpScreen(
     onNavigateToLuckyWheel: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var otpCode by remember { mutableStateOf("") }
@@ -181,14 +182,14 @@ fun SignUpScreen(
         
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Phone Number
-        InputFieldLabel("Phone number")
+        // Username
+        InputFieldLabel("Username")
         OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
+            value = username,
+            onValueChange = { username = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your phone number", color = TextGrey) },
-            leadingIcon = { Text("+91", color = TextWhite, modifier = Modifier.padding(start = 12.dp)) },
+            placeholder = { Text("Please enter your username", color = TextGrey) },
+            leadingIcon = { Icon(Icons.Default.Person, null, tint = TextGrey) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
                 unfocusedBorderColor = BorderColor,
@@ -197,8 +198,7 @@ fun SignUpScreen(
                 unfocusedTextColor = TextWhite
             ),
             shape = RoundedCornerShape(8.dp),
-            singleLine = true,
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone)
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -234,14 +234,14 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Referral Code
-        InputFieldLabel("Referral Code (Optional)")
+        // Phone Number
+        InputFieldLabel("Phone number")
         OutlinedTextField(
-            value = referralCode,
-            onValueChange = { referralCode = it },
+            value = phoneNumber,
+            onValueChange = { phoneNumber = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter referral code", color = TextGrey) },
-            leadingIcon = { Icon(Icons.Default.GroupAdd, null, tint = TextGrey) },
+            placeholder = { Text("Please enter your phone number", color = TextGrey) },
+            leadingIcon = { Text("+91", color = TextWhite, modifier = Modifier.padding(start = 12.dp)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
                 unfocusedBorderColor = BorderColor,
@@ -250,7 +250,8 @@ fun SignUpScreen(
                 unfocusedTextColor = TextWhite
             ),
             shape = RoundedCornerShape(8.dp),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone)
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -301,6 +302,27 @@ fun SignUpScreen(
             }
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Referral Code
+        InputFieldLabel("Referral Code (Optional)")
+        OutlinedTextField(
+            value = referralCode,
+            onValueChange = { referralCode = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Please enter referral code", color = TextGrey) },
+            leadingIcon = { Icon(Icons.Default.GroupAdd, null, tint = TextGrey) },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                containerColor = SurfaceColor,
+                unfocusedBorderColor = BorderColor,
+                focusedBorderColor = PrimaryYellow,
+                focusedTextColor = TextWhite,
+                unfocusedTextColor = TextWhite
+            ),
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true
+        )
+
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
@@ -308,7 +330,7 @@ fun SignUpScreen(
                 // Trim and clean OTP code before sending
                 val cleanOtpCode = otpCode.trim().replace(" ", "").replace("-", "")
                 val registrationData = mutableMapOf(
-                    "username" to phoneNumber.trim(),
+                    "username" to username.trim(),
                     "password" to password,
                     "password2" to password,
                     "phone_number" to phoneNumber.trim(),
@@ -322,7 +344,7 @@ fun SignUpScreen(
                 }
                 viewModel.register(registrationData)
             },
-            enabled = !viewModel.isLoading && password.isNotBlank() && phoneNumber.isNotBlank() && (!viewModel.otpSent || otpCode.isNotBlank()),
+            enabled = !viewModel.isLoading && username.isNotBlank() && password.isNotBlank() && phoneNumber.isNotBlank() && (!viewModel.otpSent || otpCode.isNotBlank()),
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
             shape = RoundedCornerShape(8.dp)

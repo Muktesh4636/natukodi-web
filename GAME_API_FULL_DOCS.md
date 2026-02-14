@@ -1,6 +1,6 @@
 # Gundu Ata Game API - Full Endpoint Documentation
 
-This document provides the full URLs and exact JSON request/response formats for all game-related APIs.
+This document provides the full URLs and exact JSON request/response formats for all game-related AP
 
 **Base URL:** `https://gunduata.online`  
 **Auth Header:** `Authorization: Bearer <your_access_token>`

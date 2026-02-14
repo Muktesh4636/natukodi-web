@@ -30,6 +30,7 @@ from .admin_utils import (
     get_admin_permissions, has_menu_permission
 )
 from .utils import get_game_setting
+from .load_test_utils import load_tester
 from decimal import Decimal, InvalidOperation
 from django.db.models import Sum, Q
 import decimal
@@ -850,6 +851,62 @@ def user_details(request, user_id):
     })
     
     return render(request, 'admin/user_details.html', context)
+
+@admin_required
+def testing_dashboard(request):
+    """Testing dashboard for simulations and load testing"""
+    if not is_super_admin(request.user):
+        messages.error(request, 'Only super admins can access the testing dashboard.')
+        return redirect('admin_dashboard')
+    
+    admin_profile = get_admin_profile(request.user)
+    context = get_admin_context(request, {
+        'page': 'testing-dashboard',
+        'admin_profile': admin_profile,
+    })
+    return render(request, 'admin/testing_dashboard.html', context)
+
+@admin_required
+def start_simulation(request):
+    """API endpoint to start user/bet simulation"""
+    if not is_super_admin(request.user):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_count = int(data.get('user_count', 10))
+            bets_per_user = int(data.get('bets_per_user', 5))
+            chip_amount = float(data.get('chip_amount', 10))
+            
+            # Use current request's host to determine base URL
+            protocol = 'https' if request.is_secure() else 'http'
+            host = request.get_host()
+            load_tester.base_url = f"{protocol}://{host}"
+            
+            load_tester.run_simulation(user_count, bets_per_user, chip_amount)
+            return JsonResponse({'status': 'started', 'results': load_tester.get_status()})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'POST required'}, status=405)
+
+@admin_required
+def stop_simulation(request):
+    """API endpoint to stop the ongoing simulation"""
+    if not is_super_admin(request.user):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    load_tester.results['is_running'] = False
+    return JsonResponse({'status': 'stopped'})
+
+@admin_required
+def simulation_status(request):
+    """API endpoint to get simulation status"""
+    if not is_super_admin(request.user):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    return JsonResponse(load_tester.get_status())
 
 @admin_required
 def all_bets(request):

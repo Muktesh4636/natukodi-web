@@ -224,7 +224,7 @@ ASGI_APPLICATION = 'dice_game.asgi.application'
 
 # Database
 # Use SQLite for development (no PostgreSQL required)
-USE_SQLITE = os.getenv('USE_SQLITE', 'True') == 'True'
+USE_SQLITE = os.getenv('USE_SQLITE', 'False') == 'True'
 
 if USE_SQLITE:
     DATABASES = {
@@ -239,14 +239,16 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'dice_game'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
-            'CONN_MAX_AGE': 600,  # 10 minutes - connection pooling
+            'USER': os.getenv('DB_USER', 'muktesh'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'muktesh123'),
+            'HOST': os.getenv('DB_HOST', '72.61.254.74'),
+            'PORT': os.getenv('DB_PORT', '6432'),
+            'CONN_MAX_AGE': 60,  # Reuse connections for 60 seconds
+            'CONN_HEALTH_CHECKS': True,  # Check if connection is alive before using
             'OPTIONS': {
-                'connect_timeout': 10,  # Connection timeout
-                'options': '-c statement_timeout=30000',  # 30 second statement timeout
+                'connect_timeout': 120,  # Match PgBouncer's server_connect_timeout (120s)
+                # Note: statement_timeout removed for PgBouncer compatibility
+                # PgBouncer handles timeouts at the pool level
             },
         }
     }
@@ -329,11 +331,11 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '10000/hour',  # Increased for testing
-        'user': '100000/hour',  # Increased for testing
-        'login': '100/minute',  # Increased for testing
-        'bet': '1000/minute',  # Increased for testing
-        'api': '10000/hour',  # Increased for testing
+        'anon': '1000000/hour',
+        'user': '1000000/hour',
+        'login': '1000000/minute',
+        'bet': '1000000/minute',
+        'api': '1000000/hour',
     }
 }
 

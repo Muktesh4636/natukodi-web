@@ -354,8 +354,33 @@ class Command(BaseCommand):
                         if redis_client:
                             try:
                                 end_lock_acquired = redis_client.set(end_lock_key, '1', ex=300, nx=True)
+                                
+                                # CLEANUP REDIS EXPOSURE KEYS
+                                # 1. Get final stats from Redis before deleting
+                                pipe = redis_client.pipeline()
+                                pipe.get(f"round:{round_obj.round_id}:total_exposure")
+                                pipe.get(f"round:{round_obj.round_id}:bet_count")
+                                results = pipe.execute()
+                                
+                                # 2. Sync to DB if available
+                                if results[0] or results[1]:
+                                    try:
+                                        round_obj.total_amount = Decimal(str(results[0] or "0.00"))
+                                        round_obj.total_bets = int(results[1] or 0)
+                                        round_obj.save(update_fields=['total_amount', 'total_bets'])
+                                    except: pass
+                                
+                                # 3. Delete keys
+                                redis_client.delete(
+                                    f"round:{round_obj.round_id}:total_exposure",
+                                    f"round:{round_obj.round_id}:user_exposure",
+                                    f"round:{round_obj.round_id}:bet_count",
+                                    f"round_total_bets:{round_obj.round_id}",
+                                    f"round_total_amount:{round_obj.round_id}"
+                                )
+                                logger.info(f"Cleaned up Redis exposure keys for round {round_obj.round_id}")
                             except Exception as e:
-                                self.stdout.write(self.style.WARNING(f'Redis connection error during game_end: {e}'))
+                                self.stdout.write(self.style.WARNING(f'Redis connection error during game_end lock/cleanup: {e}'))
                                 redis_client = get_or_reconnect_redis()
 
                         if channel_layer and end_lock_acquired:

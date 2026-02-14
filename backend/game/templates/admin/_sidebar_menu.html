@@ -1,100 +1,80 @@
-    <div class="sidebar-menu-wrapper">
-        {% if is_super_admin or admin_permissions.can_view_dashboard or admin_permissions.can_control_dice or admin_permissions.can_view_recent_rounds or admin_permissions.can_view_all_bets %}
-        <div class="menu-section">
-            <div style="padding: 0 20px 10px 20px; display: flex; align-items: center; justify-content: space-between;">
-                <span class="menu-section-title" style="padding: 0; margin: 0;">MAIN</span>
-                <button id="test-sound-btn" title="Test Notification Sound" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); padding: 2px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; transition: all 0.2s;">
-                    🔔 Test
-                </button>
-            </div>
-            <ul class="sidebar-menu">
-            {% if is_super_admin or admin_permissions.can_view_dashboard %}
-            <li><a href="{% url 'admin_dashboard' %}" {% if page == 'dashboard' %}class="active"{% endif %}>
-                <span class="menu-icon">🏠</span> Dashboard
-            </a></li>
+<div class="sidebar-menu-wrapper">
+    {% if is_super_admin or admin_permissions.can_view_dashboard or admin_permissions.can_control_dice or admin_permissions.can_view_recent_rounds or admin_permissions.can_view_all_bets %}
+    <div class="menu-section">
+        <div style="padding: 0 20px 10px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <span class="menu-section-title" style="padding: 0; margin: 0;">MAIN</span>
+            <button id="test-sound-btn" title="Test Notification Sound"
+                style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); padding: 2px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; transition: all 0.2s;">
+                🔔 Test
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            {% if is_super_admin or admin_permissions.can_view_dashboard %} <li><a href="{% url 'admin_dashboard' %}" {% if page == 'dashboard' %}class="active" {% endif %}> <span class="menu-icon">🏠</span> Dashboard
+                </a></li>
             {% endif %}
-            
-            {% if is_super_admin or admin_permissions.can_control_dice %}
-            <li><a href="{% url 'dice_control' %}" {% if page == 'dice-control' %}class="active"{% endif %}>
-                <span class="menu-icon">🎯</span> Dice Control
-            </a></li>
+
+            {% if is_super_admin or admin_permissions.can_control_dice %} <li><a href="{% url 'dice_control' %}" {% if page == 'dice-control' %}class="active" {% endif %}> <span class="menu-icon">🎯</span> Dice Control
+                </a></li>
             {% endif %}
-            
-            {% if is_super_admin or admin_permissions.can_view_recent_rounds %}
-            <li><a href="{% url 'recent_rounds' %}" {% if page == 'recent-rounds' or page == 'rounds' or page == 'round-details' or page == 'user-details' %}class="active"{% endif %}>
-                <span class="menu-icon">🔄</span> Recent Rounds
-            </a></li>
+
+            {% if is_super_admin or admin_permissions.can_view_recent_rounds %} <li><a href="{% url 'recent_rounds' %}" {% if page == 'recent-rounds' or page == 'rounds' or page == 'round-details' or page == 'user-details' %}class="active" {% endif %}>
+                    <span class="menu-icon">🔄</span> Recent Rounds
+                </a></li>
             {% endif %}
-            
-            {% if is_super_admin or admin_permissions.can_view_all_bets %}
-            <li><a href="{% url 'all_bets' %}" {% if page == 'all-bets' %}class="active"{% endif %}>
-                <span class="menu-icon">💰</span> All Bets
-            </a></li>
+
+            {% if is_super_admin or admin_permissions.can_view_all_bets %} <li><a href="{% url 'all_bets' %}" {% if page == 'all-bets' %}class="active" {% endif %}> <span class="menu-icon">💰</span> All Bets
+                </a></li>
             {% endif %}
         </ul>
     </div>
     {% endif %}
-    
+
     {% if is_super_admin or admin_permissions.can_view_wallets or admin_permissions.can_view_deposit_requests or admin_permissions.can_view_withdraw_requests or admin_permissions.can_view_transactions %}
     <div class="menu-section">
         <div class="menu-section-title">MONEY MOVEMENT</div>
         <ul class="sidebar-menu">
-            {% if is_super_admin or admin_permissions.can_view_wallets %}
-            <li><a href="{% url 'wallets' %}" {% if page == 'wallets' %}class="active"{% endif %}>
-                <span class="menu-icon">💳</span> Wallets
-            </a></li>
-            {% endif %}
-            
-            {% if is_super_admin or admin_permissions.can_view_deposit_requests %}
-            <li><a href="{% url 'deposit_requests' %}" {% if page == 'deposit-requests' %}class="active"{% endif %}>
-                <span class="menu-icon">💎</span> Deposit Requests
-            </a></li>
+            {% if is_super_admin or admin_permissions.can_view_wallets %} <li><a href="{% url 'wallets' %}" {% if page == 'wallets' %}class="active" {% endif %}> <span class="menu-icon">💳</span> Wallets
+                </a></li>
             {% endif %}
 
-            {% if is_super_admin or admin_permissions.can_view_withdraw_requests %}
-            <li><a href="{% url 'withdraw_requests' %}" {% if page == 'withdraw-requests' %}class="active"{% endif %}>
-                <span class="menu-icon">💸</span> Withdraw Requests
-            </a></li>
+            {% if is_super_admin or admin_permissions.can_view_deposit_requests %} <li><a href="{% url 'deposit_requests' %}" {% if page == 'deposit-requests' %}class="active" {% endif %}> <span class="menu-icon">💎</span> Deposit Requests
+                </a></li>
             {% endif %}
-            
-            {% if is_super_admin or admin_permissions.can_view_transactions %}
-            <li><a href="{% url 'admin_transactions' %}" {% if page == 'transactions' %}class="active"{% endif %}>
-                <span class="menu-icon">📊</span> Reports
-            </a></li>
+
+            {% if is_super_admin or admin_permissions.can_view_withdraw_requests %} <li><a href="{% url 'withdraw_requests' %}" {% if page == 'withdraw-requests' %}class="active" {% endif %}> <span class="menu-icon">💸</span> Withdraw Requests
+                </a></li>
+            {% endif %}
+
+            {% if is_super_admin or admin_permissions.can_view_transactions %} <li><a href="{% url 'admin_transactions' %}" {% if page == 'transactions' %}class="active" {% endif %}> <span class="menu-icon">📊</span> Reports
+                </a></li>
             {% endif %}
         </ul>
     </div>
     {% endif %}
-    
+
     {% if is_super_admin or admin_permissions.can_view_players or admin_permissions.can_view_admin_management or admin_permissions.can_view_game_settings %}
     <div class="menu-section">
         <div class="menu-section-title">SYSTEM</div>
         <ul class="sidebar-menu">
-            {% if is_super_admin or admin_permissions.can_view_players %}
-            <li><a href="{% url 'manage_players' %}" {% if page == 'manage-players' %}class="active"{% endif %}>
-                <span class="menu-icon">👥</span> Players
-            </a></li>
-            {% endif %}
-            
-            {% if is_super_admin or admin_permissions.can_view_admin_management %}
-    <li><a href="{% url 'players' %}" {% if page == 'players' %}class="active"{% endif %}>
-        <span class="menu-icon">👨‍💼</span> Admin Management
-    </a></li>
-    {% endif %}
-
-            {% if is_super_admin or admin_permissions.can_view_game_settings %}
-            <li><a href="{% url 'game_settings' %}" {% if page == 'game_settings' %}class="active"{% endif %}>
-                <span class="menu-icon">⚙️</span> Game Settings
-            </a></li>
+            {% if is_super_admin or admin_permissions.can_view_players %} <li><a href="{% url 'manage_players' %}" {% if page == 'manage-players' %}class="active" {% endif %}> <span class="menu-icon">👥</span> Players
+                </a></li>
             {% endif %}
 
-            {% if is_super_admin or admin_permissions.can_manage_payment_methods %}
-            <li><a href="{% url 'payment_methods' %}" {% if page == 'payment-methods' %}class="active"{% endif %}>
-                <span class="menu-icon">🏦</span> Payment Methods
-            </a></li>
+            {% if is_super_admin or admin_permissions.can_view_admin_management %} <li><a href="{% url 'players' %}" {% if page == 'players' %}class="active" {% endif %}> <span class="menu-icon">👨‍💼</span> Admin Management
+                </a></li>
             {% endif %}
 
-            
+            {% if is_super_admin or admin_permissions.can_view_game_settings %} <li><a href="{% url 'game_settings' %}" {% if page == 'game_settings' %}class="active" {% endif %}> <span class="menu-icon">⚙️</span> Game Settings
+                </a></li>
+            {% endif %}
+
+            {% if is_super_admin %} <li><a href="{% url 'testing_dashboard' %}" {% if page == 'testing-dashboard' %}class="active" {% endif %}> <span class="menu-icon">🧪</span> Testing Dashboard
+                </a></li>
+            {% endif %}
+
+            {% if is_super_admin or admin_permissions.can_manage_payment_methods %} <li><a href="{% url 'payment_methods' %}" {% if page == 'payment-methods' %}class="active" {% endif %}> <span class="menu-icon">🏦</span> Payment Methods
+                </a></li>
+            {% endif %}
         </ul>
     </div>
     {% endif %}
@@ -131,8 +111,15 @@
     }
 
     @keyframes slideInRight {
-        from { transform: translateX(120%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+        from {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
     }
 
     .notification-popup.hide {
@@ -140,8 +127,15 @@
     }
 
     @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(120%); opacity: 0; }
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(120%);
+            opacity: 0;
+        }
     }
 
     .notification-header {
@@ -211,7 +205,7 @@
     }
 </style>
 <script>
-    (function() {
+    (function () {
         let notificationSocket = null;
         let reconnectAttempts = 0;
         const maxReconnects = 5;
@@ -224,7 +218,7 @@
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 audioContext = new AudioContextClass();
                 console.log('🔔 [System] Audio Context initialized');
-                
+
                 // Keep the context alive by playing a silent buffer on a loop
                 const buffer = audioContext.createBuffer(1, 1, 22050);
                 const source = audioContext.createBufferSource();
@@ -239,7 +233,7 @@
 
         // Add listeners to unlock audio on first click/touch
         ['click', 'touchstart', 'keydown'].forEach(event => {
-            document.addEventListener(event, function() {
+            document.addEventListener(event, function () {
                 if (!audioContext) initAudio();
                 if (audioContext && audioContext.state === 'suspended') {
                     audioContext.resume().then(() => {
@@ -253,7 +247,7 @@
             try {
                 if (!audioContext || audioContext.state === 'closed') initAudio();
                 if (!audioContext) return;
-                
+
                 // CRITICAL: Always try to resume before playing
                 audioContext.resume().then(() => {
                     const now = audioContext.currentTime;
@@ -261,25 +255,25 @@
                     function playAlert(freq, start, duration, vol, wave) {
                         const osc = audioContext.createOscillator();
                         const gain = audioContext.createGain();
-                        
+
                         osc.type = wave || 'triangle';
                         osc.frequency.setValueAtTime(freq, now + start);
-                        
+
                         gain.gain.setValueAtTime(0, now + start);
                         gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
                         gain.gain.linearRampToValueAtTime(vol * 0.8, now + start + duration - 0.05);
                         gain.gain.exponentialRampToValueAtTime(0.01, now + start + duration);
-                        
+
                         osc.connect(gain);
                         gain.connect(audioContext.destination);
-                        
+
                         osc.start(now + start);
                         osc.stop(now + start + duration);
                     }
 
                     if (type === 'deposit') {
                         // MAX INTENSITY SIREN - Extreme Volume
-                        const vol = 5.0; 
+                        const vol = 5.0;
                         playAlert(1000, 0, 0.1, vol, 'square');
                         playAlert(1500, 0.1, 0.1, vol, 'square');
                         playAlert(1000, 0.2, 0.1, vol, 'square');
@@ -302,7 +296,7 @@
             const notification = document.createElement('div');
             const type = data.notification_type || 'info';
             notification.className = `notification-popup ${type}`;
-            
+
             const icon = type === 'deposit' ? '💰' : '💸';
             const title = type === 'deposit' ? 'New Deposit Request' : 'New Withdraw Request';
             const redirectUrl = type === 'deposit' ? '{% url "deposit_requests" %}' : '{% url "withdraw_requests" %}';
@@ -318,7 +312,7 @@
                 <div class="notification-body">
                     <span class="notification-user">User: ${data.user}</span>
                     <span class="notification-amount">₹${parseFloat(data.amount).toFixed(2)}</span>
-                    <span class="notification-time">${data.created_at || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    <span class="notification-time">${data.created_at || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
             `;
 
@@ -357,7 +351,7 @@
                 testBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     playNotificationSound('deposit');
-                    
+
                     // Visual feedback
                     const originalText = testBtn.innerText;
                     testBtn.innerText = '🔊 Playing...';
@@ -378,28 +372,28 @@
             // Use port 8004 if on localhost to match the user's environment
             const host = window.location.hostname === 'localhost' ? 'localhost:8004' : window.location.host;
             const wsUrl = `${protocol}//${host}/ws/game/`;
-            
+
             console.log('🔔 [System] Connecting to Notification WebSocket:', wsUrl);
-            
+
             try {
                 notificationSocket = new WebSocket(wsUrl);
-                
-                notificationSocket.onopen = function() {
+
+                notificationSocket.onopen = function () {
                     console.log('🔔 [System] Notification WebSocket connected');
                     reconnectAttempts = 0;
                 };
-                
-                notificationSocket.onmessage = function(e) {
+
+                notificationSocket.onmessage = function (e) {
                     try {
                         const data = JSON.parse(e.data);
                         console.log('🔔 [System] Received real-time event:', data);
-                        
+
                         if (data.type === 'admin_notification') {
                             console.log('🔔 [System] Processing admin notification');
                             showAdminNotification(data);
-                            
+
                             // Dispatch a custom event so specific pages can update their UI
-                            const event = new CustomEvent('adminNotification', { 
+                            const event = new CustomEvent('adminNotification', {
                                 detail: data,
                                 bubbles: true,
                                 cancelable: true
@@ -410,8 +404,8 @@
                         console.error('🔔 [Error] Parsing notification data:', err);
                     }
                 };
-                
-                notificationSocket.onclose = function(e) {
+
+                notificationSocket.onclose = function (e) {
                     console.warn('🔔 [System] Notification WebSocket closed. Code:', e.code, 'Reason:', e.reason);
                     if (reconnectAttempts < maxReconnects) {
                         reconnectAttempts++;
@@ -423,7 +417,7 @@
                     }
                 };
 
-                notificationSocket.onerror = function(err) {
+                notificationSocket.onerror = function (err) {
                     console.error('🔔 [Error] WebSocket encounterd an error');
                 };
             } catch (err) {
@@ -432,14 +426,13 @@
         }
 
         // Only connect if user is an admin
-        {% if user.is_staff %}
-        connectNotificationSocket();
+        {% if user.is_staff %} connectNotificationSocket();
         {% endif %}
     })();
 
     // Sidebar Scroll Position Preservation
-    (function() {
-        document.addEventListener('DOMContentLoaded', function() {
+    (function () {
+        document.addEventListener('DOMContentLoaded', function () {
             const sidebarWrapper = document.querySelector('.sidebar-menu-wrapper');
             if (sidebarWrapper) {
                 // Restore scroll position on page load
@@ -451,7 +444,7 @@
                 // Save scroll position before navigation
                 const sidebarLinks = sidebarWrapper.querySelectorAll('a');
                 sidebarLinks.forEach(link => {
-                    link.addEventListener('click', function() {
+                    link.addEventListener('click', function () {
                         localStorage.setItem('sidebarScrollPos', sidebarWrapper.scrollTop);
                     });
                 });
@@ -459,7 +452,7 @@
                 // Also save on form submissions that navigate away
                 const forms = document.querySelectorAll('form');
                 forms.forEach(form => {
-                    form.addEventListener('submit', function() {
+                    form.addEventListener('submit', function () {
                         localStorage.setItem('sidebarScrollPos', sidebarWrapper.scrollTop);
                     });
                 });

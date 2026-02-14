@@ -134,4 +134,6 @@ class SessionManager(private val context: Context) {
     fun setNewUser(isNew: Boolean) {
         prefs.edit().putBoolean("is_new_user", isNew).apply()
     }
+
+    fun getContext(): Context = context
 }

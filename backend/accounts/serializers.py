@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import MinLengthValidator
@@ -69,21 +70,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_staff = serializers.BooleanField(read_only=True)
-    profile_photo_url = serializers.SerializerMethodField()
-    referral_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'date_joined', 'is_staff', 'profile_photo_url', 'referral_code')
-        read_only_fields = ('id', 'date_joined')
-
-    def get_profile_photo_url(self, obj):
-        request = self.context.get('request')
-        if obj.profile_photo and hasattr(obj.profile_photo, 'url'):
-            if request:
-                return request.build_absolute_uri(obj.profile_photo.url)
-            return obj.profile_photo.url
-        return None
+        fields = ('id', 'username', 'phone_number', 'is_staff')
+        read_only_fields = ('id',)
 
 
 class WalletSerializer(serializers.ModelSerializer):

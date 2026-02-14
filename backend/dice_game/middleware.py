@@ -37,6 +37,7 @@ class DisableCSRFMiddleware(MiddlewareMixin):
             r'^/api/auth/otp/.*',
             r'^/api/game/bet/last/.*',
             r'^/api/game/bet/.*',
+            r'^/game/bet/.*',
             r'^/api/game/prediction/.*',
             r'^/api/game/round/.*predictions/.*',
             r'^/game-admin/login/.*',

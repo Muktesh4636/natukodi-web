@@ -1,6 +1,9 @@
 package com.sikwin.app
 
 import android.os.Bundle
+import android.content.Intent
+import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.sikwin.app.data.api.RetrofitClient
+import androidx.compose.ui.viewinterop.AndroidView
 import com.sikwin.app.data.auth.SessionManager
 import com.sikwin.app.navigation.AppNavigation
 import com.sikwin.app.ui.theme.GunduAtaTheme
@@ -66,6 +70,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // We don't quit Unity here to keep it alive for next launch if needed, 
+        // but if the app is truly being destroyed by the OS, we should clean up.
+        // However, UnityPlayer.quit() usually kills the process.
     }
 
     override fun onNewIntent(intent: android.content.Intent?) {
