@@ -108,6 +108,12 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     
     var loginSuccess by mutableStateOf(false)
     
+    // App Update state
+    var showUpdateDialog by mutableStateOf(false)
+    var updateUrl by mutableStateOf<String?>(null)
+    var isForceUpdate by mutableStateOf(false)
+    var latestVersionName by mutableStateOf<String?>(null)
+    
     // Timer pre-loading state
     var preLoadedTimer by mutableStateOf<Int?>(null)
     var preLoadedStatus by mutableStateOf<String?>(null)
@@ -891,5 +897,26 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
 
     fun markUserAsNotNew() {
         sessionManager.setNewUser(false)
+    }
+
+    fun checkForUpdates(currentVersionCode: Int) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getAppVersion()
+                if (response.isSuccessful) {
+                    val data = response.body()
+                    val latestVersionCode = (data?.get("version_code") as? Double)?.toInt() ?: (data?.get("version_code") as? Int) ?: 0
+                    
+                    if (latestVersionCode > currentVersionCode) {
+                        latestVersionName = data?.get("version_name") as? String
+                        updateUrl = data?.get("download_url") as? String
+                        isForceUpdate = data?.get("force_update") as? Boolean ?: false
+                        showUpdateDialog = true
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GunduAtaViewModel", "Update check failed: ${e.message}")
+            }
+        }
     }
 }

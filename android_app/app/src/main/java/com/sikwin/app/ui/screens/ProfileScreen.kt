@@ -37,6 +37,14 @@ fun ProfileScreen(
     var newName by remember { mutableStateOf(viewModel.userProfile?.username ?: "") }
 
     val lifecycleOwner = LocalLifecycleOwner.current
+    
+    // Redirect to login if not logged in
+    LaunchedEffect(viewModel.loginSuccess) {
+        if (!viewModel.loginSuccess) {
+            onNavigate("login")
+        }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -96,7 +104,7 @@ fun ProfileScreen(
         ) {
             // Profile Header
             ProfileHeader(
-                username = viewModel.userProfile?.username ?: "User",
+                username = viewModel.userProfile?.username ?: sessionManager.fetchUsername() ?: "User",
                 balance = viewModel.wallet?.balance ?: "0.00",
                 onWalletClick = { onNavigate("wallet") },
                 onEditName = {

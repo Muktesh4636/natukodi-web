@@ -47,6 +47,63 @@ fun AppNavigation(
     val activity = context as? Activity
     var showAuthDialog by remember { mutableStateOf(false) }
 
+    // App Update Check
+    LaunchedEffect(Unit) {
+        try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode.toInt()
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode
+            }
+            viewModel.checkForUpdates(currentVersionCode)
+        } catch (e: Exception) {
+            android.util.Log.e("AppNavigation", "Failed to get version code", e)
+        }
+    }
+
+    if (viewModel.showUpdateDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!viewModel.isForceUpdate) viewModel.showUpdateDialog = false },
+            title = { Text("New Update Available", fontWeight = FontWeight.Bold) },
+            text = { 
+                Column {
+                    Text("A new version of Gundu Ata is available.")
+                    viewModel.latestVersionName?.let { 
+                        Text("Version: $it", fontSize = 14.sp, color = com.sikwin.app.ui.theme.TextGrey)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Please update to the latest version to continue enjoying the game and new features.")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.updateUrl?.let { url ->
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, AndroidUri.parse(url))
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Could not open download link", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
+                ) {
+                    Text("Update Now", color = com.sikwin.app.ui.theme.BlackBackground, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = if (!viewModel.isForceUpdate) {
+                {
+                    TextButton(onClick = { viewModel.showUpdateDialog = false }) {
+                        Text("Later")
+                    }
+                }
+            } else null
+        )
+    }
+
     // Prevent rapid navigation
     var lastNavigationTime by remember { mutableStateOf(0L) }
     val navigationCooldown = 500L // 500ms cooldown between navigation calls
@@ -133,8 +190,8 @@ fun AppNavigation(
                 intent.putExtra("password", password)
             }
             
-            intent.putExtra("base_url", "https://gunduata.online")
-            intent.putExtra("api_url", "https://gunduata.online/api/")
+            intent.putExtra("base_url", com.sikwin.app.utils.Constants.BASE_URL.removeSuffix("api/"))
+            intent.putExtra("api_url", com.sikwin.app.utils.Constants.BASE_URL)
             intent.putExtra("is_logged_in", true)
             intent.putExtra("auto_login", true)
             intent.putExtra("from_android_app", true)
@@ -257,6 +314,12 @@ fun AppNavigation(
                     } else if (route == "me") {
                         if (viewModel.loginSuccess) {
                             safeNavigate("me")
+                        } else {
+                            showAuthDialog = true
+                        }
+                    } else if (route == "wallet" || route == "deposit" || route == "withdraw" || route == "transactions") {
+                        if (viewModel.loginSuccess) {
+                            safeNavigate(route)
                         } else {
                             showAuthDialog = true
                         }

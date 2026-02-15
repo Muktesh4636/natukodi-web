@@ -49,7 +49,7 @@ class SessionManager(private val context: Context) {
     }
 
     fun fetchUsername(): String? {
-        return prefs.getString(USERNAME, "User")
+        return prefs.getString(USERNAME, null)
     }
 
     fun saveUserId(userId: Int) {
@@ -85,8 +85,8 @@ class SessionManager(private val context: Context) {
                     .putString("bearer_token", authToken)
                     .putString("username", username)
                     .putString("user_id", userId)
-                    .putString("base_url", "https://gunduata.online")
-                    .putString("api_url", "https://gunduata.online/api/")
+                    .putString("base_url", com.sikwin.app.utils.Constants.BASE_URL.removeSuffix("api/"))
+                    .putString("api_url", com.sikwin.app.utils.Constants.BASE_URL)
                     .putString("is_logged_in", "true")
                     .putString("auto_login", "true")
                     .putString("from_android_app", "true")

@@ -31,6 +31,7 @@ sshpass -e scp -o StrictHostKeyChecking=no backend/game_engine_v2.py $REMOTE_USE
 sshpass -e scp -o StrictHostKeyChecking=no backend/game/consumers.py $REMOTE_USER@$SERVER_IP:$REMOTE_PATH/game/
 sshpass -e scp -o StrictHostKeyChecking=no backend/game/views.py $REMOTE_USER@$SERVER_IP:$REMOTE_PATH/game/
 sshpass -e scp -o StrictHostKeyChecking=no backend/game/utils.py $REMOTE_USER@$SERVER_IP:$REMOTE_PATH/game/
+sshpass -e scp -o StrictHostKeyChecking=no backend/accounts/views.py $REMOTE_USER@$SERVER_IP:$REMOTE_PATH/accounts/
 
 # 2. Restart services
 echo "🔄 Restarting services on $SERVER_IP..."
@@ -39,24 +40,21 @@ sshpass -e ssh -o StrictHostKeyChecking=no $REMOTE_USER@$SERVER_IP << 'EOF'
     pkill -f game_engine_v2.py || true
     
     # Restart Gunicorn/Daphne (WebSocket consumer)
-    # Try multiple common restart methods
-    if command -v docker &> /dev/null && docker ps | grep -q "web"; then
-        echo "Restarting via Docker..."
-        docker compose restart web || docker-compose restart web
+    cd /root/apk_of_ata || exit 1
+    if command -v docker &> /dev/null && docker compose ps &> /dev/null; then
+        echo "Restarting via Docker Compose..."
+        docker compose restart web
     elif systemctl is-active --quiet gunicorn; then
         echo "Restarting via systemctl..."
         systemctl restart gunicorn
-    elif supervisorctl status web &> /dev/null; then
-        echo "Restarting via supervisorctl..."
-        supervisorctl restart web
     else
         echo "Manual process restart (pkill gunicorn)..."
         pkill -HUP gunicorn || pkill gunicorn
     fi
 
-    # Start new engine in background
-    cd /root/apk_of_ata/backend
-    nohup python3 game_engine_v2.py > engine.log 2>&1 &
+    # Start new engine inside the web container
+    echo "Starting Game Engine inside web container..."
+    docker compose exec -d web python3 game_engine_v2.py
     
     echo "✅ Services restarted."
 EOF

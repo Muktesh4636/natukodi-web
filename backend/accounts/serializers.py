@@ -70,11 +70,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_staff = serializers.BooleanField(read_only=True)
+    profile_photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'phone_number', 'is_staff')
+        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'is_staff', 'profile_photo_url', 'referral_code')
         read_only_fields = ('id',)
+
+    def get_profile_photo_url(self, obj):
+        return None  # Return null as requested, APK will use local default
 
 
 class WalletSerializer(serializers.ModelSerializer):

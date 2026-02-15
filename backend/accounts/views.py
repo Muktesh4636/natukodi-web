@@ -398,7 +398,8 @@ def wallet(request):
                 return Response({
                     'id': getattr(request.user, 'wallet_id', None), # Optional
                     'balance': balance,
-                    'unavaliable_balance': "0.00" # Simplified for high speed
+                    'unavaliable_balance': "0.00", # Misspelled for compatibility
+                    'unavailable_balance': "0.00"  # Correct spelling
                 })
         except Exception as re:
             logger.error(f"Redis balance fetch error: {re}")

@@ -111,7 +111,7 @@ SESSION_COOKIE_HTTPONLY = False
 # SECURITY: Production security settings
 if not DEBUG:
     # HTTPS/SSL Settings
-    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
     SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
     CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
     SECURE_BROWSER_XSS_FILTER = True
@@ -342,7 +342,7 @@ REST_FRAMEWORK = {
 # JWT Settings - SECURITY: Shorter token lifetimes
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Reduced from 24h to 1h
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',

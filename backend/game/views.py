@@ -79,9 +79,16 @@ def current_round(request):
     """Get current game round status from Redis (High Performance)"""
     if redis_client:
         try:
-            state = redis_client.get('current_game_state')
-            if state:
-                return Response(json.loads(state))
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+                
+                # Add legacy timer field for Unity compatibility
+                now = int(timezone.now().timestamp())
+                end_time = state.get('end_time', 0)
+                state['timer'] = max(0, end_time - now)
+                
+                return Response(state)
         except Exception as e:
             logger.error(f"Redis error in current_round: {e}")
     
@@ -94,11 +101,13 @@ def current_round(request):
     # Assuming 80s total round duration
     round_end_time = get_game_setting('ROUND_END_TIME', 80)
     end_timestamp = int(round_obj.start_time.timestamp() + round_end_time)
+    remaining_timer = max(0, int(end_timestamp - timezone.now().timestamp()))
 
     return Response({
         'round_id': round_obj.round_id,
         'status': round_obj.status,
         'end_time': end_timestamp,
+        'timer': remaining_timer,
         'server_time': int(timezone.now().timestamp()),
         'is_rolling': round_obj.status == 'ROLLING'
     })
@@ -1008,6 +1017,37 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([AllowAny])
+def app_version(request):
+    """
+    API endpoint to check for app updates.
+    Returns the latest version code, version name, and download URL.
+    """
+    try:
+        from .utils import get_game_setting
+        
+        # Get settings from database/Redis
+        version_code = int(get_game_setting('APP_VERSION_CODE', 1))
+        version_name = get_game_setting('APP_VERSION_NAME', '1.0.0')
+        download_url = get_game_setting('APP_DOWNLOAD_URL', 'https://gunduata.online/download/')
+        force_update = get_game_setting('APP_FORCE_UPDATE', 'false').lower() == 'true'
+        
+        return Response({
+            'version_code': version_code,
+            'version_name': version_name,
+            'download_url': download_url,
+            'force_update': force_update,
+            'timestamp': timezone.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error in app_version API: {e}")
+        return Response({
+            'error': 'Internal server error'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 @csrf_exempt
 def winning_results(request, round_id=None):
     """
@@ -1206,6 +1246,86 @@ def game_timer_settings(request):
             'message': 'Timer settings updated successfully',
             'updated_settings': updated_settings
         })
+
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def dice_frequency(request):
+    """
+    API endpoint to get the dice frequency for the last N rounds.
+    Query param: count (default: 10)
+    """
+    try:
+        from collections import Counter
+        count = int(request.query_params.get('count', 10))
+        count = max(1, min(count, 100))
+        
+        # Fetch from database
+        recent_rounds = GameRound.objects.filter(
+            status__in=['RESULT', 'COMPLETED'],
+            dice_result__isnull=False
+        ).order_by('-start_time')[:count]
+
+        results = []
+        for round_obj in recent_rounds:
+            dice_values = [
+                round_obj.dice_1, round_obj.dice_2, round_obj.dice_3,
+                round_obj.dice_4, round_obj.dice_5, round_obj.dice_6
+            ]
+            # Filter out None values
+            dice_values = [d for d in dice_values if d is not None]
+            
+            # Calculate frequency
+            counts = Counter(dice_values)
+            
+            # Winning numbers are those that appear 2+ times (based on game rules in calculate_payouts)
+            # However, the user's requested format shows all dice values as winning numbers with multiplier 2.0
+            # I will follow the requested format structure.
+            winning_numbers_data = []
+            # Use sorted unique dice values to build the winning_numbers list
+            for num in sorted(counts.keys()):
+                winning_numbers_data.append({
+                    "number": num,
+                    "frequency": counts[num],
+                    "payout_multiplier": float(counts[num]) # Multiplier is usually equal to frequency in this game
+                })
+
+            # Format dice_result as "X-Y-Z"
+            dice_result_str = "-".join(map(str, dice_values))
+            
+            results.append({
+                "round_id": round_obj.round_id,
+                "dice_result": dice_result_str,
+                "round": {
+                    "round_id": round_obj.round_id,
+                    "status": round_obj.status.lower(),
+                    "dice_result": dice_result_str,
+                    "dice_values": dice_values,
+                    "start_time": round_obj.start_time.isoformat() if round_obj.start_time else None,
+                    "result_time": round_obj.result_time.isoformat() if round_obj.result_time else None,
+                    "end_time": round_obj.end_time.isoformat() if round_obj.end_time else None
+                },
+                "winning_numbers": winning_numbers_data
+            })
+
+        # If count is 1, return a single object instead of a list to match the user's snippet
+        if count == 1 and results:
+            # Add wallet_balance if authenticated
+            if request.user.is_authenticated:
+                try:
+                    results[0]["wallet_balance"] = "{:.2f}".format(float(request.user.wallet.balance))
+                except:
+                    results[0]["wallet_balance"] = "0.00"
+            return Response(results[0])
+
+        return Response(results)
+    except Exception as e:
+        logger.error(f"Error in dice_frequency API: {e}")
+        return Response({
+            'error': 'Internal server error',
+            'details': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
