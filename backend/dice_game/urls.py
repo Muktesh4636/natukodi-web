@@ -34,6 +34,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', project_views.api_root, name='api_root'),
     
+    # Loading time endpoint (no authentication)
+    path('api/loading-time/', accounts_views.loading_time, name='loading_time'),
+    
     # Auth endpoints (api/auth/)
     path('api/auth/register/', accounts_views.register, name='register'),
     path('api/auth/login/', accounts_views.login, name='login'),

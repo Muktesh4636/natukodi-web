@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 import redis
 from django.conf import settings
-from game.models import GameRound, Bet
+from game.models import GameRound, Bet, DiceResult
 from accounts.models import Wallet, Transaction, User
 
 logger = logging.getLogger('game.bet_worker')
@@ -43,17 +43,89 @@ class Command(BaseCommand):
             return
 
         batch_size = 50  # Process 50 bets at a time
+        STREAM_NAME = "round_events_stream"
         
+        # Ensure stream exists or handle if it doesn't
+        last_id = '$'  # Start from new messages
+        try:
+            # Try to get the last ID from the stream to avoid missing events on restart
+            # For simplicity, we'll start from the end, but in production, you'd save last_id
+            pass
+        except:
+            pass
+
         while True:
             try:
-                # 1. Fetch a batch of bets from Redis
-                # We use BLPOP to wait for items if the queue is empty (efficient)
-                # But since we want batches, we'll use LRANGE and LTRIM or a loop
-                
+                # 1. Process Game Events (Round Start/End) from Redis Stream
+                # We check for events first as they are critical for round creation
+                events = redis_client.xread({STREAM_NAME: '0'}, count=10, block=100)
+                if events:
+                    for stream, messages in events:
+                        for message_id, data in messages:
+                            event_type = data.get('type')
+                            round_id = data.get('round_id')
+                            
+                            try:
+                                with transaction.atomic():
+                                    if event_type == 'round_start':
+                                        start_time_str = data.get('start_time')
+                                        durations = json.loads(data.get('durations', '{}'))
+                                        
+                                        # Create GameRound in DB
+                                        GameRound.objects.get_or_create(
+                                            round_id=round_id,
+                                            defaults={
+                                                'status': 'BETTING',
+                                                'start_time': start_time_str,
+                                                'betting_close_seconds': durations.get('betting_close_time', 30),
+                                                'dice_roll_seconds': durations.get('dice_roll_time', 35),
+                                                'dice_result_seconds': durations.get('dice_result_time', 45),
+                                                'round_end_seconds': durations.get('round_end_time', 70)
+                                            }
+                                        )
+                                        self.stdout.write(self.style.SUCCESS(f"Created Round {round_id} in DB"))
+                                    
+                                    elif event_type == 'round_result':
+                                        result = data.get('result')
+                                        dice_values = json.loads(data.get('dice_values', '[]'))
+                                        end_time_str = data.get('end_time')
+                                        
+                                        # Update GameRound and calculate payouts
+                                        round_obj = GameRound.objects.get(round_id=round_id)
+                                        round_obj.status = 'RESULT'
+                                        round_obj.dice_result = result
+                                        round_obj.result_time = end_time_str
+                                        
+                                        # Set individual dice values
+                                        if len(dice_values) == 6:
+                                            for i, val in enumerate(dice_values, 1):
+                                                setattr(round_obj, f'dice_{i}', val)
+                                        
+                                        round_obj.save()
+                                        
+                                        # Create DiceResult record
+                                        DiceResult.objects.update_or_create(
+                                            round=round_obj,
+                                            defaults={'result': result}
+                                        )
+                                        
+                                        # Calculate Payouts
+                                        from game.views import calculate_payouts
+                                        calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
+                                        
+                                        self.stdout.write(self.style.SUCCESS(f"Settled Round {round_id} in DB: Result {result}"))
+                                    
+                                    # Delete processed message from stream
+                                    redis_client.xdel(STREAM_NAME, message_id)
+                                    
+                            except Exception as event_err:
+                                logger.error(f"Error processing game event {event_type} for round {round_id}: {event_err}")
+                                # Don't delete if failed, so we can retry (or move to DLQ)
+                                continue
+
+                # 2. Fetch a batch of bets from Redis list
                 bets_to_process = []
-                # Try to get up to batch_size items
                 for _ in range(batch_size):
-                    # non-blocking pop
                     bet_json = redis_client.lpop('bet_queue')
                     if bet_json:
                         bets_to_process.append(json.loads(bet_json))
@@ -61,15 +133,11 @@ class Command(BaseCommand):
                         break
                 
                 if not bets_to_process:
-                    # Queue empty, sleep briefly
-                    time.sleep(0.5)
+                    if not events: # Only sleep if no events were processed either
+                        time.sleep(0.5)
                     continue
 
-                # Log processing (but not too frequently to avoid spam)
-                if len(bets_to_process) >= 10:
-                    self.stdout.write(f"Processing batch of {len(bets_to_process)} bets...")
-
-                # 2. Process Batch in a single DB Transaction
+                # 3. Process Batch in a single DB Transaction
                 with transaction.atomic():
                     for bet_data in bets_to_process:
                         try:
@@ -78,8 +146,15 @@ class Command(BaseCommand):
                             number = bet_data['number']
                             chip_amount = Decimal(bet_data['chip_amount'])
                             
-                            # Get Round and Wallet (select_for_update to be safe)
-                            round_obj = GameRound.objects.get(round_id=round_id)
+                            # Get Round and Wallet
+                            try:
+                                round_obj = GameRound.objects.get(round_id=round_id)
+                            except GameRound.DoesNotExist:
+                                # If round doesn't exist yet, push back to queue and wait
+                                logger.warning(f"Round {round_id} not found for bet, pushing back to queue")
+                                redis_client.rpush('bet_queue', json.dumps(bet_data))
+                                continue
+
                             wallet = Wallet.objects.select_for_update().get(user_id=user_id)
                             
                             # Create Bet
@@ -105,16 +180,15 @@ class Command(BaseCommand):
                                 description=f"Bet on {number} in round {round_id} (Processed via Queue)"
                             )
                             
-                            # Sync Redis balance with DB balance just in case of drift
-                            # (Optional: only do this occasionally or if drift detected)
+                            # Sync Redis balance
                             redis_client.set(f"user_balance:{user_id}", str(wallet.balance), ex=3600)
 
                         except Exception as bet_err:
-                            logger.error(f"Error processing individual bet in batch: {bet_err}")
-                            # In a real production system, you'd want a 'failed_bets' queue
+                            logger.error(f"Error processing individual bet: {bet_err}")
                             continue
 
-                self.stdout.write(self.style.SUCCESS(f"Successfully committed {len(bets_to_process)} bets to DB"))
+                if bets_to_process:
+                    self.stdout.write(self.style.SUCCESS(f"Successfully committed {len(bets_to_process)} bets to DB"))
 
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Worker Error: {e}"))

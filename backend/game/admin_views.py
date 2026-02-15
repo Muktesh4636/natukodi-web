@@ -1376,6 +1376,13 @@ def approve_withdraw(request, pk):
             balance_before = wallet.balance
             wallet.balance = balance_before - withdraw.amount
             wallet.save()
+
+            # Update Redis balance (CRITICAL for Redis-First betting)
+            try:
+                from game.views import redis_client
+                if redis_client:
+                    redis_client.set(f"user_balance:{withdraw.user.id}", str(wallet.balance), ex=3600)
+            except: pass
             
             withdraw.status = 'APPROVED'
             withdraw.processed_by = request.user

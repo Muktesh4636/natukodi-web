@@ -28,9 +28,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.accept()
             self._is_connected = True
             
-            # 2. Join Channels groups
-            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-            
+            # 2. Join Channels groups (Only for admin notifications now)
             user = self.scope.get('user')
             if user and getattr(user, 'is_staff', False):
                 await self.channel_layer.group_add('admin_notifications', self.channel_name)
@@ -38,7 +36,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             # 3. Start Redis listener in background
             self.redis_task = asyncio.create_task(self.redis_listener())
             
-            # 4. Start Heartbeat to keep connection alive through proxies
+            # 4. Start Heartbeat to keep connection alive
             self.heartbeat_task = asyncio.create_task(self.heartbeat())
             
             # 5. Give listener a moment to subscribe before sending initial state
@@ -47,7 +45,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             # 6. Send initial state
             await self.send_initial_state()
             
-            logger.info(f"WebSocket connected: {self.channel_name}, Redis listener and heartbeat started")
+            logger.info(f"WebSocket connected: {self.channel_name}")
         except Exception as e:
             logger.error(f"Connect error: {e}")
             await self.close()
@@ -70,7 +68,14 @@ class GameConsumer(AsyncWebsocketConsumer):
         if self.heartbeat_task:
             self.heartbeat_task.cancel()
         
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        try:
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+            user = self.scope.get('user')
+            if user and getattr(user, 'is_staff', False):
+                await self.channel_layer.group_discard('admin_notifications', self.channel_name)
+        except:
+            pass
+            
         logger.info(f"WebSocket disconnected: {self.channel_name} (code: {close_code})")
 
     async def send_initial_state(self):

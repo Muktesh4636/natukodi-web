@@ -152,9 +152,8 @@ class GameEngine:
         end_timestamp = int(time.time() + remaining_seconds)
 
         state = {
-            "type": legacy_type or "game_timer",
+            "type": legacy_type or "timer",
             "round_id": self.round_id,
-            "end_time": end_timestamp,
             "timer": timer,  # Counts UP from 1 (elapsed time + 1)
             "status": self.status,
             "dice_result": self.dice_result,
@@ -176,6 +175,7 @@ class GameEngine:
         # Direct Pub/Sub for high speed (only publish current round)
         # Note: We publish ONE message per update to avoid duplicates
         # The game_state message contains all necessary information including timer
+        logger.info(f"Publishing state: round={self.round_id}, timer={timer}, status={self.status}")
         await self.redis.publish(GAME_ROOM_CHANNEL, payload)
 
     async def run(self):
@@ -251,7 +251,16 @@ class GameEngine:
                     should_publish = True
                 
                 if should_publish:
-                    await self.publish_state()
+                    # If it's the start of a new round (timer=1), send TWO messages:
+                    # 1. type: "game_start"
+                    # 2. type: "timer"
+                    if current_timer == 1:
+                        await self.publish_state(legacy_type="game_start")
+                        await self.publish_state(legacy_type="timer")
+                    else:
+                        # For all other seconds, just send the standard "timer" message
+                        await self.publish_state()
+                    
                     last_publish_time = time.monotonic()  # Use fresh monotonic time after publish
 
                 # High-frequency check (0.1s) to ensure status changes are caught immediately

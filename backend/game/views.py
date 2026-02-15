@@ -360,7 +360,12 @@ def remove_bet(request, number):
             # Update round stats in Redis for high performance and to avoid DB row contention
             if redis_client:
                 try:
-                    # Decrement totals in Redis
+                    # 1. Update user balance in Redis (CRITICAL for Redis-First betting)
+                    balance_key = f"user_balance:{request.user.id}"
+                    # Use set instead of incrbyfloat to ensure absolute sync with DB
+                    redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                    
+                    # 2. Decrement totals in Redis
                     new_total_bets = redis_client.decr(f"round_total_bets:{round_obj.round_id}")
                     if new_total_bets < 0:
                         redis_client.set(f"round_total_bets:{round_obj.round_id}", 0)
@@ -375,7 +380,7 @@ def remove_bet(request, number):
                     round_obj.total_bets = max(0, int(new_total_bets))
                     round_obj.total_amount = max(Decimal('0.00'), Decimal(str(new_total_amount)))
                 except Exception as redis_err:
-                    logger.error(f"Redis error updating round stats: {redis_err}")
+                    logger.error(f"Redis error updating round stats or balance: {redis_err}")
                     # Fallback to DB
                     round_obj.total_bets = max(0, round_obj.total_bets - 1)
                     round_obj.total_amount = max(Decimal('0.00'), round_obj.total_amount - refund_amount)
@@ -465,15 +470,16 @@ def remove_last_bet(request):
             'bet': {
                 'id': bet.id,
                 'number': bet.number,
-                'chip_amount': str(bet.chip_amount),
-                'created_at': bet.created_at,
+                'chip_amount': "{:.2f}".format(float(bet.chip_amount)),
+                'created_at': bet.created_at.isoformat(),
                 'is_winner': bet.is_winner,
-                'payout_amount': str(bet.payout_amount) if bet.payout_amount else None
+                'payout_amount': "{:.2f}".format(float(bet.payout_amount)) if bet.payout_amount else None
             },
             'round': {
                 'round_id': round_obj.round_id,
                 'status': round_obj.status
-            }
+            },
+            'wallet_balance': "{:.2f}".format(float(request.user.wallet.balance)) if hasattr(request.user, 'wallet') else "0.00"
         })
 
     # If it's a DELETE request, proceed with removal
@@ -495,6 +501,12 @@ def remove_last_bet(request):
             # Update round stats in Redis
             if redis_client:
                 try:
+                    # 1. Update user balance in Redis (CRITICAL for Redis-First betting)
+                    balance_key = f"user_balance:{request.user.id}"
+                    # Use set instead of incrbyfloat to ensure absolute sync with DB
+                    redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                    
+                    # 2. Decrement totals in Redis
                     new_total_bets = redis_client.decr(f"round_total_bets:{round_obj.round_id}")
                     if new_total_bets < 0:
                         redis_client.set(f"round_total_bets:{round_obj.round_id}", 0)
@@ -508,7 +520,7 @@ def remove_last_bet(request):
                     round_obj.total_bets = max(0, int(new_total_bets))
                     round_obj.total_amount = max(Decimal('0.00'), Decimal(str(new_total_amount)))
                 except Exception as redis_err:
-                    logger.error(f"Redis error updating round stats: {redis_err}")
+                    logger.error(f"Redis error updating round stats or balance: {redis_err}")
                     round_obj.total_bets = max(0, round_obj.total_bets - 1)
                     round_obj.total_amount = max(Decimal('0.00'), round_obj.total_amount - refund_amount)
                     round_obj.save()
@@ -1003,6 +1015,15 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
             wallet.add(total_payout_amount)
             balance_after = wallet.balance
 
+            # Update Redis balance for winner (CRITICAL for Redis-First betting)
+            if redis_client:
+                try:
+                    balance_key = f"user_balance:{bet.user.id}"
+                    # Use set instead of incrbyfloat to ensure absolute sync with DB
+                    redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                except Exception as re:
+                    logger.error(f"Failed to update Redis balance for winner {bet.user.id}: {re}")
+
             # Create transaction for winner (100%)
             Transaction.objects.create(
                 user=bet.user,
@@ -1125,7 +1146,7 @@ def winning_results(request, round_id=None):
         "round": {
             "round_id": round_obj.round_id,
             "status": round_obj.status,
-            "dice_result": round_obj.dice_result,
+            "dice_result": int(round_obj.dice_result) if round_obj.dice_result and str(round_obj.dice_result).isdigit() else round_obj.dice_result,
             "dice_1": round_obj.dice_1,
             "dice_2": round_obj.dice_2,
             "dice_3": round_obj.dice_3,
@@ -1140,7 +1161,7 @@ def winning_results(request, round_id=None):
             "total_bets": len(bets_data),
             "total_bet_amount": "{:.2f}".format(float(user_total_bet_amount)),
             "total_payout": "{:.2f}".format(float(user_total_payout)),
-            "net_result": net_result_str,
+            "net_result": "{:.2f}".format(float(user_net_result)),
             "winning_bets": user_winning_bets,
             "losing_bets": user_losing_bets
         },
@@ -1192,10 +1213,31 @@ def game_settings_api(request):
     logger.info("Public settings API access")
     from .utils import get_game_setting
     
+    # Get values from DB with correct defaults matching the engine
+    betting_close_time = int(get_game_setting('BETTING_CLOSE_TIME', 30))
+    dice_roll_time = int(get_game_setting('DICE_ROLL_TIME', 35))
+    dice_result_time = int(get_game_setting('DICE_RESULT_TIME', 45))
+    round_end_time = int(get_game_setting('ROUND_END_TIME', 70))
+    
     settings_data = {
-        'betting_close_time': get_game_setting('BETTING_CLOSE_TIME', 30),
-        'dice_result_time': get_game_setting('DICE_RESULT_TIME', 51),
-        'round_end_time': get_game_setting('ROUND_END_TIME', 70),
+        'BETTING_DURATION': betting_close_time,
+        'RESULT_SELECTION_DURATION': dice_roll_time - betting_close_time,
+        'RESULT_DISPLAY_DURATION': dice_result_time - dice_roll_time,
+        'TOTAL_ROUND_DURATION': round_end_time,
+        'DICE_ROLL_TIME': dice_roll_time,
+        'BETTING_CLOSE_TIME': betting_close_time,
+        'DICE_RESULT_TIME': dice_result_time,
+        'RESULT_ANNOUNCE_TIME': dice_result_time,
+        'ROUND_END_TIME': round_end_time,
+        'CHIP_VALUES': [10, 50, 100, 500, 1000, 5000],
+        'PAYOUT_RATIOS': {
+            "1": 1.0,
+            "2": 2.0,
+            "3": 3.0,
+            "4": 4.0,
+            "5": 5.0,
+            "6": 6.0
+        }
     }
     
     return Response(settings_data)
@@ -1279,38 +1321,44 @@ def dice_frequency(request):
             # Calculate frequency
             counts = Counter(dice_values)
             
-            # Winning numbers are those that appear 2+ times (based on game rules in calculate_payouts)
-            # However, the user's requested format shows all dice values as winning numbers with multiplier 2.0
-            # I will follow the requested format structure.
+            # Winning numbers are those that appear 2+ times
             winning_numbers_data = []
-            # Use sorted unique dice values to build the winning_numbers list
+            # Only include numbers with frequency >= 2
             for num in sorted(counts.keys()):
-                winning_numbers_data.append({
-                    "number": num,
-                    "frequency": counts[num],
-                    "payout_multiplier": float(counts[num]) # Multiplier is usually equal to frequency in this game
-                })
+                if counts[num] >= 2:
+                    winning_numbers_data.append({
+                        "number": num,
+                        "frequency": counts[num],
+                        "payout_multiplier": float(counts[num])
+                    })
 
-            # Format dice_result as "X-Y-Z"
+            # Format dice_result as a single winning number (highest frequency)
+            # If multiple winners, use the first one. If no winners, use "0"
+            primary_winner = winning_numbers_data[0]["number"] if winning_numbers_data else 0
             dice_result_str = "-".join(map(str, dice_values))
             
+            # Calculate a fallback end_time if it's null (start_time + 70s)
+            calculated_end_time = round_obj.end_time
+            if not calculated_end_time and round_obj.start_time:
+                calculated_end_time = round_obj.start_time + timedelta(seconds=70)
+
             results.append({
                 "round_id": round_obj.round_id,
-                "dice_result": dice_result_str,
+                "dice_result": primary_winner,
                 "round": {
                     "round_id": round_obj.round_id,
                     "status": round_obj.status.lower(),
-                    "dice_result": dice_result_str,
+                    "dice_result": primary_winner,
                     "dice_values": dice_values,
                     "start_time": round_obj.start_time.isoformat() if round_obj.start_time else None,
                     "result_time": round_obj.result_time.isoformat() if round_obj.result_time else None,
-                    "end_time": round_obj.end_time.isoformat() if round_obj.end_time else None
+                    "end_time": calculated_end_time.isoformat() if calculated_end_time else None
                 },
                 "winning_numbers": winning_numbers_data
             })
 
-        # If count is 1, return a single object instead of a list to match the user's snippet
-        if count == 1 and results:
+        # If count is not 1, return only the most recent round as a single object
+        if count != 1 and results:
             # Add wallet_balance if authenticated
             if request.user.is_authenticated:
                 try:
@@ -1319,7 +1367,11 @@ def dice_frequency(request):
                     results[0]["wallet_balance"] = "0.00"
             return Response(results[0])
 
-        return Response(results)
+        # Fallback for count=1 or other cases (though logic above now covers most)
+        if results:
+            return Response(results[0])
+            
+        return Response({"error": "No results found"}, status=404)
     except Exception as e:
         logger.error(f"Error in dice_frequency API: {e}")
         return Response({

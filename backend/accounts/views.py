@@ -163,6 +163,21 @@ def register(request):
         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+@csrf_exempt
+def loading_time(request):
+    """API endpoint to get loading time - No authentication required"""
+    try:
+        # Return only loading time (in seconds)
+        loading_time_value = 3  # Default loading time in seconds
+        return Response({'loading_time': loading_time_value}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.exception(f"Error in loading_time: {e}")
+        return Response({'loading_time': 3}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for login
 @permission_classes([AllowAny])
@@ -176,9 +191,22 @@ def login(request):
         if not username or not password:
             return Response({'error': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 1. Single query for User and Wallet (using select_related)
-        # This reduces 2-3 queries into 1 JOIN query.
-        user = User.objects.filter(Q(username=username) | Q(phone_number=username)).select_related('wallet').first()
+        # 1. Clean username if it looks like a phone number
+        # This ensures login works even if user enters +91 or spaces
+        clean_username = username
+        if any(char.isdigit() for char in username):
+            # Extract only digits
+            digits = ''.join(filter(str.isdigit, username))
+            if len(digits) >= 10:
+                clean_username = digits[-10:]
+
+        # 2. Single query for User and Wallet (using select_related)
+        # Check both original username and cleaned phone number
+        user = User.objects.filter(
+            Q(username=username) | 
+            Q(phone_number=username) | 
+            Q(phone_number=clean_username)
+        ).select_related('wallet').first()
 
         if not user or not user.check_password(password):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -189,7 +217,36 @@ def login(request):
         # 2. Generate JWT tokens (No DB hit)
         refresh = RefreshToken.for_user(user)
         
-        # 3. Return response with serialized data
+        # 3. Sync balance and session to Redis (CRITICAL for high-speed betting)
+        if redis_client:
+            try:
+                # Use the already fetched wallet from select_related
+                wallet_balance = user.wallet.balance if hasattr(user, 'wallet') else Decimal('0.00')
+                
+                # Use a pipeline for faster Redis operations
+                pipe = redis_client.pipeline()
+                pipe.set(f"user_balance:{user.id}", str(wallet_balance), ex=3600)
+                
+                user_session_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_active': user.is_active,
+                    'wallet_balance': str(wallet_balance)
+                }
+                pipe.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
+                pipe.execute()
+                
+                # Update last login - use update_fields to avoid full model save
+                # and only do it if it's been more than 5 minutes to reduce DB load
+                now = timezone.now()
+                if not user.last_login or (now - user.last_login).total_seconds() > 300:
+                    user.last_login = now
+                    user.save(update_fields=['last_login'])
+            except Exception as re:
+                logger.error(f"Redis sync error during login: {re}")
+
+        # 4. Return response with serialized data
         return Response({
             'user': UserSerializer(user).data,
             'refresh': str(refresh),
@@ -321,16 +378,25 @@ def verify_otp_login(request):
         logger.info(f"OTP login successful for user: {user.username} (ID: {user.id})")
 
         # 4. Sync balance and session to Redis
-        wallet_obj, _ = Wallet.objects.get_or_create(user=user)
-        redis_client.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
-        user_session_data = {
-            'id': user.id,
-            'username': user.username,
-            'is_staff': user.is_staff,
-            'is_active': user.is_active,
-            'wallet_balance': str(wallet_obj.balance)
-        }
-        redis_client.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
+        if redis_client:
+            try:
+                wallet_obj, _ = Wallet.objects.get_or_create(user=user)
+                
+                # Use pipeline for faster Redis operations
+                pipe = redis_client.pipeline()
+                pipe.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
+                
+                user_session_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_active': user.is_active,
+                    'wallet_balance': str(wallet_obj.balance)
+                }
+                pipe.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
+                pipe.execute()
+            except Exception as re:
+                logger.error(f"Redis sync error in verify_otp_login: {re}")
 
         return Response({
             'user': UserSerializer(user).data,
@@ -773,6 +839,12 @@ def approve_deposit_request(request, pk):
             wallet.balance = balance_before + deposit.amount
             wallet.save()
 
+            # Update Redis balance (CRITICAL for Redis-First betting)
+            if redis_client:
+                try:
+                    redis_client.set(f"user_balance:{deposit.user.id}", str(wallet.balance), ex=3600)
+                except: pass
+
             Transaction.objects.create(
                 user=deposit.user,
                 transaction_type='DEPOSIT',
@@ -802,6 +874,12 @@ def approve_deposit_request(request, pk):
                     ref_balance_before = referrer_wallet.balance
                     referrer_wallet.balance += bonus_amount
                     referrer_wallet.save()
+
+                    # Update Redis balance for referrer
+                    if redis_client:
+                        try:
+                            redis_client.set(f"user_balance:{referrer.id}", str(referrer_wallet.balance), ex=3600)
+                        except: pass
                     
                     Transaction.objects.create(
                         user=referrer,

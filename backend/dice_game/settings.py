@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production'
 DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Default to False for production
 
 # Security: Only allow specific hosts
-ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,gunduata.online,www.gunduata.online,72.61.254.71,192.168.29.147')
+ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,gunduata.online,www.gunduata.online,72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
 
 # For local development, allow all hosts if DEBUG is True
@@ -242,13 +242,11 @@ else:
             'USER': os.getenv('DB_USER', 'muktesh'),
             'PASSWORD': os.getenv('DB_PASSWORD', 'Gunduata@123'),
             'HOST': os.getenv('DB_HOST', '72.61.255.231'),
-            'PORT': os.getenv('DB_PORT', '6432'),  # PgBouncer port (default)
-            'CONN_MAX_AGE': 60,  # Reuse connections for 60 seconds
-            'CONN_HEALTH_CHECKS': True,  # Check if connection is alive before using
+            'PORT': os.getenv('DB_PORT', '6432'),  # PgBouncer port
+            'CONN_MAX_AGE': 600,  # Keep connections alive for 10 minutes
+            'CONN_HEALTH_CHECKS': True,
             'OPTIONS': {
-                'connect_timeout': 10,  # Reduced timeout for faster failure detection
-                # Note: statement_timeout removed for PgBouncer compatibility
-                # PgBouncer handles timeouts at the pool level
+                'connect_timeout': 10,
             },
         }
     }
@@ -341,7 +339,7 @@ REST_FRAMEWORK = {
 
 # JWT Settings - SECURITY: Shorter token lifetimes
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Reduced from 24h to 1h
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Increased to 24h for better user experience
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -369,7 +367,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Redis Configuration
-REDIS_HOST = os.getenv('REDIS_HOST', '72.62.226.41')
+REDIS_HOST = os.getenv('REDIS_HOST', '72.61.254.74')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'Gunduata@123')
