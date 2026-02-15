@@ -1,5 +1,5 @@
 -- PostgreSQL Permissions Fix Script
--- Run this on PostgreSQL server (72.61.254.74) as postgres superuser
+-- Run this on PostgreSQL server (72.61.255.231) as postgres superuser
 -- Command: sudo -u postgres psql -d dice_game -f fix_postgres_permissions.sql
 
 -- Connect to dice_game database (if not already connected)

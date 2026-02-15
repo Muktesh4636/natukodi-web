@@ -1,0 +1,19 @@
+# Redis Master Configuration (Server 3)
+port 6379
+bind 0.0.0.0
+protected-mode no
+requirepass Gunduata@123
+masterauth Gunduata@123
+appendonly yes
+appendfsync everysec
+maxmemory-policy noeviction
+
+# Redis Replica Configuration (Server 1 & 2)
+# replicaof 72.62.226.41 6379
+
+# Sentinel Configuration (All 3 Servers)
+# sentinel monitor mymaster 72.62.226.41 6379 2
+# sentinel auth-pass mymaster Gunduata@123
+# sentinel down-after-milliseconds mymaster 5000
+# sentinel failover-timeout mymaster 10000
+# sentinel parallel-syncs mymaster 1

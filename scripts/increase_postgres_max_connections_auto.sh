@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 SERVER_USER="root"
-SERVER_IP="72.61.254.74"
+SERVER_IP="72.61.255.231"
 SERVER_PASS="Gunduata@123"
 
 echo "=========================================="

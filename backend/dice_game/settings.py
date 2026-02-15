@@ -240,13 +240,13 @@ else:
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'dice_game'),
             'USER': os.getenv('DB_USER', 'muktesh'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'muktesh123'),
-            'HOST': os.getenv('DB_HOST', '72.61.254.74'),
-            'PORT': os.getenv('DB_PORT', '6432'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'Gunduata@123'),
+            'HOST': os.getenv('DB_HOST', '72.61.255.231'),
+            'PORT': os.getenv('DB_PORT', '6432'),  # PgBouncer port (default)
             'CONN_MAX_AGE': 60,  # Reuse connections for 60 seconds
             'CONN_HEALTH_CHECKS': True,  # Check if connection is alive before using
             'OPTIONS': {
-                'connect_timeout': 120,  # Match PgBouncer's server_connect_timeout (120s)
+                'connect_timeout': 10,  # Reduced timeout for faster failure detection
                 # Note: statement_timeout removed for PgBouncer compatibility
                 # PgBouncer handles timeouts at the pool level
             },
@@ -369,41 +369,50 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Redis Configuration
-REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_HOST = os.getenv('REDIS_HOST', '72.62.226.41')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
-REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', None)
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'Gunduata@123')
+
+# Redis Sentinel Configuration
+USE_REDIS_SENTINEL = os.getenv('USE_REDIS_SENTINEL', 'False') == 'True'
+REDIS_SENTINEL_HOSTS = os.getenv('REDIS_SENTINEL_HOSTS', '72.61.254.71:26379,72.61.254.74:26379,72.62.226.41:26379')
+REDIS_SENTINEL_MASTER = os.getenv('REDIS_SENTINEL_MASTER', 'mymaster')
 
 # Redis Connection Pool (for efficient connection reuse)
-# IMPORTANT: This is NOT 1 connection per user!
-# - Connections are SHARED and REUSED across all users
-# - Each operation borrows a connection, uses it, then returns it to the pool
-# - Typical ratio: 1 Redis connection can serve 100-1000 concurrent users
-# - Pool size should be: (expected concurrent users / 100) + buffer
 try:
     import redis
-    # Calculate pool size based on expected users
-    # Default: 5000 connections (can handle ~500K concurrent users)
-    # For 10M users, use Redis Cluster instead (see SCALABILITY_ANALYSIS.md)
+    from redis.sentinel import Sentinel
+    
     REDIS_POOL_SIZE = int(os.getenv('REDIS_POOL_SIZE', '5000'))
     
-    # Create connection pool for Redis
-    pool_kwargs = {
-        'host': REDIS_HOST,
-        'port': REDIS_PORT,
-        'db': REDIS_DB,
-        'max_connections': REDIS_POOL_SIZE,
-        'decode_responses': True,
-        'socket_connect_timeout': 5,
-        'socket_timeout': 5,
-        'retry_on_timeout': True,
-    }
-    
-    # Add password if provided
-    if REDIS_PASSWORD:
-        pool_kwargs['password'] = REDIS_PASSWORD
-    
-    REDIS_POOL = redis.ConnectionPool(**pool_kwargs)
+    if USE_REDIS_SENTINEL:
+        sentinel_hosts = [
+            (h.split(':')[0], int(h.split(':')[1])) 
+            for h in REDIS_SENTINEL_HOSTS.split(',')
+        ]
+        sentinel = Sentinel(sentinel_hosts, socket_timeout=0.1)
+        REDIS_POOL = sentinel.master_for(
+            REDIS_SENTINEL_MASTER, 
+            socket_timeout=0.1, 
+            password=REDIS_PASSWORD,
+            max_connections=REDIS_POOL_SIZE,
+            decode_responses=True
+        ).connection_pool
+    else:
+        pool_kwargs = {
+            'host': REDIS_HOST,
+            'port': REDIS_PORT,
+            'db': REDIS_DB,
+            'max_connections': REDIS_POOL_SIZE,
+            'decode_responses': True,
+            'socket_connect_timeout': 5,
+            'socket_timeout': 5,
+            'retry_on_timeout': True,
+        }
+        if REDIS_PASSWORD:
+            pool_kwargs['password'] = REDIS_PASSWORD
+        REDIS_POOL = redis.ConnectionPool(**pool_kwargs)
     
     # Test Redis connection
     redis_test = redis.Redis(connection_pool=REDIS_POOL)
@@ -420,39 +429,50 @@ except Exception as e:
     REDIS_POOL = None
 
 # Channels (WebSocket)
-# Use Redis channel layer (required for game timer to broadcast to WebSocket consumers)
-# In-memory layer only works within same process, but game timer runs separately
 if USE_REDIS_CHANNELS:
-    # Redis configuration (required for cross-process communication)
-    # channels_redis requires URL format for authentication, not separate password key
-    if REDIS_PASSWORD:
-        # Format: redis://:password@host:port/db
-        redis_url = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+    if USE_REDIS_SENTINEL:
+        sentinel_hosts = [
+            (h.split(':')[0], int(h.split(':')[1])) 
+            for h in REDIS_SENTINEL_HOSTS.split(',')
+        ]
         channel_config = {
-            "hosts": [redis_url],
-            "capacity": 5000,  # Increased: Messages per channel (prevents message drops)
-            "expiry": 60,  # Increased: Message expiry in seconds (prevents premature expiry)
-            "group_expiry": 31536000,  # Group expiry (1 year) - prevents connections from being removed from group
+            "hosts": sentinel_hosts,
+            "master_name": REDIS_SENTINEL_MASTER,
+            "redis_kwargs": {"password": REDIS_PASSWORD},
+            "capacity": 5000,
+            "expiry": 60,
+        }
+        CHANNEL_LAYERS = {
+            'default': {
+                'BACKEND': 'channels_redis.sentinel.SentinelRedisChannelLayer',
+                'CONFIG': channel_config,
+            },
         }
     else:
-        channel_config = {
-            "hosts": [(REDIS_HOST, REDIS_PORT)],
-            "capacity": 5000,  # Increased: Messages per channel (prevents message drops)
-            "expiry": 60,  # Increased: Message expiry in seconds (prevents premature expiry)
-            "group_expiry": 31536000,  # Group expiry (1 year) - prevents connections from being removed from group
-            # CRITICAL: Disable message batching to ensure real-time delivery
-            "symmetric_encryption_keys": [os.getenv('CHANNEL_LAYER_SECRET', 'change-this-in-production')],
+        if REDIS_PASSWORD:
+            redis_url = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+            channel_config = {
+                "hosts": [redis_url],
+                "capacity": 5000,
+                "expiry": 60,
+                "group_expiry": 31536000,
+            }
+        else:
+            channel_config = {
+                "hosts": [(REDIS_HOST, REDIS_PORT)],
+                "capacity": 5000,
+                "expiry": 60,
+                "group_expiry": 31536000,
+                "symmetric_encryption_keys": [os.getenv('CHANNEL_LAYER_SECRET', 'change-this-in-production')],
+            }
+        
+        CHANNEL_LAYERS = {
+            'default': {
+                'BACKEND': 'channels_redis.core.RedisChannelLayer',
+                'CONFIG': channel_config,
+            },
         }
-    
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': channel_config,
-        },
-    }
 else:
-    # Fallback to in-memory (only works within same process)
-    # Note: Game timer won't be able to broadcast if using this
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels.layers.InMemoryChannelLayer',

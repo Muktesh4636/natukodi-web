@@ -3,7 +3,7 @@
 # Fix database permissions on the remote DB server
 # Usage: ./scripts/fix_db_permissions.sh
 
-DB_SERVER_IP="72.61.254.74"
+DB_SERVER_IP="72.61.255.231"
 DB_SERVER_USER="root"
 DB_SERVER_PASS="Gunduata@123"
 

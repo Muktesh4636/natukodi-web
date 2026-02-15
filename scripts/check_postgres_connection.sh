@@ -6,7 +6,7 @@
 set -e
 
 # Configuration from docker-compose.yml
-DB_HOST="72.61.254.74"
+DB_HOST="72.61.255.231"
 DB_USER="muktesh"
 DB_PASSWORD="muktesh123"
 DB_NAME="dice_game"

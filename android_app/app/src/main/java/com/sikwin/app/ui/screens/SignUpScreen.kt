@@ -22,19 +22,9 @@ import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
 import androidx.compose.ui.platform.LocalContext
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.provider.Telephony
-import android.telephony.SmsMessage
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,75 +52,6 @@ fun SignUpScreen(
         if (timerSeconds > 0) {
             kotlinx.coroutines.delay(1000)
             timerSeconds -= 1
-        }
-    }
-
-    // SMS Receiver
-    DisposableEffect(context) {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
-                    val bundle = intent.extras
-                    if (bundle != null) {
-                        try {
-                            val pdus = bundle["pdus"] as Array<*>
-                            for (pdu in pdus) {
-                                val message = SmsMessage.createFromPdu(pdu as ByteArray)
-                                val messageBody = message.messageBody
-                                if (messageBody != null) {
-                                    // Extract OTP (4-6 digits, handle various formats)
-                                    // Try 4-digit OTP first
-                                    var otpPattern = Regex("\\b\\d{4}\\b")
-                                    var match = otpPattern.find(messageBody)
-                                    if (match == null) {
-                                        // Try 6-digit OTP
-                                        otpPattern = Regex("\\b\\d{6}\\b")
-                                        match = otpPattern.find(messageBody)
-                                    }
-                                    if (match == null) {
-                                        // Try OTP after common keywords
-                                        otpPattern = Regex("(?:OTP|otp|code|Code|verification|Verification)[:\\s]+(\\d{4,6})")
-                                        match = otpPattern.find(messageBody)
-                                        if (match != null && match.groupValues.size > 1) {
-                                            otpCode = match.groupValues[1].trim()
-                                        }
-                                    } else {
-                                        otpCode = match.value.trim()
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-            }
-        }
-
-        val filter = IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
-        context.registerReceiver(receiver, filter)
-
-        onDispose {
-            context.unregisterReceiver(receiver)
-        }
-    }
-
-    // Permission launcher
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val receiveSmsGranted = permissions[Manifest.permission.RECEIVE_SMS] ?: false
-        val readSmsGranted = permissions[Manifest.permission.READ_SMS] ?: false
-        if (!receiveSmsGranted || !readSmsGranted) {
-            // Handle permission denied
-        }
-    }
-
-    // Request permissions on launch
-    LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-            permissionLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))
         }
     }
 

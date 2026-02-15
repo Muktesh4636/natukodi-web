@@ -112,6 +112,10 @@ local balance = tonumber(redis.call('GET', KEYS[1]) or "0")
 local amount = tonumber(ARGV[1])
 local user_id = ARGV[2]
 
+if amount <= 0 then
+    return {false, "Invalid bet amount"}
+end
+
 if balance >= amount then
     -- 1. Deduct from user balance
     local new_balance = redis.call('INCRBYFLOAT', KEYS[1], -amount)
@@ -141,6 +145,8 @@ def place_bet(request):
 
     number = serializer.validated_data['number']
     chip_amount = float(serializer.validated_data['chip_amount'])
+    if chip_amount <= 0:
+        return Response({'error': 'Invalid bet amount'}, status=status.HTTP_400_BAD_REQUEST)
     user_id = request.user.id
     username = request.user.username
 

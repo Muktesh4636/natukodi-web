@@ -1,5 +1,5 @@
 #!/bin/bash
-# Update PgBouncer timeouts on Database Server (72.61.254.74)
+# Update PgBouncer timeouts on Database Server (72.61.255.231)
 
 cat > /etc/pgbouncer/pgbouncer.ini << 'EOF'
 [databases]

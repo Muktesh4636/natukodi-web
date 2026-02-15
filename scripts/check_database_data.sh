@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Script to check data in PostgreSQL database on server 72.61.254.74
+# Script to check data in PostgreSQL database on server 72.61.255.231
 # Usage: ./check_database_data.sh
 
-echo "🔍 Checking Data in PostgreSQL Database (72.61.254.74)"
+echo "🔍 Checking Data in PostgreSQL Database (72.61.255.231)"
 echo "======================================================"
 echo ""
 
-DB_HOST="72.61.254.74"
+DB_HOST="72.61.255.231"
 DB_USER="muktesh"
 DB_NAME="dice_game"
 DB_PASSWORD="muktesh123"

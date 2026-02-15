@@ -1,0 +1,7 @@
+Method,Name,Error,Occurrences
+POST,Login,"ReadTimeout(ReadTimeoutError(""HTTPSConnectionPool(host='gunduata.online', port=443): Read timed out. (read timeout=10)""))",210
+POST,Place Bet,CatchResponseError('Unexpected status: 0'),142
+GET,Get Round Status,CatchResponseError('Status: 0'),173
+POST,Place Bet,CatchResponseError('Bet failed: Betting period has ended. Betting closes at 30 seconds.'),58
+GET,/api/game/round/,"ReadTimeout(ReadTimeoutError(""HTTPSConnectionPool(host='gunduata.online', port=443): Read timed out. (read timeout=10)""))",65
+POST,Place Bet,CatchResponseError('Insufficient balance: Insufficient balance'),121

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to fix PostgreSQL permissions
-# Run this on PostgreSQL server (72.61.254.74) as root
+# Run this on PostgreSQL server (72.61.255.231) as root
 
 echo "🔐 Fixing PostgreSQL Permissions for muktesh user"
 echo "================================================="

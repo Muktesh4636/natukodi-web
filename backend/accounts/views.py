@@ -15,6 +15,7 @@ from django.db.models import Q
 import uuid
 import re
 import logging
+import json
 
 logger = logging.getLogger('accounts')
 
@@ -167,7 +168,7 @@ def register(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def login(request):
-    """Optimized User login with minimal DB hits and Redis caching"""
+    """Optimized User login with minimal DB hits and NO Redis dependency"""
     try:
         username = request.data.get('username', '').strip()
         password = request.data.get('password', '').strip()
@@ -188,35 +189,12 @@ def login(request):
         # 2. Generate JWT tokens (No DB hit)
         refresh = RefreshToken.for_user(user)
         
-        # 3. Immediate Redis Caching
-        if redis_client:
-            try:
-                # Cache balance (1 hour)
-                balance_str = str(user.wallet.balance) if hasattr(user, 'wallet') else "0.00"
-                redis_client.set(f"user_balance:{user.id}", balance_str, ex=3600)
-                
-                # Cache session data for WebSocket auth (1 hour)
-                user_session_data = {
-                    'id': user.id,
-                    'username': user.username,
-                    'is_staff': user.is_staff,
-                    'is_active': user.is_active,
-                    'wallet_balance': balance_str
-                }
-                redis_client.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
-            except Exception as re:
-                logger.error(f"Redis cache sync error during login: {re}")
-
-        # 4. Return response with serialized data
+        # 3. Return response with serialized data
         return Response({
             'user': UserSerializer(user).data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        logger.exception(f"Unexpected error during login: {e}")
-        return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     except Exception as e:
         logger.exception(f"Unexpected error during login: {e}")
@@ -1108,7 +1086,7 @@ def daily_reward(request):
         # Create the daily reward record
         daily_reward = DailyReward.objects.create(
             user=user,
-            reward_amount=decimal.Decimal(str(selected_reward['amount'])),
+            reward_amount=Decimal(str(selected_reward['amount'])),
             reward_type=selected_reward['type'],
             reward_date=today
         )
@@ -1117,14 +1095,14 @@ def daily_reward(request):
         if selected_reward['type'] == 'MONEY' and selected_reward['amount'] > 0:
             try:
                 wallet = user.wallet
-                wallet.add(decimal.Decimal(str(selected_reward['amount'])))
+                wallet.add(Decimal(str(selected_reward['amount'])))
 
                 # Create transaction record
-                balance_before = wallet.balance - decimal.Decimal(str(selected_reward['amount']))
+                balance_before = wallet.balance - Decimal(str(selected_reward['amount']))
                 Transaction.objects.create(
                     user=user,
                     transaction_type='DEPOSIT',
-                    amount=decimal.Decimal(str(selected_reward['amount'])),
+                    amount=Decimal(str(selected_reward['amount'])),
                     balance_before=balance_before,
                     balance_after=wallet.balance,
                     description=f'Daily Reward - ₹{selected_reward["amount"]}'
@@ -1161,9 +1139,9 @@ def daily_reward_history(request):
             'claimed_at': reward.claimed_at
         })
 
-        return Response({
-            'rewards': reward_data
-        })
+    return Response({
+        'rewards': reward_data
+    })
 
 
 @api_view(['GET'])
@@ -1189,7 +1167,7 @@ def referral_data(request):
         user=user,
         transaction_type='REFERRAL_BONUS'
     )
-    total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or decimal.Decimal('0')
+    total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
     
     # Get current milestone bonus
     current_milestone_bonus = calculate_milestone_bonus(total_referrals)
@@ -1332,7 +1310,7 @@ def lucky_draw(request):
         lucky_draw = LuckyDraw.objects.create(
             user=user,
             deposit_request=recent_deposit,
-            reward_amount=decimal.Decimal(str(selected_reward['amount'])),
+            reward_amount=Decimal(str(selected_reward['amount'])),
             deposit_amount=recent_deposit.amount
         )
         
@@ -1340,14 +1318,14 @@ def lucky_draw(request):
         try:
             wallet = user.wallet
             balance_before = wallet.balance
-            wallet.add(decimal.Decimal(str(selected_reward['amount'])))
+            wallet.add(Decimal(str(selected_reward['amount'])))
             balance_after = wallet.balance
             
             # Create transaction record
             Transaction.objects.create(
                 user=user,
                 transaction_type='DEPOSIT',
-                amount=decimal.Decimal(str(selected_reward['amount'])),
+                amount=Decimal(str(selected_reward['amount'])),
                 balance_before=balance_before,
                 balance_after=balance_after,
                 description=f'Lucky Draw Reward - ₹{selected_reward["amount"]} (from ₹{recent_deposit.amount} deposit)'
@@ -1365,7 +1343,3 @@ def lucky_draw(request):
             },
             'message': f'Congratulations! You won ₹{selected_reward["amount"]}'
         })
-
-
-
-

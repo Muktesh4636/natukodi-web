@@ -17,16 +17,6 @@ import androidx.compose.ui.unit.sp
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 import androidx.compose.ui.platform.LocalContext
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.provider.Telephony
-import android.telephony.SmsMessage
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,56 +40,6 @@ fun ForgotPasswordScreen(
         if (timerSeconds > 0) {
             kotlinx.coroutines.delay(1000)
             timerSeconds -= 1
-        }
-    }
-
-    // SMS Receiver for Autoread
-    DisposableEffect(context) {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
-                    val bundle = intent.extras
-                    if (bundle != null) {
-                        try {
-                            val pdus = bundle["pdus"] as Array<*>
-                            for (pdu in pdus) {
-                                val message = SmsMessage.createFromPdu(pdu as ByteArray)
-                                val messageBody = message.messageBody
-                                if (messageBody != null) {
-                                    // Extract 4 digit OTP
-                                    val otpPattern = Regex("\\b\\d{4}\\b")
-                                    val match = otpPattern.find(messageBody)
-                                    if (match != null) {
-                                        otpCode = match.value
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-            }
-        }
-
-        val filter = IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)
-        context.registerReceiver(receiver, filter)
-
-        onDispose {
-            context.unregisterReceiver(receiver)
-        }
-    }
-
-    // Permission launcher
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions -> }
-
-    // Request permissions on launch
-    LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-            permissionLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))
         }
     }
 

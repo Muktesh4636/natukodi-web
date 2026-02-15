@@ -137,8 +137,41 @@ public class UnityPlayerGameActivity extends GameActivity
         mUnityPlayer.onResume();
         super.onResume();
         sendLoginDataToUnity();
+        sendTimerDataToUnity(); // Added: Sync timer immediately on resume
         addProfileOverlay();
         addBalanceOverlay();
+    }
+
+    private void sendTimerDataToUnity() {
+        try {
+            // Read from Unity's PlayerPrefs file which Kotlin app is updating
+            String prefsName = getPackageName() + ".v2.playerprefs";
+            android.content.SharedPreferences prefs = getSharedPreferences(prefsName,
+                    android.content.Context.MODE_PRIVATE);
+            
+            int timer = prefs.getInt("preloaded_timer", -1);
+            String status = prefs.getString("preloaded_status", null);
+            String roundId = prefs.getString("preloaded_round_id", null);
+            
+            if (timer != -1 && status != null) {
+                JSONObject json = new JSONObject();
+                json.put("timer", timer);
+                json.put("status", status);
+                json.put("round_id", roundId);
+                json.put("type", "timer");
+                final String jsonString = json.toString();
+                
+                Log.d("UnityTimerSync", "Injecting preloaded timer: " + timer + " (" + status + ")");
+                
+                // Inject into GameController
+                UnityPlayer.UnitySendMessage("GameController", "ReceiveTimerSync", jsonString);
+                
+                // Also update UI directly as fallback
+                UnityPlayer.UnitySendMessage("GameplayUIManager", "UpdateTimer", String.valueOf(timer));
+            }
+        } catch (Exception e) {
+            Log.e("UnityTimerSync", "Error sending timer to Unity", e);
+        }
     }
 
     // Configuration changes are used by Video playback logic in Unity

@@ -13,7 +13,7 @@ permission denied for table game_gameround
 
 ### Step 1: SSH to PostgreSQL Server
 ```bash
-ssh user@72.61.254.74
+ssh user@72.61.255.231
 ```
 
 ### Step 2: Connect to PostgreSQL as Superuser

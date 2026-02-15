@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup PgBouncer on Database Server (72.61.254.74)
+# Setup PgBouncer on Database Server (72.61.255.231)
 # Run this script on the database server as root
 
 set -e
