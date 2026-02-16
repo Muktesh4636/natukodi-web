@@ -27,13 +27,23 @@ if settings.REDIS_PASSWORD:
 STREAM_NAME = "round_events_stream"
 GROUP_NAME = "db_persistence_group"
 CONSUMER_NAME = "worker_1"
+BET_STREAM = "bet_stream"
+BET_GROUP = "worker_group"
+BET_CONSUMER_NAME = "round_worker_1"
 
 async def process_events():
     r = redis.from_url(REDIS_URL, decode_responses=True)
     
-    # Create consumer group if not exists
+    # Create consumer groups if not exists
     try:
         await r.xgroup_create(STREAM_NAME, GROUP_NAME, id="0", mkstream=True)
+    except Exception:
+        pass # Already exists
+    
+    # Create bet_stream consumer group if not exists
+    try:
+        await r.xgroup_create(BET_STREAM, BET_GROUP, id="0", mkstream=True)
+        logger.info(f"Created consumer group {BET_GROUP} on {BET_STREAM}")
     except Exception:
         pass # Already exists
 
@@ -90,13 +100,26 @@ async def process_events():
 
                         await r.xack(STREAM_NAME, GROUP_NAME, msg_id)
 
-            # 2. Process Bets (from List) - Bulk Insert
+            # 2. Process Bets (from Stream) - Bulk Insert using consumer group
             bets_data = []
-            for _ in range(50): # Batch size 50
-                raw_bet = await r.lpop("bet_queue")
-                if not raw_bet:
-                    break
-                bets_data.append(json.loads(raw_bet))
+            bet_msg_ids = []
+            try:
+                # Read bets from bet_stream using consumer group
+                bet_messages = await r.xreadgroup(BET_GROUP, BET_CONSUMER_NAME, {BET_STREAM: ">"}, count=50, block=100)
+                if bet_messages:
+                    for stream, msg_list in bet_messages:
+                        for msg_id, data in msg_list:
+                            bets_data.append(data)
+                            bet_msg_ids.append(msg_id)
+            except Exception as e:
+                # If group doesn't exist, try to create it
+                if 'NOGROUP' in str(e):
+                    try:
+                        await r.xgroup_create(BET_STREAM, BET_GROUP, id="0", mkstream=True)
+                    except:
+                        pass
+                else:
+                    logger.error(f"Error reading bets from stream: {e}")
 
             if bets_data:
                 def bulk_save_bets(data_list):
@@ -129,6 +152,14 @@ async def process_events():
 
                 count = await sync_to_async(bulk_save_bets)(bets_data)
                 logger.info(f"Bulk saved {count} bets to database")
+                
+                # Acknowledge processed bet messages
+                if bet_msg_ids:
+                    try:
+                        await r.xack(BET_STREAM, BET_GROUP, *bet_msg_ids)
+                        logger.info(f"Acknowledged {len(bet_msg_ids)} bet messages")
+                    except Exception as ack_err:
+                        logger.error(f"Error acknowledging bet messages: {ack_err}")
 
         except Exception as e:
             logger.exception(f"Error in worker loop: {e}")

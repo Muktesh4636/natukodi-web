@@ -123,6 +123,18 @@ class GameEngine:
         }
         await self.redis.xadd(ROUND_EVENTS_STREAM, event)
 
+        # CRITICAL: Clear old round totals from Redis to prevent chips carrying forward
+        try:
+            # Delete legacy keys
+            await self.redis.delete(f"round_total_bets:{self.round_id}")
+            await self.redis.delete(f"round_total_amount:{self.round_id}")
+            # Also clear exposure keys for this round just in case
+            await self.redis.delete(f"round:{self.round_id}:total_exposure")
+            await self.redis.delete(f"round:{self.round_id}:bet_count")
+            logger.info(f"Cleared Redis stats for new round {self.round_id}")
+        except Exception as e:
+            logger.error(f"Error clearing Redis stats: {e}")
+
     def generate_dice_result(self):
         import random
         from collections import Counter
