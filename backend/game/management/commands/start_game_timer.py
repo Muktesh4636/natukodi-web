@@ -289,7 +289,14 @@ class Command(BaseCommand):
                             # Initialize totals in Redis for new round
                             pipe.set(f"round_total_bets:{round_obj.round_id}", "0", ex=3600)
                             pipe.set(f"round_total_amount:{round_obj.round_id}", "0.00", ex=3600)
+                            # CRITICAL: Initialize exposure keys with TTL to prevent daily failures
+                            pipe.set(f"round:{round_obj.round_id}:total_exposure", "0.00", ex=3600)
+                            pipe.set(f"round:{round_obj.round_id}:bet_count", "0", ex=3600)
+                            # Initialize user_exposure hash (empty hash, but with TTL via EXPIRE)
+                            pipe.hset(f"round:{round_obj.round_id}:user_exposure", mapping={})
+                            pipe.expire(f"round:{round_obj.round_id}:user_exposure", 3600)
                             pipe.execute()  # Execute all writes in one round trip
+                            logger.info(f"Initialized exposure keys for round {round_obj.round_id} with 3600s TTL")
                         except Exception as e:
                             self.stdout.write(self.style.WARNING(f'Redis write error: {e}, reconnecting...'))
                             redis_client = get_or_reconnect_redis()

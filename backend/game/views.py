@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.conf import settings
 from django.db import models, transaction
+from django.db.models import F
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -232,16 +233,17 @@ def place_bet(request):
 
             new_balance = response_val
 
-            # 4. Queue the Bet for DB processing
+            # 4. Queue the Bet for DB processing using Redis Stream
             bet_data = {
-                'user_id': user_id,
+                'user_id': str(user_id),
                 'username': username,
                 'round_id': round_id,
-                'number': number,
+                'number': str(number),
                 'chip_amount': str(chip_amount),
                 'timestamp': timezone.now().isoformat()
             }
-            redis_client.rpush('bet_queue', json.dumps(bet_data))
+            # Use XADD to add bet to stream (creates stream if doesn't exist)
+            redis_client.xadd('bet_stream', bet_data, maxlen=10000)  # Keep last 10k bets
 
             # 5. Update Round Totals counter (legacy)
             redis_client.incr(f"round_total_bets:{round_id}")
@@ -274,13 +276,26 @@ def place_bet(request):
         if timer >= betting_close_time:
             return Response({'error': f'Betting closed at {betting_close_time}s'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Get wallet and check balance
-        wallet = Wallet.objects.get(user=request.user)
-        if wallet.balance < Decimal(str(chip_amount)):
-            return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Create bet in database
+        # Atomic balance update using F() expression (database-level atomicity)
         with transaction.atomic():
+            # Get balance_before first for transaction log
+            wallet = Wallet.objects.select_for_update().get(user=request.user)
+            balance_before = wallet.balance
+            
+            # Atomic balance deduction using F() expression
+            updated = Wallet.objects.filter(
+                user=request.user,
+                balance__gte=Decimal(str(chip_amount))
+            ).update(balance=F('balance') - Decimal(str(chip_amount)))
+            
+            if updated == 0:
+                return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get updated balance
+            wallet.refresh_from_db()
+            balance_after = wallet.balance
+            
+            # Create bet
             bet = Bet.objects.create(
                 user=request.user,
                 round=round_obj,
@@ -288,10 +303,7 @@ def place_bet(request):
                 chip_amount=Decimal(str(chip_amount))
             )
             
-            balance_before = wallet.balance
-            wallet.deduct(Decimal(str(chip_amount)))
-            balance_after = wallet.balance
-            
+            # Create transaction log
             Transaction.objects.create(
                 user=request.user,
                 transaction_type='BET',

@@ -28,22 +28,25 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.accept()
             self._is_connected = True
             
-            # 2. Join Channels groups (Only for admin notifications now)
+            # 2. Send immediate connection acknowledgment (don't wait for Redis)
+            await self.send(text_data=json.dumps({
+                "type": "connected",
+                "server_time": int(time.time())
+            }))
+            
+            # 3. Join Channels groups (Only for admin notifications now)
             user = self.scope.get('user')
             if user and getattr(user, 'is_staff', False):
                 await self.channel_layer.group_add('admin_notifications', self.channel_name)
 
-            # 3. Start Redis listener in background
+            # 4. Start Redis listener in background (non-blocking)
             self.redis_task = asyncio.create_task(self.redis_listener())
             
-            # 4. Start Heartbeat to keep connection alive
+            # 5. Start Heartbeat to keep connection alive (reduced interval)
             self.heartbeat_task = asyncio.create_task(self.heartbeat())
             
-            # 5. Give listener a moment to subscribe before sending initial state
-            await asyncio.sleep(0.5)
-            
-            # 6. Send initial state
-            await self.send_initial_state()
+            # 6. Send initial state in background (non-blocking)
+            asyncio.create_task(self.send_initial_state())
             
             logger.info(f"WebSocket connected: {self.channel_name}")
         except Exception as e:
@@ -51,12 +54,13 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def heartbeat(self):
-        """Send a ping every 20 seconds to keep connection alive through load balancers"""
+        """Send a ping every 10 seconds to keep connection alive through load balancers"""
+        # Send first heartbeat immediately, then every 10 seconds
         while self._is_connected:
             try:
-                await asyncio.sleep(20)
                 if self._is_connected:
                     await self.send(text_data=json.dumps({"type": "heartbeat", "server_time": int(time.time())}))
+                await asyncio.sleep(10)  # Reduced from 20 to 10 seconds for faster feedback
             except Exception as e:
                 logger.debug(f"Heartbeat send failed: {e}")
                 break
@@ -80,6 +84,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def send_initial_state(self):
         """Send game_state message on connect with current round info"""
+        if not self._is_connected:
+            return
+            
         try:
             state_raw = await redis_client.get('current_game_state')
             if state_raw:
@@ -97,8 +104,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                             "status": state.get('status', 'BETTING'),
                             "timer": state.get('timer', 1)
                         }
-                        await self.send(text_data=json.dumps(game_state_message))
-                        logger.info(f"Sent fresh initial game_state to {self.channel_name}: round={game_state_message['round_id']}, age={age}s")
+                        if self._is_connected:
+                            await self.send(text_data=json.dumps(game_state_message))
+                            logger.info(f"Sent fresh initial game_state to {self.channel_name}: round={game_state_message['round_id']}, age={age}s")
                     else:
                         # State is too old, send a waiting message instead of stale data
                         waiting_message = {
@@ -107,8 +115,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                             "status": "WAITING",
                             "timer": 0
                         }
-                        await self.send(text_data=json.dumps(waiting_message))
-                        logger.warning(f"Initial state too old ({age}s), sent WAITING to {self.channel_name}")
+                        if self._is_connected:
+                            await self.send(text_data=json.dumps(waiting_message))
+                            logger.warning(f"Initial state too old ({age}s), sent WAITING to {self.channel_name}")
                 except Exception as e:
                     logger.error(f"Error parsing initial state: {e}")
             else:
@@ -119,8 +128,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                     "status": "WAITING",
                     "timer": 0
                 }
-                await self.send(text_data=json.dumps(waiting_message))
-                logger.warning(f"No initial state in Redis, sent WAITING to {self.channel_name}")
+                if self._is_connected:
+                    await self.send(text_data=json.dumps(waiting_message))
+                    logger.warning(f"No initial state in Redis, sent WAITING to {self.channel_name}")
         except Exception as e:
             logger.error(f"Initial state error: {e}")
 
@@ -137,15 +147,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             listener_redis = None
             
             try:
-                # Create a fresh Redis connection for this listener
-                listener_redis = redis.from_url(REDIS_URL, decode_responses=True, socket_connect_timeout=5, socket_timeout=5)
+                # Create a fresh Redis connection for this listener with faster timeouts
+                listener_redis = redis.from_url(REDIS_URL, decode_responses=True, socket_connect_timeout=2, socket_timeout=2)
                 pubsub = listener_redis.pubsub()
                 await pubsub.subscribe(self.room_group_name)
                 
-                # Wait for subscription confirmation - try multiple times
+                # Wait for subscription confirmation - optimized with shorter timeout
                 subscribe_confirmed = False
-                for attempt in range(3):
-                    subscribe_msg = await pubsub.get_message(timeout=1.0)
+                for attempt in range(2):  # Reduced from 3 to 2 attempts
+                    subscribe_msg = await pubsub.get_message(timeout=0.5)  # Reduced from 1.0 to 0.5 seconds
                     if subscribe_msg:
                         if subscribe_msg['type'] == 'subscribe':
                             logger.info(f"Redis listener subscribed to {self.room_group_name} for {self.channel_name} (attempt {attempt + 1})")
@@ -171,7 +181,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                             break
                 
                 if not subscribe_confirmed:
-                    logger.warning(f"Subscription confirmation failed after 3 attempts for {self.channel_name}")
+                    logger.warning(f"Subscription confirmation failed after 2 attempts for {self.channel_name}")
                     await asyncio.sleep(reconnect_delay)
                     reconnect_delay = min(reconnect_delay * 2, max_reconnect_delay)
                     continue
@@ -182,8 +192,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 while self._is_connected:
                     loop_iterations += 1
                     try:
-                        # Get message with 1 second timeout to allow periodic health checks
-                        message = await pubsub.get_message(timeout=1.0)
+                        # Get message with 0.5 second timeout for faster response
+                        message = await pubsub.get_message(timeout=0.5)
                         
                         if message is None:
                             # Timeout - check if we should ping or if connection is stale
