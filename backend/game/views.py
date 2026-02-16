@@ -1322,7 +1322,7 @@ def game_timer_settings(request):
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([AllowAny])
-def dice_frequency(request):
+def dice_frequency(request, round_id=None):
     """
     API endpoint to get the dice frequency for the last N rounds.
     Query param: count (default: 10)

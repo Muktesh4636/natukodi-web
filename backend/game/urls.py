@@ -18,6 +18,7 @@ urlpatterns = [
     path('betting-history/', views.betting_history, name='betting_history'),
     path('version/', views.app_version, name='app_version'),
     path('frequency/', views.dice_frequency, name='dice_frequency'),
+    path('frequency/<str:round_id>/', views.dice_frequency, name='dice_frequency_by_id'),
     path('last-round-results/', views.last_round_results, name='last_round_results'),
     path('recent-round-results/', views.recent_round_results, name='recent_round_results'),
     path('user-round-results/<str:round_id>/', views.round_results, name='round_results'),
