@@ -139,11 +139,12 @@ class GameEngine:
             logger.error(f"Error clearing Redis stats: {e}")
 
     async def generate_dice_result(self):
-        """Generate dice result, checking for manual override first"""
+        """Generate dice result, checking for manual override first (Redis or DB)"""
         import random
         from collections import Counter
+        from game.models import GameRound
         
-        # 1. Check for manual override in Redis
+        # 1. Check for manual override in Redis (Fastest)
         try:
             manual_result_raw = await self.redis.get("manual_dice_result")
             if manual_result_raw:
@@ -157,18 +158,40 @@ class GameEngine:
                     counts = Counter(manual_dice)
                     winners = sorted([num for num, count in counts.items() if count >= 2])
                     result_str = ",".join(map(str, winners)) if winners else "0"
-                    logger.info(f"Using manual dice result: {manual_dice} -> {result_str}")
+                    logger.info(f"Using manual dice result from Redis: {manual_dice} -> {result_str}")
                     return manual_dice, result_str
                 else:
-                    logger.warning(f"Invalid manual dice result format (need 6 numbers): {manual_result_raw}")
+                    logger.warning(f"Invalid manual dice result format in Redis: {manual_result_raw}")
         except Exception as e:
-            logger.error(f"Error checking manual dice result: {e}")
+            logger.error(f"Error checking manual dice result in Redis: {e}")
 
-        # 2. Fallback to random generation
+        # 2. Check for manual override in Database (Fallback for Admin Panel)
+        try:
+            def get_db_dice():
+                try:
+                    r = GameRound.objects.get(round_id=self.round_id)
+                    if all(getattr(r, f'dice_{i}') is not None for i in range(1, 7)):
+                        return [getattr(r, f'dice_{i}') for i in range(1, 7)]
+                    return None
+                except GameRound.DoesNotExist:
+                    return None
+            
+            db_dice = await sync_to_async(get_db_dice)()
+            if db_dice:
+                counts = Counter(db_dice)
+                winners = sorted([num for num, count in counts.items() if count >= 2])
+                result_str = ",".join(map(str, winners)) if winners else "0"
+                logger.info(f"Using manual dice result from DB: {db_dice} -> {result_str}")
+                return db_dice, result_str
+        except Exception as e:
+            logger.error(f"Error checking manual dice result in DB: {e}")
+
+        # 3. Fallback to random generation
         dice = [random.randint(1, 6) for _ in range(6)]
         counts = Counter(dice)
         winners = sorted([num for num, count in counts.items() if count >= 2])
         result_str = ",".join(map(str, winners)) if winners else "0"
+        logger.info(f"Generated random dice result: {dice} -> {result_str}")
         return dice, result_str
 
     async def publish_state(self, legacy_type=None):
