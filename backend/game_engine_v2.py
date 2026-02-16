@@ -103,6 +103,9 @@ class GameEngine:
         self.end_monotonic = self.start_monotonic + TOTAL_ROUND_DURATION
         self.status = "BETTING"
         self.dice_result = None
+        # Reset dice_roll sent flag for new round
+        if hasattr(self, '_dice_roll_sent'):
+            delattr(self, '_dice_roll_sent')
         
         logger.info(f"New Round Started: {self.round_id} | Betting: 1-{BETTING_CLOSE_TIME}s | Roll: {BETTING_CLOSE_TIME+1}-{DICE_ROLL_TIME}s | Result: {DICE_ROLL_TIME+1}-{DICE_RESULT_TIME}s | End: {ROUND_END_TIME}s")
         
@@ -221,9 +224,11 @@ class GameEngine:
                 # Track if we already published due to status change
                 already_published = False
 
-                if self.status == "ROLLING" and status_changed:
-                    logger.info(f"Round {self.round_id}: Rolling started")
+                # Send dice_roll message at the EXACT DICE_ROLL_TIME (not when status changes to ROLLING)
+                if current_timer == DICE_ROLL_TIME and not hasattr(self, '_dice_roll_sent'):
+                    logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
                     await self.publish_state(legacy_type="dice_roll")
+                    self._dice_roll_sent = True
                     already_published = True
                     last_publish_time = now  # Update publish time to prevent immediate duplicate
                 
