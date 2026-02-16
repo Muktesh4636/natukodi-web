@@ -527,7 +527,7 @@
                             {% for player in page_obj %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'user_details' player.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                    <a href="/game-admin/user/{{ player.id }}/?tab=all" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
                                         {{ player.username }}
                                     </a>
                                 </td>
@@ -553,7 +553,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{% url 'user_details' player.id %}" style="color: #667eea; text-decoration: none; font-size: 12px;">View Details</a>
+                                    <a href="/game-admin/user/{{ player.id }}/?tab=all" style="color: #667eea; text-decoration: none; font-size: 12px;">View Details</a>
                                 </td>
                             </tr>
                             {% empty %}
