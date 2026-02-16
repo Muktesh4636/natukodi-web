@@ -65,16 +65,45 @@ fun AppNavigation(
 
     if (viewModel.showUpdateDialog) {
         AlertDialog(
-            onDismissRequest = { if (!viewModel.isForceUpdate) viewModel.showUpdateDialog = false },
-            title = { Text("New Update Available", fontWeight = FontWeight.Bold) },
+            onDismissRequest = { 
+                if (!viewModel.isForceUpdate) {
+                    viewModel.showUpdateDialog = false
+                }
+            },
+            containerColor = com.sikwin.app.ui.theme.SurfaceColor,
+            title = { 
+                Text(
+                    "New Update Available", 
+                    fontWeight = FontWeight.Bold,
+                    color = com.sikwin.app.ui.theme.TextWhite,
+                    fontSize = 20.sp
+                ) 
+            },
             text = { 
                 Column {
-                    Text("A new version of Gundu Ata is available.")
+                    Text(
+                        "A new version of Gundu Ata is available.",
+                        color = com.sikwin.app.ui.theme.TextWhite,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     viewModel.latestVersionName?.let { 
-                        Text("Version: $it", fontSize = 14.sp, color = com.sikwin.app.ui.theme.TextGrey)
+                        Text(
+                            "Version: $it", 
+                            fontSize = 14.sp, 
+                            color = com.sikwin.app.ui.theme.TextGrey
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Please update to the latest version to continue enjoying the game and new features.")
+                    Text(
+                        if (viewModel.isForceUpdate) {
+                            "This update is required. Please update now to continue using the app."
+                        } else {
+                            "Please update to the latest version to continue enjoying the game and new features."
+                        },
+                        color = com.sikwin.app.ui.theme.TextWhite,
+                        fontSize = 14.sp
+                    )
                 }
             },
             confirmButton = {
@@ -84,20 +113,36 @@ fun AppNavigation(
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW, AndroidUri.parse(url))
                                 context.startActivity(intent)
+                                // If force update, don't close dialog - user must update
+                                if (!viewModel.isForceUpdate) {
+                                    viewModel.showUpdateDialog = false
+                                }
                             } catch (e: Exception) {
                                 Toast.makeText(context, "Could not open download link", Toast.LENGTH_SHORT).show()
                             }
+                        } ?: run {
+                            Toast.makeText(context, "Download URL not available", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Update Now", color = com.sikwin.app.ui.theme.BlackBackground, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Update Now", 
+                        color = com.sikwin.app.ui.theme.BlackBackground, 
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = if (!viewModel.isForceUpdate) {
                 {
-                    TextButton(onClick = { viewModel.showUpdateDialog = false }) {
-                        Text("Later")
+                    TextButton(
+                        onClick = { viewModel.showUpdateDialog = false }
+                    ) {
+                        Text(
+                            "Later",
+                            color = com.sikwin.app.ui.theme.TextGrey
+                        )
                     }
                 }
             } else null

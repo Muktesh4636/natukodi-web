@@ -247,6 +247,9 @@ else:
             'CONN_HEALTH_CHECKS': True,
             'OPTIONS': {
                 'connect_timeout': 10,
+                'tcp_keepalives_idle': 60,
+                'tcp_keepalives_interval': 10,
+                'tcp_keepalives_count': 5,
             },
         }
     }

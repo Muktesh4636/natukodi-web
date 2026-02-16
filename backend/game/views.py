@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from decimal import Decimal
@@ -115,11 +115,12 @@ def current_round(request):
 
 # Redis Lua Script for Atomic Bet Placement
 # Keys: [user_balance_key, total_exposure_key, user_exposure_key, bet_count_key, total_amount_key]
-# Args: [bet_amount, user_id]
+# Args: [bet_amount, user_id, ttl_seconds]
 PLACE_BET_LUA = """
 local balance = tonumber(redis.call('GET', KEYS[1]) or "0")
 local amount = tonumber(ARGV[1])
 local user_id = ARGV[2]
+local ttl = tonumber(ARGV[3]) or 3600
 
 if amount <= 0 then
     return {false, "Invalid bet amount"}
@@ -128,12 +129,28 @@ end
 if balance >= amount then
     -- 1. Deduct from user balance
     local new_balance = redis.call('INCRBYFLOAT', KEYS[1], -amount)
-    -- 2. Increase total round exposure
+    
+    -- 2. Increase total round exposure (initialize if doesn't exist)
+    local exposure_exists = redis.call('EXISTS', KEYS[2])
     redis.call('INCRBYFLOAT', KEYS[2], amount)
-    -- 3. Increase user-specific exposure in the Hash
+    if exposure_exists == 0 then
+        redis.call('EXPIRE', KEYS[2], ttl)
+    end
+    
+    -- 3. Increase user-specific exposure in the Hash (initialize if doesn't exist)
+    local hash_exists = redis.call('EXISTS', KEYS[3])
     redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount)
-    -- 4. Increment total bet count
+    if hash_exists == 0 then
+        redis.call('EXPIRE', KEYS[3], ttl)
+    end
+    
+    -- 4. Increment total bet count (initialize if doesn't exist)
+    local count_exists = redis.call('EXISTS', KEYS[4])
     redis.call('INCR', KEYS[4])
+    if count_exists == 0 then
+        redis.call('EXPIRE', KEYS[4], ttl)
+    end
+    
     -- 5. Update round total amount (legacy key)
     redis.call('INCRBYFLOAT', KEYS[5], amount)
     
@@ -206,8 +223,8 @@ def place_bet(request):
                 f"round_total_amount:{round_id}" # Legacy key for compatibility
             ]
             
-            # Execute Lua script
-            result = redis_client.eval(PLACE_BET_LUA, 5, *keys, chip_amount, user_id)
+            # Execute Lua script with TTL (3600 seconds = 1 hour)
+            result = redis_client.eval(PLACE_BET_LUA, 5, *keys, chip_amount, user_id, 3600)
             success, response_val = result[0], result[1]
 
             if not success:
@@ -1749,11 +1766,50 @@ def round_exposure(request, round_id=None):
             pipe.get(f"round:{round_id}:total_exposure")
             pipe.get(f"round:{round_id}:bet_count")
             pipe.hgetall(f"round:{round_id}:user_exposure")
+            # Check if keys exist
+            pipe.exists(f"round:{round_id}:total_exposure")
             results = pipe.execute()
 
             total_exposure = results[0] or "0.00"
             bet_count = results[1] or "0"
             user_exposure_map = results[2] or {}
+            keys_exist = results[3] > 0
+
+            # If keys don't exist in Redis, try to rebuild from DB and cache in Redis
+            if not keys_exist:
+                logger.warning(f"Exposure keys missing for round {round_id}, rebuilding from DB...")
+                round_obj = get_object_or_404(GameRound, round_id=round_id)
+                bets_query = Bet.objects.filter(round=round_obj)
+                
+                from django.db.models import Sum, Count
+                exposure_data = bets_query.values('user_id').annotate(
+                    exposure_amount=Sum('chip_amount')
+                )
+                
+                # Rebuild Redis keys
+                total_exposure = str(bets_query.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0)
+                bet_count = bets_query.count()
+                user_exposure_map = {}
+                
+                pipe = redis_client.pipeline()
+                pipe.set(f"round:{round_id}:total_exposure", total_exposure, ex=3600)
+                pipe.set(f"round:{round_id}:bet_count", str(bet_count), ex=3600)
+                
+                for exp in exposure_data:
+                    user_id_str = str(exp['user_id'])
+                    user_exposure_map[user_id_str] = str(exp['exposure_amount'])
+                
+                if user_exposure_map:
+                    pipe.hset(f"round:{round_id}:user_exposure", mapping={
+                        k: v for k, v in user_exposure_map.items()
+                    })
+                    pipe.expire(f"round:{round_id}:user_exposure", 3600)
+                
+                try:
+                    pipe.execute()
+                    logger.info(f"Rebuilt exposure keys for round {round_id} from DB")
+                except Exception as rebuild_err:
+                    logger.error(f"Failed to rebuild exposure keys: {rebuild_err}")
 
             # Filter for specific user if not staff
             if not (request.user.is_staff or request.user.is_superuser):
@@ -1765,11 +1821,11 @@ def round_exposure(request, round_id=None):
                 'round_id': round_id,
                 'total_exposure': total_exposure,
                 'total_bets': int(bet_count),
-                'unique_players': len(results[2] or {}),
+                'unique_players': len(user_exposure_map),
                 'exposure_list': user_exposure_map
             })
         except Exception as e:
-            logger.error(f"Redis exposure fetch failed: {e}")
+            logger.error(f"Redis exposure fetch failed: {e}", exc_info=True)
 
     # 3. Fallback to DB (Only if Redis fails)
     round_obj = get_object_or_404(GameRound, round_id=round_id)

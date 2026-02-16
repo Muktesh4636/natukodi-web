@@ -129,6 +129,8 @@ fun ProfileScreen(
             ) {
                 ProfileMenuItem("Transaction record", Icons.AutoMirrored.Filled.List) { onNavigate("transactions") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
+                ProfileMenuItem("Betting History", Icons.Default.Casino) { onNavigate("betting_record") }
+                Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Deposit record", Icons.Default.Description) { onNavigate("deposits_record") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Withdrawal record", Icons.Default.Receipt) { onNavigate("withdrawals_record") }
