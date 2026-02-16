@@ -208,19 +208,28 @@ class GameEngine:
                 current_timer = int(elapsed) + 1  # Timer counts UP from 1
                 
                 # Update status based on timer value (using configured time points)
-                # Status flow: BETTING -> CLOSED -> ROLLING -> RESULT
+                # Status flow: BETTING -> CLOSED -> ROLLING (when dice_roll sent) -> RESULT
                 if current_timer <= BETTING_CLOSE_TIME:
                     new_status = "BETTING"
                 elif current_timer < DICE_ROLL_TIME:
                     # Between BETTING_CLOSE_TIME and DICE_ROLL_TIME: Status is CLOSED
                     new_status = "CLOSED"
-                elif current_timer <= DICE_RESULT_TIME:
+                elif hasattr(self, '_dice_roll_sent') and self._dice_roll_sent:
                     # After dice_roll message is sent: Status is ROLLING
-                    new_status = "ROLLING"
-                elif current_timer <= ROUND_END_TIME:
-                    new_status = "RESULT"
+                    if current_timer <= DICE_RESULT_TIME:
+                        new_status = "ROLLING"
+                    elif current_timer <= ROUND_END_TIME:
+                        new_status = "RESULT"
+                    else:
+                        break # Round finished
                 else:
-                    break # Round finished
+                    # Before dice_roll is sent, even if timer >= DICE_ROLL_TIME, keep CLOSED
+                    if current_timer < DICE_RESULT_TIME:
+                        new_status = "CLOSED"
+                    elif current_timer <= ROUND_END_TIME:
+                        new_status = "RESULT"
+                    else:
+                        break # Round finished
 
                 # If status changed, publish immediately
                 status_changed = (new_status != self.status)
@@ -238,6 +247,8 @@ class GameEngine:
                     self._dice_roll_sent = True
                     already_published = True
                     last_publish_time = now  # Update publish time to prevent immediate duplicate
+                    # Update new_status to ROLLING for next iteration
+                    new_status = "ROLLING"
                 
                 if self.status == "RESULT" and status_changed:
                     dice_values, result_str = self.generate_dice_result()
