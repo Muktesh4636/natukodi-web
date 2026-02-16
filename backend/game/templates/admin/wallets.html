@@ -538,7 +538,7 @@
                             {% for wallet in page_obj|default:wallets %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'user_details' wallet.user.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                    <a href="/game-admin/user/{{ wallet.user.id }}/" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
                                         {{ wallet.user.username }}
                                     </a>
                                 </td>
