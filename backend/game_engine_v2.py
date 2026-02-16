@@ -209,37 +209,36 @@ class GameEngine:
                 
                 # Update status based on timer value (using configured time points)
                 # Status flow: BETTING -> CLOSED -> ROLLING (when dice_roll sent) -> RESULT
+                
+                # Check if dice_roll has been sent
+                dice_roll_sent = hasattr(self, '_dice_roll_sent') and self._dice_roll_sent
+                
                 if current_timer <= BETTING_CLOSE_TIME:
                     new_status = "BETTING"
-                elif current_timer < DICE_ROLL_TIME:
-                    # Between BETTING_CLOSE_TIME and DICE_ROLL_TIME: Status is CLOSED
-                    new_status = "CLOSED"
-                elif hasattr(self, '_dice_roll_sent') and self._dice_roll_sent:
-                    # After dice_roll message is sent: Status is ROLLING
-                    if current_timer <= DICE_RESULT_TIME:
-                        new_status = "ROLLING"
-                    elif current_timer <= ROUND_END_TIME:
-                        new_status = "RESULT"
-                    else:
-                        break # Round finished
-                else:
-                    # Before dice_roll is sent, even if timer >= DICE_ROLL_TIME, keep CLOSED
-                    if current_timer < DICE_RESULT_TIME:
+                elif not dice_roll_sent:
+                    # Before dice_roll is sent: Status is CLOSED (even if timer >= DICE_ROLL_TIME)
+                    if current_timer <= ROUND_END_TIME:
                         new_status = "CLOSED"
-                    elif current_timer <= ROUND_END_TIME:
-                        new_status = "RESULT"
                     else:
                         break # Round finished
+                elif current_timer <= DICE_RESULT_TIME:
+                    # After dice_roll message is sent: Status is ROLLING
+                    new_status = "ROLLING"
+                elif current_timer <= ROUND_END_TIME:
+                    new_status = "RESULT"
+                else:
+                    break # Round finished
 
                 # If status changed, publish immediately
                 status_changed = (new_status != self.status)
-                self.status = new_status
+                if status_changed:
+                    self.status = new_status
                 
                 # Track if we already published due to status change
                 already_published = False
 
                 # Send dice_roll message at the EXACT DICE_ROLL_TIME and change status to ROLLING
-                if current_timer == DICE_ROLL_TIME and not hasattr(self, '_dice_roll_sent'):
+                if current_timer == DICE_ROLL_TIME and not dice_roll_sent:
                     logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
                     # Change status to ROLLING when dice_roll message is sent
                     self.status = "ROLLING"
@@ -247,8 +246,6 @@ class GameEngine:
                     self._dice_roll_sent = True
                     already_published = True
                     last_publish_time = now  # Update publish time to prevent immediate duplicate
-                    # Update new_status to ROLLING for next iteration
-                    new_status = "ROLLING"
                 
                 if self.status == "RESULT" and status_changed:
                     dice_values, result_str = self.generate_dice_result()
