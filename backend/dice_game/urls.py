@@ -91,6 +91,7 @@ urlpatterns = [
     path('game-admin/deposit-requests/check-new/', game_admin_views.check_new_deposit_requests, name='check_new_deposit_requests'),
     path('game-admin/deposit-requests/<int:pk>/approve/', game_admin_views.approve_deposit, name='approve_deposit'),
     path('game-admin/deposit-requests/<int:pk>/reject/', game_admin_views.reject_deposit, name='reject_deposit'),
+    path('game-admin/deposit-requests/<int:pk>/edit-amount/', game_admin_views.edit_deposit_amount, name='edit_deposit_amount'),
     path('game-admin/withdraw-requests/', game_admin_views.withdraw_requests, name='withdraw_requests'),
     path('game-admin/withdraw-requests/check-new/', game_admin_views.check_new_withdraw_requests, name='check_new_withdraw_requests'),
     path('game-admin/withdraw-requests/<int:pk>/approve/', game_admin_views.approve_withdraw, name='approve_withdraw'),
