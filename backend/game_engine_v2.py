@@ -213,10 +213,14 @@ class GameEngine:
                 # Check if dice_roll has been sent
                 dice_roll_sent = hasattr(self, '_dice_roll_sent') and self._dice_roll_sent
                 
+                # Determine new status based on timer and dice_roll state
                 if current_timer <= BETTING_CLOSE_TIME:
                     new_status = "BETTING"
+                elif current_timer == DICE_ROLL_TIME and not dice_roll_sent:
+                    # At DICE_ROLL_TIME, send dice_roll message and change to ROLLING
+                    new_status = "ROLLING"  # Will be set when dice_roll is sent
                 elif not dice_roll_sent:
-                    # Before dice_roll is sent: Status is CLOSED (even if timer >= DICE_ROLL_TIME)
+                    # Before dice_roll is sent: Status is CLOSED
                     if current_timer <= ROUND_END_TIME:
                         new_status = "CLOSED"
                     else:
@@ -229,10 +233,11 @@ class GameEngine:
                 else:
                     break # Round finished
 
-                # If status changed, publish immediately
+                # If status changed, update and publish immediately
                 status_changed = (new_status != self.status)
                 if status_changed:
                     self.status = new_status
+                    logger.info(f"Round {self.round_id}: Status changed to {self.status} at timer {current_timer}")
                 
                 # Track if we already published due to status change
                 already_published = False
@@ -246,6 +251,7 @@ class GameEngine:
                     self._dice_roll_sent = True
                     already_published = True
                     last_publish_time = now  # Update publish time to prevent immediate duplicate
+                    logger.info(f"Round {self.round_id}: Status set to ROLLING after dice_roll sent")
                 
                 if self.status == "RESULT" and status_changed:
                     dice_values, result_str = self.generate_dice_result()
