@@ -99,6 +99,19 @@ class Command(BaseCommand):
                     # Compare balances
                     diff = redis_balance - db_balance
                     
+                    # CRITICAL: Prevent negative balances - if Redis balance is negative, set to 0
+                    if redis_balance < 0:
+                        self.stdout.write(
+                            self.style.ERROR(
+                                f'  ⚠️  User {user_id}: NEGATIVE Redis balance detected: {redis_balance:.2f}, '
+                                f'DB={db_balance:.2f}. Setting Redis to 0.'
+                            )
+                        )
+                        if not dry_run:
+                            redis_client.set(balance_key, "0.00", ex=3600)
+                            # Don't sync negative balance to DB - keep DB balance as is
+                        continue
+                    
                     if abs(diff) > Decimal('0.01'):  # Only sync if difference > 1 paisa
                         self.stdout.write(
                             f'  User {user_id}: Redis={redis_balance:.2f}, DB={db_balance:.2f}, '
@@ -106,9 +119,19 @@ class Command(BaseCommand):
                         )
                         
                         if not dry_run:
-                            # Update DB balance to match Redis
-                            wallet.balance = redis_balance
-                            wallet.save(update_fields=['balance'])
+                            # CRITICAL: Only sync if Redis balance is non-negative
+                            # If Redis is negative but DB is positive, keep DB value
+                            if redis_balance >= 0:
+                                wallet.balance = redis_balance
+                                wallet.save(update_fields=['balance'])
+                            else:
+                                # Redis is negative, sync DB balance to Redis (set Redis to DB value)
+                                redis_client.set(balance_key, str(db_balance), ex=3600)
+                                self.stdout.write(
+                                    self.style.WARNING(
+                                        f'    → Kept DB balance ({db_balance:.2f}), reset Redis to match'
+                                    )
+                                )
                             synced_count += 1
                             total_diff += abs(diff)
                         else:

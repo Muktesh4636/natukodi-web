@@ -127,38 +127,46 @@ if amount <= 0 then
     return {false, "Invalid bet amount"}
 end
 
-if balance >= amount then
-    -- 1. Deduct from user balance
-    local new_balance = redis.call('INCRBYFLOAT', KEYS[1], -amount)
-    
-    -- 2. Increase total round exposure (initialize if doesn't exist)
-    local exposure_exists = redis.call('EXISTS', KEYS[2])
-    redis.call('INCRBYFLOAT', KEYS[2], amount)
-    if exposure_exists == 0 then
-        redis.call('EXPIRE', KEYS[2], ttl)
-    end
-    
-    -- 3. Increase user-specific exposure in the Hash (initialize if doesn't exist)
-    local hash_exists = redis.call('EXISTS', KEYS[3])
-    redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount)
-    if hash_exists == 0 then
-        redis.call('EXPIRE', KEYS[3], ttl)
-    end
-    
-    -- 4. Increment total bet count (initialize if doesn't exist)
-    local count_exists = redis.call('EXISTS', KEYS[4])
-    redis.call('INCR', KEYS[4])
-    if count_exists == 0 then
-        redis.call('EXPIRE', KEYS[4], ttl)
-    end
-    
-    -- 5. Update round total amount (legacy key)
-    redis.call('INCRBYFLOAT', KEYS[5], amount)
-    
-    return {true, tostring(new_balance)}
-else
+-- CRITICAL: Check balance BEFORE deduction
+if balance < amount then
     return {false, "Insufficient balance"}
 end
+
+-- 1. Deduct from user balance atomically
+local new_balance = redis.call('INCRBYFLOAT', KEYS[1], -amount)
+
+-- CRITICAL: Double-check balance didn't go negative (safety check)
+if new_balance < 0 then
+    -- Rollback: Add the amount back
+    redis.call('INCRBYFLOAT', KEYS[1], amount)
+    return {false, "Insufficient balance (race condition detected)"}
+end
+
+-- 2. Increase total round exposure (initialize if doesn't exist)
+local exposure_exists = redis.call('EXISTS', KEYS[2])
+redis.call('INCRBYFLOAT', KEYS[2], amount)
+if exposure_exists == 0 then
+    redis.call('EXPIRE', KEYS[2], ttl)
+end
+
+-- 3. Increase user-specific exposure in the Hash (initialize if doesn't exist)
+local hash_exists = redis.call('EXISTS', KEYS[3])
+redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount)
+if hash_exists == 0 then
+    redis.call('EXPIRE', KEYS[3], ttl)
+end
+
+-- 4. Increment total bet count (initialize if doesn't exist)
+local count_exists = redis.call('EXISTS', KEYS[4])
+redis.call('INCR', KEYS[4])
+if count_exists == 0 then
+    redis.call('EXPIRE', KEYS[4], ttl)
+end
+
+-- 5. Update round total amount (legacy key)
+redis.call('INCRBYFLOAT', KEYS[5], amount)
+
+return {true, tostring(new_balance)}
 """
 
 @api_view(['POST'])
@@ -211,10 +219,22 @@ def place_bet(request):
         try:
             balance_key = f"user_balance:{user_id}"
             
-            # Ensure balance is in Redis (warm up if needed)
-            if redis_client.get(balance_key) is None:
+            # Ensure balance is in Redis (warm up if needed) - ATOMIC using SETNX
+            # SETNX ensures only ONE request sets the initial balance, preventing race conditions
+            current_redis_balance = redis_client.get(balance_key)
+            if current_redis_balance is None:
                 wallet = Wallet.objects.get(user_id=user_id)
-                redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                # Use SET with NX flag to atomically set balance only if key doesn't exist
+                # This prevents race condition where multiple requests all set the same stale balance
+                was_set = redis_client.set(balance_key, str(wallet.balance), ex=3600, nx=True)
+                # If SETNX failed (another request set it first), get the value they set
+                if not was_set:
+                    # Another request set it, get the current value (should be set now)
+                    current_redis_balance = redis_client.get(balance_key)
+                    if current_redis_balance is None:
+                        # Still None - something went wrong, refresh from DB and set anyway
+                        wallet.refresh_from_db()
+                        redis_client.set(balance_key, str(wallet.balance), ex=3600)
 
             keys = [
                 balance_key,
