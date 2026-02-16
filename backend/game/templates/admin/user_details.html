@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>User Details - {{ user.username }} - Admin Panel</title>
+    <title>User Details - {{ player.username }} - Admin Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -592,7 +592,7 @@
             
             <div class="header">
                 <div class="header-left">
-                    <h1>👤 User Details: {{ user.username }}</h1>
+                    <h1>👤 User Details: {{ player.username }}</h1>
                 </div>
                 <div class="header-actions">
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
@@ -613,27 +613,27 @@
                 <div class="user-info-grid">
                     <div class="info-item">
                         <label>Username</label>
-                        <value>{{ user.username }}</value>
+                        <value>{{ player.username }}</value>
                     </div>
                     <div class="info-item">
                         <label>Email</label>
-                        <value>{{ user.email|default:"Not provided" }}</value>
+                        <value>{{ player.email|default:"Not provided" }}</value>
                     </div>
                     <div class="info-item">
                         <label>Phone</label>
-                        <value>{{ user.phone_number|default:"Not provided" }}</value>
+                        <value>{{ player.phone_number|default:"Not provided" }}</value>
                     </div>
                     <div class="info-item">
                         <label>Member Since</label>
-                        <value>{{ user.date_joined|date:"M d, Y" }}</value>
+                        <value>{{ player.date_joined|date:"M d, Y" }}</value>
                     </div>
                     <div class="info-item">
                         <label>Is Staff</label>
-                        <value>{% if user.is_staff %}Yes{% else %}No{% endif %}</value>
+                        <value>{% if player.is_staff %}Yes{% else %}No{% endif %}</value>
                     </div>
                     <div class="info-item">
                         <label>Is Active</label>
-                        <value>{% if user.is_active %}Yes{% else %}No{% endif %}</value>
+                        <value>{% if player.is_active %}Yes{% else %}No{% endif %}</value>
                     </div>
                 </div>
             </div>
@@ -657,7 +657,7 @@
                 </a>
             </div>
             
-            {% if active_tab == 'all' %}
+            {% if active_tab == 'all' or active_tab == 'deposits' or active_tab == 'withdrawals' %}
             <!-- Wallet & Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -681,12 +681,52 @@
                     <p>₹{{ total_payouts|floatformat:2 }}</p>
                 </div>
             </div>
+
+            <!-- Balance Management -->
+            <div class="control-panel" style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h2 style="color: white;">💰 Balance Management</h2>
+                <div style="display: flex; gap: 20px; align-items: center; padding: 20px;">
+                    <!-- Deposit Section -->
+                    <div style="flex: 1; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <h3 style="color: white; margin-bottom: 15px;">📥 Deposit Money</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 15px;">
+                            Add money when user sends payment via WhatsApp
+                        </p>
+                        <form method="post" action="{% url 'user_details' player.id %}" style="display: flex; gap: 10px; align-items: center;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="deposit">
+                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount (₹)" required
+                                   style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
+                            <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                                ➕ Deposit
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Withdraw Section -->
+                    <div style="flex: 1; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <h3 style="color: white; margin-bottom: 15px;">📤 Withdraw Money</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 15px;">
+                            Remove money if there's a mistake or error
+                        </p>
+                        <form method="post" action="{% url 'user_details' player.id %}" style="display: flex; gap: 10px; align-items: center;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="withdraw">
+                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount (₹)" required
+                                   style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
+                            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                                ➖ Withdraw
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             {% endif %}
-            
+
             <!-- User Bets -->
             {% if active_tab == 'all' or active_tab == 'bets' %}
             <div class="control-panel">
-                <h2>💰 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Bets by {{ user.username }}</h2>
+                <h2>💰 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Bets by {{ player.username }}</h2>
                 <div class="table-wrapper">
                     <table>
                         <thead>
