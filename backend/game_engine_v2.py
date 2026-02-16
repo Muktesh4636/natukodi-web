@@ -234,6 +234,11 @@ class GameEngine:
         # Store for instant recovery (only current round)
         # Set expiration to 5 seconds so it disappears if engine crashes
         await self.redis.set(GAME_STATE_KEY, payload, ex=5)
+        
+        # BACKWARD COMPATIBILITY: Also update 'current_round' key used by many views
+        # This ensures exposure API and admin views get the correct round_id immediately
+        await self.redis.set('current_round', payload, ex=5)
+        
         # Direct Pub/Sub for high speed (only publish current round)
         # Note: We publish ONE message per update to avoid duplicates
         # The game_state message contains all necessary information including timer
