@@ -4,6 +4,7 @@ import time
 from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 import redis
 from django.conf import settings
@@ -13,7 +14,7 @@ from accounts.models import Wallet, Transaction, User
 logger = logging.getLogger('game.bet_worker')
 
 class Command(BaseCommand):
-    help = 'Process bets from Redis queue and write to Database in batches'
+    help = 'Process bets from Redis Stream (bet_stream) using consumer group and write to Database in batches'
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Starting Bet Queue Worker...'))
@@ -44,6 +45,19 @@ class Command(BaseCommand):
 
         batch_size = 50  # Process 50 bets at a time
         STREAM_NAME = "round_events_stream"
+        BET_STREAM = "bet_stream"
+        BET_GROUP = "worker_group"
+        CONSUMER_NAME = f"worker_{time.time()}"  # Unique consumer name
+        
+        # Create bet_stream consumer group if it doesn't exist
+        try:
+            redis_client.xgroup_create(BET_STREAM, BET_GROUP, id='0', mkstream=True)
+            self.stdout.write(self.style.SUCCESS(f'✅ Created consumer group {BET_GROUP} on {BET_STREAM}'))
+        except redis.exceptions.ResponseError as e:
+            if 'BUSYGROUP' in str(e):
+                self.stdout.write(self.style.SUCCESS(f'✅ Consumer group {BET_GROUP} already exists'))
+            else:
+                self.stdout.write(self.style.WARNING(f'Note: {e}'))
         
         # Ensure stream exists or handle if it doesn't
         last_id = '$'  # Start from new messages
@@ -123,14 +137,61 @@ class Command(BaseCommand):
                                 # Don't delete if failed, so we can retry (or move to DLQ)
                                 continue
 
-                # 2. Fetch a batch of bets from Redis list
+                # 2. Fetch a batch of bets from Redis Stream using consumer group
                 bets_to_process = []
-                for _ in range(batch_size):
-                    bet_json = redis_client.lpop('bet_queue')
-                    if bet_json:
-                        bets_to_process.append(json.loads(bet_json))
+                message_ids = []
+                
+                try:
+                    # Read messages from bet_stream using consumer group
+                    messages = redis_client.xreadgroup(
+                        BET_GROUP, 
+                        CONSUMER_NAME, 
+                        {BET_STREAM: '>'}, 
+                        count=batch_size, 
+                        block=1000  # Block for 1 second
+                    )
+                    
+                    if messages:
+                        for stream, msg_list in messages:
+                            for msg_id, data in msg_list:
+                                bets_to_process.append(data)
+                                message_ids.append(msg_id)
+                    
+                    # Recover pending messages (stuck messages from crashed workers)
+                    if not bets_to_process:
+                        try:
+                            # Use xpending to check for pending messages first
+                            pending_info = redis_client.xpending(BET_STREAM, BET_GROUP)
+                            if pending_info and pending_info['pending'] > 0:
+                                # Simple recovery: just read from the beginning again
+                                # This is less efficient but compatible with older Redis versions
+                                recovery_messages = redis_client.xreadgroup(
+                                    BET_GROUP,
+                                    f"{CONSUMER_NAME}_recovery",
+                                    {BET_STREAM: '0'},
+                                    count=min(10, batch_size),  # Recover fewer messages
+                                    block=1
+                                )
+                                if recovery_messages:
+                                    for stream, msg_list in recovery_messages:
+                                        for msg_id, data in msg_list:
+                                            bets_to_process.append(data)
+                                            message_ids.append(msg_id)
+                                            logger.info(f"Recovered pending message {msg_id}")
+                        except Exception as recovery_err:
+                            logger.warning(f"Pending message recovery failed: {recovery_err}")
+                            # Continue without recovery - not critical
+                
+                except redis.exceptions.ResponseError as e:
+                    if 'NOGROUP' in str(e):
+                        # Group doesn't exist, try to create it
+                        try:
+                            redis_client.xgroup_create(BET_STREAM, BET_GROUP, id='0', mkstream=True)
+                            self.stdout.write(self.style.SUCCESS(f'✅ Created consumer group {BET_GROUP}'))
+                        except:
+                            pass
                     else:
-                        break
+                        logger.error(f"Error reading from bet_stream: {e}")
                 
                 if not bets_to_process:
                     if not events: # Only sleep if no events were processed either
@@ -138,57 +199,80 @@ class Command(BaseCommand):
                     continue
 
                 # 3. Process Batch in a single DB Transaction
+                processed_count = 0
+                ack_ids = []
+                
                 with transaction.atomic():
-                    for bet_data in bets_to_process:
+                    for idx, bet_data in enumerate(bets_to_process):
                         try:
-                            user_id = bet_data['user_id']
+                            user_id = int(bet_data['user_id'])
                             round_id = bet_data['round_id']
-                            number = bet_data['number']
+                            number = int(bet_data['number'])
                             chip_amount = Decimal(bet_data['chip_amount'])
                             
-                            # Get Round and Wallet
+                            # Get Round
                             try:
                                 round_obj = GameRound.objects.get(round_id=round_id)
                             except GameRound.DoesNotExist:
-                                # If round doesn't exist yet, push back to queue and wait
-                                logger.warning(f"Round {round_id} not found for bet, pushing back to queue")
-                                redis_client.rpush('bet_queue', json.dumps(bet_data))
+                                # If round doesn't exist yet, don't ACK - let it retry later
+                                logger.warning(f"Round {round_id} not found for bet, will retry")
                                 continue
 
-                            wallet = Wallet.objects.select_for_update().get(user_id=user_id)
+                            # IMPORTANT: Balance was already deducted in Redis (Lua script in place_bet API)
+                            # We do NOT deduct again here - Redis is the real-time ledger
+                            # DB wallet table will be synced by reconciliation job periodically
                             
-                            # Create Bet
+                            # Get current Redis balance for transaction log (balance already deducted in Redis)
+                            balance_key = f"user_balance:{user_id}"
+                            redis_balance = redis_client.get(balance_key)
+                            if redis_balance:
+                                balance_after = Decimal(redis_balance)
+                                balance_before = balance_after + chip_amount  # Calculate before from after
+                            else:
+                                # Fallback: get from DB (shouldn't happen if Redis is working)
+                                wallet = Wallet.objects.get(user_id=user_id)
+                                balance_after = wallet.balance
+                                balance_before = balance_after + chip_amount
+                                logger.warning(f"Redis balance not found for user {user_id}, using DB balance")
+                            
+                            # Create Bet record (balance already deducted in Redis)
                             Bet.objects.create(
                                 user_id=user_id,
                                 round=round_obj,
                                 number=number,
                                 chip_amount=chip_amount
                             )
-
-                            # Update Wallet
-                            balance_before = wallet.balance
-                            wallet.balance -= chip_amount
-                            wallet.save()
                             
-                            # Create Transaction log
+                            # Create Transaction log (for audit trail)
                             Transaction.objects.create(
                                 user_id=user_id,
                                 transaction_type='BET',
                                 amount=chip_amount,
                                 balance_before=balance_before,
-                                balance_after=wallet.balance,
-                                description=f"Bet on {number} in round {round_id} (Processed via Queue)"
+                                balance_after=balance_after,
+                                description=f"Bet on {number} in round {round_id} (Balance deducted in Redis)"
                             )
                             
-                            # Sync Redis balance
-                            redis_client.set(f"user_balance:{user_id}", str(wallet.balance), ex=3600)
+                            # Note: We do NOT update DB wallet balance here
+                            # Redis is the source of truth for real-time balance
+                            # Reconciliation job will sync Redis → DB periodically
+                            
+                            # Mark for acknowledgment
+                            ack_ids.append(message_ids[idx])
+                            processed_count += 1
 
                         except Exception as bet_err:
                             logger.error(f"Error processing individual bet: {bet_err}")
+                            # Don't ACK failed messages so they can be retried
                             continue
-
-                if bets_to_process:
-                    self.stdout.write(self.style.SUCCESS(f"Successfully committed {len(bets_to_process)} bets to DB"))
+                
+                # Acknowledge successfully processed messages
+                if ack_ids:
+                    try:
+                        redis_client.xack(BET_STREAM, BET_GROUP, *ack_ids)
+                        self.stdout.write(self.style.SUCCESS(f"Successfully committed {processed_count} bets to DB and acknowledged"))
+                    except Exception as ack_err:
+                        logger.error(f"Error acknowledging messages: {ack_err}")
 
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Worker Error: {e}"))
