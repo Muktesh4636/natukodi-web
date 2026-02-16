@@ -213,12 +213,24 @@ class GameEngine:
                 # Check if dice_roll has been sent
                 dice_roll_sent = hasattr(self, '_dice_roll_sent') and self._dice_roll_sent
                 
+                # Track if we already published due to status change
+                already_published = False
+                
+                # Send dice_roll message at the EXACT DICE_ROLL_TIME FIRST (before status check)
+                if current_timer == DICE_ROLL_TIME and not dice_roll_sent:
+                    logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
+                    # Change status to ROLLING when dice_roll message is sent
+                    self.status = "ROLLING"
+                    await self.publish_state(legacy_type="dice_roll")
+                    self._dice_roll_sent = True
+                    dice_roll_sent = True  # Update local variable
+                    already_published = True
+                    last_publish_time = now  # Update publish time to prevent immediate duplicate
+                    logger.info(f"Round {self.round_id}: Status set to ROLLING after dice_roll sent")
+                
                 # Determine new status based on timer and dice_roll state
                 if current_timer <= BETTING_CLOSE_TIME:
                     new_status = "BETTING"
-                elif current_timer == DICE_ROLL_TIME and not dice_roll_sent:
-                    # At DICE_ROLL_TIME, send dice_roll message and change to ROLLING
-                    new_status = "ROLLING"  # Will be set when dice_roll is sent
                 elif not dice_roll_sent:
                     # Before dice_roll is sent: Status is CLOSED
                     if current_timer <= ROUND_END_TIME:
@@ -238,20 +250,6 @@ class GameEngine:
                 if status_changed:
                     self.status = new_status
                     logger.info(f"Round {self.round_id}: Status changed to {self.status} at timer {current_timer}")
-                
-                # Track if we already published due to status change
-                already_published = False
-
-                # Send dice_roll message at the EXACT DICE_ROLL_TIME and change status to ROLLING
-                if current_timer == DICE_ROLL_TIME and not dice_roll_sent:
-                    logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
-                    # Change status to ROLLING when dice_roll message is sent
-                    self.status = "ROLLING"
-                    await self.publish_state(legacy_type="dice_roll")
-                    self._dice_roll_sent = True
-                    already_published = True
-                    last_publish_time = now  # Update publish time to prevent immediate duplicate
-                    logger.info(f"Round {self.round_id}: Status set to ROLLING after dice_roll sent")
                 
                 if self.status == "RESULT" and status_changed:
                     dice_values, result_str = self.generate_dice_result()
