@@ -1132,17 +1132,10 @@ def winning_results(request, round_id=None):
             }, status=status.HTTP_404_NOT_FOUND)
     else:
         # Get the most recently COMPLETED round with dice results
-        # Only show rounds that are in 'RESULT' or 'COMPLETED' status and have a result.
-        # We also check if the result_time has passed to ensure we only show results after dice_result time.
-        now = timezone.now()
         round_obj = GameRound.objects.filter(
             status__in=['RESULT', 'COMPLETED'],
             dice_result__isnull=False
-        ).filter(
-            Q(status='COMPLETED') | 
-            Q(status='RESULT', result_time__lte=now) |
-            Q(status='RESULT', result_time__isnull=True, start_time__lte=now - timedelta(seconds=int(get_game_setting('DICE_RESULT_TIME', 51))))
-        ).order_by('-end_time', '-start_time').first()
+        ).order_by('-end_time').first()
 
         if not round_obj:
             return Response({
@@ -1347,16 +1340,9 @@ def dice_frequency(request, round_id=None):
         count = max(1, min(count, 100))
         
         # Fetch from database
-        # Only show rounds that are in 'RESULT' or 'COMPLETED' status and have a result.
-        # We also check if the result_time has passed to ensure we only show results after dice_result time.
-        now = timezone.now()
         recent_rounds = GameRound.objects.filter(
             status__in=['RESULT', 'COMPLETED'],
             dice_result__isnull=False
-        ).filter(
-            Q(status='COMPLETED') | 
-            Q(status='RESULT', result_time__lte=now) |
-            Q(status='RESULT', result_time__isnull=True, start_time__lte=now - timedelta(seconds=int(get_game_setting('DICE_RESULT_TIME', 51))))
         ).order_by('-start_time')[:count]
 
         results = []
