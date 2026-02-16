@@ -1459,17 +1459,11 @@ def last_round_results(request):
 
         # Fallback to DB if not in Redis or Redis fails
         # Get the last completed round (status is 'RESULT' or 'COMPLETED')
+        # We order by start_time descending because end_time might be null for recent results
         last_round = GameRound.objects.filter(
             status__in=['RESULT', 'COMPLETED'],
             dice_result__isnull=False
-        ).order_by('-end_time').first()
-
-        if not last_round:
-            # Try order by start_time if end_time is null
-            last_round = GameRound.objects.filter(
-                status__in=['RESULT', 'COMPLETED'],
-                dice_result__isnull=False
-            ).order_by('-start_time').first()
+        ).order_by('-start_time').first()
 
         if not last_round:
             logger.warning("Last round results requested but no completed rounds found")
