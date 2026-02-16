@@ -138,9 +138,33 @@ class GameEngine:
         except Exception as e:
             logger.error(f"Error clearing Redis stats: {e}")
 
-    def generate_dice_result(self):
+    async def generate_dice_result(self):
+        """Generate dice result, checking for manual override first"""
         import random
         from collections import Counter
+        
+        # 1. Check for manual override in Redis
+        try:
+            manual_result_raw = await self.redis.get("manual_dice_result")
+            if manual_result_raw:
+                logger.info(f"Manual dice result found in Redis: {manual_result_raw}")
+                # Format expected: "1,2,3,4,5,6"
+                manual_dice = [int(x.strip()) for x in manual_result_raw.split(",")]
+                if len(manual_dice) == 6:
+                    # Clear the override after using it once
+                    await self.redis.delete("manual_dice_result")
+                    
+                    counts = Counter(manual_dice)
+                    winners = sorted([num for num, count in counts.items() if count >= 2])
+                    result_str = ",".join(map(str, winners)) if winners else "0"
+                    logger.info(f"Using manual dice result: {manual_dice} -> {result_str}")
+                    return manual_dice, result_str
+                else:
+                    logger.warning(f"Invalid manual dice result format (need 6 numbers): {manual_result_raw}")
+        except Exception as e:
+            logger.error(f"Error checking manual dice result: {e}")
+
+        # 2. Fallback to random generation
         dice = [random.randint(1, 6) for _ in range(6)]
         counts = Counter(dice)
         winners = sorted([num for num, count in counts.items() if count >= 2])
@@ -208,7 +232,7 @@ class GameEngine:
                 current_timer = int(elapsed) + 1  # Timer counts UP from 1
                 
                 # Update status based on timer value (using configured time points)
-                # Status flow: BETTING -> CLOSED (at BETTING_CLOSE_TIME) -> ROLLING (when dice_roll sent) -> RESULT
+                # Status flow: BETTING -> CLOSED -> ROLLING (when dice_roll sent) -> RESULT
                 
                 # Check if dice_roll has been sent
                 dice_roll_sent = hasattr(self, '_dice_roll_sent') and self._dice_roll_sent
@@ -216,12 +240,23 @@ class GameEngine:
                 # Track if we already published due to status change
                 already_published = False
                 
+                # Send dice_roll message at the EXACT DICE_ROLL_TIME FIRST (before status check)
+                if current_timer == DICE_ROLL_TIME and not dice_roll_sent:
+                    logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
+                    # Change status to ROLLING when dice_roll message is sent
+                    self.status = "ROLLING"
+                    await self.publish_state(legacy_type="dice_roll")
+                    self._dice_roll_sent = True
+                    dice_roll_sent = True  # Update local variable
+                    already_published = True
+                    last_publish_time = now  # Update publish time to prevent immediate duplicate
+                    logger.info(f"Round {self.round_id}: Status set to ROLLING after dice_roll sent")
+                
                 # Determine new status based on timer and dice_roll state
-                # CRITICAL: Status changes to CLOSED immediately when BETTING_CLOSE_TIME is reached
                 if current_timer <= BETTING_CLOSE_TIME:
                     new_status = "BETTING"
                 elif not dice_roll_sent:
-                    # After BETTING_CLOSE_TIME and before dice_roll is sent: Status is CLOSED
+                    # Before dice_roll is sent: Status is CLOSED
                     if current_timer <= ROUND_END_TIME:
                         new_status = "CLOSED"
                     else:
@@ -238,21 +273,10 @@ class GameEngine:
                 status_changed = (new_status != self.status)
                 if status_changed:
                     self.status = new_status
-                    logger.info(f"Round {self.round_id}: Status changed to {self.status} at timer {current_timer} (BETTING_CLOSE_TIME={BETTING_CLOSE_TIME})")
-                
-                # Send dice_roll message at the EXACT DICE_ROLL_TIME and change status to ROLLING
-                if current_timer == DICE_ROLL_TIME and not dice_roll_sent:
-                    logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
-                    # Change status to ROLLING when dice_roll message is sent
-                    self.status = "ROLLING"
-                    await self.publish_state(legacy_type="dice_roll")
-                    self._dice_roll_sent = True
-                    already_published = True
-                    last_publish_time = now  # Update publish time to prevent immediate duplicate
-                    logger.info(f"Round {self.round_id}: Status set to ROLLING after dice_roll sent")
+                    logger.info(f"Round {self.round_id}: Status changed to {self.status} at timer {current_timer}")
                 
                 if self.status == "RESULT" and status_changed:
-                    dice_values, result_str = self.generate_dice_result()
+                    dice_values, result_str = await self.generate_dice_result()
                     self.dice_result = result_str
                     self.last_dice_values = dice_values
                     logger.info(f"Round {self.round_id}: Result {result_str}")
