@@ -185,8 +185,8 @@ def loading_time(request):
 def login(request):
     """Optimized User login with minimal DB hits and NO Redis dependency"""
     try:
-        username = request.data.get('username', '').strip()
-        password = request.data.get('password', '').strip()
+            username = request.data.get('username', '').strip()
+            password = request.data.get('password', '').strip()
 
         if not username or not password:
             return Response({'error': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -215,7 +215,7 @@ def login(request):
             return Response({'error': 'User account is disabled'}, status=status.HTTP_403_FORBIDDEN)
 
         # 2. Generate JWT tokens (No DB hit)
-        refresh = RefreshToken.for_user(user)
+            refresh = RefreshToken.for_user(user)
         
         # 3. Sync balance and session to Redis (CRITICAL for high-speed betting)
         if redis_client:
@@ -228,8 +228,8 @@ def login(request):
                 pipe.set(f"user_balance:{user.id}", str(wallet_balance), ex=3600)
                 
                 user_session_data = {
-                    'id': user.id,
-                    'username': user.username,
+                'id': user.id,
+                'username': user.username,
                     'is_staff': user.is_staff,
                     'is_active': user.is_active,
                     'wallet_balance': str(wallet_balance)
@@ -270,7 +270,7 @@ def send_otp(request):
     try:
         phone_number = request.data.get('phone_number', '').strip()
         purpose = request.data.get('purpose', 'SIGNUP').upper()
-        
+
         if not phone_number:
             return Response({'error': 'Phone number is required'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -370,7 +370,7 @@ def verify_otp_login(request):
 
         # 3. Create JWT tokens
         refresh = RefreshToken.for_user(user)
-        
+
         # Update last login
         user.last_login = timezone.now()
         user.save(update_fields=['last_login'])
@@ -387,8 +387,8 @@ def verify_otp_login(request):
                 pipe.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
                 
                 user_session_data = {
-                    'id': user.id,
-                    'username': user.username,
+            'id': user.id,
+            'username': user.username,
                     'is_staff': user.is_staff,
                     'is_active': user.is_active,
                     'wallet_balance': str(wallet_obj.balance)
@@ -415,18 +415,18 @@ def verify_otp_login(request):
 def profile(request):
     """Get or update user profile"""
     try:
-        if request.method == 'GET':
-            logger.info(f"Profile access for user: {request.user.username} (ID: {request.user.id})")
-            serializer = UserSerializer(request.user, context={'request': request})
+    if request.method == 'GET':
+        logger.info(f"Profile access for user: {request.user.username} (ID: {request.user.id})")
+        serializer = UserSerializer(request.user, context={'request': request})
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        logger.info(f"Profile update for user: {request.user.username} (ID: {request.user.id})")
+        serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data)
-        
-        elif request.method == 'POST':
-            logger.info(f"Profile update for user: {request.user.username} (ID: {request.user.id})")
-            serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         logger.error(f"Error in profile API for user {request.user.id}: {str(e)}", exc_info=True)
         return Response({
