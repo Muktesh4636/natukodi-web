@@ -7,6 +7,8 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+load_dotenv()
+
 USE_REDIS = True # Global setting for Redis usage
 USE_REDIS_CHANNELS = True # Global setting for Redis Channels usage
 
@@ -378,7 +380,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Redis Configuration
-REDIS_HOST = os.getenv('REDIS_HOST', '72.61.254.74')
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'Gunduata@123')
@@ -509,5 +511,4 @@ GAME_SETTINGS = {
         6: 6.0,
     },
 }
-
 
