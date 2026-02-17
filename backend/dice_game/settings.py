@@ -429,8 +429,6 @@ try:
     redis_test = redis.Redis(connection_pool=REDIS_POOL)
     redis_test.ping()
     redis_test.close()
-    USE_REDIS = True # Re-enabled
-    USE_REDIS_CHANNELS = True # Re-enabled
 except Exception as e:
     import logging
     logger = logging.getLogger(__name__)
