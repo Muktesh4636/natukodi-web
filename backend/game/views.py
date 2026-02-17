@@ -115,7 +115,7 @@ def current_round(request):
 
 
 # Redis Lua Script for Atomic Bet Placement
-# Keys: [user_balance_key, total_exposure_key, user_exposure_key, bet_count_key, total_amount_key]
+# Keys: [user_balance_key, total_exposure_key, user_exposure_key, bet_count_key, total_amount_key, total_bets_key]
 # Args: [bet_amount, user_id, ttl_seconds]
 PLACE_BET_LUA = """
 local balance = tonumber(redis.call('GET', KEYS[1]) or "0")
@@ -165,6 +165,9 @@ end
 
 -- 5. Update round total amount (legacy key)
 redis.call('INCRBYFLOAT', KEYS[5], amount)
+
+-- 6. Update round total bets (legacy key)
+redis.call('INCR', KEYS[6])
 
 return {true, tostring(new_balance)}
 """
@@ -241,11 +244,13 @@ def place_bet(request):
                 f"round:{round_id}:total_exposure",
                 f"round:{round_id}:user_exposure",
                 f"round:{round_id}:bet_count",
-                f"round_total_amount:{round_id}" # Legacy key for compatibility
+                f"round_total_amount:{round_id}", # Legacy key for compatibility
+                f"round_total_bets:{round_id}"    # Legacy key for compatibility
             ]
             
             # Execute Lua script with TTL (3600 seconds = 1 hour)
-            result = redis_client.eval(PLACE_BET_LUA, 5, *keys, chip_amount, user_id, 3600)
+            # Keys: [balance, total_exp, user_exp, bet_count, legacy_amount, legacy_bets]
+            result = redis_client.eval(PLACE_BET_LUA, 6, *keys, chip_amount, user_id, 3600)
             success, response_val = result[0], result[1]
 
             if not success:
@@ -264,9 +269,6 @@ def place_bet(request):
             }
             # Use XADD to add bet to stream (creates stream if doesn't exist)
             redis_client.xadd('bet_stream', bet_data, maxlen=10000)  # Keep last 10k bets
-
-            # 5. Update Round Totals counter (legacy)
-            redis_client.incr(f"round_total_bets:{round_id}")
 
             return Response({
                 'message': 'Bet placed successfully',
@@ -1806,44 +1808,12 @@ def round_exposure(request, round_id=None):
             total_exposure = results[0] or "0.00"
             bet_count = results[1] or "0"
             user_exposure_map = results[2] or {}
-            keys_exist = results[3] > 0
-
-            # If keys don't exist in Redis, try to rebuild from DB and cache in Redis
-            if not keys_exist:
-                logger.warning(f"Exposure keys missing for round {round_id}, rebuilding from DB...")
-                round_obj = get_object_or_404(GameRound, round_id=round_id)
-                bets_query = Bet.objects.filter(round=round_obj)
-                
-                from django.db.models import Sum, Count
-                exposure_data = bets_query.values('user_id').annotate(
-                    exposure_amount=Sum('chip_amount')
-                )
-                
-                # Rebuild Redis keys
-                total_exposure = str(bets_query.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0)
-                bet_count = bets_query.count()
-                user_exposure_map = {}
-                
-                pipe = redis_client.pipeline()
-                pipe.set(f"round:{round_id}:total_exposure", total_exposure, ex=3600)
-                pipe.set(f"round:{round_id}:bet_count", str(bet_count), ex=3600)
-                
-                for exp in exposure_data:
-                    user_id_str = str(exp['user_id'])
-                    user_exposure_map[user_id_str] = str(exp['exposure_amount'])
-                
-                if user_exposure_map:
-                    pipe.hset(f"round:{round_id}:user_exposure", mapping={
-                        k: v for k, v in user_exposure_map.items()
-                    })
-                    pipe.expire(f"round:{round_id}:user_exposure", 3600)
-                
-                try:
-                    pipe.execute()
-                    logger.info(f"Rebuilt exposure keys for round {round_id} from DB")
-                except Exception as rebuild_err:
-                    logger.error(f"Failed to rebuild exposure keys: {rebuild_err}")
-
+            
+            # If total_exposure is missing, it might just be a new round with no bets yet.
+            # We only rebuild from DB if we are SURE the round should have data.
+            # For now, let's just return 0 if it doesn't exist, instead of rebuilding from DB
+            # which can be slow and might show 0 anyway if worker is lagging.
+            
             # Filter for specific user if not staff
             if not (request.user.is_staff or request.user.is_superuser):
                 user_id_str = str(request.user.id)
