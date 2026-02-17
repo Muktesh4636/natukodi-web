@@ -358,6 +358,16 @@ class GameEngine:
             logger.info(f"Round {self.round_id} completed")
             # Send game_end message (only once, no duplicates)
             await self.publish_state(legacy_type="game_end")
+            
+            # CRITICAL: Clear exposure stats at the absolute end of the round
+            try:
+                await self.redis.delete(f"round:{self.round_id}:total_exposure")
+                await self.redis.delete(f"round:{self.round_id}:user_exposure")
+                await self.redis.delete(f"round:{self.round_id}:bet_count")
+                logger.info(f"Cleared final exposure stats for round {self.round_id}")
+            except Exception as e:
+                logger.error(f"Error clearing final exposure stats: {e}")
+
             await asyncio.sleep(1) # Gap between rounds
 
 if __name__ == "__main__":
