@@ -24,7 +24,6 @@ from .serializers import (
     RoundPredictionSerializer, CreatePredictionSerializer
 )
 from .utils import get_game_setting, get_all_game_settings, calculate_current_timer
-from accounts.models import Wallet, Transaction
 
 # Redis connection using connection pool (optimized for scalability)
 try:
