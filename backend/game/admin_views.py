@@ -821,6 +821,19 @@ def user_details(request, user_id):
                 wallet.add(amount_decimal, is_bonus=True)
                 transaction_type = 'DEPOSIT'
                 description = f"deposited by support_team"
+                
+                # Also create a DepositRequest record so it shows in deposit list
+                DepositRequest.objects.create(
+                    user=user,
+                    amount=amount_decimal,
+                    status='APPROVED',
+                    payment_method=None, # Manual adjustment
+                    payment_reference='ADMIN_ADJUSTMENT',
+                    processed_by=request.user,
+                    processed_at=timezone.now(),
+                    admin_note='Manual deposit by support team'
+                )
+                
                 messages.success(request, f'Successfully deposited ₹{amount} to {user.username}\'s account. (Locked for rotation)')
             elif action == 'withdraw':
                 # Subtract money from user balance (allow negative balances for corrections)
@@ -830,6 +843,19 @@ def user_details(request, user_id):
                 wallet.save()
                 transaction_type = 'WITHDRAW'
                 description = f"withdrawn by support_team"
+                
+                # Also create a WithdrawRequest record so it shows in withdrawal list
+                WithdrawRequest.objects.create(
+                    user=user,
+                    amount=amount_decimal,
+                    status='APPROVED',
+                    withdrawal_method='ADMIN_ADJUSTMENT',
+                    withdrawal_details='Withdrawn by Support Team',
+                    processed_by=request.user,
+                    processed_at=timezone.now(),
+                    admin_note='Manual withdrawal by support team'
+                )
+                
                 messages.success(request, f'Successfully withdrew ₹{amount} from {user.username}\'s account.')
             else:
                 messages.error(request, 'Invalid action.')
