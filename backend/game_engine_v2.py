@@ -221,7 +221,11 @@ class GameEngine:
             "status": self.status,
             "dice_result": self.dice_result,
             "is_rolling": self.status == "ROLLING",
-            "server_time": int(time.time())
+            "server_time": int(time.time()),
+            "total_round_duration": ROUND_END_TIME,
+            "betting_close_time": BETTING_CLOSE_TIME,
+            "dice_roll_time": DICE_ROLL_TIME,
+            "dice_result_time": DICE_RESULT_TIME
         }
         
         # Add dice values if in RESULT phase
