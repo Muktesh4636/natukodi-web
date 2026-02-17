@@ -254,6 +254,9 @@ class GameEngine:
         while True:
             await self.start_new_round()
             
+            # Start timer at 0 for the loop, so the first increment makes it 1
+            self.start_monotonic = time.monotonic()
+            
             last_publish_time = 0
             while True:
                 now = time.monotonic()
