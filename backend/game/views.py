@@ -1820,12 +1820,36 @@ def round_exposure(request, round_id=None):
                 user_exposure = user_exposure_map.get(user_id_str, "0.00")
                 user_exposure_map = {user_id_str: user_exposure}
 
+            # Prepare the new exposure list format
+            exposure_list_formatted = []
+            # We need usernames for the new format. 
+            # Since Redis only stores IDs, we'll fetch usernames from DB for the active players.
+            user_ids = [int(uid) for uid in user_exposure_map.keys()]
+            users_map = {u.id: u.username for u in User.objects.filter(id__in=user_ids)}
+            
+            for uid_str, amount in user_exposure_map.items():
+                uid_int = int(uid_str)
+                exposure_list_formatted.append({
+                    "player_id": uid_int,
+                    "username": users_map.get(uid_int, f"User {uid_int}"),
+                    "exposure_amount": amount
+                })
+
+            # Get status from Redis if possible
+            status_val = "BETTING"
+            try:
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    status_val = json.loads(state_json).get('status', 'BETTING')
+            except: pass
+
             return Response({
                 'round_id': round_id,
+                'status': status_val,
                 'total_exposure': total_exposure,
                 'total_bets': int(bet_count),
-                'unique_players': len(user_exposure_map),
-                'exposure_list': user_exposure_map
+                'unique_players': len(exposure_list_formatted),
+                'exposure': exposure_list_formatted
             })
         except Exception as e:
             logger.error(f"Redis exposure fetch failed: {e}", exc_info=True)
@@ -1842,11 +1866,21 @@ def round_exposure(request, round_id=None):
         bet_count=Count('id')
     )
 
+    exposure_list_formatted = []
+    for e in exposure_data:
+        exposure_list_formatted.append({
+            "player_id": e['user_id'],
+            "username": e['user__username'],
+            "exposure_amount": str(e['exposure_amount'])
+        })
+
     return Response({
         'round_id': round_id,
+        'status': round_obj.status,
         'total_exposure': str(bets_query.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0),
         'total_bets': bets_query.count(),
-        'exposure_list': {str(e['user_id']): str(e['exposure_amount']) for e in exposure_data}
+        'unique_players': len(exposure_list_formatted),
+        'exposure': exposure_list_formatted
     })
 
 
