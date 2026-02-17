@@ -1242,13 +1242,26 @@ def game_stats(request):
     current_round_obj = None
     if redis_client:
         try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                try:
-                    current_round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                except GameRound.DoesNotExist:
-                    pass
+            # Use current_game_state which is the primary source of truth for the engine
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+                round_id = state.get('round_id')
+                if round_id:
+                    try:
+                        current_round_obj = GameRound.objects.get(round_id=round_id)
+                    except GameRound.DoesNotExist:
+                        pass
+            
+            # Fallback to current_round if current_game_state is missing or round not found
+            if not current_round_obj:
+                round_data = redis_client.get('current_round')
+                if round_data:
+                    round_data = json.loads(round_data)
+                    try:
+                        current_round_obj = GameRound.objects.get(round_id=round_data['round_id'])
+                    except GameRound.DoesNotExist:
+                        pass
         except Exception as e:
             logger.error(f"Redis error in game_stats: {e}")
     
@@ -1596,13 +1609,26 @@ def round_bets(request, round_id=None):
         round_obj = None
         if redis_client:
             try:
-                round_data = redis_client.get('current_round')
-                if round_data:
-                    round_data = json.loads(round_data)
-                    try:
-                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                    except GameRound.DoesNotExist:
-                        pass
+                # Use current_game_state which is the primary source of truth for the engine
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    state = json.loads(state_json)
+                    rid = state.get('round_id')
+                    if rid:
+                        try:
+                            round_obj = GameRound.objects.get(round_id=rid)
+                        except GameRound.DoesNotExist:
+                            pass
+                
+                # Fallback to current_round if current_game_state is missing or round not found
+                if not round_obj:
+                    round_data = redis_client.get('current_round')
+                    if round_data:
+                        round_data = json.loads(round_data)
+                        try:
+                            round_obj = GameRound.objects.get(round_id=round_data['round_id'])
+                        except GameRound.DoesNotExist:
+                            pass
             except Exception as e:
                 logger.error(f"Redis error in round_bets: {e}")
         
