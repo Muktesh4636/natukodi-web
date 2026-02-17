@@ -39,53 +39,32 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('✅ Redis connected successfully'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Redis connection failed: {e}'))
-            import traceback
-            traceback.print_exc()
             return
 
-        batch_size = 50  # Process 50 bets at a time
         STREAM_NAME = "round_events_stream"
         EVENT_GROUP = "event_worker_group"
         BET_STREAM = "bet_stream"
         BET_GROUP = "worker_group"
-        CONSUMER_NAME = f"worker_{time.time()}"  # Unique consumer name
+        CONSUMER_NAME = f"worker_{time.time()}"
         
-        # Create round_events_stream consumer group if it doesn't exist
-        try:
-            redis_client.xgroup_create(STREAM_NAME, EVENT_GROUP, id='0', mkstream=True)
-            self.stdout.write(self.style.SUCCESS(f'✅ Created consumer group {EVENT_GROUP} on {STREAM_NAME}'))
-        except redis.exceptions.ResponseError as e:
-            if 'BUSYGROUP' in str(e):
-                self.stdout.write(self.style.SUCCESS(f'✅ Consumer group {EVENT_GROUP} already exists'))
-            else:
-                self.stdout.write(self.style.WARNING(f'Note: {e}'))
+        # Create groups
+        for stream, group in [(STREAM_NAME, EVENT_GROUP), (BET_STREAM, BET_GROUP)]:
+            try:
+                redis_client.xgroup_create(stream, group, id='0', mkstream=True)
+                self.stdout.write(self.style.SUCCESS(f'✅ Created consumer group {group} on {stream}'))
+            except redis.exceptions.ResponseError as e:
+                if 'BUSYGROUP' not in str(e):
+                    self.stdout.write(self.style.WARNING(f'Note: {e}'))
 
-        # Create bet_stream consumer group if it doesn't exist
-        try:
-            redis_client.xgroup_create(BET_STREAM, BET_GROUP, id='0', mkstream=True)
-            self.stdout.write(self.style.SUCCESS(f'✅ Created consumer group {BET_GROUP} on {BET_STREAM}'))
-        except redis.exceptions.ResponseError as e:
-            if 'BUSYGROUP' in str(e):
-                self.stdout.write(self.style.SUCCESS(f'✅ Consumer group {BET_GROUP} already exists'))
-            else:
-                self.stdout.write(self.style.WARNING(f'Note: {e}'))
-        
         while True:
             try:
-                # 1. Process Game Events (Round Start/End) from Redis Stream using consumer group
-                events = redis_client.xreadgroup(
-                    EVENT_GROUP,
-                    CONSUMER_NAME,
-                    {STREAM_NAME: '>'},
-                    count=10,
-                    block=10
-                )
+                # 1. ALWAYS process Game Events first
+                events = redis_client.xreadgroup(EVENT_GROUP, CONSUMER_NAME, {STREAM_NAME: '>'}, count=5, block=10)
                 if events:
                     for stream, messages in events:
                         for message_id, data in messages:
                             event_type = data.get('type')
                             round_id = data.get('round_id')
-                            
                             try:
                                 from django.db import connections
                                 connections.close_all()
@@ -93,8 +72,6 @@ class Command(BaseCommand):
                                     if event_type == 'round_start':
                                         start_time_str = data.get('start_time')
                                         durations = json.loads(data.get('durations', '{}'))
-                                        
-                                        # Create GameRound in DB
                                         GameRound.objects.get_or_create(
                                             round_id=round_id,
                                             defaults={
@@ -106,153 +83,79 @@ class Command(BaseCommand):
                                                 'round_end_seconds': durations.get('round_end_time', 70)
                                             }
                                         )
-                                        self.stdout.write(self.style.SUCCESS(f"Created Round {round_id} in DB"))
-                                    
+                                        self.stdout.write(self.style.SUCCESS(f"Created Round {round_id}"))
                                     elif event_type == 'round_result':
                                         result = data.get('result')
                                         dice_values = json.loads(data.get('dice_values', '[]'))
-                                        end_time_str = data.get('end_time')
-                                        
-                                        # Update GameRound and calculate payouts
                                         round_obj = GameRound.objects.get(round_id=round_id)
                                         round_obj.status = 'RESULT'
                                         round_obj.dice_result = result
-                                        round_obj.result_time = end_time_str
-                                        
-                                        # Set individual dice values
+                                        round_obj.result_time = data.get('end_time')
                                         if len(dice_values) == 6:
                                             for i, val in enumerate(dice_values, 1):
                                                 setattr(round_obj, f'dice_{i}', val)
-                                        
                                         round_obj.save()
-                                        
-                                        # Create DiceResult record
-                                        DiceResult.objects.update_or_create(
-                                            round=round_obj,
-                                            defaults={'result': result}
-                                        )
-                                        
-                                        # Calculate Payouts
+                                        DiceResult.objects.update_or_create(round=round_obj, defaults={'result': result})
                                         from game.views import calculate_payouts
                                         calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
-                                        
-                                        self.stdout.write(self.style.SUCCESS(f"Settled Round {round_id} in DB: Result {result}"))
-                                    
-                                    # Acknowledge processed message in stream
+                                        self.stdout.write(self.style.SUCCESS(f"Settled Round {round_id}"))
                                     redis_client.xack(STREAM_NAME, EVENT_GROUP, message_id)
+                            except Exception as e:
+                                logger.error(f"Event error {event_type} {round_id}: {e}")
+
+                # 2. Process Bets
+                messages = redis_client.xreadgroup(BET_GROUP, CONSUMER_NAME, {BET_STREAM: '>'}, count=20, block=10)
+                if not messages:
+                    # Check for pending (stuck) bets
+                    pending = redis_client.xpending(BET_STREAM, BET_GROUP)
+                    if pending and pending['pending'] > 0:
+                        messages = redis_client.xreadgroup(BET_GROUP, f"{CONSUMER_NAME}_rec", {BET_STREAM: '0'}, count=10, block=1)
+
+                if messages:
+                    for stream, msg_list in messages:
+                        bets_to_process = []
+                        message_ids = []
+                        for msg_id, data in msg_list:
+                            bets_to_process.append(data)
+                            message_ids.append(msg_id)
+                        
+                        ack_ids = []
+                        from django.db import connections
+                        connections.close_all()
+                        with transaction.atomic():
+                            for idx, bet_data in enumerate(bets_to_process):
+                                try:
+                                    round_id = bet_data['round_id']
+                                    try:
+                                        round_obj = GameRound.objects.get(round_id=round_id)
+                                    except GameRound.DoesNotExist:
+                                        logger.warning(f"Round {round_id} not found, skipping for now")
+                                        continue
                                     
-                            except Exception as event_err:
-                                logger.error(f"Error processing game event {event_type} for round {round_id}: {event_err}")
-                                continue
+                                    user_id = int(bet_data['user_id'])
+                                    number = int(bet_data['number'])
+                                    chip_amount = Decimal(bet_data['chip_amount'])
+                                    
+                                    # Create records
+                                    Bet.objects.create(user_id=user_id, round=round_obj, number=number, chip_amount=chip_amount)
+                                    
+                                    # Transaction log
+                                    bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
+                                    Transaction.objects.create(
+                                        user_id=user_id, transaction_type='BET', amount=chip_amount,
+                                        balance_before=bal_after + chip_amount, balance_after=bal_after,
+                                        description=f"Bet on {number} in round {round_id}"
+                                    )
+                                    ack_ids.append(message_ids[idx])
+                                except Exception as e:
+                                    logger.error(f"Bet error: {e}")
+                        
+                        if ack_ids:
+                            redis_client.xack(BET_STREAM, BET_GROUP, *ack_ids)
+                            self.stdout.write(self.style.SUCCESS(f"Processed {len(ack_ids)} bets"))
 
-                # 2. Fetch a batch of bets from Redis Stream using consumer group
-                bets_to_process = []
-                message_ids = []
-                
-                try:
-                    messages = redis_client.xreadgroup(
-                        BET_GROUP, 
-                        CONSUMER_NAME, 
-                        {BET_STREAM: '>'}, 
-                        count=batch_size, 
-                        block=100
-                    )
-                    
-                    if messages:
-                        for stream, msg_list in messages:
-                            for msg_id, data in msg_list:
-                                bets_to_process.append(data)
-                                message_ids.append(msg_id)
-                    
-                    if not bets_to_process:
-                        pending_info = redis_client.xpending(BET_STREAM, BET_GROUP)
-                        if pending_info and pending_info['pending'] > 0:
-                            recovery_messages = redis_client.xreadgroup(
-                                BET_GROUP,
-                                f"{CONSUMER_NAME}_recovery",
-                                {BET_STREAM: '0'},
-                                count=min(10, batch_size),
-                                block=1
-                            )
-                            if recovery_messages:
-                                for stream, msg_list in recovery_messages:
-                                    for msg_id, data in msg_list:
-                                        bets_to_process.append(data)
-                                        message_ids.append(msg_id)
-                                        logger.info(f"Recovered pending message {msg_id}")
-                
-                except redis.exceptions.ResponseError as e:
-                    if 'NOGROUP' in str(e):
-                        try:
-                            redis_client.xgroup_create(BET_STREAM, BET_GROUP, id='0', mkstream=True)
-                        except: pass
-                    else:
-                        logger.error(f"Error reading from bet_stream: {e}")
-                
-                if not bets_to_process:
-                    if not events:
-                        time.sleep(0.1)
-                    continue
-
-                # 3. Process Batch in a single DB Transaction
-                processed_count = 0
-                ack_ids = []
-                
-                from django.db import connections
-                connections.close_all()
-                with transaction.atomic():
-                    for idx, bet_data in enumerate(bets_to_process):
-                        try:
-                            user_id = int(bet_data['user_id'])
-                            round_id = bet_data['round_id']
-                            number = int(bet_data['number'])
-                            chip_amount = Decimal(bet_data['chip_amount'])
-                            
-                            try:
-                                round_obj = GameRound.objects.get(round_id=round_id)
-                            except GameRound.DoesNotExist:
-                                logger.warning(f"Round {round_id} not found for bet, will retry")
-                                continue
-
-                            balance_key = f"user_balance:{user_id}"
-                            redis_balance = redis_client.get(balance_key)
-                            if redis_balance:
-                                balance_after = Decimal(redis_balance)
-                                balance_before = balance_after + chip_amount
-                            else:
-                                wallet = Wallet.objects.get(user_id=user_id)
-                                balance_after = wallet.balance
-                                balance_before = balance_after + chip_amount
-                            
-                            Bet.objects.create(
-                                user_id=user_id,
-                                round=round_obj,
-                                number=number,
-                                chip_amount=chip_amount
-                            )
-                            
-                            Transaction.objects.create(
-                                user_id=user_id,
-                                transaction_type='BET',
-                                amount=chip_amount,
-                                balance_before=balance_before,
-                                balance_after=balance_after,
-                                description=f"Bet on {number} in round {round_id} (Balance deducted in Redis)"
-                            )
-                            
-                            ack_ids.append(message_ids[idx])
-                            processed_count += 1
-
-                        except Exception as bet_err:
-                            logger.error(f"Error processing individual bet: {bet_err}")
-                            continue
-                
-                if ack_ids:
-                    try:
-                        redis_client.xack(BET_STREAM, BET_GROUP, *ack_ids)
-                        self.stdout.write(self.style.SUCCESS(f"Successfully committed {processed_count} bets to DB and acknowledged"))
-                    except Exception as ack_err:
-                        logger.error(f"Error acknowledging messages: {ack_err}")
+                if not events and not messages:
+                    time.sleep(0.1)
 
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Worker Error: {e}"))
