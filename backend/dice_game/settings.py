@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Default to False for production
+DEBUG = True  # Default to False for production
 
 # Security: Only allow specific hosts
 ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,gunduata.online,www.gunduata.online,72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41')
@@ -164,7 +164,7 @@ if not DEBUG:
         },
         'handlers': {
             'file': {
-                'level': 'ERROR',  # Only log errors, not info/debug
+                'level': 'DEBUG',  # Changed to DEBUG for verbose logging
                 'class': 'logging.handlers.RotatingFileHandler',
                 'filename': BASE_DIR / 'logs' / 'django.log',
                 'maxBytes': 10485760,  # 10MB
@@ -175,7 +175,17 @@ if not DEBUG:
         'loggers': {
             'django': {
                 'handlers': ['file'],
-                'level': 'ERROR',
+                'level': 'DEBUG', # Changed to DEBUG
+                'propagate': False,
+            },
+            'accounts': { # Add logger for accounts app
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'game': { # Add logger for game app
+                'handlers': ['file'],
+                'level': 'DEBUG',
                 'propagate': False,
             },
         },
