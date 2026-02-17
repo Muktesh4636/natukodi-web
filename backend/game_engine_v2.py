@@ -321,6 +321,11 @@ class GameEngine:
                     
                     # Publish legacy dice_result message
                     await self.publish_state(legacy_type="dice_result")
+                    
+                    # CRITICAL: Clear the last_round_results_cache so the API shows fresh data
+                    await self.redis.delete('last_round_results_cache')
+                    logger.info(f"Round {self.round_id}: Cleared last_round_results_cache")
+                    
                     already_published = True
                     last_publish_time = now  # Update publish time to prevent immediate duplicate
 

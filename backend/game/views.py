@@ -880,6 +880,10 @@ def set_dice_result(request):
                         round_data['dice_result'] = result
                         round_data['status'] = 'RESULT'
                         redis_client.set('current_round', json.dumps(round_data))
+                    
+                    # CRITICAL: Clear the last_round_results_cache so the API shows fresh manual data
+                    redis_client.delete('last_round_results_cache')
+                    logger.info("Cleared last_round_results_cache after manual result set")
                 except Exception as e:
                     logger.error(f"Redis sync error in set_dice_result: {e}")
 
