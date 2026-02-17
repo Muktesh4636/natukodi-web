@@ -77,28 +77,32 @@ fun SecurityScreen(
             SecurityItem(
                 label = "Email",
                 value = user?.email ?: "",
-                onClick = { showEmailDialog = true }
+                onClick = { showEmailDialog = true },
+                showArrow = true
             )
             HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
 
             SecurityItem(
                 label = "Password",
                 action = "Change",
-                onClick = { showPasswordDialog = true }
+                onClick = { showPasswordDialog = true },
+                showArrow = true
             )
             HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
 
             SecurityItem(
                 label = "Phone",
                 value = user?.phone_number?.let { maskPhoneNumber(it) } ?: "",
-                onClick = { showPhoneDialog = true }
+                onClick = { /* Phone number cannot be changed */ },
+                showArrow = false
             )
             HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
 
             SecurityItem(
                 label = "Real name",
                 value = user?.username ?: "",
-                onClick = { showRealNameDialog = true }
+                onClick = { showRealNameDialog = true },
+                showArrow = true
             )
         }
     }
@@ -367,12 +371,13 @@ fun SecurityItem(
     label: String,
     action: String? = null,
     value: String? = null,
+    showArrow: Boolean = true,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable(enabled = showArrow || action != null) { onClick() }
             .padding(vertical = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -400,13 +405,15 @@ fun SecurityItem(
                     fontSize = 14.sp
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                Icons.Default.ArrowForward,
-                contentDescription = null,
-                tint = TextGrey,
-                modifier = Modifier.size(20.dp)
-            )
+            if (showArrow) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    Icons.Default.ArrowForward,
+                    contentDescription = null,
+                    tint = TextGrey,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }

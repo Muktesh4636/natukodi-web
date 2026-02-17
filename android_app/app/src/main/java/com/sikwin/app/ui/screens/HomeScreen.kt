@@ -490,53 +490,53 @@ fun GameCard(game: GameItem, modifier: Modifier, onGameClick: (String) -> Unit) 
 
 @Composable
 fun VideoPlayer(videoResId: Int, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+        val context = LocalContext.current
+        val lifecycleOwner = LocalLifecycleOwner.current
 
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            val uri = Uri.parse("android.resource://${context.packageName}/$videoResId")
-            setMediaItem(MediaItem.fromUri(uri))
-            repeatMode = Player.REPEAT_MODE_ALL
-            playWhenReady = true
-            prepare()
-        }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    exoPlayer.playWhenReady = true
-                }
-                Lifecycle.Event.ON_PAUSE -> {
-                    exoPlayer.playWhenReady = false
-                }
-                Lifecycle.Event.ON_DESTROY -> {
-                    exoPlayer.release()
-                }
-                else -> {}
+        val exoPlayer = remember {
+            ExoPlayer.Builder(context).build().apply {
+                val uri = Uri.parse("android.resource://${context.packageName}/$videoResId")
+                setMediaItem(MediaItem.fromUri(uri))
+                repeatMode = Player.REPEAT_MODE_ALL
+                playWhenReady = false // Start paused
+                prepare()
             }
         }
-        lifecycleOwner.lifecycle.addObserver(observer)
 
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            exoPlayer.release()
-        }
-    }
-
-    AndroidView(
-        factory = { ctx ->
-            PlayerView(ctx).apply {
-                player = exoPlayer
-                useController = false
-                resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> {
+                        exoPlayer.playWhenReady = true
+                    }
+                    Lifecycle.Event.ON_PAUSE -> {
+                        exoPlayer.playWhenReady = false
+                    }
+                    Lifecycle.Event.ON_DESTROY -> {
+                        exoPlayer.release()
+                    }
+                    else -> {}
+                }
             }
-        },
-        modifier = modifier
-    )
-}
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+                exoPlayer.release()
+            }
+        }
+
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = false
+                    resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                }
+            },
+            modifier = modifier
+        )
+    }
 
 
 @Composable

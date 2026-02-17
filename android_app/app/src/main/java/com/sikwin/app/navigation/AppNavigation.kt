@@ -358,7 +358,12 @@ fun AppNavigation(
                         }
                     } else if (route == "me") {
                         if (viewModel.loginSuccess) {
-                            safeNavigate("me")
+                            navController.navigate("me") {
+                                // Pop up to home to avoid backstack issues
+                                popUpTo("home") { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         } else {
                             showAuthDialog = true
                         }
@@ -383,6 +388,10 @@ fun AppNavigation(
                             launchGame()
                         } else {
                             showAuthDialog = true
+                        }
+                    } else if (route == "home") {
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
                         }
                     } else {
                         navController.navigate(route)

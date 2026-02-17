@@ -52,29 +52,28 @@ class User(AbstractUser):
     def generate_unique_referral_code(self):
         """
         Generate a unique referral code for this user.
-        Referral codes are independent of worker/professional system.
+        Format: GunduAta + 3 random digits (e.g., GunduAta123)
         """
         max_attempts = 100
         for _ in range(max_attempts):
-            # Generate a 10-character alphanumeric code (uppercase letters and numbers)
-            # Format: 3 letters + 4 numbers + 3 letters (e.g., ABC1234XYZ)
-            code = ''.join(random.choices(string.ascii_uppercase, k=3)) + \
-                   ''.join(random.choices(string.digits, k=4)) + \
-                   ''.join(random.choices(string.ascii_uppercase, k=3))
-            
+            # Generate code in format: GunduAta + 3 random digits
+            random_digits = ''.join(random.choices(string.digits, k=3))
+            code = f"GunduAta{random_digits}"
+
             # Check if code already exists (excluding current user)
             if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
                 return code
-        
-        # Fallback: Use UUID if random generation fails (extremely rare)
+
+        # Fallback: Use GunduAta + 4 digits if 3-digit codes are exhausted (extremely rare)
         for _ in range(max_attempts):
-            code = str(uuid.uuid4()).replace('-', '').upper()[:10]
+            random_digits = ''.join(random.choices(string.digits, k=4))
+            code = f"GunduAta{random_digits}"
             if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
                 return code
-        
+
         # Last resort: timestamp-based (should never reach here)
         import time
-        code = f"REF{int(time.time()) % 10000000:07d}"
+        code = f"GunduAta{int(time.time()) % 1000000:06d}"
         return code
     
     def save(self, *args, **kwargs):
@@ -106,16 +105,29 @@ class Wallet(models.Model):
     def deduct(self, amount):
         """Deduct amount from wallet"""
         if self.balance >= amount:
+            # When a bet is placed, we first deduct from unavaliable_balance if possible
+            # This counts as "rotating" the money
+            if self.unavaliable_balance > 0:
+                deduct_from_unavaliable = min(self.unavaliable_balance, amount)
+                self.unavaliable_balance -= deduct_from_unavaliable
+            
             self.balance -= amount
             self.save()
             return True
         return False
 
-    def add(self, amount):
-        """Add amount to wallet"""
+    def add(self, amount, is_bonus=False):
+        """Add amount to wallet. If is_bonus or deposit, add to unavaliable_balance too."""
         self.balance += amount
+        if is_bonus:
+            self.unavaliable_balance += amount
         self.save()
         return True
+
+    @property
+    def withdrawable_balance(self):
+        """Calculate balance available for withdrawal"""
+        return max(Decimal('0.00'), self.balance - self.unavaliable_balance)
 
 
 class DailyReward(models.Model):

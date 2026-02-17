@@ -83,11 +83,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 class WalletSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    withdrawable_balance = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Wallet
-        fields = ('id', 'user', 'balance', 'unavaliable_balance', 'created_at', 'updated_at')
-        read_only_fields = ('id', 'balance', 'unavaliable_balance', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'balance', 'unavaliable_balance', 'withdrawable_balance', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'balance', 'unavaliable_balance', 'withdrawable_balance', 'created_at', 'updated_at')
 
 
 class TransactionSerializer(serializers.ModelSerializer):

@@ -836,7 +836,8 @@ def approve_deposit_request(request, pk):
             wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
             wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
             balance_before = wallet.balance
-            wallet.balance = balance_before + deposit.amount
+            # Deposit money needs to be rotated 1 time
+            wallet.add(deposit.amount, is_bonus=True)
             wallet.save()
 
             # Update Redis balance (CRITICAL for Redis-First betting)
@@ -872,7 +873,8 @@ def approve_deposit_request(request, pk):
                     referrer_wallet = Wallet.objects.select_for_update().get(pk=referrer_wallet.pk)
                     
                     ref_balance_before = referrer_wallet.balance
-                    referrer_wallet.balance += bonus_amount
+                    # Referral bonus needs to be rotated 1 time
+                    referrer_wallet.add(bonus_amount, is_bonus=True)
                     referrer_wallet.save()
 
                     # Update Redis balance for referrer
@@ -965,12 +967,13 @@ def initiate_withdraw(request):
         logger.warning(f"Withdrawal failed for user {request.user.username}: Invalid amount {amount_raw} - {exc}")
         return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Check if user has sufficient balance
+    # Check if user has sufficient withdrawable balance
     wallet, created = Wallet.objects.get_or_create(user=request.user)
-    if wallet.balance < amount:
-        logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient balance (Balance: {wallet.balance}, Requested: {amount})")
+    withdrawable = wallet.withdrawable_balance
+    if withdrawable < amount:
+        logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient withdrawable balance (Withdrawable: {withdrawable}, Requested: {amount}, Total Balance: {wallet.balance})")
         return Response({
-            'error': f'Insufficient balance. You have ₹{wallet.balance}, but requested ₹{amount}'
+            'error': f'Insufficient withdrawable balance. You have ₹{withdrawable} available for withdrawal (Total balance: ₹{wallet.balance}). You must rotate deposited/bonus money by betting it at least once.'
         }, status=status.HTTP_400_BAD_REQUEST)
 
     # Check for existing pending withdraw request

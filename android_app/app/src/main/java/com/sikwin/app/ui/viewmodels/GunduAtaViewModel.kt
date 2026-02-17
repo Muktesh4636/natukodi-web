@@ -67,6 +67,19 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
 
     private fun sanitizeErrorMessage(raw: String): String {
         if (raw.isBlank()) return "Something went wrong. Please try again."
+        
+        // Catch HTML responses
+        if (raw.trim().startsWith("<!doctype", ignoreCase = true) || 
+            raw.trim().startsWith("<html", ignoreCase = true)) {
+            val lower = raw.lowercase()
+            return when {
+                lower.contains("413") || lower.contains("too large") -> "The file you are trying to upload is too large. Please use a smaller file (max 10MB)."
+                lower.contains("502") || lower.contains("bad gateway") -> "Server is busy. Please try again later."
+                lower.contains("504") || lower.contains("gateway timeout") -> "Server timeout. Please try again."
+                else -> "An unexpected server error occurred. Please try again."
+            }
+        }
+
         val lower = raw.lowercase()
         return when {
             lower.contains("500") || lower.contains("internal server error") -> "Server error. Please try again later."
@@ -75,6 +88,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             lower.contains("404") || lower.contains("not found") -> "Request could not be completed. Please try again."
             lower.contains("403") || lower.contains("forbidden") -> "Access denied. Please try again."
             lower.contains("401") || lower.contains("unauthorized") || lower.contains("authentication") -> "Please sign in again."
+            lower.contains("413") || lower.contains("too large") -> "The file you are trying to upload is too large. Please use a smaller file."
             lower.contains("connection refused") || lower.contains("failed to connect") -> "Unable to connect. Please check your network."
             lower.contains("timeout") || lower.contains("timed out") -> "Request timed out. Please try again."
             else -> raw

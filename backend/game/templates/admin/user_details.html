@@ -665,20 +665,20 @@
                     <p>₹{{ wallet.balance|floatformat:2 }}</p>
                 </div>
                 <div class="stat-card">
+                    <h3>Withdrawable</h3>
+                    <p style="color: #28a745;">₹{{ wallet.withdrawable_balance|floatformat:2 }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Unavailable</h3>
+                    <p style="color: #dc3545;">₹{{ wallet.unavaliable_balance|floatformat:2 }}</p>
+                </div>
+                <div class="stat-card">
                     <h3>Total Bets</h3>
                     <p>{{ total_bets }}</p>
                 </div>
                 <div class="stat-card">
                     <h3>Total Bet Amount</h3>
                     <p>₹{{ total_bet_amount|floatformat:2 }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Wins</h3>
-                    <p>{{ total_wins }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Total Payouts</h3>
-                    <p>₹{{ total_payouts|floatformat:2 }}</p>
                 </div>
             </div>
 
@@ -692,7 +692,7 @@
                         <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 15px;">
                             Add money when user sends payment via WhatsApp
                         </p>
-                        <form method="post" action="{% url 'user_details' player.id %}" style="display: flex; gap: 10px; align-items: center;">
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="display: flex; gap: 10px; align-items: center;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="deposit">
                             <input type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount (₹)" required
@@ -709,7 +709,7 @@
                         <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 15px;">
                             Remove money if there's a mistake or error
                         </p>
-                        <form method="post" action="{% url 'user_details' player.id %}" style="display: flex; gap: 10px; align-items: center;">
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="display: flex; gap: 10px; align-items: center;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="withdraw">
                             <input type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount (₹)" required

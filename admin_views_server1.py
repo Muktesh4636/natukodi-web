@@ -787,7 +787,6 @@ def round_details(request, round_id):
     return render(request, 'admin/round_details.html', context)
 
 @admin_required
-@csrf_exempt
 def user_details(request, user_id):
     """User details page showing all their bets and information"""
     try:
@@ -795,76 +794,7 @@ def user_details(request, user_id):
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
         return redirect('recent_rounds')
-
-    # Handle balance adjustment POST request
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        amount = request.POST.get('amount', '0').strip()
-
-        # Debug logging
-        logger.info(f"Balance adjustment request: user={user_id}, action={action}, amount={amount}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
-        print(f"DEBUG: Balance adjustment request: user={user_id}, action={action}, amount={amount}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
-
-        try:
-            amount = Decimal(amount)
-            if amount <= 0:
-                messages.error(request, 'Amount must be greater than 0.')
-                return redirect(request.get_full_path())
-
-            wallet, _ = Wallet.objects.get_or_create(user=user)
-            balance_before = wallet.balance
-
-            if action == 'deposit':
-                # Add money to user balance
-                # Deposit money needs to be rotated 1 time
-                amount_decimal = Decimal(str(amount))
-                wallet.add(amount_decimal, is_bonus=True)
-                transaction_type = 'DEPOSIT'
-                description = f"deposited by support_team"
-                messages.success(request, f'Successfully deposited ₹{amount} to {user.username}\'s account. (Locked for rotation)')
-            elif action == 'withdraw':
-                # Subtract money from user balance (allow negative balances for corrections)
-                # Ensure we use Decimal for calculation
-                amount_decimal = Decimal(str(amount))
-                wallet.balance -= amount_decimal
-                wallet.save()
-                transaction_type = 'WITHDRAW'
-                description = f"withdrawn by support_team"
-                messages.success(request, f'Successfully withdrew ₹{amount} from {user.username}\'s account.')
-            else:
-                messages.error(request, 'Invalid action.')
-                return redirect(request.get_full_path())
-
-            # Create transaction record
-            Transaction.objects.create(
-                user=user,
-                transaction_type=transaction_type,
-                amount=amount_decimal,
-                balance_before=balance_before,
-                balance_after=wallet.balance,
-                description=description
-            )
-
-            # Update Redis balance cache
-            try:
-                if redis_client and redis_client.ping():
-                    redis_client.set(f"user_balance:{user.id}", str(wallet.balance), ex=3600)
-                    logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
-                else:
-                    logger.warning(f"Redis client not available for user {user.id} balance update")
-            except Exception as redis_err:
-                logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
-
-            return redirect(request.get_full_path())
-
-        except ValueError:
-            messages.error(request, 'Invalid amount format.')
-            return redirect(request.get_full_path())
-        except Exception as e:
-            logger.error(f"Error adjusting balance for user {user_id}: {e}")
-            messages.error(request, f'Error processing request: {str(e)}')
-            return redirect(request.get_full_path())
-
+    
     # Get user's wallet
     wallet, _ = Wallet.objects.get_or_create(user=user)
     
@@ -906,7 +836,7 @@ def user_details(request, user_id):
         user_withdrawals = user_withdrawals[:20]
     
     context = get_admin_context(request, {
-        'player': user,
+        'user': user,
         'wallet': wallet,
         'user_bets': user_bets,
         'total_bets': total_bets,

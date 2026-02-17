@@ -153,7 +153,8 @@ fun TransactionHistoryScreen(
             }
         }
 
-        // Date Filter (Keep existing visual, functionality can be hooked up later)
+        /* Date Filter Removed */
+        /*
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -191,6 +192,7 @@ fun TransactionHistoryScreen(
                 Text("Search", color = TextGrey)
             }
         }
+        */
 
         // Data Filtering Logic
         val filteredDeposits = remember(viewModel.depositRequests, selectedFilter) {
