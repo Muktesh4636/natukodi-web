@@ -133,7 +133,7 @@ if balance < amount then
 end
 
 -- 1. Deduct from user balance atomically
-local new_balance = redis.call('INCRBYFLOAT', KEYS[1], -amount)
+local new_balance = tonumber(redis.call('INCRBYFLOAT', KEYS[1], -amount))
 
 -- CRITICAL: Double-check balance didn't go negative (safety check)
 if new_balance < 0 then
@@ -1386,6 +1386,27 @@ def dice_frequency(request, round_id=None):
         count = int(request.query_params.get('count', 10))
         count = max(1, min(count, 100))
         
+        # Try to get from Redis first to reduce DB load
+        cache_key = f"dice_frequency_cache_{count}"
+        if redis_client:
+            try:
+                cached_data = redis_client.get(cache_key)
+                if cached_data:
+                    results_data = json.loads(cached_data)
+                    # Add wallet_balance if authenticated (don't cache this part)
+                    if request.user.is_authenticated:
+                        try:
+                            # Try to get balance from Redis cache first
+                            balance = redis_client.get(f"user_balance:{request.user.id}")
+                            if balance is None:
+                                balance = str(request.user.wallet.balance)
+                            results_data["wallet_balance"] = "{:.2f}".format(float(balance))
+                        except:
+                            results_data["wallet_balance"] = "0.00"
+                    return Response(results_data)
+            except Exception as re:
+                logger.error(f"Redis frequency cache fetch error: {re}")
+
         # Fetch from database
         recent_rounds = GameRound.objects.filter(
             status__in=['RESULT', 'COMPLETED'],
@@ -1418,7 +1439,6 @@ def dice_frequency(request, round_id=None):
             # Format dice_result as a single winning number (highest frequency)
             # If multiple winners, use the first one. If no winners, use "0"
             primary_winner = winning_numbers_data[0]["number"] if winning_numbers_data else 0
-            dice_result_str = "-".join(map(str, dice_values))
             
             # Calculate a fallback end_time if it's null (start_time + 70s)
             calculated_end_time = round_obj.end_time
@@ -1440,18 +1460,23 @@ def dice_frequency(request, round_id=None):
                 "winning_numbers": winning_numbers_data
             })
 
-        # If count is not 1, return only the most recent round as a single object
-        if count != 1 and results:
+        if results:
+            # Cache the result for 2 seconds to reduce DB load
+            if redis_client:
+                try:
+                    redis_client.set(cache_key, json.dumps(results[0]), ex=2)
+                except: pass
+
             # Add wallet_balance if authenticated
             if request.user.is_authenticated:
                 try:
-                    results[0]["wallet_balance"] = "{:.2f}".format(float(request.user.wallet.balance))
+                    # Try to get balance from Redis cache first
+                    balance = redis_client.get(f"user_balance:{request.user.id}")
+                    if balance is None:
+                        balance = str(request.user.wallet.balance)
+                    results[0]["wallet_balance"] = "{:.2f}".format(float(balance))
                 except:
                     results[0]["wallet_balance"] = "0.00"
-            return Response(results[0])
-
-        # Fallback for count=1 or other cases (though logic above now covers most)
-        if results:
             return Response(results[0])
             
         return Response({"error": "No results found"}, status=404)
