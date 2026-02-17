@@ -1,5 +1,5 @@
 services:
-  # Redis Cache & Channel Layer
+  # Redis Cache & Channel Layer (Only active on Server 3, kept here for reference but pointed to Server 3)
   redis:
     image: redis:7-alpine
     container_name: dice_game_redis
@@ -27,7 +27,7 @@ services:
       sh -c "
         python manage.py migrate &&
         python manage.py collectstatic --noinput &&
-        gunicorn dice_game.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080 --workers 9 --timeout 180 --graceful-timeout 30 --backlog 4096
+        gunicorn dice_game.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080 --workers 4 --timeout 60 --graceful-timeout 30 --backlog 8192
       "
     volumes:
       - ./backend:/app
@@ -52,7 +52,6 @@ services:
       - REDIS_POOL_SIZE=${REDIS_POOL_SIZE:-2000}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
       - AUTOBAHN_USE_NVX=0
-    # Note: depends_on removed for multi-server setup as redis is on Server 3
     restart: unless-stopped
     networks:
       - dice_game_network
@@ -65,7 +64,7 @@ services:
           cpus: '1'
           memory: 2G
 
-  # Game Timer Service (runs separately to avoid conflicts)
+  # Game Timer Service (STANDBY MODE - Pointed to Central Redis)
   game_timer:
     build:
       context: ./backend
@@ -84,13 +83,12 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-Gunduata@123}
       - DB_HOST=72.61.255.231
       - DB_PORT=6432
-      - REDIS_HOST=redis
+      - REDIS_HOST=72.61.254.74
       - REDIS_PORT=6379
       - REDIS_DB=${REDIS_DB:-0}
       - REDIS_PASSWORD=Gunduata@123
       - REDIS_POOL_SIZE=${REDIS_POOL_SIZE:-200}
       - AUTOBAHN_USE_NVX=0
-    # depends_on removed for multi-server setup
     restart: unless-stopped
     networks:
       - dice_game_network
@@ -103,7 +101,7 @@ services:
           cpus: '0.5'
           memory: 512M
 
-  # Bet Queue Worker (processes bets from Redis queue to Database)
+  # Bet Queue Worker (STANDBY MODE - Pointed to Central Redis)
   bet_worker:
     build:
       context: ./backend
@@ -122,12 +120,11 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-Gunduata@123}
       - DB_HOST=72.61.255.231
       - DB_PORT=6432
-      - REDIS_HOST=redis
+      - REDIS_HOST=72.61.254.74
       - REDIS_PORT=6379
       - REDIS_DB=${REDIS_DB:-0}
       - REDIS_PASSWORD=Gunduata@123
       - REDIS_POOL_SIZE=${REDIS_POOL_SIZE:-200}
-    # depends_on removed for multi-server setup
     restart: unless-stopped
     networks:
       - dice_game_network

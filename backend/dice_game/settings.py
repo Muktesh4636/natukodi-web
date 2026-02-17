@@ -492,11 +492,10 @@ GAME_SETTINGS = {
     'RESULT_SELECTION_DURATION': 20,  # seconds (31-50s) - Betting closed, waiting for dice roll
     'RESULT_DISPLAY_DURATION': 20,  # seconds (51-70s) - Show dice result
     'TOTAL_ROUND_DURATION': 70,  # seconds (70 seconds total)
-     'DICE_ROLL_TIME': 19,  # seconds - Time before dice result when warning is sent   
-    'BETTING_CLOSE_TIME': 30,  # seconds - Stop taking bets (0-30s betting open)
-    'DICE_RESULT_TIME': 51,  # seconds - Auto-roll dice if not set manually
-    'RESULT_ANNOUNCE_TIME': 51,  # seconds - Announce result
-    'ROUND_END_TIME': 80,  # seconds - End round and start new one
+     'BETTING_CLOSE_TIME': 30,  # seconds - Stop taking bets (0-30s betting open)
+    'DICE_ROLL_TIME': 38,      # seconds - Start dice rolling animation
+    'DICE_RESULT_TIME': 43,    # seconds - Show final dice result
+    'ROUND_END_TIME': 60,      # seconds - End round and start new one
     'CHIP_VALUES': [10, 20, 50, 100],
     'PAYOUT_RATIOS': {
         1: 6.0,  # If you bet on 1 and it comes, you get 6x

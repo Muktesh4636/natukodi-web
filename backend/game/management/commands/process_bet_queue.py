@@ -19,27 +19,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Starting Bet Queue Worker...'))
         
-        # Setup Redis
-        try:
-            if hasattr(settings, 'REDIS_POOL') and settings.REDIS_POOL:
-                redis_client = redis.Redis(connection_pool=settings.REDIS_POOL)
-            else:
-                redis_kwargs = {
-                    'host': settings.REDIS_HOST,
-                    'port': settings.REDIS_PORT,
-                    'db': settings.REDIS_DB,
-                    'decode_responses': True,
-                    'socket_connect_timeout': 5,
-                    'socket_timeout': 5,
-                }
-                if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
-                    redis_kwargs['password'] = settings.REDIS_PASSWORD
-                redis_client = redis.Redis(**redis_kwargs)
-            redis_client.ping()
-            self.stdout.write(self.style.SUCCESS('✅ Redis connected successfully'))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Redis connection failed: {e}'))
+        # Setup Redis with tiered failover
+        from game.utils import get_redis_client
+        redis_client = get_redis_client()
+        
+        if not redis_client:
+            self.stdout.write(self.style.ERROR('Redis connection failed on all hosts'))
             return
+            
+        self.stdout.write(self.style.SUCCESS('✅ Redis connected successfully'))
 
         STREAM_NAME = "round_events_stream"
         EVENT_GROUP = "event_worker_group"

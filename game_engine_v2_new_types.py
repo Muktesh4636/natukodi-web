@@ -209,14 +209,13 @@ class GameEngine:
         elif self.status == "RESULT" and self.last_published_status != "RESULT":
             msg_type = "dice_result"
         
-        self.last_published_status = self.status
-
         # Map internal status to requested external status
         external_status = self.status
         if self.status in ["WAITING_FOR_RESULT", "ROLLING"]:
             external_status = "closed"
 
         # Maintain exact key order using a list of tuples for json.dumps
+        # Removed end_time, server_time, and is_rolling as requested
         state_list = [
             ("type", msg_type),
             ("round_id", self.round_id),
@@ -275,12 +274,28 @@ class GameEngine:
                             })
                         except Exception as e:
                             logger.error(f"Failed to log result to Redis: {e}")
+                        
+                        # User requested: when result phase starts, send two messages for the same second
+                        # One with type: dice_result and one with type: timer
+                        await self.publish_state() # This will have msg_type="dice_result" because status just changed
+                        self.last_published_status = "RESULT" # Ensure the next one is "timer"
+                        await self.publish_state() # This will have msg_type="timer"
+                        
                 elif elapsed >= self.dice_roll_time:
-                    self.status = "ROLLING"
+                    if self.status != "ROLLING":
+                        self.status = "ROLLING"
+                        # User requested: when dice roll phase starts, send two messages for the same second
+                        # One with type: dice_roll and one with type: timer
+                        await self.publish_state() # This will have msg_type="dice_roll" because status just changed
+                        self.last_published_status = "ROLLING" # Ensure the next one is "timer"
+                        await self.publish_state() # This will have msg_type="timer"
                 elif elapsed >= self.betting_close_time:
                     self.status = "WAITING_FOR_RESULT"
                 
-                await self.publish_state()
+                # Only publish if we didn't just do the double-publish for phase transition
+                if elapsed < self.dice_roll_time or (elapsed >= self.dice_roll_time + 1 and elapsed < self.dice_result_time) or (elapsed >= self.dice_result_time + 1):
+                    await self.publish_state()
+                
                 await asyncio.sleep(1)
             
             # Small gap between rounds

@@ -267,3 +267,51 @@ def get_all_game_settings():
         result['PAYOUT_RATIOS'] = defaults['PAYOUT_RATIOS']
     
     return result
+
+
+def get_redis_client():
+    """
+    Get a Redis client with tiered failover:
+    Primary: Server 3 (72.61.254.74)
+    Secondary: Server 4 (72.62.226.41)
+    Tertiary: Server 1 (72.61.254.71)
+    """
+    import redis
+    import logging
+    logger = logging.getLogger('game')
+
+    # Define hosts in order of priority
+    hosts = [
+        getattr(settings, 'REDIS_HOST', '72.61.254.74'),
+        '72.62.226.41',  # Server 4
+        '72.61.254.71'   # Server 1
+    ]
+    
+    # Remove duplicates while preserving order
+    unique_hosts = []
+    for h in hosts:
+        if h not in unique_hosts:
+            unique_hosts.append(h)
+
+    password = getattr(settings, 'REDIS_PASSWORD', 'Gunduata@123')
+    port = int(getattr(settings, 'REDIS_PORT', 6379))
+    db = int(getattr(settings, 'REDIS_DB', 0))
+
+    for host in unique_hosts:
+        try:
+            client = redis.Redis(
+                host=host,
+                port=port,
+                db=db,
+                password=password,
+                decode_responses=True,
+                socket_connect_timeout=2,
+                socket_timeout=2
+            )
+            client.ping()
+            return client
+        except Exception as e:
+            logger.warning(f"Redis failover: Could not connect to {host}: {e}")
+            continue
+    
+    return None

@@ -23,30 +23,10 @@ from .serializers import (
     GameRoundSerializer, BetSerializer, CreateBetSerializer, DiceResultSerializer,
     RoundPredictionSerializer, CreatePredictionSerializer
 )
-from .utils import get_game_setting, get_all_game_settings, calculate_current_timer
+from .utils import get_game_setting, get_all_game_settings, calculate_current_timer, get_redis_client
 
-# Redis connection using connection pool (optimized for scalability)
-try:
-    if hasattr(settings, 'REDIS_POOL') and settings.REDIS_POOL:
-        redis_client = redis.Redis(connection_pool=settings.REDIS_POOL)
-        redis_client.ping()  # Test connection
-    else:
-        # Fallback to direct connection if pool not available
-        redis_kwargs = {
-            'host': settings.REDIS_HOST,
-            'port': settings.REDIS_PORT,
-            'db': settings.REDIS_DB,
-            'decode_responses': True,
-            'socket_connect_timeout': 5,
-            'socket_timeout': 5,
-        }
-        if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
-            redis_kwargs['password'] = settings.REDIS_PASSWORD
-        redis_client = redis.Redis(**redis_kwargs)
-        redis_client.ping()
-except (redis.ConnectionError, redis.TimeoutError, redis.AuthenticationError, AttributeError, Exception) as e:
-    logger.warning(f"Redis connection failed: {e}. Falling back to database-only mode.")
-    redis_client = None
+# Redis connection with tiered failover
+redis_client = get_redis_client()
 
 
 def get_dice_mode():

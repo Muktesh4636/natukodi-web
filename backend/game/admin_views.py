@@ -37,24 +37,10 @@ import decimal
 from django.core.paginator import Paginator
 
 # Redis connection using connection pool (optimized for scalability)
-try:
-    if hasattr(settings, 'REDIS_POOL') and settings.REDIS_POOL:
-        redis_client = redis.Redis(connection_pool=settings.REDIS_POOL)
-        redis_client.ping()
-    else:
-        # Fallback to direct connection if pool not available
-        redis_kwargs = {
-            'host': settings.REDIS_HOST,
-            'port': settings.REDIS_PORT,
-            'db': settings.REDIS_DB,
-            'decode_responses': True
-        }
-        if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
-            redis_kwargs['password'] = settings.REDIS_PASSWORD
-        redis_client = redis.Redis(**redis_kwargs)
-        redis_client.ping()
-except (redis.ConnectionError, redis.TimeoutError, AttributeError):
-    redis_client = None
+from .utils import get_redis_client
+
+# Redis connection with tiered failover
+redis_client = get_redis_client()
 
 def get_admin_context(request, extra_context=None):
     """Helper function to get common admin context for all admin pages"""

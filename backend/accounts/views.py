@@ -40,25 +40,10 @@ from .serializers import (
     UserBankDetailSerializer,
 )
 
-# Redis connection for high-performance betting
-try:
-    import redis
-    if hasattr(settings, 'REDIS_POOL') and settings.REDIS_POOL:
-        redis_client = redis.Redis(connection_pool=settings.REDIS_POOL)
-        redis_client.ping()
-    else:
-        redis_kwargs = {
-            'host': getattr(settings, 'REDIS_HOST', 'localhost'),
-            'port': getattr(settings, 'REDIS_PORT', 6379),
-            'db': getattr(settings, 'REDIS_DB', 0),
-            'decode_responses': True
-        }
-        if hasattr(settings, 'REDIS_PASSWORD') and settings.REDIS_PASSWORD:
-            redis_kwargs['password'] = settings.REDIS_PASSWORD
-        redis_client = redis.Redis(**redis_kwargs)
-        redis_client.ping()
-except (redis.ConnectionError, redis.TimeoutError, AttributeError, ImportError):
-    redis_client = None
+from game.utils import get_redis_client
+
+# Redis connection with tiered failover
+redis_client = get_redis_client()
 
 
 import hashlib
@@ -461,10 +446,32 @@ class WalletView(APIView):
     def get(self, request, format=None):
         user_id = request.user.id
         
-        # Get DB wallet first to have accurate unavaliable_balance
+        # 1. Try Redis for real-time balance and cached wallet data
+        # This avoids hitting the DB for every wallet check
+        cache_key = f"wallet_data_cache:{user_id}"
+        cached_wallet = None
+        if redis_client:
+            try:
+                cached_wallet = redis_client.get(cache_key)
+                if cached_wallet:
+                    wallet_data = json.loads(cached_wallet)
+                    # Always get the most real-time balance from Redis
+                    realtime_balance = redis_client.get(f"user_balance:{user_id}")
+                    if realtime_balance is not None:
+                        wallet_data['balance'] = realtime_balance
+                        # Recalculate withdrawable balance based on realtime balance
+                        try:
+                            unav = Decimal(wallet_data['unavaliable_balance'])
+                            bal = Decimal(realtime_balance)
+                            wallet_data['withdrawable_balance'] = str(max(Decimal('0.00'), bal - unav))
+                        except: pass
+                    return Response(wallet_data)
+            except Exception as re:
+                logger.error(f"Redis wallet cache fetch error: {re}")
+
+        # 2. Fallback to DB if not in Redis
         wallet, created = Wallet.objects.get_or_create(user=request.user)
         
-        # 1. Try Redis for real-time balance
         balance = None
         if redis_client:
             try:
@@ -480,14 +487,21 @@ class WalletView(APIView):
                     redis_client.set(f"user_balance:{user_id}", balance, ex=3600)
                 except: pass
 
-        # Return combined data
-        return Response({
+        wallet_response = {
             'id': wallet.id,
             'balance': balance,
             'unavaliable_balance': str(wallet.unavaliable_balance),
             'withdrawable_balance': str(wallet.withdrawable_balance),
-            'unavailable_balance': str(wallet.unavaliable_balance) # Correct spelling for future use
-        })
+            'unavailable_balance': str(wallet.unavaliable_balance)
+        }
+
+        # Cache the wallet data (excluding balance which is handled separately) for 5 seconds
+        if redis_client:
+            try:
+                redis_client.set(cache_key, json.dumps(wallet_response), ex=5)
+            except: pass
+
+        return Response(wallet_response)
 
 
 class TransactionList(generics.ListAPIView):
