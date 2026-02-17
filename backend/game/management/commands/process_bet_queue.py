@@ -80,6 +80,8 @@ class Command(BaseCommand):
                             round_id = data.get('round_id')
                             
                             try:
+                                from django.db import connections
+                                connections.close_all()
                                 with transaction.atomic():
                                     if event_type == 'round_start':
                                         start_time_str = data.get('start_time')
@@ -202,6 +204,8 @@ class Command(BaseCommand):
                 processed_count = 0
                 ack_ids = []
                 
+                from django.db import connections
+                connections.close_all()
                 with transaction.atomic():
                     for idx, bet_data in enumerate(bets_to_process):
                         try:
