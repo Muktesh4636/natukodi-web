@@ -846,6 +846,14 @@ def user_details(request, user_id):
                     admin_note='Manual deposit by support team'
                 )
                 
+                # Update Redis balance (CRITICAL for Redis-First betting)
+                try:
+                    if redis_client and redis_client.ping():
+                        redis_client.set(f"user_balance:{user.id}", str(wallet.balance), ex=3600)
+                        logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
+                except Exception as redis_err:
+                    logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
+
                 messages.success(request, f'Successfully deposited ₹{amount} to {user.username}\'s account. (Locked for rotation)')
             elif action == 'withdraw':
                 # Subtract money from user balance (allow negative balances for corrections)
@@ -868,6 +876,14 @@ def user_details(request, user_id):
                     admin_note='Manual withdrawal by support team'
                 )
                 
+                # Update Redis balance (CRITICAL for Redis-First betting)
+                try:
+                    if redis_client and redis_client.ping():
+                        redis_client.set(f"user_balance:{user.id}", str(wallet.balance), ex=3600)
+                        logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
+                except Exception as redis_err:
+                    logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
+
                 messages.success(request, f'Successfully withdrew ₹{amount} from {user.username}\'s account.')
             else:
                 messages.error(request, 'Invalid action.')
@@ -1273,6 +1289,15 @@ def approve_deposit(request, pk):
             if note:
                 deposit.admin_note = note
             deposit.save()
+
+            # Update Redis balance (CRITICAL for Redis-First betting)
+            try:
+                from game.views import redis_client
+                if redis_client:
+                    redis_client.set(f"user_balance:{deposit.user.id}", str(wallet.balance), ex=3600)
+                    logger.info(f"Updated Redis balance for user {deposit.user.id} after deposit approval: {wallet.balance}")
+            except Exception as re_err:
+                logger.error(f"Failed to update Redis balance for user {deposit.user.id} after deposit approval: {re_err}")
             
             Transaction.objects.create(
                 user=deposit.user,
