@@ -191,6 +191,7 @@ def place_bet(request):
     # 1. Get current round state (Prefer Redis)
     round_id = None
     status_val = "WAITING"
+    timer = 0
     if redis_client:
         try:
             state_json = redis_client.get('current_game_state')
@@ -199,12 +200,13 @@ def place_bet(request):
                 round_id = state.get('round_id')
                 status_val = state.get('status')
                 end_time = state.get('end_time', 0)
+                timer = int(state.get('timer', 0))
                 
-                # Check if betting is closed
                 # DEBUG: Log the values being checked
                 now_ts = int(timezone.now().timestamp())
-                logger.info(f"DEBUG BET: Round={round_id}, Status={status_val}, EndTime={end_time}, Now={now_ts}")
+                logger.info(f"DEBUG BET: Round={round_id}, Status={status_val}, Timer={timer}, EndTime={end_time}, Now={now_ts}")
                 
+                # Check if betting is closed
                 if status_val != "BETTING":
                     logger.warning(f"Bet placement rejected: Round {round_id} status is {status_val}")
                     return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
