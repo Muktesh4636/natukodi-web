@@ -450,41 +450,44 @@ def update_profile_photo(request):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def wallet(request):
-    """Redis-first Wallet balance check"""
-    user_id = request.user.id
-    
-    # Get DB wallet first to have accurate unavaliable_balance
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
-    
-    # 1. Try Redis for real-time balance
-    balance = None
-    if redis_client:
-        try:
-            balance = redis_client.get(f"user_balance:{user_id}")
-        except Exception as re:
-            logger.error(f"Redis balance fetch error: {re}")
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
-    if balance is None:
-        balance = str(wallet.balance)
-        # Sync back to Redis if missing
+
+class WalletView(APIView):
+    """Redis-first Wallet balance check"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        user_id = request.user.id
+        
+        # Get DB wallet first to have accurate unavaliable_balance
+        wallet, created = Wallet.objects.get_or_create(user=request.user)
+        
+        # 1. Try Redis for real-time balance
+        balance = None
         if redis_client:
             try:
-                redis_client.set(f"user_balance:{user_id}", balance, ex=3600)
-            except: pass
+                balance = redis_client.get(f"user_balance:{user_id}")
+            except Exception as re:
+                logger.error(f"Redis balance fetch error: {re}")
 
-    # Return combined data
-    return Response({
-        'id': wallet.id,
-        'balance': balance,
-        'unavaliable_balance': str(wallet.unavaliable_balance),
-        'withdrawable_balance': str(wallet.withdrawable_balance),
-        'unavailable_balance': str(wallet.unavaliable_balance) # Correct spelling for future use
-    })
+        if balance is None:
+            balance = str(wallet.balance)
+            # Sync back to Redis if missing
+            if redis_client:
+                try:
+                    redis_client.set(f"user_balance:{user_id}", balance, ex=3600)
+                except: pass
+
+        # Return combined data
+        return Response({
+            'id': wallet.id,
+            'balance': balance,
+            'unavaliable_balance': str(wallet.unavaliable_balance),
+            'withdrawable_balance': str(wallet.withdrawable_balance),
+            'unavailable_balance': str(wallet.unavaliable_balance) # Correct spelling for future use
+        })
 
 
 class TransactionList(generics.ListAPIView):
@@ -1140,13 +1143,15 @@ def daily_reward(request):
 
         # Define reward probabilities and amounts
         rewards = [
-            {'amount': 1000, 'type': 'MONEY', 'probability': 0},
-            {'amount': 500, 'type': 'MONEY', 'probability': 0},
-            {'amount': 100, 'type': 'MONEY', 'probability': 0},
-            {'amount': 20, 'type': 'MONEY', 'probability': 100},   # TEMP: 100% chance for testing
-            {'amount': 10, 'type': 'MONEY', 'probability': 0},
-            {'amount': 5, 'type': 'MONEY', 'probability': 0},
-            {'amount': 0, 'type': 'TRY_AGAIN', 'probability': 0},
+            {'amount': 1000, 'type': 'MONEY', 'probability': 1},
+            {'amount': 500, 'type': 'MONEY', 'probability': 2},
+            {'amount': 100, 'type': 'MONEY', 'probability': 5},
+            {'amount': 50, 'type': 'MONEY', 'probability': 10},
+            {'amount': 30, 'type': 'MONEY', 'probability': 20},
+            {'amount': 20, 'type': 'MONEY', 'probability': 30},
+            {'amount': 10, 'type': 'MONEY', 'probability': 20},
+            {'amount': 5, 'type': 'MONEY', 'probability': 10},
+            {'amount': 0, 'type': 'TRY_AGAIN', 'probability': 2},
         ]
 
         # Calculate total probability

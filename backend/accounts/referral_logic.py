@@ -1,3 +1,5 @@
+import logging
+import decimal
 from decimal import Decimal
 
 def calculate_milestone_bonus(total_referrals):
@@ -58,10 +60,8 @@ def check_and_award_milestone_bonus(referrer_user):
     """
     from django.db.models import Count
     from .models import User, Wallet, Transaction
-import logging
-import decimal
-
-logger = logging.getLogger(__name__)
+    
+    logger = logging.getLogger(__name__)
     
     # Count total referrals
     total_referrals = User.objects.filter(referred_by=referrer_user).count()

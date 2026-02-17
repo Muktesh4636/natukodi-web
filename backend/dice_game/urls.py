@@ -47,7 +47,7 @@ urlpatterns = [
     path('api/auth/profile/', accounts_views.profile, name='profile'),
     path('api/auth/profile/photo/', accounts_views.update_profile_photo, name='update_profile_photo'),
     path('api/auth/referral-data/', accounts_views.referral_data, name='referral_data'),
-    path('api/auth/wallet/', accounts_views.wallet, name='wallet'),
+    path('api/auth/wallet/', accounts_views.WalletView.as_view(), name='wallet'),
     path('api/auth/transactions/', accounts_views.TransactionList.as_view(), name='transactions'),
     path('api/auth/extract-utr/', accounts_views.extract_utr, name='extract_utr'),
     path('api/auth/process-screenshot/', accounts_views.process_payment_screenshot, name='process_payment_screenshot'),
@@ -63,6 +63,9 @@ urlpatterns = [
     path('api/auth/payment-methods/', accounts_views.get_payment_methods, name='get_payment_methods'),
     path('api/auth/bank-details/', accounts_views.my_bank_details, name='my_bank_details'),
     path('api/auth/bank-details/<int:pk>/', accounts_views.bank_detail_action, name='bank_detail_action'),
+    path('api/auth/daily-reward/', accounts_views.daily_reward, name='daily_reward'),
+    path('api/auth/daily-reward/history/', accounts_views.daily_reward_history, name='daily_reward_history'),
+    path('api/auth/lucky-draw/', accounts_views.lucky_draw, name='lucky_draw'),
     
     # APK Download via API (guaranteed to work since API routes come before React)
     path('api/download/apk/', project_views.download_apk, name='api_download_apk'),

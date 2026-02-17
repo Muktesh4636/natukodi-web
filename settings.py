@@ -59,6 +59,7 @@ INSTALLED_APPS = [
 TESSERACT_CMD = os.getenv('TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
 
 MIDDLEWARE = [
+    'dice_game.middleware.NormalizePathMiddleware',  # Fix double slashes
     'django.middleware.security.SecurityMiddleware',
     # 'dice_game.cloudflare_middleware.CloudflareOnlyMiddleware',  # SECURITY: Block direct IP access
     # 'dice_game.anonymization_middleware.AnonymizationMiddleware',  # SECURITY: Prevent tracing
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'dice_game.middleware.DisableCSRFMiddleware',  # Disable CSRF for API (after path normalization)
     'django.middleware.csrf.CsrfViewMiddleware',  # Standard CSRF middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
