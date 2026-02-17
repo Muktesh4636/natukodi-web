@@ -452,35 +452,39 @@ def update_profile_photo(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def wallet(request):
     """Redis-first Wallet balance check"""
     user_id = request.user.id
     
-    # 1. Try Redis first
+    # Get DB wallet first to have accurate unavaliable_balance
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
+    
+    # 1. Try Redis for real-time balance
+    balance = None
     if redis_client:
         try:
             balance = redis_client.get(f"user_balance:{user_id}")
-            if balance is not None:
-                return Response({
-                    'id': getattr(request.user, 'wallet_id', None), # Optional
-                    'balance': balance,
-                    'unavaliable_balance': "0.00", # Misspelled for compatibility
-                    'unavailable_balance': "0.00"  # Correct spelling
-                })
         except Exception as re:
             logger.error(f"Redis balance fetch error: {re}")
 
-    # 2. Fallback to DB
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
-    
-    # Sync back to Redis
-    if redis_client:
-        try:
-            redis_client.set(f"user_balance:{user_id}", str(wallet.balance), ex=3600)
-        except: pass
-            
-    serializer = WalletSerializer(wallet)
-    return Response(serializer.data)
+    if balance is None:
+        balance = str(wallet.balance)
+        # Sync back to Redis if missing
+        if redis_client:
+            try:
+                redis_client.set(f"user_balance:{user_id}", balance, ex=3600)
+            except: pass
+
+    # Return combined data
+    return Response({
+        'id': wallet.id,
+        'balance': balance,
+        'unavaliable_balance': str(wallet.unavaliable_balance),
+        'withdrawable_balance': str(wallet.withdrawable_balance),
+        'unavailable_balance': str(wallet.unavaliable_balance) # Correct spelling for future use
+    })
 
 
 class TransactionList(generics.ListAPIView):
