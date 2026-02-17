@@ -45,10 +45,21 @@ class Command(BaseCommand):
 
         batch_size = 50  # Process 50 bets at a time
         STREAM_NAME = "round_events_stream"
+        EVENT_GROUP = "event_worker_group"
         BET_STREAM = "bet_stream"
         BET_GROUP = "worker_group"
         CONSUMER_NAME = f"worker_{time.time()}"  # Unique consumer name
         
+        # Create round_events_stream consumer group if it doesn't exist
+        try:
+            redis_client.xgroup_create(STREAM_NAME, EVENT_GROUP, id='0', mkstream=True)
+            self.stdout.write(self.style.SUCCESS(f'✅ Created consumer group {EVENT_GROUP} on {STREAM_NAME}'))
+        except redis.exceptions.ResponseError as e:
+            if 'BUSYGROUP' in str(e):
+                self.stdout.write(self.style.SUCCESS(f'✅ Consumer group {EVENT_GROUP} already exists'))
+            else:
+                self.stdout.write(self.style.WARNING(f'Note: {e}'))
+
         # Create bet_stream consumer group if it doesn't exist
         try:
             redis_client.xgroup_create(BET_STREAM, BET_GROUP, id='0', mkstream=True)
@@ -70,9 +81,15 @@ class Command(BaseCommand):
 
         while True:
             try:
-                # 1. Process Game Events (Round Start/End) from Redis Stream
+                # 1. Process Game Events (Round Start/End) from Redis Stream using consumer group
                 # We check for events first as they are critical for round creation
-                events = redis_client.xread({STREAM_NAME: '0'}, count=10, block=100)
+                events = redis_client.xreadgroup(
+                    EVENT_GROUP,
+                    CONSUMER_NAME,
+                    {STREAM_NAME: '>'},
+                    count=10,
+                    block=100
+                )
                 if events:
                     for stream, messages in events:
                         for message_id, data in messages:
@@ -131,12 +148,12 @@ class Command(BaseCommand):
                                         
                                         self.stdout.write(self.style.SUCCESS(f"Settled Round {round_id} in DB: Result {result}"))
                                     
-                                    # Delete processed message from stream
-                                    redis_client.xdel(STREAM_NAME, message_id)
+                                    # Acknowledge processed message in stream
+                                    redis_client.xack(STREAM_NAME, EVENT_GROUP, message_id)
                                     
                             except Exception as event_err:
                                 logger.error(f"Error processing game event {event_type} for round {round_id}: {event_err}")
-                                # Don't delete if failed, so we can retry (or move to DLQ)
+                                # Don't ACK if failed, so we can retry (or move to DLQ)
                                 continue
 
                 # 2. Fetch a batch of bets from Redis Stream using consumer group
