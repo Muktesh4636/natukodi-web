@@ -7,8 +7,8 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-USE_REDIS = False # Global setting for Redis usage
-USE_REDIS_CHANNELS = False # Global setting for Redis Channels usage
+USE_REDIS = True # Global setting for Redis usage
+USE_REDIS_CHANNELS = True # Global setting for Redis Channels usage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -379,53 +379,53 @@ REDIS_SENTINEL_HOSTS = os.getenv('REDIS_SENTINEL_HOSTS', '72.61.254.71:26379,72.
 REDIS_SENTINEL_MASTER = os.getenv('REDIS_SENTINEL_MASTER', 'mymaster')
 
 # Redis Connection Pool (for efficient connection reuse)
-# try:
-#     import redis
-#     from redis.sentinel import Sentinel
+try:
+    import redis
+    from redis.sentinel import Sentinel
     
-#     REDIS_POOL_SIZE = int(os.getenv('REDIS_POOL_SIZE', '5000'))
+    REDIS_POOL_SIZE = int(os.getenv('REDIS_POOL_SIZE', '5000'))
     
-#     if USE_REDIS_SENTINEL:
-#         sentinel_hosts = [
-#             (h.split(':')[0], int(h.split(':')[1]))
-#             for h in REDIS_SENTINEL_HOSTS.split(',')
-#         ]
-#         sentinel = Sentinel(sentinel_hosts, socket_timeout=0.1)
-#         REDIS_POOL = sentinel.master_for(
-#             REDIS_SENTINEL_MASTER,
-#             socket_timeout=0.1,
-#             password=REDIS_PASSWORD,
-#             max_connections=REDIS_POOL_SIZE,
-#             decode_responses=True
-#         ).connection_pool
-#     else:
-#         pool_kwargs = {
-#             'host': REDIS_HOST,
-#             'port': REDIS_PORT,
-#             'db': REDIS_DB,
-#             'max_connections': REDIS_POOL_SIZE,
-#             'decode_responses': True,
-#             'socket_connect_timeout': 5,
-#             'socket_timeout': 5,
-#             'retry_on_timeout': True,
-#         }
-#         if REDIS_PASSWORD:
-#             pool_kwargs['password'] = REDIS_PASSWORD
-#         REDIS_POOL = redis.ConnectionPool(**pool_kwargs)
+    if USE_REDIS_SENTINEL:
+        sentinel_hosts = [
+            (h.split(':')[0], int(h.split(':')[1])) 
+            for h in REDIS_SENTINEL_HOSTS.split(',')
+        ]
+        sentinel = Sentinel(sentinel_hosts, socket_timeout=0.1)
+        REDIS_POOL = sentinel.master_for(
+            REDIS_SENTINEL_MASTER, 
+            socket_timeout=0.1, 
+            password=REDIS_PASSWORD,
+            max_connections=REDIS_POOL_SIZE,
+            decode_responses=True
+        ).connection_pool
+    else:
+        pool_kwargs = {
+            'host': REDIS_HOST,
+            'port': REDIS_PORT,
+            'db': REDIS_DB,
+            'max_connections': REDIS_POOL_SIZE,
+            'decode_responses': True,
+            'socket_connect_timeout': 5,
+            'socket_timeout': 5,
+            'retry_on_timeout': True,
+        }
+        if REDIS_PASSWORD:
+            pool_kwargs['password'] = REDIS_PASSWORD
+        REDIS_POOL = redis.ConnectionPool(**pool_kwargs)
     
-#     # Test Redis connection
-#     redis_test = redis.Redis(connection_pool=REDIS_POOL)
-#     redis_test.ping()
-#     redis_test.close()
-#     USE_REDIS = False # Temporarily disabled for debugging
-#     USE_REDIS_CHANNELS = False # Temporarily disabled for debugging
-# except Exception as e:
-#     import logging
-#     logger = logging.getLogger(__name__)
-#     logger.warning(f"Redis not available: {e}")
-#     USE_REDIS = False
-#     USE_REDIS_CHANNELS = False
-#     REDIS_POOL = None
+    # Test Redis connection
+    redis_test = redis.Redis(connection_pool=REDIS_POOL)
+    redis_test.ping()
+    redis_test.close()
+    USE_REDIS = True # Re-enabled
+    USE_REDIS_CHANNELS = True # Re-enabled
+except Exception as e:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Redis not available: {e}")
+    USE_REDIS = False
+    USE_REDIS_CHANNELS = False
+    REDIS_POOL = None
 
 # Channels (WebSocket)
 if USE_REDIS_CHANNELS:
