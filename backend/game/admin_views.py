@@ -786,10 +786,22 @@ def round_details(request, round_id):
     
     return render(request, 'admin/round_details.html', context)
 
-@admin_required
 @csrf_exempt
 def user_details(request, user_id):
     """User details page showing all their bets and information"""
+    # Check admin permission manually to avoid redirect issues with @admin_required
+    if not request.user.is_authenticated:
+        from django.urls import reverse
+        try:
+            login_url = reverse('admin_login')
+        except:
+            login_url = '/game-admin/login/'
+        return redirect(f"{login_url}?next={request.get_full_path()}")
+    
+    if not is_admin(request.user):
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('/game-admin/login/')
+    
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
