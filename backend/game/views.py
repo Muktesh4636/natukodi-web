@@ -18,6 +18,7 @@ import logging
 logger = logging.getLogger('game')
 
 from .models import GameRound, Bet, DiceResult, GameSettings, RoundPrediction
+from accounts.models import User, Wallet, Transaction # Added User, Wallet, Transaction for exposure API and other uses
 from .serializers import (
     GameRoundSerializer, BetSerializer, CreateBetSerializer, DiceResultSerializer,
     RoundPredictionSerializer, CreatePredictionSerializer
