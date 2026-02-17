@@ -1825,6 +1825,7 @@ def round_exposure(request, round_id=None):
             # We need usernames for the new format. 
             # Since Redis only stores IDs, we'll fetch usernames from DB for the active players.
             user_ids = [int(uid) for uid in user_exposure_map.keys()]
+            from accounts.models import User
             users_map = {u.id: u.username for u in User.objects.filter(id__in=user_ids)}
             
             for uid_str, amount in user_exposure_map.items():
