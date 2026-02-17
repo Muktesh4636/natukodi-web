@@ -1819,6 +1819,17 @@ def round_exposure(request, round_id=None):
                 user_id_str = str(request.user.id)
                 user_exposure = user_exposure_map.get(user_id_str, "0.00")
                 user_exposure_map = {user_id_str: user_exposure}
+            else:
+                # If staff/admin, the user might want to filter by a specific player_id via query param
+                target_player_id = request.query_params.get('player_id')
+                if target_player_id:
+                    user_exposure = user_exposure_map.get(str(target_player_id), "0.00")
+                    user_exposure_map = {str(target_player_id): user_exposure}
+                elif len(user_exposure_map) > 1:
+                    # If no specific player_id requested and multiple exist, 
+                    # just show the first one as requested "show only 1 player id"
+                    first_key = next(iter(user_exposure_map))
+                    user_exposure_map = {first_key: user_exposure_map[first_key]}
 
             # Prepare the new exposure list format
             exposure_list_formatted = []
@@ -1858,8 +1869,18 @@ def round_exposure(request, round_id=None):
     # 3. Fallback to DB (Only if Redis fails)
     round_obj = get_object_or_404(GameRound, round_id=round_id)
     bets_query = Bet.objects.filter(round=round_obj)
+    
     if not (request.user.is_staff or request.user.is_superuser):
         bets_query = bets_query.filter(user=request.user)
+    else:
+        # Admin filtering by player_id
+        target_player_id = request.query_params.get('player_id')
+        if target_player_id:
+            bets_query = bets_query.filter(user_id=target_player_id)
+        # If no target and we want to limit to 1 player as requested
+        elif bets_query.exists():
+            first_user_id = bets_query.values_list('user_id', flat=True).first()
+            bets_query = bets_query.filter(user_id=first_user_id)
 
     from django.db.models import Sum, Count
     exposure_data = bets_query.values('user_id', 'user__username').annotate(
