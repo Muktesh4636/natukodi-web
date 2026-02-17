@@ -25,16 +25,17 @@ import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 @Composable
 fun DepositScreen(
     viewModel: GunduAtaViewModel,
+    initialMethod: String? = null,
     onBack: () -> Unit,
     onNavigateToWithdraw: () -> Unit,
     onNavigateToPayment: (String, String) -> Unit
 ) {
-    var amount by remember { mutableStateOf("") }
-    var selectedMethod by remember { mutableStateOf("UPI") } // "Bank", "UPI", or "USDT"
-    var selectedOption by remember { mutableStateOf("upi(200-10k)") }
+    var amount by remember { mutableStateOf(if (initialMethod == "USDT") "500" else "") }
+    var selectedMethod by remember { mutableStateOf(if (initialMethod == "USDT") "USDT" else "UPI") } // "Bank", "UPI", or "USDT"
+    var selectedOption by remember { mutableStateOf(if (initialMethod == "USDT") "usdt_trc20" else "upi(200-10k)") }
 
     val usdtExchangeRate = 95
-    val usdtMinDeposit = 1000
+    val usdtMinDeposit = 500
     val usdtBonusPercent = 0.05
 
     val usdtAmount = if (selectedMethod == "USDT" && amount.isNotBlank()) {

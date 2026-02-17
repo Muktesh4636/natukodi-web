@@ -355,7 +355,7 @@ fun PromotionalBanners(
                 0 -> BannerData("REFER & EARN", "Invite friends and earn up to ₹1000 bonus!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), { handleBannerClick("affiliate") })
                 1 -> BannerData("MEGA SPIN", "Deposit ₹2000 or more to spin the wheel!", "SPIN NOW", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
                 2 -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
-                else -> BannerData("USDT SPECIAL ₮", "Get 5% EXTRA CASHBACK on all USDT deposits!", "DEPOSIT NOW", listOf(Color(0xFF00897B), Color(0xFF004D40)), { handleBannerClick("deposit") })
+                else -> BannerData("USDT SPECIAL ₮", "Get 5% EXTRA CASHBACK on all USDT deposits!", "DEPOSIT NOW", listOf(Color(0xFF00897B), Color(0xFF004D40)), { handleBannerClick("deposit?method=USDT") })
             }
 
             Box(

@@ -367,7 +367,7 @@ fun AppNavigation(
                         } else {
                             showAuthDialog = true
                         }
-                    } else if (route == "wallet" || route == "deposit" || route == "withdraw" || route == "transactions") {
+                    } else if (route.startsWith("wallet") || route.startsWith("deposit") || route.startsWith("withdraw") || route.startsWith("transactions")) {
                         if (viewModel.loginSuccess) {
                             safeNavigate(route)
                         } else {
@@ -405,6 +405,18 @@ fun AppNavigation(
                 onBack = { navController.popBackStack() },
                 onNavigateToDeposit = { navController.navigate("deposit") },
                 onNavigateToWithdraw = { navController.navigate("withdraw") }
+            )
+        }
+        composable("deposit?method={method}") { backStackEntry ->
+            val method = backStackEntry.arguments?.getString("method")
+            DepositScreen(
+                viewModel = viewModel,
+                initialMethod = method,
+                onBack = { navController.popBackStack() },
+                onNavigateToWithdraw = { navController.navigate("withdraw") },
+                onNavigateToPayment = { amount, paymentMethod ->
+                    navController.navigate("payment/$amount/$paymentMethod")
+                }
             )
         }
         composable("deposit") {

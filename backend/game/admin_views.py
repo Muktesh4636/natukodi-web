@@ -1490,7 +1490,9 @@ def approve_withdraw(request, pk):
                 from game.views import redis_client
                 if redis_client:
                     redis_client.set(f"user_balance:{withdraw.user.id}", str(wallet.balance), ex=3600)
-            except: pass
+                    logger.info(f"Updated Redis balance for user {withdraw.user.id} after withdraw approval: {wallet.balance}")
+            except Exception as re_err:
+                logger.error(f"Failed to update Redis balance for user {withdraw.user.id} after withdraw approval: {re_err}")
             
             withdraw.status = 'APPROVED'
             withdraw.processed_by = request.user
