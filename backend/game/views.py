@@ -1787,9 +1787,17 @@ def round_exposure(request, round_id=None):
     if not round_id:
         if redis_client:
             try:
-                round_data = redis_client.get('current_round')
-                if round_data:
-                    round_id = json.loads(round_data).get('round_id')
+                # Use current_game_state which is the primary source of truth for the engine
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    state = json.loads(state_json)
+                    round_id = state.get('round_id')
+                
+                # Fallback to current_round if current_game_state is missing
+                if not round_id:
+                    round_data = redis_client.get('current_round')
+                    if round_data:
+                        round_id = json.loads(round_data).get('round_id')
             except: pass
         
         if not round_id:
