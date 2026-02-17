@@ -235,7 +235,9 @@ fun GameGuidelinesScreen(
                             "• Each round is independent\n" +
                             "• Results are final once dice are rolled\n" +
                             "• Play responsibly and within your means\n" +
-                            "• Contact support if you have any questions",
+                            "• Contact support if you have any questions\n\n" +
+                            "• Company reserves the right to suspend/void any id/bets if the same is found to be illegitimate. For example incase of VPN/robot-use/multiple entry from same or different IP and others. Note: only winning bets will be voided.\n" +
+                            "• In any circumstances management decision will be final.",
                             color = TextWhite,
                             fontSize = 14.sp,
                             lineHeight = 22.sp
