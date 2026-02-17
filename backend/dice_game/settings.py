@@ -416,8 +416,8 @@ try:
     redis_test = redis.Redis(connection_pool=REDIS_POOL)
     redis_test.ping()
     redis_test.close()
-    USE_REDIS = True
-    USE_REDIS_CHANNELS = True
+    USE_REDIS = False # Temporarily disabled for debugging
+    USE_REDIS_CHANNELS = False # Temporarily disabled for debugging
 except Exception as e:
     import logging
     logger = logging.getLogger(__name__)
