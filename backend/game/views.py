@@ -201,12 +201,15 @@ def place_bet(request):
                 end_time = state.get('end_time', 0)
                 
                 # Check if betting is closed
+                # DEBUG: Log the values being checked
+                now_ts = int(timezone.now().timestamp())
+                logger.info(f"DEBUG BET: Round={round_id}, Status={status_val}, EndTime={end_time}, Now={now_ts}")
+                
                 if status_val != "BETTING":
                     logger.warning(f"Bet placement rejected: Round {round_id} status is {status_val}")
                     return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
                 
                 # Safety check: if end_time is in the past, engine might be lagging
-                now_ts = int(timezone.now().timestamp())
                 if end_time > 0 and now_ts > end_time:
                     logger.warning(f"Bet placement rejected: Round {round_id} betting period expired ({now_ts} > {end_time})")
                     return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
