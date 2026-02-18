@@ -13,6 +13,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dice_game.settings')
 django.setup()
 
 from django.conf import settings
+from django.db import connections
 from asgiref.sync import sync_to_async
 from game.utils import get_game_setting, get_all_game_settings
 
@@ -20,6 +21,7 @@ from game.utils import get_game_setting, get_all_game_settings
 @sync_to_async
 def async_get_all_game_settings():
     """Async wrapper for get_all_game_settings"""
+    connections.close_all() # Ensure fresh connection
     return get_all_game_settings()
 
 # Configuration
@@ -30,6 +32,9 @@ if settings.REDIS_PASSWORD:
 GAME_ROOM_CHANNEL = "game_room"
 ROUND_EVENTS_STREAM = "round_events_stream"
 GAME_STATE_KEY = "current_game_state"
+CURRENT_ROUND_ID_KEY = "current_round_id"
+CURRENT_STATUS_KEY = "current_status"
+CURRENT_END_TIME_KEY = "current_end_time"
 ENGINE_LOCK_KEY = "game_engine_lock"
 LOCK_TIMEOUT = 10  # seconds
 
@@ -87,6 +92,9 @@ class GameEngine:
         global BETTING_CLOSE_TIME, DICE_ROLL_TIME, DICE_RESULT_TIME, ROUND_END_TIME
         global BETTING_DURATION, DICE_ROLL_DURATION, RESULT_DISPLAY_DURATION, TOTAL_ROUND_DURATION
         
+        # Store previous round ID for delayed cleanup
+        old_round_id = self.round_id
+        
         # Fetch all settings at once (matches /api/game/settings/)
         try:
             all_settings = await async_get_all_game_settings()
@@ -136,18 +144,27 @@ class GameEngine:
         }
         await self.redis.xadd(ROUND_EVENTS_STREAM, event)
 
-        # CRITICAL: Clear old round totals from Redis to prevent chips carrying forward
+        # DELAYED CLEANUP: Only now delete the PREVIOUS round keys
+        # This ensures the old round data was available until the new round was fully active
         try:
-            # Delete legacy keys
-            await self.redis.delete(f"round_total_bets:{self.round_id}")
-            await self.redis.delete(f"round_total_amount:{self.round_id}")
-            # Also clear exposure keys for this round just in case
-            await self.redis.delete(f"round:{self.round_id}:total_exposure")
-            await self.redis.delete(f"round:{self.round_id}:user_exposure")
-            await self.redis.delete(f"round:{self.round_id}:bet_count")
-            logger.info(f"Cleared Redis stats for new round {self.round_id}")
+            if old_round_id:
+                await self.redis.delete(f"round_total_bets:{old_round_id}")
+                await self.redis.delete(f"round_total_amount:{old_round_id}")
+                await self.redis.delete(f"round:{old_round_id}:total_exposure")
+                await self.redis.delete(f"round:{old_round_id}:user_exposure")
+                await self.redis.delete(f"round:{old_round_id}:bet_count")
+                
+                # CRITICAL: Clear all user bet stacks at the start of a new round
+                # This prevents users from removing bets from previous rounds
+                # We use a pattern match to find all user_bets_stack:* keys
+                # Note: In a high-scale environment, we should be careful with KEYS or SCAN
+                # but since these are per-user, we can't easily track them all without a set.
+                # For now, we'll use a more efficient approach if possible, or just accept 
+                # that the stack is checked against round_id in the view.
+                
+                logger.info(f"Cleaned up Redis stats for previous round {old_round_id}")
         except Exception as e:
-            logger.error(f"Error clearing Redis stats: {e}")
+            logger.error(f"Error managing Redis stats cleanup: {e}")
 
     async def generate_dice_result(self):
         """Generate dice result, checking for manual override first (Redis or DB)"""
@@ -156,6 +173,7 @@ class GameEngine:
         from game.models import GameRound
         
         # 1. Check for manual override in Redis (Fastest)
+        # This is where results from /game-admin/dice-control/ are stored
         try:
             manual_result_raw = await self.redis.get("manual_dice_result")
             if manual_result_raw:
@@ -177,9 +195,12 @@ class GameEngine:
             logger.error(f"Error checking manual dice result in Redis: {e}")
 
         # 2. Check for manual override in Database (Fallback for Admin Panel)
+        # This checks if an admin has pre-set the dice for the CURRENT round_id in the DB
         try:
             def get_db_dice():
                 try:
+                    connections.close_all() # Ensure fresh connection
+                    # Use the current round_id to look up the pre-created record
                     r = GameRound.objects.get(round_id=self.round_id)
                     if all(getattr(r, f'dice_{i}') is not None for i in range(1, 7)):
                         return [getattr(r, f'dice_{i}') for i in range(1, 7)]
@@ -232,6 +253,7 @@ class GameEngine:
             "dice_result": self.dice_result,
             "is_rolling": self.status == "ROLLING",
             "server_time": int(time.time()),
+            "end_time": end_timestamp, # Add end_time for safety checks
             "total_round_duration": ROUND_END_TIME,
             "betting_close_time": BETTING_CLOSE_TIME,
             "dice_roll_time": DICE_ROLL_TIME,
@@ -247,16 +269,22 @@ class GameEngine:
             state['dice_values'] = self.last_dice_values
             for i, val in enumerate(self.last_dice_values, 1):
                 state[f'dice_{i}'] = val
+            state['dice_result'] = self.dice_result # Ensure dice_result is in the state
             state['result'] = self.dice_result
 
         payload = json.dumps(state)
         # Store for instant recovery (only current round)
-        # Set expiration to 5 seconds so it disappears if engine crashes
-        await self.redis.set(GAME_STATE_KEY, payload, ex=5)
-        
+        # Set expiration to 60 seconds so it stays available even if engine has brief hiccup
+        #
+        # Also publish simple keys for ultra-fast API reads (avoids JSON parsing in hot paths).
+        pipe = self.redis.pipeline()
+        pipe.set(GAME_STATE_KEY, payload, ex=60)
         # BACKWARD COMPATIBILITY: Also update 'current_round' key used by many views
-        # This ensures exposure API and admin views get the correct round_id immediately
-        await self.redis.set('current_round', payload, ex=5)
+        pipe.set('current_round', payload, ex=60)
+        pipe.set(CURRENT_ROUND_ID_KEY, str(self.round_id), ex=60)
+        pipe.set(CURRENT_STATUS_KEY, str(self.status), ex=60)
+        pipe.set(CURRENT_END_TIME_KEY, str(end_timestamp), ex=60)
+        await pipe.execute()
         
         # Direct Pub/Sub for high speed (only publish current round)
         # Note: We publish ONE message per update to avoid duplicates
@@ -385,15 +413,6 @@ class GameEngine:
             # Send game_end message (only once, no duplicates)
             await self.publish_state(legacy_type="game_end")
             
-            # CRITICAL: Clear exposure stats at the absolute end of the round
-            try:
-                await self.redis.delete(f"round:{self.round_id}:total_exposure")
-                await self.redis.delete(f"round:{self.round_id}:user_exposure")
-                await self.redis.delete(f"round:{self.round_id}:bet_count")
-                logger.info(f"Cleared final exposure stats for round {self.round_id}")
-            except Exception as e:
-                logger.error(f"Error clearing final exposure stats: {e}")
-
             await asyncio.sleep(1) # Gap between rounds
 
 if __name__ == "__main__":

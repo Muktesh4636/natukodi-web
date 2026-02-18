@@ -17,11 +17,12 @@ import logging
 
 logger = logging.getLogger('game')
 
-from .models import GameRound, Bet, DiceResult, GameSettings, RoundPrediction
+from .models import GameRound, Bet, DiceResult, GameSettings, RoundPrediction, UserSoundSetting, MegaSpinProbability, DailyRewardProbability
 from accounts.models import User, Wallet, Transaction # Added User, Wallet, Transaction for exposure API and other uses
 from .serializers import (
     GameRoundSerializer, BetSerializer, CreateBetSerializer, DiceResultSerializer,
-    RoundPredictionSerializer, CreatePredictionSerializer
+    RoundPredictionSerializer, CreatePredictionSerializer, UserSoundSettingSerializer,
+    MegaSpinProbabilitySerializer, DailyRewardProbabilitySerializer
 )
 from .utils import get_game_setting, get_all_game_settings, calculate_current_timer, get_redis_client
 
@@ -58,8 +59,14 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 @csrf_exempt
 def current_round(request):
     """Get current game round status from Redis (High Performance)"""
+    cache_key = "api_cache:current_round"
     if redis_client:
         try:
+            # 1. Check for 200ms cached response
+            cached_response = redis_client.get(cache_key)
+            if cached_response:
+                return Response(json.loads(cached_response))
+
             state_json = redis_client.get('current_game_state')
             if state_json:
                 state = json.loads(state_json)
@@ -69,6 +76,9 @@ def current_round(request):
                 end_time = state.get('end_time', 0)
                 state['timer'] = max(0, end_time - now)
                 
+                # 2. Cache the response for 200ms
+                redis_client.set(cache_key, json.dumps(state), px=200)
+                
                 return Response(state)
         except Exception as e:
             logger.error(f"Redis error in current_round: {e}")
@@ -77,7 +87,7 @@ def current_round(request):
     round_obj = GameRound.objects.order_by('-start_time').first()
     if not round_obj:
         return Response({'status': 'WAITING', 'message': 'No rounds found'}, status=404)
-
+        
     # Calculate absolute end_time for fallback
     # Assuming 80s total round duration
     round_end_time = get_game_setting('ROUND_END_TIME', 80)
@@ -152,6 +162,155 @@ redis.call('INCR', KEYS[6])
 return {true, tostring(new_balance)}
 """
 
+# Atomic: place bet + queue bet stream + track user stack (single Redis round-trip)
+# Keys:
+#  1 user_balance_key
+#  2 round_total_exposure_key
+#  3 round_user_exposure_hash_key
+#  4 round_bet_count_key
+#  5 round_total_amount_key (legacy)
+#  6 round_total_bets_key (legacy)
+#  7 bet_stream_key
+#  8 user_bets_stack_key
+# Args:
+#  1 bet_amount
+#  2 user_id
+#  3 ttl_seconds
+#  4 round_id
+#  5 number
+#  6 username
+#  7 timestamp_iso
+PLACE_BET_AND_QUEUE_LUA = """
+local balance = tonumber(redis.call('GET', KEYS[1]) or "0")
+local amount = tonumber(ARGV[1])
+local user_id = ARGV[2]
+local ttl = tonumber(ARGV[3]) or 3600
+local round_id = ARGV[4]
+local number = ARGV[5]
+local username = ARGV[6]
+local ts = ARGV[7]
+
+if amount <= 0 then
+    return {false, "Invalid bet amount"}
+end
+
+if balance < amount then
+    return {false, "Insufficient balance"}
+end
+
+-- 1) Deduct balance
+local new_balance = tonumber(redis.call('INCRBYFLOAT', KEYS[1], -amount))
+if new_balance < 0 then
+    redis.call('INCRBYFLOAT', KEYS[1], amount)
+    return {false, "Insufficient balance (race condition detected)"}
+end
+
+-- 2) Exposure / counters
+if redis.call('EXISTS', KEYS[2]) == 0 then
+    redis.call('INCRBYFLOAT', KEYS[2], amount)
+    redis.call('EXPIRE', KEYS[2], ttl)
+else
+    redis.call('INCRBYFLOAT', KEYS[2], amount)
+end
+
+if redis.call('EXISTS', KEYS[3]) == 0 then
+    redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount)
+    redis.call('EXPIRE', KEYS[3], ttl)
+else
+    redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount)
+end
+
+if redis.call('EXISTS', KEYS[4]) == 0 then
+    redis.call('INCR', KEYS[4])
+    redis.call('EXPIRE', KEYS[4], ttl)
+else
+    redis.call('INCR', KEYS[4])
+end
+
+-- 3) Legacy totals (also give TTL to avoid unbounded growth)
+local legacy_amount
+if redis.call('EXISTS', KEYS[5]) == 0 then
+    legacy_amount = tonumber(redis.call('INCRBYFLOAT', KEYS[5], amount))
+    redis.call('EXPIRE', KEYS[5], ttl)
+else
+    legacy_amount = tonumber(redis.call('INCRBYFLOAT', KEYS[5], amount))
+end
+
+local legacy_bets
+if redis.call('EXISTS', KEYS[6]) == 0 then
+    legacy_bets = tonumber(redis.call('INCR', KEYS[6]))
+    redis.call('EXPIRE', KEYS[6], ttl)
+else
+    legacy_bets = tonumber(redis.call('INCR', KEYS[6]))
+end
+
+-- 4) Queue to Redis Stream (trim)
+local msg_id = redis.call(
+    'XADD', KEYS[7],
+    'MAXLEN', '~', 10000,
+    '*',
+    'type', 'place_bet',
+    'user_id', tostring(user_id),
+    'username', tostring(username),
+    'round_id', tostring(round_id),
+    'number', tostring(number),
+    'chip_amount', tostring(amount),
+    'timestamp', tostring(ts)
+)
+
+-- 5) Track bet details in Redis stack for removal
+local bet_json = '{"msg_id":"' .. tostring(msg_id) .. '","round_id":"' .. tostring(round_id) .. '","number":' .. tostring(number) .. ',"chip_amount":' .. tostring(amount) .. '}'
+redis.call('LPUSH', KEYS[8], bet_json)
+redis.call('EXPIRE', KEYS[8], ttl)
+
+return {true, tostring(new_balance), tostring(msg_id), tostring(legacy_bets), tostring(legacy_amount)}
+"""
+
+# Register scripts for faster evalsha when Redis is available
+try:
+    _place_bet_and_queue_script = redis_client.register_script(PLACE_BET_AND_QUEUE_LUA) if redis_client else None
+except Exception:
+    _place_bet_and_queue_script = None
+
+# Redis Lua Script for Atomic Bet Refund
+# Keys: [user_balance_key, total_exposure_key, user_exposure_key, bet_count_key, total_amount_key, total_bets_key]
+# Args: [refund_amount, user_id]
+REFUND_BET_LUA = """
+local amount = tonumber(ARGV[1])
+local user_id = ARGV[2]
+
+-- 0. Defensive Check: Ensure exposure exists and is sufficient
+local user_exp_raw = redis.call('HGET', KEYS[3], user_id)
+if not user_exp_raw or tonumber(user_exp_raw) < amount then
+    return {false, "NO_EXPOSURE"}
+end
+
+-- 1. Refund user balance atomically
+local new_balance = tonumber(redis.call('INCRBYFLOAT', KEYS[1], amount))
+
+-- 2. Decrease total round exposure
+local total_exp = tonumber(redis.call('INCRBYFLOAT', KEYS[2], -amount))
+if total_exp < 0 then redis.call('SET', KEYS[2], 0) end
+
+-- 3. Decrease user-specific exposure in Hash
+local user_exp = tonumber(redis.call('HINCRBYFLOAT', KEYS[3], user_id, -amount))
+if user_exp < 0 then redis.call('HSET', KEYS[3], user_id, 0) end
+
+-- 4. Decrement total bet count
+local bet_count = tonumber(redis.call('DECR', KEYS[4]))
+if bet_count < 0 then redis.call('SET', KEYS[4], 0) end
+
+-- 5. Update round total amount (legacy key)
+local legacy_amount = tonumber(redis.call('INCRBYFLOAT', KEYS[5], -amount))
+if legacy_amount < 0 then redis.call('SET', KEYS[5], 0) end
+
+-- 6. Update round total bets (legacy key)
+local legacy_bets = tonumber(redis.call('DECR', KEYS[6]))
+if legacy_bets < 0 then redis.call('SET', KEYS[6], 0) end
+
+return {true, tostring(new_balance)}
+"""
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @csrf_exempt
@@ -167,36 +326,58 @@ def place_bet(request):
         return Response({'error': 'Invalid bet amount'}, status=status.HTTP_400_BAD_REQUEST)
     user_id = request.user.id
     username = request.user.username
+    balance_key = f"user_balance:{user_id}"
+    current_redis_balance = None
 
     # 1. Get current round state (Prefer Redis)
     round_id = None
     status_val = "WAITING"
-    timer = 0
     if redis_client:
         try:
-            state_json = redis_client.get('current_game_state')
-            if state_json:
-                state = json.loads(state_json)
-                round_id = state.get('round_id')
-                status_val = state.get('status')
-                end_time = state.get('end_time', 0)
-                timer = int(state.get('timer', 0))
+            # Single network round-trip for hot keys
+            pipe = redis_client.pipeline()
+            pipe.get('current_round_id')
+            pipe.get('current_status')
+            pipe.get('current_end_time')
+            pipe.get(balance_key)
+            round_id_raw, status_raw, end_time_raw, current_redis_balance = pipe.execute()
+            if round_id_raw and status_raw:
+                round_id = round_id_raw
+                status_val = status_raw
+                end_time = int(end_time_raw or 0)
                 
-                # DEBUG: Log the values being checked
                 now_ts = int(timezone.now().timestamp())
-                logger.info(f"DEBUG BET: Round={round_id}, Status={status_val}, Timer={timer}, EndTime={end_time}, Now={now_ts}")
                 
                 # Check if betting is closed
                 if status_val != "BETTING":
-                    logger.warning(f"Bet placement rejected: Round {round_id} status is {status_val}")
+                    logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} status is {status_val}")
                     return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
                 
                 # Safety check: if end_time is in the past, engine might be lagging
                 if end_time > 0 and now_ts > end_time:
-                    logger.warning(f"Bet placement rejected: Round {round_id} betting period expired ({now_ts} > {end_time})")
+                    logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} betting period expired ({now_ts} > {end_time})")
                     return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Fallback to legacy JSON state (during rollout / engine hiccup)
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    state = json.loads(state_json)
+                    round_id = state.get('round_id')
+                    status_val = state.get('status')
+                    end_time = int(state.get('end_time', 0) or 0)
+
+                    now_ts = int(timezone.now().timestamp())
+                    if status_val != "BETTING":
+                        logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} status is {status_val}")
+                        return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
+                    if end_time > 0 and now_ts > end_time:
+                        logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} betting period expired ({now_ts} > {end_time})")
+                        return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    logger.warning(f"current game state missing in Redis for user {user_id}")
         except Exception as e:
-            logger.error(f"Redis error fetching round: {e}")
+            logger.error(f"Redis error fetching round for user {user_id}: {e}")
+            current_redis_balance = None
 
     # Fallback to DB for round if Redis fails
     if not round_id:
@@ -208,11 +389,8 @@ def place_bet(request):
     # 3. Redis-First Atomic Placement (Lua Script)
     if redis_client:
         try:
-            balance_key = f"user_balance:{user_id}"
-            
             # Ensure balance is in Redis (warm up if needed) - ATOMIC using SETNX
             # SETNX ensures only ONE request sets the initial balance, preventing race conditions
-            current_redis_balance = redis_client.get(balance_key)
             if current_redis_balance is None:
                 wallet = Wallet.objects.get(user_id=user_id)
                 # Use SET with NX flag to atomically set balance only if key doesn't exist
@@ -233,38 +411,49 @@ def place_bet(request):
                 f"round:{round_id}:user_exposure",
                 f"round:{round_id}:bet_count",
                 f"round_total_amount:{round_id}", # Legacy key for compatibility
-                f"round_total_bets:{round_id}"    # Legacy key for compatibility
+                f"round_total_bets:{round_id}",   # Legacy key for compatibility
+                "bet_stream",
+                f"user_bets_stack:{user_id}",
             ]
-            
-            # Execute Lua script with TTL (3600 seconds = 1 hour)
-            # Keys: [balance, total_exp, user_exp, bet_count, legacy_amount, legacy_bets]
-            result = redis_client.eval(PLACE_BET_LUA, 6, *keys, chip_amount, user_id, 3600)
-            success, response_val = result[0], result[1]
+            ts = timezone.now().isoformat()
+
+            # One Redis call: deduct + update totals + enqueue + stack push
+            if _place_bet_and_queue_script:
+                result = _place_bet_and_queue_script(
+                    keys=keys,
+                    args=[chip_amount, user_id, 3600, round_id, number, username, ts],
+                )
+            else:
+                result = redis_client.eval(
+                    PLACE_BET_AND_QUEUE_LUA,
+                    8,
+                    *keys,
+                    chip_amount,
+                    user_id,
+                    3600,
+                    round_id,
+                    number,
+                    username,
+                    ts,
+                )
+
+            success = result[0]
+            response_val = result[1]
 
             if not success:
                 return Response({'error': response_val}, status=status.HTTP_400_BAD_REQUEST)
 
             new_balance = response_val
-
-            # 4. Queue the Bet for DB processing using Redis Stream
-            bet_data = {
-                'user_id': str(user_id),
-                'username': username,
-                'round_id': round_id,
-                'number': str(number),
-                'chip_amount': str(chip_amount),
-                'timestamp': timezone.now().isoformat()
-            }
-            # Use XADD to add bet to stream (creates stream if doesn't exist)
-            redis_client.xadd('bet_stream', bet_data, maxlen=10000)  # Keep last 10k bets
+            legacy_bets = result[3]
+            legacy_amount = result[4]
 
             return Response({
                 'message': 'Bet placed successfully',
                 'wallet_balance': "{:.2f}".format(float(new_balance)),
                 'round': {
                     'round_id': round_id,
-                    'total_bets': int(redis_client.get(f"round_total_bets:{round_id}") or 0),
-                    'total_amount': "{:.2f}".format(float(redis_client.get(f"round_total_amount:{round_id}") or 0))
+                    'total_bets': int(float(legacy_bets) if legacy_bets is not None else 0),
+                    'total_amount': "{:.2f}".format(float(legacy_amount) if legacy_amount is not None else 0.0)
                 }
             }, status=status.HTTP_201_CREATED)
 
@@ -279,7 +468,7 @@ def place_bet(request):
         round_obj = GameRound.objects.order_by('-start_time').first()
         if not round_obj:
             return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Check timing
         timer = calculate_current_timer(round_obj.start_time)
         betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
@@ -300,7 +489,7 @@ def place_bet(request):
             
             if updated == 0:
                 return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             # Get updated balance
             wallet.refresh_from_db()
             balance_after = wallet.balance
@@ -322,12 +511,12 @@ def place_bet(request):
                 balance_after=balance_after,
                 description=f"Bet on number {number} in round {round_obj.round_id}"
             )
-            
+
             # Update round stats
             round_obj.total_bets += 1
             round_obj.total_amount += Decimal(str(chip_amount))
             round_obj.save()
-        
+
         serializer = BetSerializer(bet)
         return Response({
             'bet': serializer.data,
@@ -338,7 +527,7 @@ def place_bet(request):
                 'total_amount': str(round_obj.total_amount)
             }
         }, status=status.HTTP_201_CREATED)
-        
+
     except Exception as e:
         logger.exception(f"Database fallback betting failed: {e}")
         return Response({'error': 'Failed to place bet. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -365,7 +554,7 @@ def remove_bet(request, number):
                     return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Redis error in remove_bet: {e}")
-
+    
     # 2. Get round object
     try:
         if round_id:
@@ -380,10 +569,15 @@ def remove_bet(request, number):
 
     # Get the bet
     try:
-        bet = Bet.objects.get(user=request.user, round=round_obj, number=number)
-    except Bet.DoesNotExist:
-        logger.warning(f"Remove bet failed for user {request.user.username}: Bet on number {number} not found in round {round_obj.round_id}")
-        return Response({'error': 'Bet not found'}, status=status.HTTP_404_NOT_FOUND)
+        # Use filter().first() instead of get() to avoid MultipleObjectsReturned error
+        # and always remove the most recent bet on that number
+        bet = Bet.objects.filter(user=request.user, round=round_obj, number=number).order_by('-created_at').first()
+        if not bet:
+            logger.warning(f"Remove bet failed for user {request.user.username}: Bet on number {number} not found in round {round_obj.round_id}")
+            return Response({'error': 'Bet not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.exception(f"Error finding bet to remove: {e}")
+        return Response({'error': 'Error finding bet'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # Store bet amount before deleting
     refund_amount = bet.chip_amount
@@ -399,25 +593,26 @@ def remove_bet(request, number):
             # Update round stats in Redis for high performance and to avoid DB row contention
             if redis_client:
                 try:
-                    # 1. Update user balance in Redis (CRITICAL for Redis-First betting)
-                    balance_key = f"user_balance:{request.user.id}"
-                    # Use set instead of incrbyfloat to ensure absolute sync with DB
-                    redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                    keys = [
+                        f"user_balance:{request.user.id}",
+                        f"round:{round_obj.round_id}:total_exposure",
+                        f"round:{round_obj.round_id}:user_exposure",
+                        f"round:{round_obj.round_id}:bet_count",
+                        f"round_total_amount:{round_obj.round_id}",
+                        f"round_total_bets:{round_obj.round_id}"
+                    ]
+                    # Execute Lua script for atomic refund
+                    result = redis_client.eval(REFUND_BET_LUA, 6, *keys, float(refund_amount), request.user.id)
+                    success, response_val = result[0], result[1]
                     
-                    # 2. Decrement totals in Redis
-                    new_total_bets = redis_client.decr(f"round_total_bets:{round_obj.round_id}")
-                    if new_total_bets < 0:
-                        redis_client.set(f"round_total_bets:{round_obj.round_id}", 0)
-                        new_total_bets = 0
+                    if success:
+                        new_redis_balance = response_val
+                        # Update local object for response if needed
+                        # (The response uses the DB wallet object which was updated above)
                     
-                    new_total_amount = redis_client.incrbyfloat(f"round_total_amount:{round_obj.round_id}", -float(refund_amount))
-                    if new_total_amount < 0:
-                        redis_client.set(f"round_total_amount:{round_obj.round_id}", 0)
-                        new_total_amount = 0
-                    
-                    # Update local object for response
-                    round_obj.total_bets = max(0, int(new_total_bets))
-                    round_obj.total_amount = max(Decimal('0.00'), Decimal(str(new_total_amount)))
+                    # Update local object for response based on Redis values
+                    round_obj.total_bets = int(redis_client.get(f"round_total_bets:{round_obj.round_id}") or 0)
+                    round_obj.total_amount = Decimal(str(redis_client.get(f"round_total_amount:{round_obj.round_id}") or 0))
                 except Exception as redis_err:
                     logger.error(f"Redis error updating round stats or balance: {redis_err}")
                     # Fallback to DB
@@ -459,15 +654,12 @@ def remove_bet(request, number):
     })
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 @csrf_exempt
-def remove_last_bet(request):
-    """
-    GET: View the user's last (most recent) bet for the current round
-    DELETE: Remove and refund the user's last (most recent) bet for the current round
-    """
-    logger.info(f"{request.method} last bet request by user {request.user.username} (ID: {request.user.id})")
+def remove_bet_by_id(request, bet_id):
+    """Remove a specific bet by its ID"""
+    logger.info(f"Remove bet by ID request by user {request.user.username} (ID: {request.user.id}) for bet ID {bet_id}")
     
     # 1. Get current round state (Prefer Redis)
     round_id = None
@@ -479,53 +671,23 @@ def remove_last_bet(request):
                 state = json.loads(state_json)
                 round_id = state.get('round_id')
                 status_val = state.get('status')
+                
+                if status_val != "BETTING":
+                    return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            logger.error(f"Redis error in remove_last_bet: {e}")
-
-    # 2. Get round object
+            logger.error(f"Redis error in remove_bet_by_id: {e}")
+    
+    # 2. Get the bet
     try:
-        if round_id:
-            round_obj = GameRound.objects.get(round_id=round_id)
-        else:
-            round_obj = GameRound.objects.order_by('-start_time').first()
-    except GameRound.DoesNotExist:
-        return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
+        bet = Bet.objects.get(id=bet_id, user=request.user)
+        round_obj = bet.round
+    except Bet.DoesNotExist:
+        return Response({'error': 'Bet not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    if not round_obj:
-        return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
+    if round_obj.status != 'BETTING':
+        return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get the user's last (most recent) bet for this round
-    try:
-        bet = Bet.objects.filter(user=request.user, round=round_obj).order_by('-created_at').first()
-        if not bet:
-            return Response({'error': 'No bets found in this round'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        logger.exception(f"Error finding last bet: {e}")
-        return Response({'error': 'Error finding last bet'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    # If it's a GET request, just return the bet details
-    if request.method == 'GET':
-        return Response({
-            'bet': {
-                'id': bet.id,
-                'number': bet.number,
-                'chip_amount': "{:.2f}".format(float(bet.chip_amount)),
-                'created_at': bet.created_at.isoformat(),
-                'is_winner': bet.is_winner,
-                'payout_amount': "{:.2f}".format(float(bet.payout_amount)) if bet.payout_amount else None
-            },
-            'round': {
-                'round_id': round_obj.round_id,
-                'status': round_obj.status
-            },
-            'wallet_balance': "{:.2f}".format(float(request.user.wallet.balance)) if hasattr(request.user, 'wallet') else "0.00"
-        })
-
-    # If it's a DELETE request, proceed with removal
-    if status_val != "BETTING" and round_obj.status != "BETTING":
-        return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Store bet details before deleting
+    # Store bet amount before deleting
     refund_amount = bet.chip_amount
     bet_number = bet.number
 
@@ -540,24 +702,24 @@ def remove_last_bet(request):
             # Update round stats in Redis
             if redis_client:
                 try:
-                    # 1. Update user balance in Redis (CRITICAL for Redis-First betting)
-                    balance_key = f"user_balance:{request.user.id}"
-                    # Use set instead of incrbyfloat to ensure absolute sync with DB
-                    redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                    keys = [
+                        f"user_balance:{request.user.id}",
+                        f"round:{round_obj.round_id}:total_exposure",
+                        f"round:{round_obj.round_id}:user_exposure",
+                        f"round:{round_obj.round_id}:bet_count",
+                        f"round_total_amount:{round_obj.round_id}",
+                        f"round_total_bets:{round_obj.round_id}"
+                    ]
+                    # Execute Lua script for atomic refund
+                    result = redis_client.eval(REFUND_BET_LUA, 6, *keys, float(refund_amount), request.user.id)
+                    success, response_val = result[0], result[1]
                     
-                    # 2. Decrement totals in Redis
-                    new_total_bets = redis_client.decr(f"round_total_bets:{round_obj.round_id}")
-                    if new_total_bets < 0:
-                        redis_client.set(f"round_total_bets:{round_obj.round_id}", 0)
-                        new_total_bets = 0
+                    if success:
+                        new_redis_balance = response_val
                     
-                    new_total_amount = redis_client.incrbyfloat(f"round_total_amount:{round_obj.round_id}", -float(refund_amount))
-                    if new_total_amount < 0:
-                        redis_client.set(f"round_total_amount:{round_obj.round_id}", 0)
-                        new_total_amount = 0
-                    
-                    round_obj.total_bets = max(0, int(new_total_bets))
-                    round_obj.total_amount = max(Decimal('0.00'), Decimal(str(new_total_amount)))
+                    # Update local object for response based on Redis values
+                    round_obj.total_bets = int(redis_client.get(f"round_total_bets:{round_obj.round_id}") or 0)
+                    round_obj.total_amount = Decimal(str(redis_client.get(f"round_total_amount:{round_obj.round_id}") or 0))
                 except Exception as redis_err:
                     logger.error(f"Redis error updating round stats or balance: {redis_err}")
                     round_obj.total_bets = max(0, round_obj.total_bets - 1)
@@ -575,20 +737,19 @@ def remove_last_bet(request):
                 amount=refund_amount,
                 balance_before=balance_before,
                 balance_after=balance_after,
-                description=f"Refund last bet on number {bet_number} in round {round_obj.round_id}"
+                description=f"Refund bet ID {bet_id} on number {bet_number} in round {round_obj.round_id}"
             )
 
             # Delete the bet
             bet.delete()
-            logger.info(f"Last bet removed and refunded: User {request.user.username}, Round {round_obj.round_id}, Num {bet_number}, Amount {refund_amount}")
+            logger.info(f"Bet ID {bet_id} removed and refunded: User {request.user.username}, Round {round_obj.round_id}, Num {bet_number}, Amount {refund_amount}")
     except Exception as e:
-        logger.exception(f"Unexpected error removing last bet for user {request.user.username}: {e}")
+        logger.exception(f"Unexpected error removing bet ID {bet_id} for user {request.user.username}: {e}")
         return Response({'error': 'Internal server error during refund'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return Response({
-        'message': f'Last bet on number {bet_number} removed',
+        'message': f'Bet removed',
         'refund_amount': str(refund_amount),
-        'bet_number': bet_number,
         'wallet_balance': str(wallet.balance),
         'round': {
             'round_id': round_obj.round_id,
@@ -596,6 +757,127 @@ def remove_last_bet(request):
             'total_amount': str(round_obj.total_amount)
         }
     })
+
+
+@api_view(['GET', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def remove_last_bet(request):
+    """Remove user's last bet using Redis-First logic"""
+    user_id = request.user.id
+    
+    # 1. Get current round state (Prefer Redis)
+    round_id = None
+    status_val = "WAITING"
+    if redis_client:
+        try:
+            pipe = redis_client.pipeline()
+            pipe.get('current_round_id')
+            pipe.get('current_status')
+            round_id_raw, status_raw = pipe.execute()
+            if round_id_raw and status_raw:
+                round_id = round_id_raw
+                status_val = status_raw
+            else:
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    state = json.loads(state_json)
+                    round_id = state.get('round_id')
+                    status_val = state.get('status')
+        except Exception as e:
+            logger.error(f"Redis error fetching round: {e}")
+
+    # 2. Redis-First Removal
+    if redis_client:
+        try:
+            # Get last bet info from Redis Stack (LPOP)
+            stack_key = f"user_bets_stack:{user_id}"
+            last_bet_json = redis_client.lpop(stack_key)
+            
+            if not last_bet_json:
+                return Response({'error': 'No bet found to remove in this round'}, status=status.HTTP_404_NOT_FOUND)
+            
+            last_bet = json.loads(last_bet_json)
+            
+            # Check if bet is from current round
+            if last_bet['round_id'] != round_id:
+                # CRITICAL: If round has changed, do NOT remove or refund
+                # The stack might contain bets from previous rounds that are already finalized
+                return Response({'error': 'Betting closed for the round in which this bet was placed'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # If it's a GET request, just return the bet details (but we popped it, so we must push it back)
+            if request.method == 'GET':
+                redis_client.lpush(stack_key, last_bet_json)
+                return Response({
+                    'bet': {
+                        'number': last_bet['number'],
+                        'chip_amount': "{:.2f}".format(float(last_bet['chip_amount']))
+                    },
+                    'round': {
+                        'round_id': round_id,
+                        'status': status_val
+                    }
+                })
+
+            # If it's a DELETE request, proceed with removal
+            if status_val != "BETTING":
+                return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
+
+            refund_amount = float(last_bet['chip_amount'])
+            bet_number = last_bet['number']
+            msg_id = last_bet['msg_id']
+
+            # Atomic Redis Refund
+            keys = [
+                f"user_balance:{user_id}",
+                f"round:{round_id}:total_exposure",
+                f"round:{round_id}:user_exposure",
+                f"round:{round_id}:bet_count",
+                f"round_total_amount:{round_id}",
+                f"round_total_bets:{round_id}"
+            ]
+            result = redis_client.eval(REFUND_BET_LUA, 6, *keys, refund_amount, user_id)
+            success, response_val = result[0], result[1]
+            
+            if not success:
+                # If refund failed because of missing exposure (round transition), log it and return specific error
+                if response_val == "NO_EXPOSURE":
+                    logger.warning(f"Bet removal failed: NO_EXPOSURE for user {user_id} in round {round_id}. The round likely transitioned.")
+                    return Response({'error': 'Cannot remove bet: Round has already transitioned or exposure cleared'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                # If refund failed for other reasons, push the bet back to the stack
+                redis_client.lpush(stack_key, last_bet_json)
+                return Response({'error': response_val}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Queue the removal for DB worker
+            remove_data = {
+                'type': 'remove_bet',
+                'msg_id': msg_id, # The ID of the place_bet message to ignore/delete
+                'user_id': str(user_id),
+                'round_id': round_id,
+                'number': str(bet_number),
+                'refund_amount': str(refund_amount),
+                'timestamp': timezone.now().isoformat()
+            }
+            redis_client.xadd('bet_stream', remove_data, maxlen=10000)
+
+            return Response({
+                'message': f'Last bet on number {bet_number} removed',
+                'refund_amount': "{:.2f}".format(refund_amount),
+                'bet_number': bet_number,
+                'wallet_balance': "{:.2f}".format(float(response_val)),
+                'round': {
+                    'round_id': round_id,
+                    'total_bets': int(redis_client.get(f"round_total_bets:{round_id}") or 0),
+                    'total_amount': "{:.2f}".format(float(redis_client.get(f"round_total_amount:{round_id}") or 0))
+                }
+            })
+
+        except Exception as e:
+            logger.error(f"Redis-First removal failed: {e}")
+            return Response({'error': 'Internal server error during removal'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return Response({'error': 'Redis unavailable'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 @api_view(['GET'])
@@ -693,10 +975,10 @@ def round_results(request, round_id=None):
             Q(status='RESULT', result_time__lte=now) |
             Q(status='RESULT', result_time__isnull=True, start_time__lte=now - timedelta(seconds=int(get_game_setting('DICE_RESULT_TIME', 51))))
         ).order_by('-end_time', '-start_time').first()
-
+        
         if not round_obj:
             return Response({'error': 'No completed round found'}, status=status.HTTP_404_NOT_FOUND)
-
+    
     # Get user's bets for this round
     user_bets = Bet.objects.filter(user=request.user, round=round_obj).order_by('created_at')
     
@@ -920,7 +1202,7 @@ def set_dice_result(request):
                 data['total_amount'] = "{:.2f}".format(float(total_amount_val))
         except Exception as redis_err:
             logger.error(f"Error fetching totals from Redis: {redis_err}")
-
+    
     # Add is_rolling flag to ensure animation state is synced
     rolling_start = get_game_setting('DICE_ROLL_TIME', 19)
     result_start = get_game_setting('DICE_RESULT_TIME', 51)
@@ -1062,15 +1344,28 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
             # Add 100% to winner's wallet
             wallet = bet.user.wallet
             balance_before = wallet.balance
-            wallet.add(total_payout_amount)
+            
+            # Use atomic F() update for settlement to match new rules
+            Wallet.objects.filter(user_id=bet.user.id).update(balance=F('balance') + total_payout_amount)
+            
+            # Refresh to get exact balance for Redis and Logs
+            wallet.refresh_from_db()
             balance_after = wallet.balance
 
             # Update Redis balance for winner (CRITICAL for Redis-First betting)
             if redis_client:
                 try:
                     balance_key = f"user_balance:{bet.user.id}"
-                    # Use set instead of incrbyfloat to ensure absolute sync with DB
-                    redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                    # Use set with nx=True is not appropriate here as we WANT to overwrite with the new settled balance
+                    # but we should ensure we don't overwrite if Redis was already ahead (though for settlement, DB is source)
+                    redis_client.set(balance_key, str(balance_after), ex=3600)
+                    
+                    # Store final net result in Redis for fast retrieval
+                    # round:{round_id}:final_net:{user_id}
+                    # We use HINCRBYFLOAT because a user might have multiple winning bets
+                    net_key = f"round:{round_obj.round_id}:final_net"
+                    redis_client.hincrbyfloat(net_key, str(bet.user.id), float(total_payout_amount))
+                    redis_client.expire(net_key, 3600)
                 except Exception as re:
                     logger.error(f"Failed to update Redis balance for winner {bet.user.id}: {re}")
 
@@ -1083,6 +1378,90 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
                 balance_after=balance_after,
                 description=f"Win on number {winning_number} (appeared {frequency}x) in round {round_obj.round_id}. Payout: {total_payout_amount} (Multiplier: {payout_multiplier}x)"
             )
+
+    # CRITICAL: Mark all losing bets in this round
+    # A losing bet is any bet in this round that is NOT a winner
+    Bet.objects.filter(round=round_obj, is_winner=False).update(payout_amount=Decimal('0.00'))
+    
+    # Also subtract exposure from final_net in Redis to get the true net result
+    if redis_client:
+        try:
+            exposure_key = f"round:{round_obj.round_id}:user_exposure"
+            net_key = f"round:{round_obj.round_id}:final_net"
+            user_exposures = redis_client.hgetall(exposure_key)
+            for user_id_str, exposure_amount in user_exposures.items():
+                # Subtract exposure (total bet) from payout to get net
+                redis_client.hincrbyfloat(net_key, user_id_str, -float(exposure_amount))
+        except Exception as e:
+            logger.error(f"Error calculating final net results in Redis: {e}")
+    
+    logger.info(f"Payouts calculated for round {round_obj.round_id}. Winning numbers: {winning_numbers}")
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def user_sound_settings(request):
+    """
+    GET: Get current user's sound settings.
+    POST: Update user's sound settings.
+    """
+    settings_obj, created = UserSoundSetting.objects.get_or_create(user=request.user)
+    
+    if request.method == 'GET':
+        serializer = UserSoundSettingSerializer(settings_obj)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = UserSoundSettingSerializer(settings_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            logger.info(f"User {request.user.username} updated sound settings: {serializer.data}")
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def admin_mega_spin_prob(request, user_id=None):
+    """Admin: Get or set Mega Spin probabilities (global or user-specific)"""
+    if user_id:
+        user = get_object_or_404(User, id=user_id)
+        prob_obj, created = MegaSpinProbability.objects.get_or_create(user=user)
+    else:
+        prob_obj, created = MegaSpinProbability.objects.get_or_create(user=None)
+    
+    if request.method == 'GET':
+        serializer = MegaSpinProbabilitySerializer(prob_obj)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = MegaSpinProbabilitySerializer(prob_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def admin_daily_reward_prob(request, user_id=None):
+    """Admin: Get or set Daily Reward probabilities (global or user-specific)"""
+    if user_id:
+        user = get_object_or_404(User, id=user_id)
+        prob_obj, created = DailyRewardProbability.objects.get_or_create(user=user)
+    else:
+        prob_obj, created = DailyRewardProbability.objects.get_or_create(user=None)
+    
+    if request.method == 'GET':
+        serializer = DailyRewardProbabilitySerializer(prob_obj)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = DailyRewardProbabilitySerializer(prob_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -1117,8 +1496,7 @@ def app_version(request):
 
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 @csrf_exempt
 def winning_results(request, round_id=None):
     """
@@ -1127,35 +1505,53 @@ def winning_results(request, round_id=None):
     """
     from collections import Counter
     from django.db.models import Sum
-
+    
+    logger.info(f"Winning results called with round_id: {round_id}, path: {request.path}")
+    
     # Validate round_id - if it's empty, whitespace, or just a tab, treat as None
     if round_id:
         round_id = round_id.strip()
-        if not round_id or len(round_id) == 0:
+        if not round_id or len(round_id) == 0 or round_id.lower() == 'latest' or round_id.lower() == 'current':
             round_id = None
-
+    
     # Get round by ID or use latest completed round
+    round_obj = None
     if round_id:
         try:
             round_obj = GameRound.objects.get(round_id=round_id)
         except GameRound.DoesNotExist:
-            return Response({
-                'error': 'Round not found',
-                'round_id': round_id,
-                'message': f'Round {round_id} does not exist in the database'
-            }, status=status.HTTP_404_NOT_FOUND)
-    else:
-        # Get the most recently COMPLETED round with dice results
+            logger.warning(f"Round {round_id} not found, falling back to latest")
+            round_obj = None
+    
+    if not round_obj:
+        # Get the absolute most recent round with status RESULT or COMPLETED
         round_obj = GameRound.objects.filter(
             status__in=['RESULT', 'COMPLETED'],
             dice_result__isnull=False
-        ).order_by('-end_time').first()
-
+        ).order_by('-id').first()
+        
+        # If no RESULT/COMPLETED round found, fallback to any round with a dice result
+        if not round_obj:
+            round_obj = GameRound.objects.filter(
+                dice_result__isnull=False
+            ).order_by('-id').first()
+        
         if not round_obj:
             return Response({
                 'error': 'No completed round results found',
                 'message': 'No completed rounds with dice results available yet.'
             }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Debug prints as requested
+    print(f"DEBUG: winning_results API called with round_id={round_id}")
+    print(f"DEBUG: Selected Round ID: {round_obj.round_id if round_obj else 'None'}")
+    print(f"DEBUG: Round Status: {round_obj.status if round_obj else 'None'}")
+    print(f"DEBUG: Round Dice Result: {round_obj.dice_result if round_obj else 'None'}")
+    print(f"DEBUG: User: {request.user.id if request.user.is_authenticated else 'Anonymous'}")
+    if round_obj:
+        print(f"DEBUG: All bets for this round: {Bet.objects.filter(round=round_obj).count()}")
+        if request.user.is_authenticated:
+            print(f"DEBUG: User bets: {Bet.objects.filter(round=round_obj, user=request.user).count()}")
     
     # Get user's bets for this round if authenticated
     bets_data = []
@@ -1166,11 +1562,22 @@ def winning_results(request, round_id=None):
     wallet_balance = "0.00"
 
     if request.user.is_authenticated:
-        user_bets = Bet.objects.filter(user=request.user, round=round_obj).order_by('created_at')
+        # Use aggregate for more reliable totals as suggested
+        user_bets_query = Bet.objects.filter(user=request.user, round=round_obj)
+        
+        # Calculate totals safely
+        user_total_bet_amount = user_bets_query.aggregate(
+            total=Sum('chip_amount')
+        )['total'] or Decimal('0.00')
+        
+        user_total_payout = user_bets_query.aggregate(
+            total=Sum('payout_amount')
+        )['total'] or Decimal('0.00')
+        
+        # Get individual bets for the list
+        user_bets = user_bets_query.order_by('created_at')
         for bet in user_bets:
-            user_total_bet_amount += bet.chip_amount
             payout = bet.payout_amount or Decimal('0.00')
-            user_total_payout += payout
             if bet.is_winner:
                 user_winning_bets += 1
             else:
@@ -1189,14 +1596,30 @@ def winning_results(request, round_id=None):
         except Exception:
             pass
 
-    user_net_result = user_total_payout - user_total_bet_amount
-    net_result_str = "{:+.2f}".format(float(user_net_result))
+    user_net_result = Decimal('0.00')
+    if request.user.is_authenticated and redis_client:
+        try:
+            net_key = f"round:{round_obj.round_id}:final_net"
+            redis_net = redis_client.hget(net_key, str(request.user.id))
+            if redis_net is not None:
+                user_net_result = Decimal(str(redis_net))
+            else:
+                # Fallback to DB calculation if Redis key is missing
+                user_net_result = user_total_payout - user_total_bet_amount
+        except Exception as e:
+            logger.error(f"Error fetching net result from Redis: {e}")
+            user_net_result = user_total_payout - user_total_bet_amount
+    else:
+        user_net_result = user_total_payout - user_total_bet_amount
+
+    # Format net_result as integer as requested
+    net_result_formatted = int(user_net_result)
 
     response_data = {
         "round": {
             "round_id": round_obj.round_id,
             "status": round_obj.status,
-            "dice_result": int(round_obj.dice_result) if round_obj.dice_result and str(round_obj.dice_result).isdigit() else round_obj.dice_result,
+            "dice_result": str(round_obj.dice_result) if round_obj.dice_result is not None else None,
             "dice_1": round_obj.dice_1,
             "dice_2": round_obj.dice_2,
             "dice_3": round_obj.dice_3,
@@ -1211,14 +1634,18 @@ def winning_results(request, round_id=None):
             "total_bets": len(bets_data),
             "total_bet_amount": "{:.2f}".format(float(user_total_bet_amount)),
             "total_payout": "{:.2f}".format(float(user_total_payout)),
-            "net_result": "{:.2f}".format(float(user_net_result)),
+            "net_result": net_result_formatted,
             "winning_bets": user_winning_bets,
             "losing_bets": user_losing_bets
         },
         "wallet_balance": wallet_balance
     }
 
-    return Response(response_data)
+    response = Response(response_data)
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 
 @api_view(['GET'])
@@ -1496,13 +1923,13 @@ def last_round_results(request):
             status__in=['RESULT', 'COMPLETED'],
             dice_result__isnull=False
         ).order_by('-start_time').first()
-
+    
         if not last_round:
             logger.warning("Last round results requested but no completed rounds found")
             return Response({
                 'error': 'No completed round found'
             }, status=status.HTTP_404_NOT_FOUND)
-
+    
         # Return round_id and all 6 dice values
         result = {
             'round_id': last_round.round_id,
@@ -1513,7 +1940,7 @@ def last_round_results(request):
             'dice_5': last_round.dice_5,
             'dice_6': last_round.dice_6,
             'dice_result': last_round.dice_result,
-            'timestamp': last_round.end_time.isoformat() if last_round.end_time else None
+            'timestamp': last_round.result_time.isoformat() if last_round.result_time else last_round.start_time.isoformat()
         }
 
         # Cache in Redis for 30 seconds to reduce DB load
@@ -1845,7 +2272,24 @@ def round_exposure(request, round_id=None):
                 return Response({'error': 'No round found'}, status=404)
             round_id = round_obj.round_id
 
-    # 2. Fetch from Redis (RAM)
+    # 2. Check for 200ms cached response
+    # Cache key is specific to the round and the user (or admin)
+    user_id = request.user.id
+    is_admin = request.user.is_staff or request.user.is_superuser
+    target_player_id = request.query_params.get('player_id')
+    
+    cache_key = f"api_cache:exposure:{round_id}:{user_id}"
+    if is_admin:
+        cache_key += f":admin:{target_player_id}"
+
+    if redis_client:
+        try:
+            cached_response = redis_client.get(cache_key)
+            if cached_response:
+                return Response(json.loads(cached_response))
+        except: pass
+
+    # 3. Fetch from Redis (RAM)
     if redis_client:
         try:
             pipe = redis_client.pipeline()
@@ -1866,13 +2310,12 @@ def round_exposure(request, round_id=None):
             # which can be slow and might show 0 anyway if worker is lagging.
             
             # Filter for specific user if not staff
-            if not (request.user.is_staff or request.user.is_superuser):
-                user_id_str = str(request.user.id)
+            if not is_admin:
+                user_id_str = str(user_id)
                 user_exposure = user_exposure_map.get(user_id_str, "0.00")
                 user_exposure_map = {user_id_str: user_exposure}
             else:
                 # If staff/admin, the user might want to filter by a specific player_id via query param
-                target_player_id = request.query_params.get('player_id')
                 if target_player_id:
                     user_exposure = user_exposure_map.get(str(target_player_id), "0.00")
                     user_exposure_map = {str(target_player_id): user_exposure}
@@ -1882,8 +2325,32 @@ def round_exposure(request, round_id=None):
                     first_key = next(iter(user_exposure_map))
                     user_exposure_map = {first_key: user_exposure_map[first_key]}
 
+            # Get status from Redis if possible
+            status_val = "BETTING"
+            try:
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    status_val = json.loads(state_json).get('status', 'BETTING')
+            except: pass
+
             # Prepare the new exposure list format
             exposure_list_formatted = []
+            
+            # CRITICAL: If status is RESULT, hide the chips (exposure) as requested
+            # Chips should disappear after dice results are shown
+            # Note: We keep them visible during CLOSED and ROLLING statuses
+            if status_val == "RESULT":
+                res_data = {
+                    'round_id': round_id,
+                    'status': status_val,
+                    'total_exposure': "0.00",
+                    'total_bets': 0,
+                    'unique_players': 0,
+                    'exposure': []
+                }
+                if redis_client:
+                    redis_client.set(cache_key, json.dumps(res_data), px=200)
+                return Response(res_data)
             # We need usernames for the new format. 
             # Since Redis only stores IDs, we'll fetch usernames from DB for the active players.
             user_ids = [int(uid) for uid in user_exposure_map.keys()]
@@ -1898,26 +2365,24 @@ def round_exposure(request, round_id=None):
                     "exposure_amount": amount
                 })
 
-            # Get status from Redis if possible
-            status_val = "BETTING"
-            try:
-                state_json = redis_client.get('current_game_state')
-                if state_json:
-                    status_val = json.loads(state_json).get('status', 'BETTING')
-            except: pass
-
-            return Response({
+            res_data = {
                 'round_id': round_id,
                 'status': status_val,
                 'total_exposure': total_exposure,
                 'total_bets': int(bet_count),
                 'unique_players': len(exposure_list_formatted),
                 'exposure': exposure_list_formatted
-            })
+            }
+            
+            # Cache the response for 200ms
+            if redis_client:
+                redis_client.set(cache_key, json.dumps(res_data), px=200)
+                
+            return Response(res_data)
         except Exception as e:
             logger.error(f"Redis exposure fetch failed: {e}", exc_info=True)
 
-    # 3. Fallback to DB (Only if Redis fails)
+    # 4. Fallback to DB (Only if Redis fails)
     round_obj = get_object_or_404(GameRound, round_id=round_id)
     bets_query = Bet.objects.filter(round=round_obj)
     
