@@ -1,6 +1,18 @@
 package com.sikwin.app.ui.screens
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.compose.foundation.text.selection.SelectionContainer
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import java.io.OutputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 import android.net.Uri
@@ -30,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -72,6 +85,7 @@ fun PaymentScreen(
         selectedImageUri = uri
     }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     
     // Timer state: 10 minutes = 600 seconds
     var timeLeftSeconds by remember { mutableIntStateOf(600) }
@@ -193,6 +207,55 @@ fun PaymentScreen(
         }
     }
 
+    fun saveImageToGallery(imageUrl: String) {
+        scope.launch {
+            try {
+                val loader = ImageLoader(context)
+                val request = ImageRequest.Builder(context)
+                    .data(imageUrl)
+                    .size(coil.size.Size.ORIGINAL) // Fetch original full-size image
+                    .allowHardware(false)
+                    .build()
+
+                val result = (loader.execute(request) as? SuccessResult)?.drawable
+                val bitmap = (result as? BitmapDrawable)?.bitmap
+
+                if (bitmap != null) {
+                    val filename = "GunduAta_QR_${System.currentTimeMillis()}.jpg"
+                    var fos: OutputStream? = null
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val contentValues = android.content.ContentValues().apply {
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                        }
+                        val imageUri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                        fos = imageUri?.let { context.contentResolver.openOutputStream(it) }
+                    } else {
+                        val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                        val image = java.io.File(imagesDir, filename)
+                        fos = java.io.FileOutputStream(image)
+                    }
+
+                    fos?.use {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "QR Code saved to gallery", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Failed to load image for saving", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Error saving image: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -297,7 +360,7 @@ fun PaymentScreen(
                     if (isUsdt) {
                         val network = if (paymentMethod.contains("TRC20", ignoreCase = true)) "TRC20" else "BEP20"
                         val usdtMethod = viewModel.paymentMethods.firstOrNull { 
-                            it.type.contains("USDT", ignoreCase = true) && it.type.contains(network, ignoreCase = true)
+                            it.method_type.contains("USDT", ignoreCase = true) && it.method_type.contains(network, ignoreCase = true)
                         }
                         val address = usdtMethod?.upi_id ?: "Please contact support for address"
                         
@@ -305,11 +368,11 @@ fun PaymentScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         // QR Code for USDT if available
-                        if (usdtMethod?.qr_code != null) {
+                        if (usdtMethod?.qr_image != null) {
                             AsyncImage(
-                                model = usdtMethod.qr_code,
+                                model = usdtMethod.qr_image,
                                 contentDescription = "USDT QR Code",
-                                modifier = Modifier.size(150.dp)
+                                modifier = Modifier.size(200.dp)
                             )
                         } else {
                             Icon(
@@ -346,27 +409,84 @@ fun PaymentScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Copy Address")
                         }
+                    } else if (paymentMethod.contains("BANK", ignoreCase = true)) {
+                        // Bank Details
+                        val bankMethod = viewModel.paymentMethods.firstOrNull { 
+                            it.method_type.contains("BANK", ignoreCase = true)
+                        }
+                        
+                        if (bankMethod != null) {
+                            Text("Bank Transfer Details", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            BankDetailRow("Bank Name", bankMethod.bank_name ?: "N/A", context)
+                            BankDetailRow("Account Name", bankMethod.account_name ?: "N/A", context)
+                            BankDetailRow("Account Number", bankMethod.account_number ?: "N/A", context)
+                            BankDetailRow("IFSC Code", bankMethod.ifsc_code ?: "N/A", context)
+                        } else {
+                            Text("Bank details not available. Please contact support.", color = Color.Red)
+                        }
                     } else {
                         // UPI QR
-                        Icon(
-                            Icons.Default.QrCode2,
-                            contentDescription = "QR Code",
-                            modifier = Modifier.size(150.dp),
-                            tint = Color.Black
-                        )
+                        val qrMethod = viewModel.paymentMethods.firstOrNull { 
+                            (it.method_type == "QR" || it.name.contains("QR", ignoreCase = true) || it.method_type == "UPI") && it.qr_image != null
+                        }
+                        
+                        if (qrMethod?.qr_image != null) {
+                            AsyncImage(
+                                model = qrMethod.qr_image,
+                                contentDescription = "Payment QR Code",
+                                modifier = Modifier.size(250.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            // Try to find ANY method with a QR code if specific QR/UPI type not found
+                            val anyQrMethod = viewModel.paymentMethods.firstOrNull { it.qr_image != null }
+                            if (anyQrMethod?.qr_image != null) {
+                                AsyncImage(
+                                    model = anyQrMethod.qr_image,
+                                    contentDescription = "Payment QR Code",
+                                    modifier = Modifier.size(250.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Default.QrCode2,
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.size(150.dp),
+                                    tint = Color.Black
+                                )
+                            }
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (!paymentMethod.contains("BANK", ignoreCase = true)) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = { /* Save QR code logic */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5)),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.width(120.dp)
-            ) {
-                Text("Save", color = Color.White)
+                val currentQrUrl = if (isUsdt) {
+                    val network = if (paymentMethod.contains("TRC20", ignoreCase = true)) "TRC20" else "BEP20"
+                    viewModel.paymentMethods.firstOrNull { 
+                        it.method_type.contains("USDT", ignoreCase = true) && it.method_type.contains(network, ignoreCase = true)
+                    }?.qr_image
+                } else {
+                    viewModel.paymentMethods.firstOrNull { 
+                        (it.method_type == "QR" || it.name.contains("QR", ignoreCase = true) || it.method_type == "UPI") && it.qr_image != null
+                    }?.qr_image ?: viewModel.paymentMethods.firstOrNull { it.qr_image != null }?.qr_image
+                }
+
+                Button(
+                    onClick = { 
+                        currentQrUrl?.let { saveImageToGallery(it) }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5)),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.width(120.dp),
+                    enabled = currentQrUrl != null
+                ) {
+                    Text("Save", color = Color.White)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -387,7 +507,30 @@ fun PaymentScreen(
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
-                    val activeMethods = viewModel.paymentMethods.filter { it.is_active }
+                    val activeMethods = viewModel.paymentMethods.filter { method ->
+                        if (!method.is_active) return@filter false
+                        
+                        // Filter out the method named "QR" from the list of selectable payment methods
+                        if (method.method_type == "QR" || method.name.equals("QR", ignoreCase = true)) return@filter false
+
+                        val category = paymentMethod.lowercase()
+                        when {
+                            category.contains("usdt") -> {
+                                method.method_type.contains("USDT", ignoreCase = true)
+                            }
+                            category.contains("bank") -> {
+                                method.method_type.contains("BANK", ignoreCase = true)
+                            }
+                            category.contains("upi") -> {
+                                method.method_type.contains("UPI", ignoreCase = true) || 
+                                method.method_type.contains("QR", ignoreCase = true) ||
+                                method.method_type.contains("PAYTM", ignoreCase = true) ||
+                                method.method_type.contains("PHONEPE", ignoreCase = true) ||
+                                method.method_type.contains("GPAY", ignoreCase = true)
+                            }
+                            else -> true // Fallback to show all if category unknown
+                        }
+                    }
                     
                     if (activeMethods.isEmpty()) {
                         Text(
@@ -399,10 +542,8 @@ fun PaymentScreen(
                     } else {
                         // Sort so preferred ones are on top if needed, or keeping backend order
                         activeMethods.forEach { method ->
-                            val icon = getPaymentIcon(method.name)
                             PaymentMethodItem(
                                 name = method.name,
-                                icon = icon,
                                 isSelected = selectedMethod == method.name,
                                 onClick = { 
                                     selectedMethod = method.name
@@ -416,7 +557,7 @@ fun PaymentScreen(
                                     } else {
                                         // Fallback for non-UPI or if UPI ID missing
                                         // If it's a Bank method, maybe show a toast or dialog with details
-                                        if (method.type == "BANK") {
+                                        if (method.method_type == "BANK") {
                                             Toast.makeText(context, "Please use Bank Transfer details", Toast.LENGTH_SHORT).show()
                                         } else {
                                             Toast.makeText(context, "No UPI ID for this method", Toast.LENGTH_SHORT).show()
@@ -537,10 +678,19 @@ fun PaymentScreen(
 @Composable
 fun PaymentMethodItem(
     name: String,
-    icon: ImageVector,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val iconRes = when {
+        name.contains("Paytm", ignoreCase = true) -> R.drawable.ic_upi
+        name.contains("PhonePe", ignoreCase = true) -> R.drawable.ic_upi
+        name.contains("Google", ignoreCase = true) -> R.drawable.ic_upi
+        name.contains("UPI", ignoreCase = true) -> R.drawable.ic_upi
+        name.contains("USDT", ignoreCase = true) -> R.drawable.ic_usdt
+        name.contains("BANK", ignoreCase = true) -> R.drawable.ic_bank
+        else -> null
+    }
+
     Surface(
         onClick = onClick,
         color = if (isSelected) Color(0xFFF0F2FF) else Color(0xFFFAFAFA),
@@ -552,13 +702,22 @@ fun PaymentMethodItem(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val iconColor = when {
-                name.contains("Paytm", ignoreCase = true) -> Color(0xFF00BAF2)
-                name.contains("PhonePe", ignoreCase = true) -> Color(0xFF5F259F)
-                name.contains("Google", ignoreCase = true) -> Color(0xFF4285F4)
-                else -> Color.Gray
+            if (iconRes != null) {
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = name,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                val icon = getPaymentIcon(name)
+                val iconColor = when {
+                    name.contains("Paytm", ignoreCase = true) -> Color(0xFF00BAF2)
+                    name.contains("PhonePe", ignoreCase = true) -> Color(0xFF5F259F)
+                    name.contains("Google", ignoreCase = true) -> Color(0xFF4285F4)
+                    else -> Color.Gray
+                }
+                Icon(icon, null, tint = iconColor, modifier = Modifier.size(24.dp))
             }
-            Icon(icon, null, tint = iconColor, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 name,
@@ -605,5 +764,33 @@ private fun getAppName(packageName: String?): String {
         "com.google.android.apps.nbu.paisa.user" -> "Google Pay"
         "net.one97.paytm" -> "Paytm"
         else -> "payment app"
+    }
+}
+
+@Composable
+fun BankDetailRow(label: String, value: String, context: android.content.Context) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, color = Color.Gray, fontSize = 12.sp)
+            SelectionContainer {
+                Text(value, color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+        IconButton(
+            onClick = {
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText(label, value)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(context, "$label copied", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            Icon(Icons.Default.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(20.dp), tint = Color(0xFF3F51B5))
+        }
     }
 }

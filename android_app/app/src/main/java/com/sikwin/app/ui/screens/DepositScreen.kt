@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
@@ -273,6 +275,13 @@ fun PaymentTab(text: String, isSelected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun PaymentOptionCard(text: String, isSelected: Boolean, onClick: () -> Unit) {
+    val iconRes = when {
+        text.contains("UPI", ignoreCase = true) -> R.drawable.ic_upi
+        text.contains("BANK", ignoreCase = true) -> R.drawable.ic_bank
+        text.contains("USDT", ignoreCase = true) -> R.drawable.ic_usdt
+        else -> null
+    }
+
     Box(
         modifier = Modifier
             .width(120.dp)
@@ -289,19 +298,27 @@ fun PaymentOptionCard(text: String, isSelected: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // UPI Icon
+            // Payment Icon
             Box(
                 modifier = Modifier
                     .size(32.dp)
                     .background(Color.White, RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Payment,
-                    contentDescription = "UPI",
-                    tint = Color(0xFF6C3FB5),
-                    modifier = Modifier.size(20.dp)
-                )
+                if (iconRes != null) {
+                    Image(
+                        painter = painterResource(id = iconRes),
+                        contentDescription = text,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Payment,
+                        contentDescription = text,
+                        tint = Color(0xFF6C3FB5),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(text, color = TextWhite, fontSize = 10.sp)
