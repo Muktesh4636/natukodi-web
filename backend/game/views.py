@@ -204,6 +204,7 @@ if new_balance < 0 then
     redis.call('INCRBYFLOAT', KEYS[1], amount)
     return {false, "Insufficient balance (race condition detected)"}
 end
+redis.call('EXPIRE', KEYS[1], ttl)
 
 -- 2) Exposure / counters
 if redis.call('EXISTS', KEYS[2]) == 0 then
@@ -358,52 +359,43 @@ def place_bet(request):
                     logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} betting period expired ({now_ts} > {end_time})")
                     return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                # Fallback to legacy JSON state (during rollout / engine hiccup)
-                state_json = redis_client.get('current_game_state')
-                if state_json:
-                    state = json.loads(state_json)
-                    round_id = state.get('round_id')
-                    status_val = state.get('status')
-                    end_time = int(state.get('end_time', 0) or 0)
-
-                    now_ts = int(timezone.now().timestamp())
-                    if status_val != "BETTING":
-                        logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} status is {status_val}")
-                        return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
-                    if end_time > 0 and now_ts > end_time:
-                        logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} betting period expired ({now_ts} > {end_time})")
-                        return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    logger.warning(f"current game state missing in Redis for user {user_id}")
+                # Strict Redis-only mode: do not hit DB in hot path.
+                return Response(
+                    {'error': 'Game state is syncing. Please retry in a moment.'},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
         except Exception as e:
             logger.error(f"Redis error fetching round for user {user_id}: {e}")
-            current_redis_balance = None
-
-    # Fallback to DB for round if Redis fails
-    if not round_id:
-        round_obj = GameRound.objects.order_by('-start_time').first()
-        if not round_obj or round_obj.status != 'BETTING':
-            return Response({'error': 'No active betting round'}, status=status.HTTP_400_BAD_REQUEST)
-        round_id = round_obj.round_id
+            return Response(
+                {'error': 'Betting service temporarily unavailable. Please retry.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+    else:
+        return Response(
+            {'error': 'Betting service temporarily unavailable. Please retry.'},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE
+        )
 
     # 3. Redis-First Atomic Placement (Lua Script)
     if redis_client:
         try:
-            # Ensure balance is in Redis (warm up if needed) - ATOMIC using SETNX
-            # SETNX ensures only ONE request sets the initial balance, preventing race conditions
             if current_redis_balance is None:
-                wallet = Wallet.objects.get(user_id=user_id)
-                # Use SET with NX flag to atomically set balance only if key doesn't exist
-                # This prevents race condition where multiple requests all set the same stale balance
-                was_set = redis_client.set(balance_key, str(wallet.balance), ex=3600, nx=True)
-                # If SETNX failed (another request set it first), get the value they set
-                if not was_set:
-                    # Another request set it, get the current value (should be set now)
-                    current_redis_balance = redis_client.get(balance_key)
-                    if current_redis_balance is None:
-                        # Still None - something went wrong, refresh from DB and set anyway
-                        wallet.refresh_from_db()
-                        redis_client.set(balance_key, str(wallet.balance), ex=3600)
+                # Keep place_bet DB-free: warm balance only from Redis session cache.
+                session_json = redis_client.get(f"user_session:{user_id}")
+                if session_json:
+                    try:
+                        session_data = json.loads(session_json)
+                        session_balance = session_data.get('wallet_balance')
+                        if session_balance is not None:
+                            redis_client.set(balance_key, str(session_balance), ex=86400)
+                            current_redis_balance = session_balance
+                    except Exception:
+                        pass
+                if current_redis_balance is None:
+                    return Response(
+                        {'error': 'Balance cache is syncing. Open wallet once and retry.'},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE
+                    )
 
             keys = [
                 balance_key,
@@ -458,79 +450,11 @@ def place_bet(request):
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            logger.error(f"Redis-First betting failed, falling back to DB: {e}")
-            # Fallback to old database method when Redis fails
-            pass
-    
-    # FALLBACK: Use old database method when Redis is unavailable
-    try:
-        # Get round object
-        round_obj = GameRound.objects.order_by('-start_time').first()
-        if not round_obj:
-            return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Check timing
-        timer = calculate_current_timer(round_obj.start_time)
-        betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-        if timer >= betting_close_time:
-            return Response({'error': f'Betting closed at {betting_close_time}s'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Atomic balance update using F() expression (database-level atomicity)
-        with transaction.atomic():
-            # Get balance_before first for transaction log
-            wallet = Wallet.objects.select_for_update().get(user=request.user)
-            balance_before = wallet.balance
-            
-            # Atomic balance deduction using F() expression
-            updated = Wallet.objects.filter(
-                user=request.user,
-                balance__gte=Decimal(str(chip_amount))
-            ).update(balance=F('balance') - Decimal(str(chip_amount)))
-            
-            if updated == 0:
-                return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Get updated balance
-            wallet.refresh_from_db()
-            balance_after = wallet.balance
-            
-            # Create bet
-            bet = Bet.objects.create(
-                user=request.user,
-                round=round_obj,
-                number=number,
-                chip_amount=Decimal(str(chip_amount))
+            logger.error(f"Redis-only betting failed: {e}")
+            return Response(
+                {'error': 'Betting service temporarily unavailable. Please retry.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
-            
-            # Create transaction log
-            Transaction.objects.create(
-                user=request.user,
-                transaction_type='BET',
-                amount=Decimal(str(chip_amount)),
-                balance_before=balance_before,
-                balance_after=balance_after,
-                description=f"Bet on number {number} in round {round_obj.round_id}"
-            )
-
-            # Update round stats
-            round_obj.total_bets += 1
-            round_obj.total_amount += Decimal(str(chip_amount))
-            round_obj.save()
-
-        serializer = BetSerializer(bet)
-        return Response({
-            'bet': serializer.data,
-            'wallet_balance': str(wallet.balance),
-            'round': {
-                'round_id': round_obj.round_id,
-                'total_bets': round_obj.total_bets,
-                'total_amount': str(round_obj.total_amount)
-            }
-        }, status=status.HTTP_201_CREATED)
-
-    except Exception as e:
-        logger.exception(f"Database fallback betting failed: {e}")
-        return Response({'error': 'Failed to place bet. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['DELETE'])

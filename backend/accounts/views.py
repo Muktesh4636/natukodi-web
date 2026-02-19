@@ -11,7 +11,7 @@ from django.db import transaction as db_transaction
 from django.utils import timezone
 from django.conf import settings
 from decimal import Decimal, InvalidOperation
-from django.db.models import Q
+from django.db.models import Q, F
 import uuid
 import re
 import logging
@@ -53,6 +53,38 @@ from django.utils.crypto import constant_time_compare
 def hash_otp(otp):
     """Hash OTP using SHA256"""
     return hashlib.sha256(str(otp).encode()).hexdigest()
+
+def cache_user_session(user, balance=None):
+    """Helper to cache user session and balance in Redis"""
+    if not redis_client:
+        return
+    try:
+        if balance is None:
+            try:
+                balance = user.wallet.balance
+            except:
+                balance = Decimal('0.00')
+        
+        pipe = redis_client.pipeline()
+        pipe.set(f"user_balance:{user.id}", str(balance), ex=86400) # 24 hours
+        
+        user_session_data = {
+            'id': user.id,
+            'username': user.username,
+            'is_staff': user.is_staff,
+            'is_active': user.is_active,
+            'wallet_balance': str(balance)
+        }
+        pipe.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=86400) # 24 hours
+        pipe.execute()
+    except Exception as e:
+        logger.error(f"Error caching user session: {e}")
+
+def notify_user(user, message):
+    """Placeholder notification helper"""
+    # In a real system, this would push a notification via WebSocket or a push service
+    print(f"[NOTIFY] {user.username}: {message}")
+
 
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for registration
@@ -120,7 +152,7 @@ def register(request):
                 logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
                 
                 # 4. Cache balance and session in Redis
-                redis_client.set(f"user_balance:{user.id}", "0.00", ex=3600)
+                redis_client.set(f"user_balance:{user.id}", "0.00", ex=86400)
                 user_session_data = {
                     'id': user.id,
                     'username': user.username,
@@ -210,7 +242,7 @@ def login(request):
                 
                 # Use a pipeline for faster Redis operations
                 pipe = redis_client.pipeline()
-                pipe.set(f"user_balance:{user.id}", str(wallet_balance), ex=3600)
+                pipe.set(f"user_balance:{user.id}", str(wallet_balance), ex=86400)
                 
                 user_session_data = {
                     'id': user.id,
@@ -369,7 +401,7 @@ def verify_otp_login(request):
                 
                 # Use pipeline for faster Redis operations
                 pipe = redis_client.pipeline()
-                pipe.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=3600)
+                pipe.set(f"user_balance:{user.id}", str(wallet_obj.balance), ex=86400)
                 
                 user_session_data = {
             'id': user.id,
@@ -484,7 +516,7 @@ class WalletView(APIView):
             # Sync back to Redis if missing
             if redis_client:
                 try:
-                    redis_client.set(f"user_balance:{user_id}", balance, ex=3600)
+                    redis_client.set(f"user_balance:{user_id}", balance, ex=86400)
                 except: pass
 
         wallet_response = {
@@ -568,6 +600,9 @@ def initiate_deposit(request):
         amount = _parse_amount(amount_raw)
     except ValueError as exc:
         return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+    if amount < 100:
+        return Response({'error': 'Minimum deposit amount is ₹100'}, status=status.HTTP_400_BAD_REQUEST)
 
     payment_link = f"https://pay.example.com/{uuid.uuid4().hex}?amount={amount}"
     return Response({
@@ -732,6 +767,18 @@ def upload_deposit_proof(request):
         logger.warning(f"Deposit proof upload failed for user {request.user.username}: Invalid amount {amount_raw} - {exc}")
         return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+    if amount < 100:
+        logger.warning(f"Deposit proof upload failed for user {request.user.username}: Amount {amount} below minimum ₹100")
+        return Response({'error': 'Minimum deposit amount is ₹100'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check for existing pending deposit request
+    existing_pending = DepositRequest.objects.filter(user=request.user, status='PENDING').exists()
+    if existing_pending:
+        logger.warning(f"Deposit proof upload failed for user {request.user.username}: Already has a pending request")
+        return Response({
+            'error': 'You already have a pending deposit request. Please wait for it to be approved or rejected before sending another.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     # Create deposit request with PENDING status - no wallet credit yet
     try:
         payment_method_id = request.data.get('payment_method_id')
@@ -742,14 +789,93 @@ def upload_deposit_proof(request):
             except PaymentMethod.DoesNotExist:
                 pass
 
+        # Try to extract UTR from screenshot before creating the request
+        extracted_utr = None
+        if TESSERACT_AVAILABLE:
+            try:
+                # Set tesseract path - check both common locations
+                import os
+                tesseract_path = '/usr/bin/tesseract'
+                if not os.path.exists(tesseract_path):
+                    tesseract_path = getattr(settings, 'TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
+                
+                pytesseract.pytesseract.tesseract_cmd = tesseract_path
+                logger.info(f"Using tesseract at: {tesseract_path}")
+                
+                # Open image from the uploaded file
+                # Reset file pointer to beginning just in case
+                screenshot.seek(0)
+                img = Image.open(screenshot)
+                # Convert to grayscale for better OCR
+                img = img.convert('L')
+                
+                # Use custom config for better digit recognition
+                # Try multiple PSM modes if one fails
+                text = pytesseract.image_to_string(img, config=r'--oem 3 --psm 6')
+                
+                # If text is very short, try PSM 11 (sparse text)
+                if len(text.strip()) < 20:
+                    text += "\n" + pytesseract.image_to_string(img, config=r'--oem 3 --psm 11')
+                
+                # If still short, try PSM 3 (default)
+                if len(text.strip()) < 20:
+                    text += "\n" + pytesseract.image_to_string(img, config=r'--oem 3 --psm 3')
+
+                # Clean text: remove extra spaces but keep structure
+                clean_text = ' '.join(text.split())
+                logger.info(f"OCR Extracted Text (cleaned): {clean_text[:500]}")
+                
+                # Extract UTR using regex - try multiple patterns
+                # 1. Standard 12-digit UTR (most common for IMPS/UPI)
+                # Look for 12 digits that might have spaces or dots between them
+                utr_match = re.search(r'(?:\b|\D)(\d{12})(?:\b|\D)', clean_text)
+                if utr_match:
+                    extracted_utr = utr_match.group(1)
+                    logger.info(f"Found 12-digit UTR: {extracted_utr}")
+                
+                # 2. Look for patterns like "UTR: 123456789012" or "Ref No: 123456789012"
+                if not extracted_utr:
+                    # More flexible regex for keywords
+                    keyword_match = re.search(r'(?:UTR|Ref|Transaction|Ref\s*No|TXN)[:\s\-\.]*([A-Z0-9]{10,22})', clean_text, re.IGNORECASE)
+                    if keyword_match:
+                        extracted_utr = keyword_match.group(1)
+                        logger.info(f"Found keyword-based UTR: {extracted_utr}")
+                
+                # 3. PhonePe specific: T followed by many digits
+                if not extracted_utr:
+                    phonepe_match = re.search(r'\b(T\d{18,24})\b', clean_text)
+                    if phonepe_match:
+                        extracted_utr = phonepe_match.group(1)
+                        logger.info(f"Found PhonePe ID: {extracted_utr}")
+
+                # 4. Google Pay / GPay specific: often starts with "CIC" or similar or just 12 digits
+                if not extracted_utr:
+                    gpay_match = re.search(r'\b(\d{4}\s*\d{4}\s*\d{4})\b', clean_text)
+                    if gpay_match:
+                        extracted_utr = gpay_match.group(1).replace(' ', '')
+                        logger.info(f"Found GPay style 12-digit: {extracted_utr}")
+
+                if extracted_utr:
+                    logger.info(f"Auto-extracted UTR {extracted_utr} from screenshot for user {request.user.username}")
+                else:
+                    logger.warning(f"Could not find UTR in extracted text for user {request.user.username}")
+            except Exception as ocr_err:
+                logger.error(f"Failed to auto-extract UTR for user {request.user.username}: {ocr_err}")
+                import traceback
+                logger.error(traceback.format_exc())
+            finally:
+                # Reset file pointer again for saving
+                screenshot.seek(0)
+
         deposit = DepositRequest.objects.create(
             user=request.user,
             amount=amount,
             screenshot=screenshot,
             payment_method=payment_method,
             status='PENDING',
+            payment_reference=extracted_utr if extracted_utr else ''
         )
-        logger.info(f"Deposit request created: ID {deposit.id} for user {request.user.username}, amount: {amount}")
+        logger.info(f"Deposit request created: ID {deposit.id} for user {request.user.username}, amount: {amount}, extracted_utr: {extracted_utr}")
     except Exception as e:
         logger.exception(f"Unexpected error creating deposit request for user {request.user.username}: {e}")
         import traceback
@@ -792,6 +918,16 @@ def submit_utr(request):
         amount = _parse_amount(amount_raw)
     except ValueError as exc:
         return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+    if amount < 100:
+        return Response({'error': 'Minimum deposit amount is ₹100'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check for existing pending deposit request
+    existing_pending = DepositRequest.objects.filter(user=request.user, status='PENDING').exists()
+    if existing_pending:
+        return Response({
+            'error': 'You already have a pending deposit request. Please wait for it to be approved or rejected before sending another.'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     # Create deposit request with PENDING status and UTR (no screenshot)
     try:
@@ -844,6 +980,8 @@ def pending_deposit_requests(request):
 @permission_classes([IsAdminUser])
 def approve_deposit_request(request, pk):
     """Admin approves a pending deposit request"""
+    import logging
+    logger = logging.getLogger(__name__)
     import decimal
     note = request.data.get('note', '')
     logger.info(f"Admin {request.user.username} attempting to approve deposit {pk}")
@@ -864,7 +1002,7 @@ def approve_deposit_request(request, pk):
             # Update Redis balance (CRITICAL for Redis-First betting)
             if redis_client:
                 try:
-                    redis_client.set(f"user_balance:{deposit.user.id}", str(wallet.balance), ex=3600)
+                    redis_client.set(f"user_balance:{deposit.user.id}", str(wallet.balance), ex=86400)
                 except: pass
 
             Transaction.objects.create(
@@ -901,7 +1039,7 @@ def approve_deposit_request(request, pk):
                     # Update Redis balance for referrer
                     if redis_client:
                         try:
-                            redis_client.set(f"user_balance:{referrer.id}", str(referrer_wallet.balance), ex=3600)
+                            redis_client.set(f"user_balance:{referrer.id}", str(referrer_wallet.balance), ex=86400)
                         except: pass
                     
                     Transaction.objects.create(
@@ -988,9 +1126,35 @@ def initiate_withdraw(request):
         logger.warning(f"Withdrawal failed for user {request.user.username}: Invalid amount {amount_raw} - {exc}")
         return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
+    if amount < 200:
+        logger.warning(f"Withdrawal failed for user {request.user.username}: Amount {amount} below minimum ₹200")
+        return Response({'error': 'Minimum withdrawal amount is ₹200'}, status=status.HTTP_400_BAD_REQUEST)
+
     # Check if user has sufficient withdrawable balance
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     withdrawable = wallet.withdrawable_balance
+    
+    # Check Redis balance and exposure for real-time validation
+    from game.views import redis_client
+    if redis_client:
+        try:
+            redis_balance = float(redis_client.get(f"user_balance:{request.user.id}") or 0)
+            # Get current round exposure
+            from game.models import GameRound
+            current_round = GameRound.objects.filter(status='OPEN').first()
+            exposure = 0
+            if current_round:
+                exposure = float(redis_client.hget(f"round_exposure:{current_round.id}", request.user.id) or 0)
+            
+            available_realtime = redis_balance - exposure
+            if amount > available_realtime:
+                logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient real-time balance (Redis: {redis_balance}, Exposure: {exposure}, Available: {available_realtime}, Requested: {amount})")
+                return Response({
+                    'error': f'Insufficient available balance. Your current balance is ₹{redis_balance:.2f} and you have ₹{exposure:.2f} in active bets. Available for withdrawal: ₹{max(0, available_realtime):.2f}.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as re_err:
+            logger.error(f"Error checking real-time balance for withdrawal: {re_err}")
+
     if withdrawable < amount:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient withdrawable balance (Withdrawable: {withdrawable}, Requested: {amount}, Total Balance: {wallet.balance})")
         return Response({
@@ -1009,16 +1173,44 @@ def initiate_withdraw(request):
             'error': 'You already have a pending withdraw request. Please wait for it to be processed.'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create withdraw request with PENDING status - no wallet debit yet
+    # Create withdraw request with PENDING status
     try:
-        withdraw = WithdrawRequest.objects.create(
-            user=request.user,
-            amount=amount,
-            withdrawal_method=withdrawal_method,
-            withdrawal_details=withdrawal_details,
-            status='PENDING',
-        )
-        logger.info(f"Withdrawal request created: ID {withdraw.id} for user {request.user.username}, amount: {amount}")
+        from game.views import redis_client
+        from django.db import transaction
+        
+        with transaction.atomic():
+            withdraw = WithdrawRequest.objects.create(
+                user=request.user,
+                amount=amount,
+                withdrawal_method=withdrawal_method,
+                withdrawal_details=withdrawal_details,
+                status='PENDING',
+            )
+            
+            # 1️⃣ Deduct from Redis first (atomic)
+            if redis_client:
+                try:
+                    # Deduct from Redis balance immediately
+                    redis_client.incrbyfloat(f"user_balance:{request.user.id}", -float(amount))
+                    
+                    # 2️⃣ Queue withdraw event to worker using Redis Stream
+                    withdraw_event = {
+                        'type': 'initiate_withdraw',
+                        'user_id': str(request.user.id),
+                        'withdraw_id': str(withdraw.id),
+                        'amount': str(amount),
+                        'round_id': 'WITHDRAW',
+                        'timestamp': timezone.now().isoformat()
+                    }
+                    redis_client.xadd('bet_stream', withdraw_event, maxlen=10000)
+                    logger.info(f"Withdrawal request created and queued: ID {withdraw.id} for user {request.user.id}, amount: {amount}")
+                except Exception as re_err:
+                    logger.error(f"Failed to process Redis-First withdrawal initiation for user {request.user.id}: {re_err}")
+                    # Fallback: If Redis fails, we still proceed with DB update in worker or here
+                    # For now, we allow the transaction to complete and the worker will handle DB
+            
+        notify_user(request.user, f"Your withdraw request of ₹{amount} has been submitted. Funds have been deducted from your balance and are pending admin approval.")
+        
     except Exception as e:
         logger.exception(f"Unexpected error creating withdrawal request for user {request.user.username}: {e}")
         import traceback
@@ -1199,16 +1391,28 @@ def daily_reward(request):
         # If it's a money reward, add to wallet
         if selected_reward['type'] == 'MONEY' and selected_reward['amount'] > 0:
             try:
+                reward_amount = Decimal(str(selected_reward['amount']))
                 wallet = user.wallet
-                wallet.add(Decimal(str(selected_reward['amount'])))
+                
+                # 1️⃣ Update DB atomically
+                # We use F() expression for safety
+                Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + reward_amount)
+                wallet.refresh_from_db()
 
-                # Create transaction record
-                balance_before = wallet.balance - Decimal(str(selected_reward['amount']))
+                # 2️⃣ Update Redis atomically using INCRBYFLOAT
+                if redis_client:
+                    try:
+                        redis_client.incrbyfloat(f"user_balance:{user.id}", float(reward_amount))
+                        logger.info(f"Updated Redis balance for user {user.id} after daily reward: {reward_amount}")
+                    except Exception as re_err:
+                        logger.error(f"Failed to update Redis balance for user {user.id} after daily reward: {re_err}")
+
+                # 3️⃣ Create transaction record
                 Transaction.objects.create(
                     user=user,
                     transaction_type='DEPOSIT',
-                    amount=Decimal(str(selected_reward['amount'])),
-                    balance_before=balance_before,
+                    amount=reward_amount,
+                    balance_before=wallet.balance - reward_amount,
                     balance_after=wallet.balance,
                     description=f'Daily Reward - ₹{selected_reward["amount"]}'
                 )

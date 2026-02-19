@@ -69,7 +69,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',  # Standard CSRF middleware
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -254,10 +254,10 @@ else:
             'PASSWORD': os.getenv('DB_PASSWORD', 'Gunduata@123'),
             'HOST': os.getenv('DB_HOST', '72.61.255.231'),
             'PORT': os.getenv('DB_PORT', '6432'),  # PgBouncer port
-            'CONN_MAX_AGE': 600,  # Keep connections alive for 10 minutes
+            'CONN_MAX_AGE': 0,  # Disable persistent connections at Django level to let PgBouncer handle it
             'CONN_HEALTH_CHECKS': True,
             'OPTIONS': {
-                'connect_timeout': 10,
+                'connect_timeout': 5,
             },
         }
     }
@@ -327,6 +327,7 @@ AUTH_USER_MODEL = 'accounts.User'
 # REST Framework - SECURITY: Rate limiting and throttling
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'dice_game.authentication.CachedJWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -378,7 +379,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Redis Configuration
-REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
+REDIS_HOST = os.getenv('REDIS_HOST', 'dice_game_redis')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'Gunduata@123')
