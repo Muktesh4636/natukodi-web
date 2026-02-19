@@ -46,6 +46,7 @@ fun SignUpScreen(
     var spinBalance by remember { mutableIntStateOf(initialSpinBalance) }
     var passwordVisible by remember { mutableStateOf(false) }
     var timerSeconds by remember { mutableIntStateOf(0) }
+    var showReferralInput by remember { mutableStateOf(false) }
 
     // Timer logic
     LaunchedEffect(timerSeconds) {
@@ -225,24 +226,48 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Referral Code
-        InputFieldLabel("Referral Code (Optional)")
-        OutlinedTextField(
-            value = referralCode,
-            onValueChange = { referralCode = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter referral code", color = TextGrey) },
-            leadingIcon = { Icon(Icons.Default.GroupAdd, null, tint = TextGrey) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = SurfaceColor,
-                unfocusedBorderColor = BorderColor,
-                focusedBorderColor = PrimaryYellow,
-                focusedTextColor = TextWhite,
-                unfocusedTextColor = TextWhite
-            ),
-            shape = RoundedCornerShape(8.dp),
-            singleLine = true
-        )
+        // Referral Code Toggle
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showReferralInput = !showReferralInput }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (showReferralInput) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = PrimaryYellow
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Have a referral code?",
+                color = PrimaryYellow,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        if (showReferralInput) {
+            Spacer(modifier = Modifier.height(8.dp))
+            // Referral Code
+            OutlinedTextField(
+                value = referralCode,
+                onValueChange = { referralCode = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Please enter referral code", color = TextGrey) },
+                leadingIcon = { Icon(Icons.Default.GroupAdd, null, tint = TextGrey) },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = SurfaceColor,
+                    unfocusedBorderColor = BorderColor,
+                    focusedBorderColor = PrimaryYellow,
+                    focusedTextColor = TextWhite,
+                    unfocusedTextColor = TextWhite
+                ),
+                shape = RoundedCornerShape(8.dp),
+                singleLine = true
+            )
+        }
 
         Spacer(modifier = Modifier.height(40.dp))
 
