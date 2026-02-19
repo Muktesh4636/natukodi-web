@@ -666,11 +666,11 @@
                 </div>
                 <div class="stat-card">
                     <h3>Withdrawable</h3>
-                    <p style="color: #28a745;">₹{{ wallet.withdrawable_balance|floatformat:2 }}</p>
+                    <p style="color: #28a745;">₹{{ wallet.withdrawable_balance|default:0|floatformat:2 }}</p>
                 </div>
                 <div class="stat-card">
                     <h3>Unavailable</h3>
-                    <p style="color: #dc3545;">₹{{ wallet.unavaliable_balance|floatformat:2 }}</p>
+                    <p style="color: #dc3545;">₹{{ wallet.unavaliable_balance|default:0|floatformat:2 }}</p>
                 </div>
                 <div class="stat-card">
                     <h3>Total Bets</h3>
@@ -685,37 +685,54 @@
             <!-- Balance Management -->
             <div class="control-panel" style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <h2 style="color: white;">💰 Balance Management</h2>
-                <div style="display: flex; gap: 20px; align-items: center; padding: 20px;">
+                <div style="display: flex; gap: 20px; align-items: stretch; padding: 20px; flex-wrap: wrap;">
                     <!-- Deposit Section -->
-                    <div style="flex: 1; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px);">
-                        <h3 style="color: white; margin-bottom: 15px;">📥 Deposit Money</h3>
-                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 15px;">
-                            Add money when user sends payment via WhatsApp
+                    <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px); display: flex; flex-direction: column;">
+                        <h3 style="color: white; margin-bottom: 10px;">📥 Deposit Money</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                            Add money to user balance (e.g., WhatsApp payment).
                         </p>
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="display: flex; gap: 10px; align-items: center;">
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; gap: 10px; align-items: center;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="deposit">
-                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount (₹)" required
+                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount (₹)" required
                                    style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
-                            <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;">
-                                ➕ Deposit
+                            <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                ➕ Add
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Adjustment Section -->
+                    <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px); border: 1px dashed rgba(255, 255, 255, 0.3); display: flex; flex-direction: column;">
+                        <h3 style="color: white; margin-bottom: 10px;">⚖️ Balance Adjustment</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                            Correct accidental additions or manual corrections.
+                        </p>
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; gap: 10px; align-items: center;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="adjust_remove">
+                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount to remove (₹)" required
+                                   style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
+                            <button type="submit" style="background: #f6ad55; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;" onclick="return confirm('Are you sure you want to REMOVE this amount from the user balance?')">
+                                ⚖️ Adjust
                             </button>
                         </form>
                     </div>
 
                     <!-- Withdraw Section -->
-                    <div style="flex: 1; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px);">
-                        <h3 style="color: white; margin-bottom: 15px;">📤 Withdraw Money</h3>
-                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 15px;">
-                            Remove money if there's a mistake or error
+                    <div style="flex: 1; min-width: 300px; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(10px); display: flex; flex-direction: column;">
+                        <h3 style="color: white; margin-bottom: 10px;">📤 Withdraw Money</h3>
+                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
+                            Deduct balance for processed withdrawal requests.
                         </p>
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="display: flex; gap: 10px; align-items: center;">
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; gap: 10px; align-items: center;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="withdraw">
-                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount (₹)" required
+                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount (₹)" required
                                    style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
-                            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;">
-                                ➖ Withdraw
+                            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                ➖ Deduct
                             </button>
                         </form>
                     </div>
