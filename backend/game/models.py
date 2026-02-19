@@ -146,3 +146,60 @@ class AdminPermissions(models.Model):
             'payment_methods': self.can_manage_payment_methods,
         }
 
+
+class UserSoundSetting(models.Model):
+    """User-specific sound settings"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sound_settings')
+    background_music_volume = models.FloatField(default=0.5)  # 0.0 to 1.0
+    is_muted = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Sound settings for {self.user.username}"
+
+
+class MegaSpinProbability(models.Model):
+    """Probability configuration for Mega Spin"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mega_spin_probability', null=True, blank=True)
+    # If user is null, it's the global default probability
+    
+    # Probabilities for each slice/number (0-100)
+    # Assuming 8 slices for the wheel
+    prob_1 = models.FloatField(default=12.5)
+    prob_2 = models.FloatField(default=12.5)
+    prob_3 = models.FloatField(default=12.5)
+    prob_4 = models.FloatField(default=12.5)
+    prob_5 = models.FloatField(default=12.5)
+    prob_6 = models.FloatField(default=12.5)
+    prob_7 = models.FloatField(default=12.5)
+    prob_8 = models.FloatField(default=12.5)
+    
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Mega Spin Probabilities"
+
+    def __str__(self):
+        return f"Mega Spin Prob for {self.user.username if self.user else 'Global Default'}"
+
+
+class DailyRewardProbability(models.Model):
+    """Probability configuration for Daily Reward"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='daily_reward_probability', null=True, blank=True)
+    # If user is null, it's the global default probability
+    
+    # Probabilities for different reward amounts (0-100)
+    # Example: 5, 10, 20, 50, 100, 200, 500
+    prob_low = models.FloatField(default=70.0)    # Probability for low rewards (e.g., 5-10)
+    prob_medium = models.FloatField(default=20.0) # Probability for medium rewards (e.g., 20-50)
+    prob_high = models.FloatField(default=9.0)    # Probability for high rewards (e.g., 100-200)
+    prob_mega = models.FloatField(default=1.0)    # Probability for mega rewards (e.g., 500)
+    
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Daily Reward Probabilities"
+
+    def __str__(self):
+        return f"Daily Reward Prob for {self.user.username if self.user else 'Global Default'}"
+
