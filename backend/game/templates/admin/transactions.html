@@ -195,17 +195,21 @@
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
             margin-bottom: 32px;
         }
         .stat-card {
             background: white;
-            padding: 24px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 110px;
         }
         .stat-card:hover {
             transform: translateY(-2px);
@@ -221,13 +225,11 @@
         }
         .stat-card p {
             margin: 0;
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
             color: #1a202c;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: normal;
             line-height: 1.2;
+            word-break: break-all;
         }
         .stat-card.profit-positive p {
             color: #28a745;
