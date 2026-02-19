@@ -508,3 +508,6 @@ GAME_SETTINGS = {
     },
 }
 
+# Dice Control PIN
+DICE_CONTROL_PIN = os.getenv('DICE_CONTROL_PIN', '1234')
+

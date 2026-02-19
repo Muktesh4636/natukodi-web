@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -32,12 +34,9 @@ from .admin_utils import (
 from .utils import get_game_setting
 from .load_test_utils import load_tester
 from decimal import Decimal, InvalidOperation
-from django.db.models import Sum, Q, F
+from django.db.models import Sum, Q
 import decimal
 from django.core.paginator import Paginator
-import logging
-
-logger = logging.getLogger(__name__)
 
 # Redis connection using connection pool (optimized for scalability)
 from .utils import get_redis_client
@@ -204,7 +203,7 @@ def admin_dashboard(request):
         
         # If no permissions at all, redirect to core admin or logout
         messages.error(request, 'You do not have permission to view the dashboard.')
-        return redirect('admin_login')
+        return redirect('/admin/')
     
     admin_profile = get_admin_profile(request.user)
     
@@ -230,6 +229,8 @@ def admin_dashboard(request):
         round_end_time = get_game_setting('ROUND_END_TIME', 80)
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'current_round': current_round,
         'timer': timer,
         'status': status,
@@ -317,7 +318,6 @@ def set_dice_result_view(request):
                 # Update Redis
                 if local_redis:
                     try:
-                        # 1. Update legacy current_round key
                         round_data = local_redis.get('current_round')
                         if round_data:
                             round_data = json.loads(round_data)
@@ -330,11 +330,6 @@ def set_dice_result_view(request):
                                 round_data['status'] = 'RESULT'
                             
                             local_redis.set('current_round', json.dumps(round_data))
-                        
-                        # 2. Update manual_dice_result for the engine to pick up
-                        # Format: "1,1,1,1,1,1"
-                        manual_dice_str = ",".join([str(result_value)] * 6)
-                        local_redis.set("manual_dice_result", manual_dice_str, ex=300)
                     except Exception:
                         pass
                 
@@ -548,7 +543,6 @@ def set_individual_dice_view(request):
                     # Update Redis with all current dice values
                     if redis_client:
                         try:
-                            # 1. Update legacy current_round key
                             round_data = redis_client.get('current_round')
                             if round_data:
                                 round_data = json.loads(round_data)
@@ -563,12 +557,6 @@ def set_individual_dice_view(request):
                                     round_data['status'] = 'RESULT'
                                 
                                 redis_client.set('current_round', json.dumps(round_data))
-                            
-                            # 2. Update manual_dice_result for the engine to pick up
-                            # Format: "1,2,3,4,5,6"
-                            if all(d is not None for d in complete_dice):
-                                manual_dice_str = ",".join([str(d) for d in complete_dice])
-                                redis_client.set("manual_dice_result", manual_dice_str, ex=300)
                         except Exception:
                             pass
                     
@@ -690,6 +678,8 @@ def dice_control(request):
         round_end_time = current_round.round_end_seconds if current_round else get_game_setting('ROUND_END_TIME', 80)
 
         context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
             'current_round': current_round,
             'timer': timer,
             'status': status,
@@ -720,12 +710,18 @@ def recent_rounds(request):
     
     # Get search query
     search_query = request.GET.get('search', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     status_filter = request.GET.get('status', '')
     
     # Get recent rounds with search/filter
     recent_rounds_list = GameRound.objects.all()
     
     # Apply search filter
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         # Search by round_id or dice_result
         recent_rounds_list = recent_rounds_list.filter(
@@ -734,6 +730,10 @@ def recent_rounds(request):
         )
     
     # Apply status filter
+    if from_date:
+        deposit_requests_list = deposit_requests_list.filter(created_at__date__gte=from_date)
+    if to_date:
+        deposit_requests_list = deposit_requests_list.filter(created_at__date__lte=to_date)
     if status_filter:
         recent_rounds_list = recent_rounds_list.filter(status=status_filter)
     
@@ -742,6 +742,10 @@ def recent_rounds(request):
     
     # Get recent bets (also with search if provided)
     recent_bets = Bet.objects.select_related('user', 'round').all()
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         recent_bets = recent_bets.filter(
             Q(round__round_id__icontains=search_query) |
@@ -755,6 +759,8 @@ def recent_rounds(request):
     total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'recent_rounds': recent_rounds_list,
         'recent_bets': recent_bets,
         'total_rounds': total_rounds,
@@ -801,6 +807,8 @@ def round_details(request, round_id):
         })
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'round': round_obj,
         'round_bets': round_bets,
         'unique_users': unique_users,
@@ -840,6 +848,7 @@ def user_details(request, user_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         amount = request.POST.get('amount', '0').strip()
+        utr_number = request.POST.get('utr_number', '').strip()
 
         # Debug logging
         logger.info(f"Balance adjustment request: user={user_id}, action={action}, amount={amount}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
@@ -868,34 +877,27 @@ def user_details(request, user_id):
                     amount=amount_decimal,
                     status='APPROVED',
                     payment_method=None, # Manual adjustment
-                    payment_reference='ADMIN_ADJUSTMENT',
+                    payment_reference=utr_number if utr_number else 'ADMIN_ADJUSTMENT',
                     processed_by=request.user,
                     processed_at=timezone.now(),
-                    admin_note='Manual deposit by support team'
+                    admin_note=f'Manual deposit by support team (UTR: {utr_number})' if utr_number else 'Manual deposit by support team'
                 )
                 
-                # 2️⃣ Update Redis atomically using INCRBYFLOAT
+                # Update Redis balance (CRITICAL for Redis-First betting)
                 try:
-                    if redis_client:
-                        redis_client.incrbyfloat(f"user_balance:{user.id}", float(amount_decimal))
+                    if redis_client and redis_client.ping():
+                        redis_client.set(f"user_balance:{user.id}", str(wallet.balance), ex=3600)
                         logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
                 except Exception as redis_err:
                     logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
 
                 messages.success(request, f'Successfully deposited ₹{amount} to {user.username}\'s account. (Locked for rotation)')
             elif action == 'withdraw':
-                # Subtract money from user balance
+                # Subtract money from user balance (allow negative balances for corrections)
+                # Ensure we use Decimal for calculation
                 amount_decimal = Decimal(str(amount))
-                
-                # Check if balance is sufficient
-                if wallet.balance < amount_decimal:
-                    messages.error(request, f'Insufficient balance. Current balance: ₹{wallet.balance}')
-                    return redirect(request.get_full_path())
-                
-                # 1️⃣ Update DB atomically
-                Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') - amount_decimal)
-                wallet.refresh_from_db()
-                
+                wallet.balance -= amount_decimal
+                wallet.save()
                 transaction_type = 'WITHDRAW'
                 description = f"withdrawn by support_team"
                 
@@ -905,47 +907,21 @@ def user_details(request, user_id):
                     amount=amount_decimal,
                     status='APPROVED',
                     withdrawal_method='ADMIN_ADJUSTMENT',
-                    withdrawal_details='Withdrawn by Support Team',
+                    withdrawal_details=f'Withdrawn by Support Team (UTR: {utr_number})' if utr_number else 'Withdrawn by Support Team',
                     processed_by=request.user,
                     processed_at=timezone.now(),
-                    admin_note='Manual withdrawal by support team'
+                    admin_note=f'Manual withdrawal by support team (UTR: {utr_number})' if utr_number else 'Manual withdrawal by support team'
                 )
                 
-                # 2️⃣ Update Redis atomically using INCRBYFLOAT (negative)
+                # Update Redis balance (CRITICAL for Redis-First betting)
                 try:
-                    if redis_client:
-                        redis_client.incrbyfloat(f"user_balance:{user.id}", -float(amount_decimal))
+                    if redis_client and redis_client.ping():
+                        redis_client.set(f"user_balance:{user.id}", str(wallet.balance), ex=3600)
                         logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
                 except Exception as redis_err:
                     logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
 
                 messages.success(request, f'Successfully withdrew ₹{amount} from {user.username}\'s account.')
-            elif action == 'adjust_remove':
-                # Subtract money from user balance (Adjustment)
-                amount_decimal = Decimal(str(amount))
-                
-                # Check if balance is sufficient
-                if wallet.balance < amount_decimal:
-                    messages.error(request, f'Insufficient balance for adjustment. Current balance: ₹{wallet.balance}')
-                    return redirect(request.get_full_path())
-                
-                # 1️⃣ Update DB atomically
-                from django.db.models import F
-                Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') - amount_decimal)
-                wallet.refresh_from_db()
-                
-                transaction_type = 'WITHDRAW'
-                description = f"balance adjustment (removed) by admin"
-                
-                # 2️⃣ Update Redis atomically using INCRBYFLOAT (negative)
-                try:
-                    if redis_client:
-                        redis_client.incrbyfloat(f"user_balance:{user.id}", -float(amount_decimal))
-                        logger.info(f"Updated Redis balance cache for user {user.id} after adjustment: {wallet.balance}")
-                except Exception as redis_err:
-                    logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
-
-                messages.success(request, f'Successfully adjusted balance: Removed ₹{amount} from {user.username}\'s account.')
             else:
                 messages.error(request, 'Invalid action.')
                 return redirect(request.get_full_path())
@@ -957,8 +933,18 @@ def user_details(request, user_id):
                 amount=amount_decimal,
                 balance_before=balance_before,
                 balance_after=wallet.balance,
-                description=description
+                description=f"{description} (UTR: {utr_number})" if utr_number else description
             )
+
+            # Update Redis balance cache
+            try:
+                if redis_client and redis_client.ping():
+                    redis_client.set(f"user_balance:{user.id}", str(wallet.balance), ex=3600)
+                    logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
+                else:
+                    logger.warning(f"Redis client not available for user {user.id} balance update")
+            except Exception as redis_err:
+                logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
 
             return redirect(request.get_full_path())
 
@@ -1011,6 +997,8 @@ def user_details(request, user_id):
         user_withdrawals = user_withdrawals[:20]
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'player': user,
         'wallet': wallet,
         'user_bets': user_bets,
@@ -1036,6 +1024,8 @@ def testing_dashboard(request):
     
     admin_profile = get_admin_profile(request.user)
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'page': 'testing-dashboard',
         'admin_profile': admin_profile,
     })
@@ -1092,6 +1082,8 @@ def all_bets(request):
 
     # Get filter parameters
     search_query = request.GET.get('search', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     status_filter = request.GET.get('status', 'all') # all, winners, losers
 
     # Get all bets
@@ -1102,6 +1094,10 @@ def all_bets(request):
         all_bets_list = all_bets_list.filter(user__worker=request.user)
 
     # Apply search filter
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         all_bets_list = all_bets_list.filter(
             Q(user__username__icontains=search_query) |
@@ -1125,6 +1121,8 @@ def all_bets(request):
     all_bets_list = all_bets_list[:200]
 
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'all_bets': all_bets_list,
         'total_bets_count': total_bets_count,
         'total_bets_amount': total_bets_amount,
@@ -1147,6 +1145,8 @@ def wallets(request):
     # Get filter parameters
     balance_filter = request.GET.get('balance', 'all')  # all, has_balance, zero
     search_query = request.GET.get('search', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     sort_by = request.GET.get('sort', 'balance_desc')  # balance_desc, balance_asc, username_asc, username_desc
     try:
         page_number = int(request.GET.get('page', 1))
@@ -1164,6 +1164,10 @@ def wallets(request):
     # 'all' shows all wallets
     
     # Apply search
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         wallets_query = wallets_query.filter(
             Q(user__username__icontains=search_query) |
@@ -1196,6 +1200,8 @@ def wallets(request):
         page_obj = None
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'wallets': page_obj if page_obj else wallets_query[:50],  # Fallback to first 50 if pagination fails
         'page_obj': page_obj,
         'total_wallets': total_wallets,
@@ -1219,12 +1225,20 @@ def deposit_requests(request):
         
     # Get search and status filters
     search_query = request.GET.get('search', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     status_filter = request.GET.get('status', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     
     # Get all deposit requests
     deposit_requests_list = DepositRequest.objects.select_related('user', 'processed_by').all()
     
     # Apply filters
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         deposit_requests_list = deposit_requests_list.filter(
             Q(user__username__icontains=search_query) |
@@ -1232,6 +1246,10 @@ def deposit_requests(request):
             Q(amount__icontains=search_query)
         )
         
+    if from_date:
+        deposit_requests_list = deposit_requests_list.filter(created_at__date__gte=from_date)
+    if to_date:
+        deposit_requests_list = deposit_requests_list.filter(created_at__date__lte=to_date)
     if status_filter:
         deposit_requests_list = deposit_requests_list.filter(status=status_filter)
         
@@ -1252,6 +1270,8 @@ def deposit_requests(request):
     latest_id = latest_request_id.id if latest_request_id else 0
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'deposit_requests': deposit_requests_list,
         'total_requests': total_requests,
         'pending_requests': pending_requests,
@@ -1259,6 +1279,10 @@ def deposit_requests(request):
         'rejected_requests': rejected_requests,
         'total_amount': total_amount,
         'pending_amount': pending_amount,
+        'from_date': from_date,
+        'to_date': to_date,
+        'from_date': from_date,
+        'to_date': to_date,
         'latest_request_id': latest_id,
         'search_query': search_query,
         'status_filter': status_filter,
@@ -1320,9 +1344,8 @@ def approve_deposit(request, pk):
                 bonus_amount = deposit.amount * Decimal('0.05')
                 final_amount += bonus_amount
             
-            # 1️⃣ Update DB atomically
-            Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + final_amount)
-            wallet.refresh_from_db()
+            wallet.balance = balance_before + final_amount
+            wallet.save()
             
             deposit.status = 'APPROVED'
             deposit.processed_by = request.user
@@ -1342,11 +1365,11 @@ def approve_deposit(request, pk):
                 deposit.admin_note = note
             deposit.save()
 
-            # 2️⃣ Update Redis atomically using INCRBYFLOAT
+            # Update Redis balance (CRITICAL for Redis-First betting)
             try:
                 from game.views import redis_client
                 if redis_client:
-                    redis_client.incrbyfloat(f"user_balance:{deposit.user.id}", float(final_amount))
+                    redis_client.set(f"user_balance:{deposit.user.id}", str(wallet.balance), ex=3600)
                     logger.info(f"Updated Redis balance for user {deposit.user.id} after deposit approval: {wallet.balance}")
             except Exception as re_err:
                 logger.error(f"Failed to update Redis balance for user {deposit.user.id} after deposit approval: {re_err}")
@@ -1359,35 +1382,6 @@ def approve_deposit(request, pk):
                 balance_after=wallet.balance,
                 description=f"Manual deposit approved #{deposit.id}{f' (Includes 5% USDT bonus: ₹{bonus_amount})' if bonus_amount > 0 else ''}{f'. {deposit.admin_note}' if deposit.admin_note else ''}",
             )
-
-            # Handle referral bonus
-            referrer = deposit.user.referred_by
-            if referrer:
-                from accounts.referral_logic import calculate_referral_bonus, check_and_award_milestone_bonus
-                referral_bonus = calculate_referral_bonus(deposit.amount)
-                if referral_bonus > 0:
-                    ref_wallet, _ = Wallet.objects.get_or_create(user=referrer)
-                    ref_wallet = Wallet.objects.select_for_update().get(pk=ref_wallet.pk)
-                    ref_balance_before = ref_wallet.balance
-                    # Referral bonus needs to be rotated 1 time
-                    ref_wallet.add(referral_bonus, is_bonus=True)
-                    # ref_wallet.save() # ref_wallet.add already calls save()
-
-                    Transaction.objects.create(
-                        user=referrer,
-                        transaction_type='REFERRAL_BONUS',
-                        amount=referral_bonus,
-                        balance_before=ref_balance_before,
-                        balance_after=ref_wallet.balance,
-                        description=f"Referral bonus from {deposit.user.username}'s deposit of ₹{deposit.amount}",
-                    )
-                    # 2️⃣ Update Redis for referrer atomically
-                    try:
-                        if redis_client:
-                            redis_client.incrbyfloat(f"user_balance:{referrer.id}", float(referral_bonus))
-                    except: pass
-                    # Check for milestone bonus
-                    check_and_award_milestone_bonus(referrer)
         
         messages.success(request, f"Deposit request #{deposit.id} approved. ₹{final_amount} added to {deposit.user.username}'s wallet.{f' (Includes ₹{bonus_amount} USDT bonus)' if bonus_amount > 0 else ''}")
     except DepositRequest.DoesNotExist:
@@ -1489,12 +1483,20 @@ def withdraw_requests(request):
 
     # Get search and status filters
     search_query = request.GET.get('search', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     status_filter = request.GET.get('status', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
 
     # Get all withdraw requests
     withdraw_requests_list = WithdrawRequest.objects.select_related('user', 'processed_by').all()
     
     # Apply filters
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         withdraw_requests_list = withdraw_requests_list.filter(
             Q(user__username__icontains=search_query) |
@@ -1503,12 +1505,10 @@ def withdraw_requests(request):
             Q(amount__icontains=search_query)
         )
         
-    if status_filter:
-        if status_filter == 'SUCCESS':
-            withdraw_requests_list = withdraw_requests_list.filter(status__in=['APPROVED', 'COMPLETED'])
-        else:
-            withdraw_requests_list = withdraw_requests_list.filter(status=status_filter)
-        
+    if from_date:
+        withdraw_requests_list = withdraw_requests_list.filter(created_at__date__gte=from_date)
+    if to_date:
+        withdraw_requests_list = withdraw_requests_list.filter(created_at__date__lte=to_date)
     # Order by most recent
     withdraw_requests_list = withdraw_requests_list.order_by('-created_at')
 
@@ -1526,6 +1526,8 @@ def withdraw_requests(request):
     latest_id = latest_request_id.id if latest_request_id else 0
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'withdraw_requests': withdraw_requests_list,
         'total_requests': total_requests,
         'pending_requests': pending_requests,
@@ -1570,7 +1572,7 @@ def check_new_withdraw_requests(request):
 
 @admin_required
 def approve_withdraw(request, pk):
-    """Approve a withdraw request - Deducts money from wallet and sets status to COMPLETED immediately"""
+    """Approve a withdraw request"""
     if request.method != 'POST':
         messages.error(request, 'Invalid request method. Please use the approve button.')
         return redirect('withdraw_requests')
@@ -1590,25 +1592,28 @@ def approve_withdraw(request, pk):
                 messages.error(request, f'Insufficient balance in {withdraw.user.username}\'s wallet.')
                 return redirect('withdraw_requests')
 
-            # 1️⃣ Money is already deducted from Redis and DB during initiation
-            # We just update the status to COMPLETED
-            withdraw.status = 'COMPLETED'
+            balance_before = wallet.balance
+            wallet.balance = balance_before - withdraw.amount
+            wallet.save()
+
+            # Update Redis balance (CRITICAL for Redis-First betting)
+            try:
+                from game.views import redis_client
+                if redis_client:
+                    redis_client.set(f"user_balance:{withdraw.user.id}", str(wallet.balance), ex=3600)
+                    logger.info(f"Updated Redis balance for user {withdraw.user.id} after withdraw approval: {wallet.balance}")
+            except Exception as re_err:
+                logger.error(f"Failed to update Redis balance for user {withdraw.user.id} after withdraw approval: {re_err}")
+            
+            withdraw.status = 'APPROVED'
             withdraw.processed_by = request.user
             withdraw.processed_at = timezone.now()
-            
-            # If there's a note or UTR from the approval process, save it
+            # If there's a note from the approval process, save it
             note = request.POST.get('note', '')
-            utr_number = request.POST.get('utr_number', '').strip()
-            
             if note:
                 withdraw.admin_note = note
-            if utr_number:
-                withdraw.utr_number = utr_number
-                
             withdraw.save()
 
-            logger.info(f"Withdrawal request #{withdraw.id} approved by admin {request.user.username}")
-            
             # Automatically save/update bank details upon approval
             try:
                 from accounts.models import UserBankDetail
@@ -1618,6 +1623,7 @@ def approve_withdraw(request, pk):
                 method = withdraw.withdrawal_method
                 
                 # Logic to extract fields from the formatted details string
+                # We expect patterns like "UPI ID: ...\nName: ..." or "Name: ...\nBank: ..."
                 acc_name = ""
                 bank_name = ""
                 acc_num = ""
@@ -1641,6 +1647,7 @@ def approve_withdraw(request, pk):
                     if ifsc_match: ifsc = ifsc_match.group(1).strip()
 
                 if acc_name and (upi_id or acc_num):
+                    # Check if this exact detail already exists for this user
                     detail_obj = None
                     if upi_id:
                         detail_obj = UserBankDetail.objects.filter(user=withdraw.user, upi_id=upi_id).first()
@@ -1648,8 +1655,10 @@ def approve_withdraw(request, pk):
                         detail_obj = UserBankDetail.objects.filter(user=withdraw.user, account_number=acc_num).first()
                     
                     if detail_obj:
-                        detail_obj.save()
+                        # Just update the timestamp to bring it to the top
+                        detail_obj.save() # save() triggers auto_now update
                     else:
+                        # Create new saved detail
                         UserBankDetail.objects.create(
                             user=withdraw.user,
                             account_name=acc_name,
@@ -1658,44 +1667,23 @@ def approve_withdraw(request, pk):
                             ifsc_code=ifsc,
                             upi_id=upi_id
                         )
-            except Exception:
+            except Exception as e:
                 pass
+            
+            Transaction.objects.create(
+                user=withdraw.user,
+                transaction_type='WITHDRAW',
+                amount=withdraw.amount,
+                balance_before=balance_before,
+                balance_after=wallet.balance,
+                description=f"Manual withdraw approved #{withdraw.id}{f'. {withdraw.admin_note}' if withdraw.admin_note else ''}",
+            )
         
-        messages.success(request, f'Withdraw request #{withdraw.id} approved and payment completed. ₹{withdraw.amount} deducted from {withdraw.user.username}\'s wallet.')
+        messages.success(request, f'Withdraw request #{withdraw.id} approved. ₹{withdraw.amount} deducted from {withdraw.user.username}\'s wallet.')
     except WithdrawRequest.DoesNotExist:
         messages.error(request, 'Withdraw request not found.')
     except Exception as e:
-        messages.error(request, f'Error processing withdraw: {str(e)}')
-    
-    return redirect('withdraw_requests')
-
-@admin_required
-def complete_withdraw_payment(request, pk):
-    """Finalize a withdraw request with UTR number after payment is completed"""
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method.')
-        return redirect('withdraw_requests')
-    
-    utr_number = request.POST.get('utr_number', '').strip()
-    if not utr_number:
-        messages.error(request, 'UTR number is required to complete payment.')
-        return redirect('withdraw_requests')
-
-    try:
-        withdraw = WithdrawRequest.objects.get(pk=pk)
-        if withdraw.status != 'APPROVED':
-            messages.error(request, 'Only approved requests can be marked as payment completed.')
-            return redirect('withdraw_requests')
-        
-        withdraw.status = 'COMPLETED'
-        withdraw.utr_number = utr_number
-        withdraw.save()
-        
-        messages.success(request, f'Payment completed for withdraw request #{withdraw.id}. UTR: {utr_number}')
-    except WithdrawRequest.DoesNotExist:
-        messages.error(request, 'Withdraw request not found.')
-    except Exception as e:
-        messages.error(request, f'Error completing payment: {str(e)}')
+        messages.error(request, f'Error approving withdraw: {str(e)}')
     
     return redirect('withdraw_requests')
 
@@ -1712,35 +1700,13 @@ def reject_withdraw(request, pk):
                     messages.error(request, 'Withdraw request has already been processed.')
                     return redirect('withdraw_requests')
                 
-                # 1️⃣ Refund money to Redis immediately
-                try:
-                    from game.views import redis_client
-                    if redis_client:
-                        redis_client.incrbyfloat(f"user_balance:{withdraw.user.id}", float(withdraw.amount))
-                        logger.info(f"Refunded Redis balance for user {withdraw.user.id} after withdrawal rejection: {withdraw.amount}")
-                except Exception as re_err:
-                    logger.error(f"Failed to refund Redis balance for user {withdraw.user.id}: {re_err}")
-
-                # 2️⃣ Queue refund event to worker
-                refund_event = {
-                    'type': 'reject_withdraw_refund',
-                    'user_id': str(withdraw.user.id),
-                    'withdraw_id': str(withdraw.id),
-                    'amount': str(withdraw.amount),
-                    'note': note,
-                    'round_id': 'WITHDRAW',
-                    'timestamp': timezone.now().isoformat()
-                }
-                if redis_client:
-                    redis_client.xadd('bet_stream', refund_event, maxlen=10000)
-
                 withdraw.status = 'REJECTED'
                 withdraw.admin_note = note
                 withdraw.processed_by = request.user
                 withdraw.processed_at = timezone.now()
                 withdraw.save()
             
-            messages.success(request, f'Withdraw request #{withdraw.id} rejected and funds refunded to user.')
+            messages.success(request, f'Withdraw request #{withdraw.id} rejected.')
         except WithdrawRequest.DoesNotExist:
             messages.error(request, 'Withdraw request not found.')
         except Exception as e:
@@ -1757,11 +1723,17 @@ def transactions(request):
 
     # Get search filter
     search_query = request.GET.get('search', '').strip()
+    from_date = request.GET.get('from_date', '').strip()
+    to_date = request.GET.get('to_date', '').strip()
     
     # Base transaction queryset
     transactions_query = Transaction.objects.all()
     
     # Apply search filter (filter by user)
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         transactions_query = transactions_query.filter(
             Q(user__username__icontains=search_query) |
@@ -1776,15 +1748,13 @@ def transactions(request):
     total_wins = transactions_query.filter(transaction_type='WIN').aggregate(Sum('amount'))['amount__sum'] or 0
     admin_profit = total_bets - total_wins
 
-    # Calculate last 10 days profit data for chart
+    # Calculate last 30 days profit data for chart
     from datetime import timedelta
     from django.db.models.functions import TruncDate
     
-    # Changed from 30 days to 10 days as requested
-    days_count = 10
-    start_date = timezone.now().date() - timedelta(days=days_count-1)
+    thirty_days_ago = timezone.now().date() - timedelta(days=29)
     daily_stats = transactions_query.filter(
-        created_at__date__gte=start_date,
+        created_at__date__gte=thirty_days_ago,
         transaction_type__in=['BET', 'WIN']
     ).annotate(
         date=TruncDate('created_at')
@@ -1794,8 +1764,8 @@ def transactions(request):
 
     # Process daily stats into a format for the chart
     profit_data_map = {}
-    for i in range(days_count):
-        date = start_date + timedelta(days=i)
+    for i in range(30):
+        date = thirty_days_ago + timedelta(days=i)
         profit_data_map[date] = 0
 
     for stat in daily_stats:
@@ -1811,6 +1781,8 @@ def transactions(request):
     chart_data = [float(profit_data_map[date]) for date in sorted(profit_data_map.keys())]
 
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'total_transactions': total_transactions,
         'total_deposits': total_deposits,
         'total_withdraws': total_withdraws,
@@ -1851,6 +1823,8 @@ def admin_management(request):
         })
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'admin_list': admin_list,
     })
     return render(request, 'admin/admin_management.html', context)
@@ -1993,6 +1967,8 @@ def edit_admin(request, admin_id):
         return redirect('admin_management')
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'admin_user': user,
         'permissions': permissions,
     })
@@ -2060,6 +2036,10 @@ def manage_players(request):
         users_query = users_query.filter(is_active=False)
     
     # Apply search filter
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         users_query = users_query.filter(
             Q(username__icontains=search_query) |
@@ -2098,6 +2078,8 @@ def manage_players(request):
     workers = User.objects.filter(is_staff=True, is_active=True).order_by('username')
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'page_obj': page_obj,
         'status_filter': status_filter,
         'search_query': search_query,
@@ -2139,6 +2121,10 @@ def players(request):
         users_query = users_query.filter(is_active=False)
 
     # Apply search filter
+    if from_date:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         users_query = users_query.filter(
             Q(username__icontains=search_query) |
@@ -2162,6 +2148,8 @@ def players(request):
     inactive_users = users_query.filter(is_active=False).count()
 
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'page_obj': page_obj,
         'total_users': total_users,
         'active_users': active_users,
@@ -2329,6 +2317,8 @@ def game_settings(request):
         })
     
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'settings_list': settings_list,
         'page': 'game_settings',
         'admin_profile': get_admin_profile(request.user),
@@ -2405,6 +2395,8 @@ def payment_methods(request):
     available_method_types = [mt for mt in all_method_choices if mt[0] not in used_method_types]
 
     context = get_admin_context(request, {
+        'from_date': from_date,
+        'to_date': to_date,
         'payment_methods': methods,
         'available_method_types': available_method_types,
         'page': 'payment-methods',
@@ -2431,8 +2423,6 @@ def create_payment_method(request):
         usdt_network = request.POST.get('usdt_network', '') or ''
         usdt_wallet_address = request.POST.get('usdt_wallet_address', '') or ''
         usdt_exchange_rate = request.POST.get('usdt_exchange_rate', '90.00')
-        if not usdt_exchange_rate or usdt_exchange_rate.strip() == '':
-            usdt_exchange_rate = '90.00'
 
         if not method_type:
             messages.error(request, 'Method Type is required.')
@@ -2447,12 +2437,6 @@ def create_payment_method(request):
         method_type_display = dict(PaymentMethod.METHOD_TYPES).get(method_type, method_type)
 
         try:
-            # Clean exchange rate - remove any non-numeric characters except decimal point
-            import re
-            clean_rate = re.sub(r'[^\d.]', '', str(usdt_exchange_rate))
-            if not clean_rate or clean_rate == '.':
-                clean_rate = '90.00'
-            
             PaymentMethod.objects.create(
                 name=method_type_display,
                 method_type=method_type,
@@ -2466,12 +2450,10 @@ def create_payment_method(request):
                 is_active=is_active,
                 usdt_network=usdt_network,
                 usdt_wallet_address=usdt_wallet_address,
-                usdt_exchange_rate=Decimal(clean_rate)
+                usdt_exchange_rate=Decimal(usdt_exchange_rate)
             )
             messages.success(request, f'Payment method "{method_type_display}" created successfully!')
         except Exception as e:
-            import traceback
-            traceback.print_exc()
             messages.error(request, f'Error creating payment method: {str(e)}')
 
     return redirect('payment_methods')
