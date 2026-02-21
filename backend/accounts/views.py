@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.conf import settings
 from decimal import Decimal, InvalidOperation
 from django.db.models import Q, F, Sum
+from django.db.models.functions import Coalesce
 import uuid
 import re
 import logging
@@ -53,6 +54,59 @@ from django.utils.crypto import constant_time_compare
 def hash_otp(otp):
     """Hash OTP using SHA256"""
     return hashlib.sha256(str(otp).encode()).hexdigest()
+
+
+def _verify_otp_from_redis(clean_phone, otp_code, purpose='SIGNUP'):
+    """
+    Verify OTP from Redis. Returns (is_valid, error_msg).
+    Multiple OTPs supported: if user got 7 OTPs in last 5 min, any of those 7 is valid.
+    """
+    if not redis_client:
+        return False, 'System error: Redis unavailable'
+
+    # Hash-based: each OTP stored as otp:{phone}:h:{hash}, ex=300
+    provided_hash = hash_otp(otp_code)
+    if redis_client.get(f"otp:{clean_phone}:h:{provided_hash}"):
+        return True, None
+
+    # MESSAGE_CENTRAL: each OTP stored as otp:{phone}:mc:{vid}, ex=300
+    mc_keys = redis_client.keys(f"otp:{clean_phone}:mc:*")
+    if mc_keys:
+        from .sms_service import sms_service
+        for key in mc_keys:
+            k = key.decode() if isinstance(key, bytes) else key
+            vid = k.split(":mc:", 1)[-1]
+            success, msg = sms_service._verify_via_message_central(vid, otp_code, clean_phone)
+            if success:
+                return True, None
+
+    # Legacy single key
+    stored_val = redis_client.get(f"otp:{clean_phone}")
+    if stored_val is not None:
+        stored_val = stored_val.decode() if isinstance(stored_val, bytes) else str(stored_val)
+        if str(stored_val).startswith("MC:"):
+            from .sms_service import sms_service
+            success, msg = sms_service._verify_via_message_central(stored_val[3:], otp_code, clean_phone)
+            return success, msg if not success else None
+        if constant_time_compare(stored_val, provided_hash) or stored_val == otp_code:
+            return True, None
+
+    # DB fallback
+    from .models import OTP
+    otp_obj = OTP.objects.filter(phone_number=clean_phone, purpose=purpose, is_used=False).order_by('-created_at').first()
+    if otp_obj and otp_obj.otp_code == otp_code and not otp_obj.is_expired():
+        return True, None
+
+    return False, 'Invalid or expired OTP. Please request a new code.'
+
+
+def _clear_otp_for_phone(clean_phone):
+    """Remove all OTPs for a phone (after successful verify/register)."""
+    if not redis_client:
+        return
+    keys = redis_client.keys(f"otp:{clean_phone}*")
+    if keys:
+        redis_client.delete(*keys)
 
 def cache_user_session(user, balance=None):
     """Helper to cache user session and balance in Redis"""
@@ -102,67 +156,18 @@ def register(request):
         if not phone_number or not otp_code or not username or not password:
             return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Clean phone number (10 digits)
-        from .sms_service import sms_service
-        clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
-        
-        # Clean phone number (10 digits)
         from .sms_service import sms_service
         clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
         
         # 1. Validate OTP from Redis
-        if not redis_client:
-            return Response({'error': 'System error: Redis unavailable'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        # LOGGING for debugging OTP issues
         logger.info(f"Registration attempt for {clean_phone} with OTP {otp_code}")
-        
-        # 1.1 Check for MASTER OTP bypass (for development/testing)
-        if otp_code == "123456" or otp_code == "8947" or otp_code == "3174":
-            logger.info(f"MASTER/PREVIOUS OTP used for registration: {clean_phone}")
+        if otp_code in ("123456", "8947", "3174"):
+            logger.info(f"MASTER OTP used for registration: {clean_phone}")
         else:
-            # Check Redis first
-            otp_key = f"otp:{clean_phone}"
-            stored_hash = redis_client.get(otp_key)
-            
-            # Check DB second (fallback if Redis is out of sync)
-            from .models import OTP
-            otp_obj = OTP.objects.filter(
-                phone_number=clean_phone,
-                purpose='SIGNUP',
-                is_used=False
-            ).order_by('-created_at').first()
-            
-            # If not in Redis and not in DB, it's expired or never sent
-            if not stored_hash and not otp_obj:
-                logger.warning(f"OTP not found in Redis or DB for {clean_phone}. Key: {otp_key}")
-                # return Response({'error': f'OTP expired or not found for {clean_phone}. Please click "Get OTP" again.'}, status=status.HTTP_400_BAD_REQUEST)
-                # TEMPORARY BYPASS: If OTP not found, let it pass for now to unblock user
-                logger.warning(f"OTP BYPASS for {clean_phone} due to missing records")
-            else:
-                # Verification logic
-                is_valid = False
-                
-                # Try Redis hash comparison
-                if stored_hash:
-                    provided_hash = hash_otp(otp_code)
-                    if constant_time_compare(stored_hash, provided_hash) or stored_hash == otp_code:
-                        is_valid = True
-                        logger.info(f"OTP matched via Redis for {clean_phone}")
-                
-                # Try DB comparison if not already valid
-                if not is_valid and otp_obj:
-                    if otp_obj.otp_code == otp_code:
-                        is_valid = True
-                        logger.info(f"OTP matched via DB for {clean_phone}")
-                    elif otp_obj.is_expired():
-                        # return Response({'error': 'OTP has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
-                        logger.warning(f"OTP expired but allowing bypass for {clean_phone}")
-                        is_valid = True
-                
-                if not is_valid:
-                    logger.warning(f"Invalid OTP provided for {clean_phone}. Provided: {otp_code}")
-                    return Response({'error': 'Invalid OTP. Please check the code sent to your phone.'}, status=status.HTTP_400_BAD_REQUEST)
+            is_valid, err_msg = _verify_otp_from_redis(clean_phone, otp_code, purpose='SIGNUP')
+            if not is_valid:
+                logger.warning(f"Invalid OTP for registration {clean_phone}: {err_msg}")
+                return Response({'error': err_msg or 'Invalid OTP. Please check the code sent to your phone.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # 2. Check Uniqueness (rely on DB constraints but check early for better UX)
         if User.objects.filter(username=username).exists():
@@ -189,8 +194,8 @@ def register(request):
                 # Create wallet
                 wallet = Wallet.objects.create(user=user, balance=Decimal('0.00'))
                 
-                # Success - delete OTP from Redis
-                redis_client.delete(otp_key)
+                # Success - clear all OTPs for this phone
+                _clear_otp_for_phone(clean_phone)
                 
                 logger.info(f"User registered successfully: {user.username} (ID: {user.id})")
                 
@@ -341,44 +346,46 @@ def send_otp(request):
         from .sms_service import sms_service
         clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
         
-        # 2. Rate Limiting: Max 5 requests per 10 minutes
+        # 2. Rate Limiting: Max 10 requests per 10 minutes
         rate_key = f"otp_rate:{clean_phone}"
         requests_count = redis_client.incr(rate_key)
         if requests_count == 1:
-            redis_client.expire(rate_key, 600) # 10 minutes
+            redis_client.expire(rate_key, 600)  # 10 minutes
         
-        if requests_count > 5:
+        if requests_count > 10:
             return Response({
                 'error': 'Too many OTP requests. Please wait 10 minutes.'
             }, status=status.HTTP_429_TOO_MANY_REQUESTS)
 
-        # 3. Generate secure 4-digit OTP
-        from .sms_service import sms_service
-        otp_code = sms_service.generate_otp(length=4)
-        
-        # 4. Store hashed OTP in Redis (5 minutes)
-        otp_key = f"otp:{clean_phone}"
-        hashed_val = hash_otp(otp_code)
-        redis_client.set(otp_key, hashed_val, ex=300)
-        
-        # 5. Send OTP via SMS provider
-        # Note: We pass the generated OTP to the service
         sms_number = sms_service._clean_phone_number(phone_number, for_sms=True)
-        
-        # We'll use a background thread to avoid blocking the request
-        import threading
-        thread = threading.Thread(
-            target=sms_service._send_sms_via_provider,
-            args=(sms_number, otp_code)
-        )
-        thread.daemon = True
-        thread.start()
+        # Each OTP valid 5 min. Resend adds new OTP; user can enter any of them.
+        otp_expiry = 300
 
-        logger.info(f"OTP sent to {clean_phone} (Purpose: {purpose})")
-        
+        # MESSAGE_CENTRAL: store verification_id per OTP
+        if getattr(settings, 'SMS_PROVIDER', '').upper() == 'MESSAGE_CENTRAL':
+            success, msg, verification_id = sms_service._send_via_message_central(sms_number, None)
+            if not success or not verification_id:
+                logger.error(f"Message Central OTP send failed for {clean_phone}: {msg}")
+                return Response({'error': 'Failed to send OTP. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            redis_client.set(f"otp:{clean_phone}:mc:{verification_id}", "1", ex=otp_expiry)
+            logger.info(f"OTP sent via Message Central to {clean_phone} (Purpose: {purpose})")
+        else:
+            # MSG91, TWILIO, TEXTLOCAL: we generate OTP and send it
+            otp_code = sms_service.generate_otp(length=4)
+            hashed_val = hash_otp(otp_code)
+            redis_client.set(f"otp:{clean_phone}:h:{hashed_val}", "1", ex=otp_expiry)
+            import threading
+            thread = threading.Thread(
+                target=sms_service._send_sms_via_provider,
+                args=(sms_number, otp_code)
+            )
+            thread.daemon = True
+            thread.start()
+            logger.info(f"OTP sent to {clean_phone} (Purpose: {purpose})")
+
         return Response({
             'message': 'OTP sent successfully',
-            'expires_in': 300
+            'expires_in': otp_expiry
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
@@ -407,56 +414,14 @@ def verify_otp_login(request):
         clean_phone = sms_service._clean_phone_number(phone_number, for_sms=False)
         
         # 1. Validate OTP from Redis
-        if not redis_client:
-            return Response({'error': 'System error: Redis unavailable'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        # LOGGING for debugging OTP issues
         logger.info(f"OTP login attempt for {clean_phone} with OTP {otp_code}")
-        
-        # 1.1 Check for MASTER OTP bypass (for development/testing)
-        if otp_code == "123456" or otp_code == "8947" or otp_code == "3174":
-            logger.info(f"MASTER/PREVIOUS OTP used for login: {clean_phone}")
+        if otp_code in ("123456", "8947", "3174"):
+            logger.info(f"MASTER OTP used for login: {clean_phone}")
         else:
-            # Check Redis first
-            otp_key = f"otp:{clean_phone}"
-            stored_hash = redis_client.get(otp_key)
-            
-            # Check DB second (fallback if Redis is out of sync)
-            from .models import OTP
-            otp_obj = OTP.objects.filter(
-                phone_number=clean_phone,
-                purpose='SIGNUP',
-                is_used=False
-            ).order_by('-created_at').first()
-            
-            # If not in Redis and not in DB, it's expired or never sent
-            if not stored_hash and not otp_obj:
-                logger.warning(f"OTP not found in Redis or DB for login {clean_phone}. Key: {otp_key}")
-                # TEMPORARY BYPASS: Let it pass for now to unblock user
-                logger.warning(f"OTP BYPASS for login {clean_phone} due to missing records")
-            else:
-                # Verification logic
-                is_valid = False
-                
-                # Try Redis hash comparison
-                if stored_hash:
-                    provided_hash = hash_otp(otp_code)
-                    if constant_time_compare(stored_hash, provided_hash) or stored_hash == otp_code:
-                        is_valid = True
-                        logger.info(f"OTP matched via Redis for login {clean_phone}")
-                
-                # Try DB comparison if not already valid
-                if not is_valid and otp_obj:
-                    if otp_obj.otp_code == otp_code:
-                        is_valid = True
-                        logger.info(f"OTP matched via DB for login {clean_phone}")
-                    elif otp_obj.is_expired():
-                        logger.warning(f"OTP expired but allowing bypass for login {clean_phone}")
-                        is_valid = True
-                
-                if not is_valid:
-                    logger.warning(f"Invalid OTP provided for login {clean_phone}. Provided: {otp_code}")
-                    return Response({'error': 'Invalid OTP. Please check the code sent to your phone.'}, status=status.HTTP_400_BAD_REQUEST)
+            is_valid, err_msg = _verify_otp_from_redis(clean_phone, otp_code, purpose='LOGIN')
+            if not is_valid:
+                logger.warning(f"Invalid OTP for login {clean_phone}: {err_msg}")
+                return Response({'error': err_msg or 'Invalid OTP. Please check the code sent to your phone.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # 2. Find user
         user = User.objects.filter(phone_number=clean_phone).first()
@@ -466,8 +431,8 @@ def verify_otp_login(request):
         if not user.is_active:
             return Response({'error': 'User account is disabled'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Success - delete OTP from Redis
-        redis_client.delete(otp_key)
+        # Success - clear all OTPs for this phone
+        _clear_otp_for_phone(clean_phone)
 
         # 3. Create JWT tokens
         refresh = RefreshToken.for_user(user)
@@ -1756,11 +1721,12 @@ def leaderboard(request):
             3: f"₹{setting.prize_3rd:,}"
         }
         
-        # Get top 10 players by turnover (sum of chip_amount)
-        # We only consider users who have placed at least one bet
-        top_players_data = Bet.objects.values('user_id', 'user__username') \
-            .annotate(turnover=Sum('chip_amount')) \
-            .order_by('-turnover')
+        # Rank users globally by turnover (all users), and expose top 10 for display.
+        # Coalesce ensures null sums become 0 for stable sorting/comparison.
+        ranked_players = Bet.objects.values('user_id', 'user__username') \
+            .annotate(turnover=Coalesce(Sum('chip_amount'), 0)) \
+            .filter(turnover__gt=0) \
+            .order_by('-turnover', 'user_id')
         
         leaderboard_list = []
         user_rank = 0
@@ -1769,7 +1735,7 @@ def leaderboard(request):
         # Calculate rank for everyone and find current user's rank
         # We'll use a dictionary to handle ties correctly if needed, 
         # but for now, we'll follow the loop logic.
-        for index, data in enumerate(top_players_data):
+        for index, data in enumerate(ranked_players):
             rank = index + 1
             turnover = float(data['turnover'])
             
@@ -1784,11 +1750,25 @@ def leaderboard(request):
             
             # Check if this is the current user to get their rank
             # CRITICAL: Ensure we compare the correct user ID
-            if data['user_id'] == request.user.id:
+            if str(data['user_id']) == str(request.user.id):
                 user_rank = rank
                 user_turnover = turnover
                 
-        # If user wasn't in the top players data (no bets), get their turnover anyway
+        # If user rank wasn't captured in loop (type mismatch / edge cases), compute directly.
+        if user_rank == 0:
+            user_turnover_data = Bet.objects.filter(user=request.user) \
+                .aggregate(total_turnover=Coalesce(Sum('chip_amount'), 0))
+            user_turnover = float(user_turnover_data['total_turnover'] or 0)
+
+            if user_turnover > 0:
+                # Rank = users with strictly higher turnover + 1
+                users_above_count = Bet.objects.values('user_id') \
+                    .annotate(turnover=Coalesce(Sum('chip_amount'), 0)) \
+                    .filter(turnover__gt=user_turnover) \
+                    .count()
+                user_rank = users_above_count + 1
+
+        # If user wasn't in ranked players (no bets), keep rank unranked.
         if user_rank == 0:
             user_turnover_data = Bet.objects.filter(user=request.user) \
                 .aggregate(total_turnover=Sum('chip_amount'))
