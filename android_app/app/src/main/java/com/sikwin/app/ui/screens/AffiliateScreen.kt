@@ -152,6 +152,7 @@ fun AffiliateScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
+                                .wrapContentWidth()
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(BlackBackground.copy(alpha = 0.5f))
                                 .padding(horizontal = 24.dp, vertical = 12.dp)
@@ -163,11 +164,12 @@ fun AffiliateScreen(
                                 }
                         ) {
                             Text(
-                                referralCode,
+                                text = referralCode,
                                 color = PrimaryYellow,
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.Black,
-                                letterSpacing = 2.sp
+                                letterSpacing = 2.sp,
+                                maxLines = 1
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Icon(Icons.Default.ContentCopy, null, tint = PrimaryYellow, modifier = Modifier.size(20.dp))

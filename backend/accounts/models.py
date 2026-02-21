@@ -52,22 +52,25 @@ class User(AbstractUser):
     def generate_unique_referral_code(self):
         """
         Generate a unique referral code for this user.
-        Format: Gunduata + 6 random digits
+        Sequential numeric format starting from 123: 123, 124, 125, ...
         """
-        max_attempts = 100
-        for _ in range(max_attempts):
-            # Generate code in format: Gunduata + 6 random digits
-            random_digits = ''.join(random.choices(string.digits, k=6))
-            code = f"Gunduata{random_digits}"
+        # Find max existing numeric referral code
+        codes = User.objects.exclude(
+            referral_code__isnull=True
+        ).exclude(
+            referral_code=''
+        ).values_list('referral_code', flat=True)
+        numeric_vals = []
+        for c in codes:
+            if c and str(c).isdigit():
+                numeric_vals.append(int(c))
+        next_num = max(numeric_vals) + 1 if numeric_vals else 123
+        next_num = max(next_num, 123)  # Ensure we start at least at 123
 
-            # Check if code already exists (excluding current user)
-            if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
-                return code
-
-        # Fallback: Use timestamp-based
-        import time
-        code = f"Gunduata{int(time.time()) % 1000000:06d}"
-        return code
+        # Handle collision (rare with concurrent requests)
+        while User.objects.filter(referral_code=str(next_num)).exclude(pk=self.pk).exists():
+            next_num += 1
+        return str(next_num)
     
     def save(self, *args, **kwargs):
         # Ensure referral code is generated if missing
