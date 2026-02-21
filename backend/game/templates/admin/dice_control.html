@@ -1053,23 +1053,34 @@
             }
         }
 
+        // Parse timer value (allow 0; default to 1 only for NaN/negative)
+        function parseTimer(val) {
+            const v = parseInt(val, 10);
+            return (isNaN(v) || v < 0) ? 1 : v;
+        }
+
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {
             const messageType = data.type;
+            const roundEndTime = {{ round_end_time|default:80 }};
 
             switch(messageType) {
                 case 'timer':
                     // Real-time timer update from WebSocket - extract timer value
                     if (data.timer !== undefined && data.timer !== null) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        // Only sync if drift is more than 2 seconds to avoid jitter,
-                        // or if it's a major state change (timer reset)
-                        if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer || !timerSynced) {
+                        const newTimer = parseTimer(data.timer);
+                        // Reject stale "1" - if we're mid-round (10 to roundEnd-5) and get timer=1, it's likely delayed
+                        const isStaleReset = (newTimer <= 2 && currentTimer >= 10 && currentTimer <= roundEndTime - 5);
+                        const shouldSync = !isStaleReset && (
+                            Math.abs(currentTimer - newTimer) > 2 ||
+                            (newTimer < currentTimer && (currentTimer > roundEndTime - 5 || !timerSynced)) ||
+                            !timerSynced
+                        );
+                        if (shouldSync) {
                             currentTimer = newTimer;
-                            timerSynced = true; // Mark as synced
+                            timerSynced = true;
                             updateTimerDisplay();
                         }
-                        // Ensure client-side timer is running
                         startClientSideTimer();
                     }
                     if (data.status) {
@@ -1078,15 +1089,20 @@
                     break;
 
                 case 'game_state':
-                    // Initial game state or state update - extract timer from WebSocket
                     if (data.timer !== undefined && data.timer !== null) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer || !timerSynced) {
+                        const newTimer = parseTimer(data.timer);
+                        const isStaleReset = (newTimer <= 2 && currentTimer >= 10 && currentTimer <= roundEndTime - 5);
+                        const shouldSync = !isStaleReset && (
+                            Math.abs(currentTimer - newTimer) > 2 ||
+                            (newTimer < currentTimer && (currentTimer > roundEndTime - 5 || !timerSynced)) ||
+                            !timerSynced
+                        );
+                        if (shouldSync) {
                             currentTimer = newTimer;
-                            timerSynced = true; // Mark as synced
+                            timerSynced = true;
                             updateTimerDisplay();
                         }
-                        startClientSideTimer(); // Start continuous timer
+                        startClientSideTimer();
                     }
                     if (data.status) {
                         updateStatusDisplay(data.status);
@@ -1094,12 +1110,10 @@
                     break;
 
                 case 'game_start':
-                    // New round started - extract timer from WebSocket
                     if (data.timer !== undefined && data.timer !== null) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        currentTimer = newTimer;
+                        currentTimer = parseTimer(data.timer);
                         updateTimerDisplay();
-                        startClientSideTimer(); // Start continuous timer
+                        startClientSideTimer();
                     }
                     if (data.status) {
                         updateStatusDisplay(data.status);
@@ -1107,14 +1121,14 @@
                     break;
 
                 case 'dice_result':
-                    // Dice result announced - extract timer from WebSocket
                     if (data.timer !== undefined && data.timer !== null) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        if (Math.abs(currentTimer - newTimer) > 2) {
+                        const newTimer = parseTimer(data.timer);
+                        const isStaleReset = (newTimer <= 2 && currentTimer >= 10 && currentTimer <= roundEndTime - 5);
+                        if (!isStaleReset && Math.abs(currentTimer - newTimer) > 2) {
                             currentTimer = newTimer;
                             updateTimerDisplay();
                         }
-                        startClientSideTimer(); // Start continuous timer
+                        startClientSideTimer();
                     }
                     if (data.status) {
                         updateStatusDisplay(data.status);
@@ -1122,14 +1136,14 @@
                     break;
 
                 case 'game_end':
-                    // Round ended - extract timer from WebSocket
                     if (data.timer !== undefined && data.timer !== null) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        if (Math.abs(currentTimer - newTimer) > 2) {
+                        const newTimer = parseTimer(data.timer);
+                        const isStaleReset = (newTimer <= 2 && currentTimer >= 10 && currentTimer <= roundEndTime - 5);
+                        if (!isStaleReset && Math.abs(currentTimer - newTimer) > 2) {
                             currentTimer = newTimer;
                             updateTimerDisplay();
                         }
-                        startClientSideTimer(); // Start continuous timer
+                        startClientSideTimer();
                     }
                     if (data.status) {
                         updateStatusDisplay(data.status);
@@ -1234,15 +1248,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Update timer (always update when using AJAX fallback)
                 if (data.timer !== undefined) {
-                    const newTimer = parseInt(data.timer) || 1;
-                    // Only update if timer changed significantly (to avoid jitter)
-                    if (Math.abs(currentTimer - newTimer) > 3 || !clientSideTimer || !timerSynced) {
+                    const newTimer = parseTimer(data.timer);
+                    const roundEndTime = {{ round_end_time|default:80 }};
+                    const isStaleReset = (newTimer <= 2 && currentTimer >= 10 && currentTimer <= roundEndTime - 5);
+                    const shouldSync = !isStaleReset && (
+                        Math.abs(currentTimer - newTimer) > 3 ||
+                        !clientSideTimer ||
+                        !timerSynced
+                    );
+                    if (shouldSync) {
                         currentTimer = newTimer;
-                        timerSynced = true; // Mark as synced
-                        updateTimerDisplay(); // Update display immediately
-                        // Restart client-side timer to sync with server
+                        timerSynced = true;
+                        updateTimerDisplay();
                         startClientSideTimer();
                         console.log('🔄 Timer synced via AJAX:', currentTimer);
                     }
@@ -1350,7 +1368,7 @@
                                 if (valueSpan) valueSpan.textContent = '';
                                 if (hiddenInput) hiddenInput.value = '';
                                 buttons.forEach(btn => btn.classList.remove('selected'));
-                            } else if (!isManualOverride && diceValue !== null && diceValue !== undefined) {
+                            } else if (diceValue !== null && diceValue !== undefined) {
                                 // Update with server value if available AND not in override mode
                                 if (valueSpan) valueSpan.textContent = diceValue;
                                 if (hiddenInput) hiddenInput.value = diceValue;
