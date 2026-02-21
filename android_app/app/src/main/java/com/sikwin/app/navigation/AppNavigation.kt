@@ -153,7 +153,9 @@ fun AppNavigation(
 
     // Prevent rapid navigation
     var lastNavigationTime by remember { mutableStateOf(0L) }
+    var lastGameLaunchTime by remember { mutableStateOf(0L) }
     val navigationCooldown = 500L // 500ms cooldown between navigation calls
+    val gameLaunchCooldown = 1500L // Prevent double-tap crash when launching Unity
 
     fun safeNavigate(route: String) {
         val currentTime = System.currentTimeMillis()
@@ -188,6 +190,10 @@ fun AppNavigation(
     }
 
     fun executeGameLaunch() {
+        val now = System.currentTimeMillis()
+        if (now - lastGameLaunchTime < gameLaunchCooldown) return
+        lastGameLaunchTime = now
+        
         try {
             // Get authentication data
             val authToken = sessionManager.fetchAuthToken()
@@ -229,7 +235,7 @@ fun AppNavigation(
             intent.putExtra("auth_timestamp", System.currentTimeMillis())
             intent.putExtra("login_timestamp", System.currentTimeMillis())
             
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             
             // Pass tokens for auto-login in standalone app (duplicate for safety)
             intent.putExtra("token", authToken ?: "")
@@ -262,12 +268,19 @@ fun AppNavigation(
         }
     }
     
-    // Handle redirect requests (e.g. from Unity balance click or dice results click)
+    // Handle redirect requests (e.g. from Unity back button, balance click, dice results click)
     LaunchedEffect(activity?.intent) {
         val redirectRoute = activity?.intent?.getStringExtra("redirect")
         if (redirectRoute != null) {
-            navController.navigate(redirectRoute) {
-                launchSingleTop = true
+            if (redirectRoute == "home") {
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else {
+                navController.navigate(redirectRoute) {
+                    launchSingleTop = true
+                }
             }
             activity.intent.removeExtra("redirect")
         }
@@ -352,12 +365,22 @@ fun AppNavigation(
                 viewModel = viewModel,
                 onGameClick = { gameId ->
                     if (gameId == "gundu_ata") {
-                        executeGameLaunch()
+                        if (!viewModel.loginSuccess) {
+                            showAuthDialog = true
+                        } else {
+                            viewModel.syncAuthToUnity()
+                            executeGameLaunch()
+                        }
                     }
                 },
                 onNavigate = { route ->
                     if (route == "gundu_ata") {
-                        executeGameLaunch()
+                        if (!viewModel.loginSuccess) {
+                            showAuthDialog = true
+                        } else {
+                            viewModel.syncAuthToUnity()
+                            executeGameLaunch()
+                        }
                     } else if (route == "me") {
                         if (viewModel.loginSuccess) {
                             navController.navigate("me") {
@@ -387,10 +410,20 @@ fun AppNavigation(
                 sessionManager = sessionManager,
                 onNavigate = { route ->
                     if (route == "gundu_ata") {
-                        executeGameLaunch()
+                        if (!viewModel.loginSuccess) {
+                            showAuthDialog = true
+                        } else {
+                            viewModel.syncAuthToUnity()
+                            executeGameLaunch()
+                        }
                     } else if (route == "home") {
                         navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
+                        }
+                    } else if (route == "login") {
+                        navController.navigate("login") {
+                            popUpTo("home") { inclusive = false }
+                            launchSingleTop = true
                         }
                     } else {
                         navController.navigate(route)
