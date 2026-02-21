@@ -29,6 +29,7 @@ except ImportError:
     TESSERACT_AVAILABLE = False
 
 from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw
+from game.models import MegaSpinProbability
 from .serializers import (
     UserRegistrationSerializer,
     UserSerializer,
@@ -181,7 +182,7 @@ def register(request):
                 # Handle referral
                 referred_by = None
                 if referral_code:
-                    referred_by = User.objects.filter(referral_code=referral_code).first()
+                    referred_by = User.objects.filter(referral_code__iexact=referral_code.strip()).first()
 
                 # Create user
                 user = User.objects.create_user(
@@ -1582,13 +1583,13 @@ def referral_data(request):
     next_milestone_info = get_next_milestone(total_referrals)
     
     # Get list of achieved milestones
+    # 3→₹300, 5→₹1000, 10→₹2000, 20→₹5000, 50→Mega Spin (₹10k-1L)
     milestones = [
-        {'count': 3, 'bonus': 500, 'achieved': total_referrals >= 3},
-        {'count': 5, 'bonus': 1000, 'achieved': total_referrals >= 5},
-        {'count': 10, 'bonus': 2500, 'achieved': total_referrals >= 10},
-        {'count': 20, 'bonus': 5000, 'achieved': total_referrals >= 20},
-        {'count': 50, 'bonus': 15000, 'achieved': total_referrals >= 50},
-        {'count': 100, 'bonus': 50000, 'achieved': total_referrals >= 100},
+        {'count': 3, 'bonus': 300, 'bonus_display': None, 'achieved': total_referrals >= 3},
+        {'count': 5, 'bonus': 1000, 'bonus_display': None, 'achieved': total_referrals >= 5},
+        {'count': 10, 'bonus': 2000, 'bonus_display': None, 'achieved': total_referrals >= 10},
+        {'count': 20, 'bonus': 5000, 'bonus_display': None, 'achieved': total_referrals >= 20},
+        {'count': 50, 'bonus': 0, 'bonus_display': 'Mega Spin: ₹10k-1 Lakh', 'achieved': total_referrals >= 50},
     ]
     
     # Get recent referral bonuses (last 10)
@@ -1681,42 +1682,45 @@ def lucky_draw(request):
                 'error': 'Lucky draw already claimed for this deposit'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Define reward amounts: 100, 300, 500, 1000, 5000, 10000
-        # Probability distribution (can be adjusted)
-        rewards = [
-            {'amount': 10000, 'probability': 1},
-            {'amount': 5000, 'probability': 2},
-            {'amount': 1000, 'probability': 5},
-            {'amount': 500, 'probability': 10},
-            {'amount': 300, 'probability': 20},
-            {'amount': 100, 'probability': 62},  # Higher probability for smaller amounts
-        ]
+        # Get Mega Spin probabilities: user-specific first, then global default
+        prob_obj = MegaSpinProbability.objects.filter(user=user).first()
+        if not prob_obj:
+            prob_obj = MegaSpinProbability.objects.filter(user__isnull=True).first()
         
-        # Calculate total probability
-        total_probability = sum(reward['probability'] for reward in rewards)
+        # Map 8 wheel slices to 6 reward amounts (some amounts on multiple slices)
+        # Slice -> amount: 1,2->100; 3->300; 4->500; 5,6->1000; 7->5000; 8->10000
+        SLICE_TO_AMOUNT = [100, 100, 300, 500, 1000, 1000, 5000, 10000]
         
-        # Generate random number
+        if prob_obj:
+            # Use per-user or global probabilities
+            probs = [getattr(prob_obj, f'prob_{i}') for i in range(1, 9)]
+            total_prob = sum(probs)
+            if total_prob <= 0:
+                probs = [12.5] * 8  # Fallback to equal
+                total_prob = 100.0
+        else:
+            # Fallback: default distribution (1, 2, 5, 10, 20, 62 for 6 amounts)
+            # Mapped to 8 slices: 100(62), 300(20), 500(10), 1000(5), 5000(2), 10000(1)
+            probs = [31.0, 31.0, 20.0, 10.0, 2.5, 2.5, 2.0, 1.0]  # Sum=100
+            total_prob = 100.0
+        
         import random
-        random_value = random.randint(1, total_probability)
-        
-        # Select reward based on probability
-        cumulative_probability = 0
-        selected_reward = None
-        
-        for reward in rewards:
-            cumulative_probability += reward['probability']
-            if random_value <= cumulative_probability:
-                selected_reward = reward
+        r = random.random() * total_prob
+        cumulative = 0
+        selected_slice = 7  # Default to last
+        for i, p in enumerate(probs):
+            cumulative += p
+            if r <= cumulative:
+                selected_slice = i
                 break
         
-        if not selected_reward:
-            selected_reward = rewards[-1]  # Default to last reward
+        selected_amount = SLICE_TO_AMOUNT[selected_slice]
         
         # Create the lucky draw record
         lucky_draw = LuckyDraw.objects.create(
             user=user,
             deposit_request=recent_deposit,
-            reward_amount=Decimal(str(selected_reward['amount'])),
+            reward_amount=Decimal(str(selected_amount)),
             deposit_amount=recent_deposit.amount
         )
         
@@ -1724,19 +1728,19 @@ def lucky_draw(request):
         try:
             wallet = user.wallet
             balance_before = wallet.balance
-            wallet.add(Decimal(str(selected_reward['amount'])))
+            wallet.add(Decimal(str(selected_amount)))
             balance_after = wallet.balance
             
             # Create transaction record
             Transaction.objects.create(
                 user=user,
                 transaction_type='DEPOSIT',
-                amount=Decimal(str(selected_reward['amount'])),
+                amount=Decimal(str(selected_amount)),
                 balance_before=balance_before,
                 balance_after=balance_after,
-                description=f'Lucky Draw Reward - ₹{selected_reward["amount"]} (from ₹{recent_deposit.amount} deposit)'
+                description=f'Lucky Draw Reward - ₹{selected_amount} (from ₹{recent_deposit.amount} deposit)'
             )
-            logger.info(f"Lucky draw reward ₹{selected_reward['amount']} added to wallet for user: {user.username}")
+            logger.info(f"Lucky draw reward ₹{selected_amount} added to wallet for user: {user.username}")
         except Exception as e:
             logger.error(f"Failed to add lucky draw reward to wallet for user {user.username}: {str(e)}")
             return Response({
@@ -1745,9 +1749,9 @@ def lucky_draw(request):
         
         return Response({
             'lucky_draw': {
-                'amount': selected_reward['amount'],
+                'amount': selected_amount,
             },
-            'message': f'Congratulations! You won ₹{selected_reward["amount"]}'
+            'message': f'Congratulations! You won ₹{selected_amount}'
         })
 
 

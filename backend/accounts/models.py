@@ -52,9 +52,9 @@ class User(AbstractUser):
     def generate_unique_referral_code(self):
         """
         Generate a unique referral code for this user.
-        Sequential numeric format starting from 123: 123, 124, 125, ...
+        Format: Gunduata123, Gunduata124, Gunduata125, ...
         """
-        # Find max existing numeric referral code
+        prefix = "Gunduata"
         codes = User.objects.exclude(
             referral_code__isnull=True
         ).exclude(
@@ -62,15 +62,23 @@ class User(AbstractUser):
         ).values_list('referral_code', flat=True)
         numeric_vals = []
         for c in codes:
-            if c and str(c).isdigit():
+            if not c:
+                continue
+            c = str(c).strip()
+            if c.isdigit():
                 numeric_vals.append(int(c))
+            elif c.upper().startswith("GUNDUATA") and len(c) > len(prefix):
+                suffix = c[len(prefix):].lstrip()
+                if suffix.isdigit():
+                    numeric_vals.append(int(suffix))
         next_num = max(numeric_vals) + 1 if numeric_vals else 123
         next_num = max(next_num, 123)  # Ensure we start at least at 123
 
-        # Handle collision (rare with concurrent requests)
-        while User.objects.filter(referral_code=str(next_num)).exclude(pk=self.pk).exists():
+        code = f"{prefix}{next_num}"
+        while User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
             next_num += 1
-        return str(next_num)
+            code = f"{prefix}{next_num}"
+        return code
     
     def save(self, *args, **kwargs):
         # Ensure referral code is generated if missing

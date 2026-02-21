@@ -23,16 +23,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
         
-        # Validate referral code format if provided
+        # Validate referral code format if provided (case-insensitive match)
         referral_code = attrs.get('referral_code')
         if referral_code:
-            referral_code = referral_code.strip().upper()
+            referral_code = referral_code.strip()
             # Check if referral code exists and is valid
-            if not User.objects.filter(referral_code=referral_code).exists():
+            if not User.objects.filter(referral_code__iexact=referral_code).exists():
                 raise serializers.ValidationError({
                     "referral_code": "Invalid referral code. Please check and try again."
                 })
-            attrs['referral_code'] = referral_code
+            # Store the actual DB value for create()
+            referrer = User.objects.filter(referral_code__iexact=referral_code).first()
+            attrs['referral_code'] = referrer.referral_code if referrer else referral_code
         
         return attrs
 
@@ -44,12 +46,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         # Handle referral - ensure referral code is valid and not tied to worker
         if referral_code:
-            referral_code = referral_code.strip().upper()
             try:
                 referrer = User.objects.get(referral_code=referral_code)
                 # Ensure referrer is not a worker/professional (referral is independent of worker system)
                 # Only set referred_by if referrer exists and has a valid referral code
-                if referrer.referral_code and referrer.referral_code == referral_code:
+                if referrer.referral_code:
                     user.referred_by = referrer
                     user.save()
             except User.DoesNotExist:
