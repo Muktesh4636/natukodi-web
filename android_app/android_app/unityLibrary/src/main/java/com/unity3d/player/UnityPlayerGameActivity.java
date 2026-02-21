@@ -43,6 +43,12 @@ public class UnityPlayerGameActivity extends GameActivity
     }
 
     static {
+        try {
+            Class.forName("com.unity3d.player.UnityPlayerForActivityOrService");
+            Class.forName("com.unity3d.player.UnityPlayerForGameActivity");
+        } catch (Throwable t) {
+            Log.e("UnityPlayerPatch", "Failed to preload Unity glue classes", t);
+        }
         System.loadLibrary("game");
     }
 
@@ -84,7 +90,12 @@ public class UnityPlayerGameActivity extends GameActivity
         // activity native thread would be already started and unity runtime initialized
         // we also cannot initialize before super.onCreate since frameLayout is not yet
         // available.
-        mUnityPlayer = new UnityPlayerForGameActivity(this, frameLayout, mSurfaceView, this);
+        try {
+            mUnityPlayer = new UnityPlayerForGameActivity(this, frameLayout, mSurfaceView, this);
+        } catch (Throwable t) {
+            Log.e("UnityPlayerGameActivity", "Failed to create Unity player", t);
+            finish();
+        }
     }
 
     @Override
@@ -100,85 +111,91 @@ public class UnityPlayerGameActivity extends GameActivity
     // Quit Unity
     @Override
     protected void onDestroy() {
-        mUnityPlayer.destroy();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.destroy();
+            mUnityPlayer = null;
+        }
         super.onDestroy();
     }
 
     @Override
     protected void onStop() {
-        // Note: we want Java onStop callbacks to be processed before the native part
-        // processes the onStop callback
-        mUnityPlayer.onStop();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onStop();
+        }
         super.onStop();
     }
 
     @Override
     protected void onStart() {
-        // Note: we want Java onStart callbacks to be processed before the native part
-        // processes the onStart callback
-        mUnityPlayer.onStart();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onStart();
+        }
         super.onStart();
     }
 
     // Pause Unity
     @Override
     protected void onPause() {
-        // Note: we want Java onPause callbacks to be processed before the native part
-        // processes the onPause callback
-        mUnityPlayer.onPause();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onPause();
+        }
         super.onPause();
     }
 
     // Resume Unity
     @Override
     protected void onResume() {
-        // Note: we want Java onResume callbacks to be processed before the native part
-        // processes the onResume callback
-        mUnityPlayer.onResume();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onResume();
+            sendLoginDataToUnity();
+            addProfileOverlay();
+            addBalanceOverlay();
+        }
         super.onResume();
-        sendLoginDataToUnity();
-        addProfileOverlay();
-        addBalanceOverlay();
     }
 
     // Configuration changes are used by Video playback logic in Unity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        mUnityPlayer.configurationChanged(newConfig);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.configurationChanged(newConfig);
+        }
         super.onConfigurationChanged(newConfig);
     }
 
     // Notify Unity of the focus change.
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        mUnityPlayer.windowFocusChanged(hasFocus);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.windowFocusChanged(hasFocus);
+        }
         super.onWindowFocusChanged(hasFocus);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        // To support deep linking, we need to make sure that the client can get access
-        // to
-        // the last sent intent. The clients access this through a JNI api that allows
-        // them
-        // to get the intent set on launch. To update that after launch we have to
-        // manually
-        // replace the intent with the one caught here.
         setIntent(intent);
-        mUnityPlayer.newIntent(intent);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.newIntent(intent);
+        }
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.M)
     public void requestPermissions(PermissionRequest request) {
-        mUnityPlayer.addPermissionRequest(request);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.addPermissionRequest(request);
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        mUnityPlayer.permissionResponse(this, requestCode, permissions, grantResults);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.permissionResponse(this, requestCode, permissions, grantResults);
+        }
     }
 
     @Override

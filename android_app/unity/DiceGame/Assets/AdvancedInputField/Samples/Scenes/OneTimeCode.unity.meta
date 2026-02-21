@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7f4ae7ff613161847848780518152dff
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/OneTimeCode.unity
+  uploadId: 485141

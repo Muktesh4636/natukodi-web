@@ -287,9 +287,6 @@
                             <a href="{% url 'toggle_payment_method' method.pk %}" class="btn btn-icon" title="{% if method.is_active %}Deactivate{% else %}Activate{% endif %}">
                                 {% if method.is_active %}⏸️{% else %}▶️{% endif %}
                             </a>
-                            <button class="btn btn-icon" onclick="showEditModal('{{ method.pk }}', '{{ method.method_type|escapejs }}', '{{ method.upi_id|escapejs }}', '{{ method.link|escapejs }}', '{{ method.account_name|escapejs }}', '{{ method.bank_name|escapejs }}', '{{ method.account_number|escapejs }}', '{{ method.ifsc_code|escapejs }}', '{{ method.is_active|yesno:'true,false' }}', '{{ method.usdt_exchange_rate|default:'90.00' }}')">
-                                ✏️
-                            </button>
                             <form action="{% url 'delete_payment_method' method.pk %}" method="post" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-icon btn-danger">🗑️</button>
@@ -307,7 +304,7 @@
         </div>
     </div>
 
-    <!-- Create/Edit Modal -->
+    <!-- Create Modal -->
     <div id="methodModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -451,51 +448,6 @@
             document.getElementById('field_is_active').checked = true;
             // Enable method type selection for creating
             document.getElementById('field_method_type').disabled = false;
-            checkMethodType();
-            document.getElementById('methodModal').style.display = 'block';
-        }
-
-        function showEditModal(pk, type, upi, link, accName, bankName, accNum, ifsc, isActive, exchangeRate) {
-            document.getElementById('modalTitle').textContent = 'Edit Payment Method';
-            document.getElementById('methodForm').action = "/game-admin/payment-methods/" + pk + "/edit/";
-
-            // Disable method type selection for editing
-            const methodTypeSelect = document.getElementById('field_method_type');
-            methodTypeSelect.value = type;
-            methodTypeSelect.disabled = true;
-
-            document.getElementById('field_upi_id').value = upi;
-            document.getElementById('field_link').value = link;
-            document.getElementById('field_account_name').value = accName;
-            document.getElementById('field_bank_name').value = bankName;
-            document.getElementById('field_account_number').value = accNum;
-            document.getElementById('field_ifsc_code').value = ifsc;
-            document.getElementById('field_is_active').checked = (isActive === 'true');
-
-            // Populate USDT specific fields
-            const usdtNetworkField = document.getElementById('field_usdt_network');
-            const usdtWalletAddressField = document.getElementById('field_usdt_wallet_address');
-            const usdtExchangeRateField = document.getElementById('field_usdt_exchange_rate');
-
-            if (usdtNetworkField && usdtWalletAddressField) {
-                // Extract USDT network and address from method.name if it's USDT_TRC20 or USDT_BEP20
-                // For example, if name is "USDT (TRC20)", extract TRC20
-                let extractedNetwork = '';
-                let extractedAddress = '';
-                
-                if (type === 'USDT_TRC20' || type === 'USDT_BEP20') {
-                    // Assuming `link` parameter for USDT methods now contains the wallet address
-                    // and `ifsc` parameter contains the network (as per the showEditModal call from `payment_methods` view)
-                    extractedNetwork = ifsc; // `ifsc` is used for network
-                    extractedAddress = link; // `link` is used for wallet address
-                }
-                usdtNetworkField.value = extractedNetwork;
-                usdtWalletAddressField.value = extractedAddress;
-                if (usdtExchangeRateField) {
-                    usdtExchangeRateField.value = exchangeRate || '90.00';
-                }
-            }
-
             checkMethodType();
             document.getElementById('methodModal').style.display = 'block';
         }

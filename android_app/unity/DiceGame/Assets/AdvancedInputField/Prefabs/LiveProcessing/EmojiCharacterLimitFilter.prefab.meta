@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: cb98846c2be81364b94b8e31f784f2b3
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/LiveProcessing/EmojiCharacterLimitFilter.prefab
+  uploadId: 485141

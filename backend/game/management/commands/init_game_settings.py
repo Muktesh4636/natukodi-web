@@ -31,8 +31,12 @@ class Command(BaseCommand):
             {
                 'key': 'ROUND_END_TIME',
                 'value': str(default_settings.get('ROUND_END_TIME', 80)),
-                'description': 'Total round duration in seconds (default: 70)'
+                'description': 'Total round duration in seconds (default: 80)'
             },
+            {'key': 'APP_VERSION_CODE', 'value': '1', 'description': 'Version code of latest APK. Bump when releasing new APK.'},
+            {'key': 'APP_VERSION_NAME', 'value': '1.0', 'description': 'Display version name shown in update dialog.'},
+            {'key': 'APP_DOWNLOAD_URL', 'value': 'https://gunduata.online/gundu-ata.apk', 'description': 'Direct URL to download the latest APK.'},
+            {'key': 'APP_FORCE_UPDATE', 'value': 'false', 'description': 'If true, users must update to continue using the app.'},
         ]
         
         created_count = 0

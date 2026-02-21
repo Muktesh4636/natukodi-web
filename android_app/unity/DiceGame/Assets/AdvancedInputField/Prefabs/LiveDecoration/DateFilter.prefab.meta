@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 16dabf70bd9dc7a4ebdf739d1eec41c6
+timeCreated: 1507227250
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/LiveDecoration/DateFilter.prefab
+  uploadId: 485141

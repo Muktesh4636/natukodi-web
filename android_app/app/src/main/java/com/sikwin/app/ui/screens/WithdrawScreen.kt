@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -73,7 +75,7 @@ fun WithdrawScreen(
                 )
             }
             Text(
-                "Online withdrawal",
+                stringResource(R.string.online_withdrawal),
                 color = PrimaryYellow,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -89,7 +91,7 @@ fun WithdrawScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Bank Account",
+                stringResource(R.string.bank_account),
                 color = PrimaryYellow,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
@@ -121,11 +123,11 @@ fun WithdrawScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("Available Balance", color = TextGrey, fontSize = 12.sp)
-                        Text("₹${wallet.balance}", color = PrimaryYellow, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.available_balance), color = TextGrey, fontSize = 12.sp)
+                        Text("₹${wallet.withdrawable_balance}", color = PrimaryYellow, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Unavailable Balance", color = TextGrey, fontSize = 12.sp)
+                        Text(stringResource(R.string.unavailable_balance), color = TextGrey, fontSize = 12.sp)
                         Text("₹${wallet.unavaliable_balance}", color = Color.Gray, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -194,7 +196,7 @@ fun WithdrawScreen(
                         }
                         Divider(color = BorderColor)
                         DropdownMenuItem(
-                            text = { Text("+ Add bank account", color = PrimaryYellow) },
+                            text = { Text(stringResource(R.string.add_bank_account), color = PrimaryYellow) },
                             onClick = {
                                 showBankDropdown = false
                                 onAddBankAccount()
@@ -210,7 +212,7 @@ fun WithdrawScreen(
                     amount = newValue.filter { it.isDigit() }
                 },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Please enter amount", color = TextGrey) },
+                    placeholder = { Text(stringResource(R.string.enter_amount), color = TextGrey) },
                     leadingIcon = { Text("₹", color = TextWhite, fontSize = 18.sp, modifier = Modifier.padding(start = 12.dp)) },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         containerColor = BlackBackground,

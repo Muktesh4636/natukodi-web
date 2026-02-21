@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1985ae435a4918a468c8e40e7a7c7b09
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/TextMeshPro/TagUser.unity
+  uploadId: 485141

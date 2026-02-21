@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cb18a8f46cd23384baf6539f6a94d8c5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Scripts/InputField/Add-ons/InputFieldButton.cs
+  uploadId: 485141

@@ -382,11 +382,10 @@
                 <p>• All values must be positive numbers (in seconds)</p>
             </div>
 
-            <div class="control-panel">
-                <h2>Configure Game Timing</h2>
-                
-                <form method="post" action="{% url 'game_settings' %}">
-                    {% csrf_token %}
+            <form method="post" action="{% url 'game_settings' %}">
+                {% csrf_token %}
+                <div class="control-panel">
+                    <h2>Configure Game Timing</h2>
                     
                     {% for setting in settings_list %}
                     <div class="form-group">
@@ -417,13 +416,70 @@
                         </div>
                     </div>
                     {% endfor %}
+                </div>
+
+                <div class="control-panel" style="margin-top: 32px;">
+                    <h2>📱 App Version (APK Update Prompt)</h2>
+                    <p style="color: #718096; font-size: 14px; margin-bottom: 20px;">When you release a new APK, update these values. Users with older versions will see an update prompt to download the latest APK.</p>
                     
-                    <div style="margin-top: 32px; display: flex; gap: 12px;">
-                        <button type="submit" class="btn btn-primary">Save Settings</button>
-                        <a href="{% url 'admin_dashboard' %}" class="btn" style="background: #e2e8f0; color: #4a5568; text-decoration: none; display: inline-block;">Cancel</a>
+                    {% for setting in app_version_list %}
+                    <div class="form-group">
+                        <label for="app_{{ setting.key }}">
+                            {% if setting.key == 'APP_VERSION_CODE' %}
+                                Version Code
+                            {% elif setting.key == 'APP_VERSION_NAME' %}
+                                Version Name
+                            {% elif setting.key == 'APP_DOWNLOAD_URL' %}
+                                APK Download URL
+                            {% elif setting.key == 'APP_FORCE_UPDATE' %}
+                                Force Update (block app until updated)
+                            {% else %}
+                                {{ setting.key }}
+                            {% endif %}
+                        </label>
+                        {% if setting.input_type == 'number' %}
+                        <input 
+                            type="number" 
+                            id="app_{{ setting.key }}" 
+                            name="{{ setting.key }}" 
+                            value="{{ setting.value }}"
+                            min="1"
+                            required
+                            step="1"
+                        >
+                        {% elif setting.input_type == 'checkbox' %}
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 0;">
+                            <input 
+                                type="checkbox" 
+                                id="app_{{ setting.key }}" 
+                                name="{{ setting.key }}" 
+                                {% if setting.value %}checked{% endif %}
+                                style="width: 20px; height: 20px;"
+                            >
+                            <span style="color: #718096; font-size: 14px;">Enable to force users to update before using the app</span>
+                        </div>
+                        {% else %}
+                        <input 
+                            type="text" 
+                            id="app_{{ setting.key }}" 
+                            name="{{ setting.key }}" 
+                            value="{{ setting.value }}"
+                            {% if setting.key == 'APP_DOWNLOAD_URL' %}placeholder="https://gunduata.online/gundu-ata.apk"{% endif %}
+                            style="width: 100%;"
+                        >
+                        {% endif %}
+                        <div class="description">
+                            {{ setting.description }}
+                        </div>
                     </div>
-                </form>
-            </div>
+                    {% endfor %}
+                </div>
+                    
+                <div style="margin-top: 32px; display: flex; gap: 12px; padding: 0 32px;">
+                    <button type="submit" class="btn btn-primary">Save All Settings</button>
+                    <a href="{% url 'admin_dashboard' %}" class="btn" style="background: #e2e8f0; color: #4a5568; text-decoration: none; display: inline-block;">Cancel</a>
+                </div>
+            </form>
         </div>
     </div>
 

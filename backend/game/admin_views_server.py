@@ -2037,10 +2037,6 @@ def manage_players(request):
         users_query = users_query.filter(is_active=False)
     
     # Apply search filter
-    if from_date:
-        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
-    if to_date:
-        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         users_query = users_query.filter(
             Q(username__icontains=search_query) |
@@ -2074,13 +2070,19 @@ def manage_players(request):
         })
     admin_distribution.sort(key=lambda x: x['client_count'])
     
-    # Get all potential workers for assignment dropdown
-    # Staff includes admins and superadmins, as requested: "if we want we can manually transfer the players to superadmin its our wish"
-    workers = User.objects.filter(is_staff=True, is_active=True).order_by('username')
+    # Workers for assignment: admins only (not superadmins). Players are assigned to admins; manual reassign only.
+    workers = get_admins_for_distribution().order_by('username')
+    
+    # Handle "Assign unassigned players" - one-time equal split among admins (manual trigger only)
+    if request.method == 'POST' and request.POST.get('action') == 'assign_unassigned' and is_super_admin(request.user):
+        count = redistribute_all_players()
+        if count > 0:
+            messages.success(request, f'Assigned {count} unassigned player(s) equally among admins.')
+        else:
+            messages.info(request, 'No unassigned players to assign.')
+        return redirect('manage_players')
     
     context = get_admin_context(request, {
-        'from_date': from_date,
-        'to_date': to_date,
         'page_obj': page_obj,
         'status_filter': status_filter,
         'search_query': search_query,
@@ -2166,29 +2168,33 @@ def players(request):
 @login_required(login_url='/game-admin/login/')
 @admin_required
 def assign_worker(request):
-    """Assign a client to a worker"""
+    """Manually assign a client to an admin (super admins only). No automatic reassignment."""
     if request.method == 'POST':
         client_id = request.POST.get('client_id')
         worker_id = request.POST.get('worker_id')
         
         if not is_super_admin(request.user):
-            messages.error(request, 'Only Super Admins can assign workers.')
-            return redirect('players')
+            messages.error(request, 'Only Super Admins can assign players.')
+            return redirect('manage_players')
             
         try:
-            client = User.objects.get(id=client_id)
+            client = User.objects.get(id=client_id, is_staff=False)
             if worker_id:
                 worker = User.objects.get(id=worker_id, is_staff=True)
                 client.worker = worker
-                messages.success(request, f'Client {client.username} assigned to worker {worker.username}.')
+                messages.success(request, f'Player {client.username} assigned to {worker.username}.')
             else:
                 client.worker = None
-                messages.success(request, f'Worker removed from client {client.username}.')
+                messages.success(request, f'Player {client.username} unassigned.')
             client.save()
         except User.DoesNotExist:
             messages.error(request, 'User not found.')
-            
-    return redirect('players')
+    
+    # Redirect back to players list
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+    if next_url and 'players-list' in next_url:
+        return redirect('manage_players')
+    return redirect('manage_players')
 
 
 @login_required(login_url='/game-admin/login/')

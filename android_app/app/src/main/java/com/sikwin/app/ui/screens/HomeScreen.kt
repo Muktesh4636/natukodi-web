@@ -27,9 +27,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.sikwin.app.R
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -70,8 +72,8 @@ fun HomeScreen(
     if (showLoginPopup) {
         AlertDialog(
             onDismissRequest = { showLoginPopup = false },
-            title = { Text("Login Required", fontWeight = FontWeight.Bold) },
-            text = { Text("Please sign up to access the Gundu Ata game and start winning!") },
+            title = { Text(stringResource(R.string.login_required), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.login_required_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -80,12 +82,12 @@ fun HomeScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
                 ) {
-                    Text("Sign Up", color = BlackBackground, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.sign_up), color = BlackBackground, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showLoginPopup = false }) {
-                    Text("Cancel", color = TextGrey)
+                    Text(stringResource(R.string.cancel), color = TextGrey)
                 }
             },
             containerColor = SurfaceColor,
@@ -170,7 +172,7 @@ fun HomeScreen(
                     PromotionalBanners(viewModel, onNavigate)
                     
                     // Hot Games
-                    SectionHeader(title = "Hot games")
+                    SectionHeader(title = stringResource(R.string.hot_games))
                     HotGamesGrid(
                         viewModel = viewModel,
                         onGameClick = { gameId ->
@@ -185,7 +187,7 @@ fun HomeScreen(
                     )
                 } else {
                     // Search Results
-                    SectionHeader(title = "Search Results")
+                    SectionHeader(title = stringResource(R.string.search_results))
                     val games = listOf(
                         GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0))
                     ).filter { it.name.contains(searchQuery, ignoreCase = true) }
@@ -218,7 +220,7 @@ fun HomeScreen(
                                 .padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No games found for \"$searchQuery\"", color = TextGrey)
+                            Text(stringResource(R.string.no_games_found, searchQuery), color = TextGrey)
                         }
                     }
                 }
@@ -342,7 +344,7 @@ fun HomeTopBar(
                         contentPadding = PaddingValues(horizontal = 8.dp)
                     ) {
                         Text(
-                            text = "Login",
+                            text = stringResource(R.string.login),
                             color = TextWhite,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
@@ -356,7 +358,7 @@ fun HomeTopBar(
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            text = "Register",
+                            text = stringResource(R.string.register),
                             color = BlackBackground,
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
@@ -383,7 +385,7 @@ fun SearchBar(onSearch: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        placeholder = { Text("Search games...", color = TextGrey) },
+        placeholder = { Text(stringResource(R.string.search_games), color = TextGrey) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextWhite) },
         trailingIcon = {
             if (searchQuery.isNotEmpty()) {
@@ -454,9 +456,9 @@ fun PromotionalBanners(
         ) { virtualPage ->
             val page = virtualPage % pageCount
             val banner = when(page) {
-                0 -> BannerData("REFER & EARN", "Invite friends and earn up to ₹1000 bonus!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), { handleBannerClick("affiliate") })
-                1 -> BannerData("MEGA SPIN", "Deposit ₹2000 or more to spin the wheel!", "SPIN NOW", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
-                2 -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
+                0 -> BannerData("DAILY REWARD", "SPIN THE WHEEL FOR BONUS!", "SPIN NOW", listOf(Color(0xFFF9A825), Color(0xFFF57F17)), { handleBannerClick("lucky_wheel") })
+                1 -> BannerData("REFER & EARN", "Earn up to ₹1 Lakh!", "INVITE", listOf(Color(0xFF455A64), Color(0xFF263238)), { handleBannerClick("affiliate") })
+                2 -> BannerData("MEGA SPIN", "Deposit ₹2000 or more to spin the wheel!", "SPIN NOW", listOf(Color(0xFF4A148C), Color(0xFF880E4F)), { handleBannerClick("lucky_draw") })
                 else -> BannerData("USDT SPECIAL ₮", "Get 5% EXTRA CASHBACK on all USDT deposits!", "DEPOSIT NOW", listOf(Color(0xFF00897B), Color(0xFF004D40)), { handleBannerClick("deposit?method=USDT") })
             }
 
@@ -651,11 +653,29 @@ fun HotGamesGrid(
 
         // Customer Support Icon - opposite side of treasury box (left), dropdown shows only WhatsApp & Telegram
         var supportMenuExpanded by remember { mutableStateOf(false) }
-        // Auto-open on home page load, show for 3 seconds, then close
-        LaunchedEffect(Unit) {
-            supportMenuExpanded = true
-            delay(3000)
-            supportMenuExpanded = false
+        var supportMenuClosing by remember { mutableStateOf(false) }  // Keeps popup in tree during exit animation
+        val scaleAlpha = remember { Animatable(0f) }
+        val scope = rememberCoroutineScope()
+        val showPopup = supportMenuExpanded || supportMenuClosing
+        // Auto-open only when app was just opened (cold start or resumed from background), not when navigating within app (e.g. profile -> home)
+        LaunchedEffect(viewModel.showSupportPopupOnNextHomeVisit) {
+            if (viewModel.showSupportPopupOnNextHomeVisit) {
+                supportMenuExpanded = true
+                viewModel.markSupportPopupShown()
+            }
+        }
+        // Animate open, show for 6 seconds, then close slowly and smoothly
+        LaunchedEffect(supportMenuExpanded) {
+            if (supportMenuExpanded) {
+                supportMenuClosing = false
+                scaleAlpha.snapTo(0f)
+                scaleAlpha.animateTo(1f, animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing))
+                delay(6000)
+                supportMenuClosing = true  // Keep in tree during exit
+                scaleAlpha.animateTo(0f, animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing))
+                supportMenuExpanded = false
+                supportMenuClosing = false
+            }
         }
         Box(
             modifier = Modifier
@@ -663,9 +683,9 @@ fun HotGamesGrid(
                 .offset(y = 28.dp, x = 4.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            if (!supportMenuExpanded) {
+            if (!showPopup) {
                 IconButton(
-                    onClick = { supportMenuExpanded = true },
+                    onClick = { supportMenuExpanded = true; supportMenuClosing = false },
                     modifier = Modifier
                         .size(48.dp)
                         .background(Color.Black.copy(alpha = 0.5f), CircleShape)
@@ -678,23 +698,23 @@ fun HotGamesGrid(
                     )
                 }
             }
-            if (supportMenuExpanded) {
+            if (showPopup) {
                 val density = LocalDensity.current
-                val scaleAlpha = remember { Animatable(0f) }
-                LaunchedEffect(Unit) {
-                    scaleAlpha.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
-                    )
-                }
                 Popup(
                     alignment = Alignment.TopStart,
                     offset = IntOffset(0, with(density) { (-100).dp.roundToPx() }),
-                    onDismissRequest = { supportMenuExpanded = false },
+                    onDismissRequest = {
+                        if (!supportMenuClosing) scope.launch {
+                            supportMenuClosing = true
+                            scaleAlpha.animateTo(0f, animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing))
+                            supportMenuExpanded = false
+                            supportMenuClosing = false
+                        }
+                    },
                     properties = PopupProperties(
-                        focusable = true,
+                        focusable = false,
                         dismissOnBackPress = true,
-                        dismissOnClickOutside = true
+                        dismissOnClickOutside = true  // Close when user taps on empty area outside the popup
                     )
                 ) {
                     Column(
@@ -993,8 +1013,8 @@ fun HomeBottomNavigation(currentRoute: String, viewModel: GunduAtaViewModel, onN
     if (showLoginPopup) {
         AlertDialog(
             onDismissRequest = { showLoginPopup = false },
-            title = { Text("Login Required", fontWeight = FontWeight.Bold) },
-            text = { Text("Please sign up to access the Gundu Ata game and start winning!") },
+            title = { Text(stringResource(R.string.login_required), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.login_required_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -1003,12 +1023,12 @@ fun HomeBottomNavigation(currentRoute: String, viewModel: GunduAtaViewModel, onN
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
                 ) {
-                    Text("Sign Up", color = BlackBackground, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.sign_up), color = BlackBackground, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showLoginPopup = false }) {
-                    Text("Cancel", color = TextGrey)
+                    Text(stringResource(R.string.cancel), color = TextGrey)
                 }
             },
             containerColor = SurfaceColor,

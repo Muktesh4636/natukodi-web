@@ -27,6 +27,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -56,12 +58,12 @@ fun TransactionHistoryScreen(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("OK", color = PrimaryYellow)
+                    Text(stringResource(R.string.ok), color = PrimaryYellow)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel", color = TextGrey)
+                    Text(stringResource(R.string.cancel), color = TextGrey)
                 }
             },
             colors = DatePickerDefaults.colors(
@@ -196,7 +198,7 @@ fun TransactionHistoryScreen(
                 shape = RoundedCornerShape(20.dp),
                 border = BorderStroke(1.dp, BorderColor)
             ) {
-                Text("Search", color = TextGrey)
+                Text(stringResource(R.string.search), color = TextGrey)
             }
         }
         */
@@ -229,7 +231,7 @@ fun TransactionHistoryScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.End
         ) {
-            Text("Summary : ", color = TextWhite, fontSize = 14.sp)
+            Text(stringResource(R.string.summary), color = TextWhite, fontSize = 14.sp)
             Text("$itemsCount", color = GreenSuccess, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
 
@@ -281,7 +283,7 @@ fun TransactionHistoryScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("No data available", color = TextGrey, fontSize = 16.sp)
+                Text(stringResource(R.string.no_data_available), color = TextGrey, fontSize = 16.sp)
             }
         }
     }
@@ -342,8 +344,8 @@ fun BettingItem(roundId: String, number: String, amount: String, status: String,
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                     Column {
-                        Text("Round: $roundId", color = TextWhite, fontWeight = FontWeight.Bold)
-                        Text("Bet on Number: $number", color = PrimaryYellow, fontSize = 14.sp)
+                        Text(stringResource(R.string.round_id, roundId), color = TextWhite, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.bet_on_number_value, number), color = PrimaryYellow, fontSize = 14.sp)
                         Text(date, color = TextGrey, fontSize = 12.sp)
                     }
                 }

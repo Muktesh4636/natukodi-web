@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -178,7 +179,7 @@ fun GuestSpinWheelDialog(
                             border = androidx.compose.foundation.BorderStroke(2.dp, Color.White)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text("SPIN", color = BlackBackground, fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                Text(stringResource(R.string.spin), color = BlackBackground, fontWeight = FontWeight.Black, fontSize = 12.sp)
                             }
                         }
                     }
@@ -222,10 +223,10 @@ fun GuestSpinWheelDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
                         shape = RoundedCornerShape(25.dp)
                     ) {
-                        Text("CLAIM & REGISTER", color = BlackBackground, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.claim_and_register), color = BlackBackground, fontWeight = FontWeight.Bold)
                     }
                     TextButton(onClick = onDismiss) {
-                        Text("Maybe later", color = Color.Gray)
+                        Text(stringResource(R.string.maybe_later), color = Color.Gray)
                     }
                 }
             }

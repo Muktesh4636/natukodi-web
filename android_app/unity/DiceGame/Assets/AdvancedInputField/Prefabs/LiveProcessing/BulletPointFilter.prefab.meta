@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d911b799bb816c7439d0d903e622d757
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/LiveProcessing/BulletPointFilter.prefab
+  uploadId: 485141

@@ -24,6 +24,7 @@ data class AuthResponse(
 data class Wallet(
     val balance: String,
     val unavaliable_balance: String = "0.00",
+    val withdrawable_balance: String = "0.00",
     val user: User? = null
 )
 
@@ -75,6 +76,7 @@ data class PaymentMethod(
     val account_name: String?,
     val ifsc_code: String?,
     val upi_id: String?,
+    val usdt_wallet_address: String? = null,
     val qr_image: String?,
     val is_active: Boolean
 )
@@ -87,20 +89,34 @@ data class ReferralData(
     val current_milestone_bonus: String,
     val next_milestone: NextMilestone?,
     val milestones: List<Milestone>,
-    val recent_bonuses: List<RecentBonus>
+    val recent_bonuses: List<RecentBonus>,
+    val referrals: List<ReferralItem> = emptyList()
+)
+
+data class ReferralItem(
+    val id: Int,
+    val username: String,
+    val date_joined: String? = null,
+    val has_deposit: Boolean = false
 )
 
 data class NextMilestone(
     val next_milestone: Int?,
     val next_bonus: Double,
+    val next_bonus_display: String? = null,
     val current_progress: Int,
-    val progress_percentage: Double
+    val progress_percentage: Double,
+    val target: Int? = null,
+    val tier: Int? = null
 )
 
 data class Milestone(
     val count: Int,
     val bonus: Int,
-    val achieved: Boolean
+    val bonus_display: String? = null,
+    val achieved: Boolean,
+    val progress_current: Int = 0,
+    val target: Int = count
 )
 
 data class RecentBonus(

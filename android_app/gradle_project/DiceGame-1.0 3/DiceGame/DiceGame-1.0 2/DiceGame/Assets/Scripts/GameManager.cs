@@ -82,6 +82,8 @@ public class GameManager : MonoBehaviour
                 Debug.Log("[GameManager] Tokens updated via UnitySendMessage");
                 apiClient.InitWebSocket();
                 FetchInitialData();
+                // Switch to gameplay to hide login screen when tokens arrive from Android
+                UIManager.Instance.ShowPanel(UIPanelType.Gameplay);
             }
         }
         catch (Exception ex)
@@ -98,6 +100,8 @@ public class GameManager : MonoBehaviour
             Debug.Log("[GameManager] Access token updated via UnitySendMessage");
             apiClient.InitWebSocket();
             FetchInitialData();
+            // Switch to gameplay to hide login screen when tokens arrive from Android
+            UIManager.Instance.ShowPanel(UIPanelType.Gameplay);
         }
     }
 

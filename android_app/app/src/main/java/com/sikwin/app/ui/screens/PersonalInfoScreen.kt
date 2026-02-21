@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -35,7 +37,7 @@ fun PersonalInfoScreen(
         val field = showEditDialog!!
         AlertDialog(
             onDismissRequest = { showEditDialog = null },
-            title = { Text("Edit $field", color = Color.White) },
+            title = { Text(stringResource(R.string.edit_field, field), color = Color.White) },
             containerColor = SurfaceColor,
             text = {
                 if (field == "Gender") {
@@ -65,7 +67,7 @@ fun PersonalInfoScreen(
                     OutlinedTextField(
                         value = editValue,
                         onValueChange = { editValue = it },
-                        label = { Text("New $field", color = TextGrey) },
+                        label = { Text(stringResource(R.string.new_field, field), color = TextGrey) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -93,13 +95,13 @@ fun PersonalInfoScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
                     ) {
-                        Text("Save", color = Color.Black)
+                        Text(stringResource(R.string.save), color = Color.Black)
                     }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showEditDialog = null }) {
-                    Text("Cancel", color = PrimaryYellow)
+                    Text(stringResource(R.string.cancel), color = PrimaryYellow)
                 }
             }
         )

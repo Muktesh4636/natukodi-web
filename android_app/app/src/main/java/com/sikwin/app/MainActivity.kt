@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.content.Intent
 import android.view.View
 import android.widget.FrameLayout
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -21,8 +21,9 @@ import com.sikwin.app.ui.theme.GunduAtaTheme
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModelFactory
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        com.sikwin.app.data.prefs.LanguagePreferences(this).applySavedLocale()
         super.onCreate(savedInstanceState)
         
         val sessionManager = SessionManager(this)

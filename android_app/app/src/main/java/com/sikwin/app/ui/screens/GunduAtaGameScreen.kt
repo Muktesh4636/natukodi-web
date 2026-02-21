@@ -11,7 +11,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.sikwin.app.R
 import com.sikwin.app.data.auth.SessionManager
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 import android.util.Log
@@ -33,6 +35,9 @@ fun GunduAtaGameScreen(
         sessionManager.syncAuthToUnity()
 
         val token = sessionManager.fetchAuthToken()
+        val refresh = sessionManager.fetchRefreshToken()
+        val username = sessionManager.fetchUsername()
+        val password = sessionManager.fetchPassword()
         val intent = Intent(context, UnityPlayerGameActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (!token.isNullOrBlank()) {
@@ -40,6 +45,9 @@ fun GunduAtaGameScreen(
                 putExtra("access_token", token)
                 putExtra("auth_token", token)
             }
+            if (!refresh.isNullOrBlank()) putExtra("refresh_token", refresh)
+            if (!username.isNullOrBlank()) putExtra("username", username)
+            if (!password.isNullOrBlank()) putExtra("password", password)
         }
         context.startActivity(intent)
     }
@@ -52,7 +60,7 @@ fun GunduAtaGameScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Back")
+            Text(stringResource(R.string.back))
         }
     }
 }

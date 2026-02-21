@@ -20,6 +20,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -62,7 +64,7 @@ fun AddBankAccountScreen(
                 )
             }
             Text(
-                "Add bank account",
+                stringResource(R.string.add_bank_account_title),
                 color = PrimaryYellow,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -80,38 +82,38 @@ fun AddBankAccountScreen(
         ) {
             // Account holder name
             AddBankField(
-                label = "Account holder name",
+                label = stringResource(R.string.account_holder_name),
                 value = accountHolderName,
                 onValueChange = { accountHolderName = it },
-                placeholder = "Please fill the Account holder name",
+                placeholder = stringResource(R.string.account_holder_placeholder),
                 singleLine = true
             )
 
             // Account Number
             AddBankField(
-                label = "Account Number",
+                label = stringResource(R.string.account_number),
                 value = accountNumber,
                 onValueChange = { accountNumber = it },
-                placeholder = "Please enter the bank account number",
+                placeholder = stringResource(R.string.account_number_placeholder),
                 keyboardType = KeyboardType.Number,
                 singleLine = true
             )
 
             // Bank name
             AddBankField(
-                label = "Bank name",
+                label = stringResource(R.string.bank_name),
                 value = bankName,
                 onValueChange = { bankName = it },
-                placeholder = "Please select bank",
+                placeholder = stringResource(R.string.bank_name_placeholder),
                 singleLine = true
             )
 
             // IFSC
             AddBankField(
-                label = "IFSC",
+                label = stringResource(R.string.ifsc),
                 value = ifsc,
                 onValueChange = { ifsc = it },
-                placeholder = "Please fill in the open account bank address",
+                placeholder = stringResource(R.string.ifsc_placeholder),
                 singleLine = true
             )
 
@@ -133,7 +135,7 @@ fun AddBankAccountScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Set as default :", color = TextWhite, fontSize = 16.sp)
+                Text(stringResource(R.string.set_as_default_colon), color = TextWhite, fontSize = 16.sp)
                 Switch(
                     checked = setAsDefault,
                     onCheckedChange = { setAsDefault = it },
@@ -178,7 +180,7 @@ fun AddBankAccountScreen(
                     CircularProgressIndicator(color = BlackBackground, modifier = Modifier.size(24.dp))
                 } else {
                     Text(
-                        "Submit",
+                        stringResource(R.string.submit),
                         color = BlackBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold

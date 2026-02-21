@@ -2,6 +2,7 @@ package com.sikwin.app.data.auth
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.Intent
 
 class SessionManager(private val context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("gunduata_prefs", Context.MODE_PRIVATE)
@@ -95,6 +96,10 @@ class SessionManager(private val context: Context) {
         return prefs.getString(USER_PASS, null)
     }
 
+    fun clearSavedPassword() {
+        prefs.edit().remove(USER_PASS).apply()
+    }
+
     fun syncAuthToUnity() {
         // Sync authentication data to Unity PlayerPrefs for seamless login
         try {
@@ -105,7 +110,9 @@ class SessionManager(private val context: Context) {
             val unityPrefsName = "$standalonePackageName.v2.playerprefs"
             
             val authToken = fetchAuthToken()
+            val refreshToken = fetchRefreshToken()
             val username = fetchUsername()
+            val password = fetchPassword()
             val userId = fetchUserId()
             
             if (authToken != null) {
@@ -122,7 +129,9 @@ class SessionManager(private val context: Context) {
                     .putString("bearer_token", authToken)
                     .putString("access_token", authToken)
                     .putString("access", authToken)
+                    .putString("refresh_token", refreshToken)
                     .putString("username", username)
+                    .putString("password", password)
                     .putString("user_id", userId)
                     .putString("base_url", "https://gunduata.online/")
                     .putString("api_url", "https://gunduata.online/api/")
@@ -142,6 +151,9 @@ class SessionManager(private val context: Context) {
                 altPrefs.edit()
                     .putString("auth_token", authToken)
                     .putString("access_token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("password", password)
                     .putString("is_logged_in", "true")
                     .apply()
 
@@ -150,6 +162,9 @@ class SessionManager(private val context: Context) {
                     val fallbackPrefs = context.getSharedPreferences("dicegame.v2.playerprefs", Context.MODE_PRIVATE)
                     fallbackPrefs.edit()
                         .putString("auth_token", authToken)
+                        .putString("refresh_token", refreshToken)
+                        .putString("username", username)
+                        .putString("password", password)
                         .putString("is_logged_in", "true")
                         .apply()
                 } catch (e: Exception) {}
@@ -158,6 +173,9 @@ class SessionManager(private val context: Context) {
                 val defaultPrefs = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
                 defaultPrefs.edit()
                     .putString("auth_token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("password", password)
                     .putString("is_logged_in", "true")
                     .apply()
 
@@ -166,8 +184,51 @@ class SessionManager(private val context: Context) {
                 val processPrefs = context.getSharedPreferences("com.company.dicegame", Context.MODE_PRIVATE)
                 processPrefs.edit()
                     .putString("auth_token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("password", password)
                     .putString("is_logged_in", "true")
                     .apply()
+
+                // 6. EXTRA: Write to PlayerPrefs.xml (some older Unity versions)
+                val playerPrefs = context.getSharedPreferences("PlayerPrefs", Context.MODE_PRIVATE)
+                playerPrefs.edit()
+                    .putString("auth_token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("password", password)
+                    .putString("is_logged_in", "true")
+                    .apply()
+
+                // 7. CRITICAL: Write to actual embedded app package PlayerPrefs filename
+                val embeddedUnityPrefs = context.getSharedPreferences("${context.packageName}.v2.playerprefs", Context.MODE_PRIVATE)
+                embeddedUnityPrefs.edit()
+                    .putString("auth_token", authToken)
+                    .putString("access_token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("password", password)
+                    .putString("is_logged_in", "true")
+                    .apply()
+
+                // 8. Alternate package-named prefs fallback
+                val embeddedUnityPrefsAlt = context.getSharedPreferences("${context.packageName}.playerprefs", Context.MODE_PRIVATE)
+                embeddedUnityPrefsAlt.edit()
+                    .putString("auth_token", authToken)
+                    .putString("refresh_token", refreshToken)
+                    .putString("username", username)
+                    .putString("password", password)
+                    .putString("is_logged_in", "true")
+                    .apply()
+
+                // 9. BROADCAST: Send a broadcast that UnityPlayerGameActivity can catch
+                val intent = Intent("com.sikwin.app.TOKEN_UPDATE")
+                intent.putExtra("access", authToken)
+                intent.putExtra("refresh", refreshToken)
+                intent.putExtra("username", username)
+                intent.setPackage(context.packageName)
+                context.sendBroadcast(intent)
+                android.util.Log.d("SessionManager", "Sent TOKEN_UPDATE broadcast for Unity")
             }
         } catch (e: Exception) {
             android.util.Log.e("SessionManager", "Failed to sync auth to Unity", e)
@@ -192,8 +253,17 @@ class SessionManager(private val context: Context) {
     }
     
     fun logout() {
-        // Clear Kotlin/Android prefs
+        // Preserve saved credentials for quick login, clear only auth data
+        val savedUser = prefs.getString(USERNAME, null)
+        val savedPass = prefs.getString(USER_PASS, null)
         prefs.edit().clear().apply()
+        // Restore saved credentials for quick login
+        if (savedUser != null && savedPass != null) {
+            prefs.edit()
+                .putString(USERNAME, savedUser)
+                .putString(USER_PASS, savedPass)
+                .apply()
+        }
         
         // Clear Unity PlayerPrefs to sync logout
         try {

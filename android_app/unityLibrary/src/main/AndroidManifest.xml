@@ -16,7 +16,7 @@
     <meta-data android:name="unity.auto-report-fully-drawn" android:value="true" />
     <meta-data android:name="unity.strip-engine-code" android:value="true" />
     <meta-data android:name="unity.auto-set-game-state" android:value="true" />
-    <activity android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:enabled="true" android:exported="true" android:hardwareAccelerated="false" android:launchMode="singleTask" android:name="com.unity3d.player.UnityPlayerGameActivity" android:process=":unity" android:resizeableActivity="true" android:screenOrientation="fullUser" android:theme="@style/BaseUnityGameActivityTheme">
+    <activity android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:enabled="true" android:exported="true" android:hardwareAccelerated="false" android:launchMode="singleTask" android:name="com.unity3d.player.UnityPlayerGameActivity" android:process="${applicationId}" android:resizeableActivity="true" android:screenOrientation="fullUser" android:theme="@style/BaseUnityGameActivityTheme">
 
       <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
       <meta-data android:name="android.app.lib_name" android:value="game" />

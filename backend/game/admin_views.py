@@ -29,7 +29,7 @@ from .admin_utils import (
     super_admin_required, admin_required, permission_required,
     get_admin_permissions, has_menu_permission
 )
-from .utils import get_game_setting
+from .utils import get_game_setting, clear_game_setting_cache
 from .load_test_utils import load_tester
 from decimal import Decimal, InvalidOperation
 from django.db.models import Sum, Q, F
@@ -2033,10 +2033,19 @@ def delete_admin(request, admin_id):
 @login_required(login_url='/game-admin/login/')
 @admin_required
 def manage_players(request):
-    """Actual game players management page"""
+    """Actual game players management page. Players assigned to admins only (not super admins)."""
     if not has_menu_permission(request.user, 'players'):
         messages.error(request, 'You do not have permission to view players.')
         return redirect('admin_dashboard')
+
+    # POST: Assign unassigned players equally among admins (super admins only)
+    if request.method == 'POST' and request.POST.get('action') == 'assign_unassigned':
+        if not is_super_admin(request.user):
+            messages.error(request, 'Only Super Admins can assign unassigned players.')
+        else:
+            count = redistribute_all_players()
+            messages.success(request, f'Assigned {count} unassigned player(s) equally among admins.')
+        return redirect('manage_players')
         
     # Get status filter from query params
     status_filter = request.GET.get('status', 'all')
@@ -2093,9 +2102,8 @@ def manage_players(request):
         })
     admin_distribution.sort(key=lambda x: x['client_count'])
     
-    # Get all potential workers for assignment dropdown
-    # Staff includes admins and superadmins, as requested: "if we want we can manually transfer the players to superadmin its our wish"
-    workers = User.objects.filter(is_staff=True, is_active=True).order_by('username')
+    # Workers dropdown: admins only (no super admins) - players are assigned to admins
+    workers = get_admins_for_distribution().order_by('username')
     
     context = get_admin_context(request, {
         'page_obj': page_obj,
@@ -2106,6 +2114,7 @@ def manage_players(request):
         'inactive_users': inactive_users,
         'workers': workers,
         'admin_distribution': admin_distribution,
+        'is_super_admin': is_super_admin(request.user),
         'page': 'manage-players',
     })
     
@@ -2177,29 +2186,34 @@ def players(request):
 @login_required(login_url='/game-admin/login/')
 @admin_required
 def assign_worker(request):
-    """Assign a client to a worker"""
+    """Manually assign a client to an admin (super admins only). No automatic reassignment."""
     if request.method == 'POST':
         client_id = request.POST.get('client_id')
         worker_id = request.POST.get('worker_id')
         
         if not is_super_admin(request.user):
-            messages.error(request, 'Only Super Admins can assign workers.')
-            return redirect('players')
+            messages.error(request, 'Only Super Admins can assign players.')
+            return redirect('manage_players')
             
         try:
-            client = User.objects.get(id=client_id)
+            client = User.objects.get(id=client_id, is_staff=False)
             if worker_id:
-                worker = User.objects.get(id=worker_id, is_staff=True)
+                # Only allow assignment to admins (not super admins)
+                admins = get_admins_for_distribution()
+                worker = admins.filter(id=worker_id).first()
+                if not worker:
+                    messages.error(request, 'Invalid admin. Players can only be assigned to admins.')
+                    return redirect('manage_players')
                 client.worker = worker
-                messages.success(request, f'Client {client.username} assigned to worker {worker.username}.')
+                messages.success(request, f'Player {client.username} assigned to {worker.username}.')
             else:
                 client.worker = None
-                messages.success(request, f'Worker removed from client {client.username}.')
+                messages.success(request, f'Player {client.username} unassigned.')
             client.save()
         except User.DoesNotExist:
             messages.error(request, 'User not found.')
             
-    return redirect('players')
+    return redirect('manage_players')
 
 
 @login_required(login_url='/game-admin/login/')
@@ -2237,6 +2251,34 @@ def game_settings(request):
             'description': 'Total round duration in seconds (default: 80)'
         },
     ]
+
+    # App version settings (for APK update prompts)
+    app_version_settings = [
+        {
+            'key': 'APP_VERSION_CODE',
+            'default': 1,
+            'input_type': 'number',
+            'description': 'Version code of latest APK. Bump this when you release a new APK. Users with lower versionCode will see update prompt.'
+        },
+        {
+            'key': 'APP_VERSION_NAME',
+            'default': '1.0',
+            'input_type': 'text',
+            'description': 'Display version name (e.g. 1.0, 1.1). Shown to users in update dialog.'
+        },
+        {
+            'key': 'APP_DOWNLOAD_URL',
+            'default': 'https://gunduata.online/gundu-ata.apk',
+            'input_type': 'url',
+            'description': 'Direct URL to download the latest APK. Users tap "Update" to open this link.'
+        },
+        {
+            'key': 'APP_FORCE_UPDATE',
+            'default': False,
+            'input_type': 'checkbox',
+            'description': 'If enabled, users MUST update to continue. They cannot dismiss the dialog.'
+        },
+    ]
     
     # Get current settings from database
     current_settings = {}
@@ -2250,6 +2292,29 @@ def game_settings(request):
             }
         except GameSettings.DoesNotExist:
             current_settings[setting_info['key']] = {
+                'value': setting_info['default'],
+                'description': setting_info['description'],
+                'exists': False
+            }
+
+    # Get current app version settings
+    app_version_current = {}
+    for setting_info in app_version_settings:
+        try:
+            setting = GameSettings.objects.get(key=setting_info['key'])
+            if setting_info['input_type'] == 'number':
+                val = int(setting.value)
+            elif setting_info['input_type'] == 'checkbox':
+                val = setting.value.lower() in ('true', '1', 'yes')
+            else:
+                val = setting.value
+            app_version_current[setting_info['key']] = {
+                'value': val,
+                'description': setting.description or setting_info['description'],
+                'exists': True
+            }
+        except (GameSettings.DoesNotExist, ValueError):
+            app_version_current[setting_info['key']] = {
                 'value': setting_info['default'],
                 'description': setting_info['description'],
                 'exists': False
@@ -2310,6 +2375,46 @@ def game_settings(request):
                         'description': setting_info['description']
                     }
                 )
+
+            # Save app version settings
+            for setting_info in app_version_settings:
+                key = setting_info['key']
+                if setting_info['input_type'] == 'number':
+                    val = request.POST.get(key)
+                    if val is not None:
+                        try:
+                            GameSettings.objects.update_or_create(
+                                key=key,
+                                defaults={
+                                    'value': str(int(val)),
+                                    'description': setting_info['description']
+                                }
+                            )
+                        except ValueError:
+                            pass
+                elif setting_info['input_type'] == 'checkbox':
+                    GameSettings.objects.update_or_create(
+                        key=key,
+                        defaults={
+                            'value': 'true' if request.POST.get(key) == 'on' else 'false',
+                            'description': setting_info['description']
+                        }
+                    )
+                else:
+                    val = request.POST.get(key)
+                    if val is not None:
+                        GameSettings.objects.update_or_create(
+                            key=key,
+                            defaults={
+                                'value': val.strip(),
+                                'description': setting_info['description']
+                            }
+                        )
+
+            # Clear cache so app_version API returns fresh values immediately
+            all_keys = [s['key'] for s in settings_to_manage] + [s['key'] for s in app_version_settings]
+            clear_game_setting_cache(all_keys)
+
             messages.success(request, 'Game settings updated successfully! Changes will take effect for the next round only.')
             return redirect('game_settings')
         else:
@@ -2327,9 +2432,22 @@ def game_settings(request):
             'description': setting_data['description'],
             'default': setting_info['default']
         })
+
+    # Prepare app version settings list for template
+    app_version_list = []
+    for setting_info in app_version_settings:
+        key = setting_info['key']
+        setting_data = app_version_current[key]
+        app_version_list.append({
+            'key': key,
+            'value': setting_data['value'],
+            'description': setting_data['description'],
+            'input_type': setting_info['input_type'],
+        })
     
     context = get_admin_context(request, {
         'settings_list': settings_list,
+        'app_version_list': app_version_list,
         'page': 'game_settings',
         'admin_profile': get_admin_profile(request.user),
     })

@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 import androidx.compose.ui.platform.LocalContext
@@ -68,14 +70,14 @@ fun ForgotPasswordScreen(
         Spacer(modifier = Modifier.height(20.dp))
         
         Text(
-            text = "Reset Password",
+            text = stringResource(R.string.reset_password),
             style = MaterialTheme.typography.headlineLarge,
             color = TextWhite,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Start)
         )
         Text(
-            text = "Enter your phone number to reset password",
+            text = stringResource(R.string.reset_password_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = TextGrey,
             modifier = Modifier.align(Alignment.Start)
@@ -89,7 +91,7 @@ fun ForgotPasswordScreen(
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your phone number", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_phone_number), color = TextGrey) },
             leadingIcon = { Text("+91", color = TextWhite, modifier = Modifier.padding(start = 12.dp)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
@@ -115,7 +117,7 @@ fun ForgotPasswordScreen(
                 value = otpCode,
                 onValueChange = { otpCode = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Enter 4-digit OTP", color = TextGrey) },
+                placeholder = { Text(stringResource(R.string.enter_otp), color = TextGrey) },
                 leadingIcon = { Icon(Icons.Default.Lock, null, tint = TextGrey) },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = SurfaceColor,
@@ -159,7 +161,7 @@ fun ForgotPasswordScreen(
             value = newPassword,
             onValueChange = { newPassword = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Enter new password", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_new_password), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Lock, null, tint = TextGrey) },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -190,7 +192,7 @@ fun ForgotPasswordScreen(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Confirm new password", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.confirm_new_password), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Lock, null, tint = TextGrey) },
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
@@ -227,7 +229,7 @@ fun ForgotPasswordScreen(
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Reset Password", color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.reset_password), color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
     }
 }

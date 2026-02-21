@@ -18,6 +18,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -100,7 +102,7 @@ fun SecurityScreen(
     // Edit Dialogs
     if (showEmailDialog) {
         EditFieldDialog(
-            title = "Edit Email",
+            title = stringResource(R.string.edit_email),
             currentValue = user?.email ?: "",
             label = "Email",
             keyboardType = KeyboardType.Email,
@@ -175,7 +177,7 @@ fun EditFieldDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel", color = TextGrey)
+                        Text(stringResource(R.string.cancel), color = TextGrey)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -183,7 +185,7 @@ fun EditFieldDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
                         enabled = value.isNotBlank()
                     ) {
-                        Text("Save", color = Color.Black)
+                        Text(stringResource(R.string.save), color = Color.Black)
                     }
                 }
             }
@@ -216,7 +218,7 @@ fun ChangePasswordDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Change Password",
+                    text = stringResource(R.string.change_password),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextWhite
@@ -225,7 +227,7 @@ fun ChangePasswordDialog(
                 OutlinedTextField(
                     value = currentPassword,
                     onValueChange = { currentPassword = it },
-                    label = { Text("Current Password", color = TextGrey) },
+                    label = { Text(stringResource(R.string.current_password), color = TextGrey) },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = if (showCurrentPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -249,7 +251,7 @@ fun ChangePasswordDialog(
                 OutlinedTextField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    label = { Text("New Password", color = TextGrey) },
+                    label = { Text(stringResource(R.string.new_password), color = TextGrey) },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = if (showNewPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -273,7 +275,7 @@ fun ChangePasswordDialog(
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm New Password", color = TextGrey) },
+                    label = { Text(stringResource(R.string.confirm_new_password), color = TextGrey) },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -309,7 +311,7 @@ fun ChangePasswordDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel", color = TextGrey)
+                        Text(stringResource(R.string.cancel), color = TextGrey)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -319,7 +321,7 @@ fun ChangePasswordDialog(
                                  newPassword.isNotBlank() && 
                                  newPassword == confirmPassword
                     ) {
-                        Text("Change", color = Color.Black)
+                        Text(stringResource(R.string.change), color = Color.Black)
                     }
                 }
             }

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -186,7 +187,7 @@ fun LuckyDrawScreen(
     if (showResultDialog) {
         AlertDialog(
             onDismissRequest = { showResultDialog = false },
-            title = { Text("Lucky Draw Result", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.lucky_draw_result), fontWeight = FontWeight.Bold) },
             text = {
                 val message = if (lastResult == "₹0") {
                     "Better luck next time! Make a deposit to try again."
@@ -197,7 +198,7 @@ fun LuckyDrawScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showResultDialog = false }) {
-                    Text("OK", color = PrimaryYellow)
+                    Text(stringResource(R.string.ok), color = PrimaryYellow)
                 }
             },
             containerColor = SurfaceColor,

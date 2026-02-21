@@ -20,11 +20,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -52,6 +54,7 @@ fun ProfileScreen(
                     viewModel.fetchProfile()
                     viewModel.fetchWallet()
                     viewModel.fetchDeposits()
+                    viewModel.fetchLeaderboard()
                 }
             }
         }
@@ -75,7 +78,10 @@ fun ProfileScreen(
             ProfileHeader(
                 username = viewModel.userProfile?.username ?: sessionManager.fetchUsername() ?: "User",
                 balance = viewModel.wallet?.balance ?: "0.00",
-                onRefreshBalance = { viewModel.fetchWallet() },
+                onRefreshBalance = {
+                    viewModel.fetchWallet()
+                    viewModel.fetchLeaderboard()
+                },
                 onNavigate = onNavigate
             )
 
@@ -113,13 +119,13 @@ fun ProfileScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
                                 Text(
-                                    "Your Daily Ranking",
+                                    stringResource(R.string.your_daily_ranking),
                                     color = TextGrey,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    if (viewModel.userRank > 0) "#${viewModel.userRank}" else "Unranked",
+                                    if (viewModel.userRank > 0) "#${viewModel.userRank}" else stringResource(R.string.unranked),
                                     color = TextWhite,
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Black
@@ -129,7 +135,7 @@ fun ProfileScreen(
                         
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                "Daily Prize",
+                                stringResource(R.string.daily_prize),
                                 color = TextGrey,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold
@@ -139,7 +145,7 @@ fun ProfileScreen(
                                     1 -> "₹1,000"
                                     2 -> "₹500"
                                     3 -> "₹100"
-                                    else -> "Win ₹1,000"
+                                    else -> stringResource(R.string.win_prize)
                                 },
                                 color = PrimaryYellow,
                                 fontSize = 16.sp,
@@ -180,13 +186,13 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "REFER & EARN",
+                            stringResource(R.string.refer_earn),
                             color = BlackBackground,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            "Invite friends and earn up to ₹1000 bonus!",
+                            stringResource(R.string.refer_earn_subtitle),
                             color = BlackBackground.copy(alpha = 0.7f),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
@@ -214,22 +220,22 @@ fun ProfileScreen(
                     .clip(RoundedCornerShape(12.dp))
                     .background(SurfaceColor)
             ) {
-                ProfileMenuItem("Transaction record", Icons.AutoMirrored.Filled.List) { onNavigate("transactions") }
+                ProfileMenuItem(stringResource(R.string.transaction_record), Icons.AutoMirrored.Filled.List) { onNavigate("transactions") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 
                 val context = LocalContext.current
                 val diceIconId = context.resources.getIdentifier("ic_gundu_ata_nav", "drawable", context.packageName)
                 
                 ProfileMenuItem(
-                    text = "Betting History", 
+                    text = stringResource(R.string.betting_history), 
                     icon = if (diceIconId != 0) null else Icons.Default.Casino,
                     customIconId = if (diceIconId != 0) diceIconId else null
                 ) { onNavigate("betting_record") }
                 
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Deposit record", Icons.Default.Description) { onNavigate("deposits_record") }
+                ProfileMenuItem(stringResource(R.string.deposit_record), Icons.Default.Description) { onNavigate("deposits_record") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Withdrawal record", Icons.Default.Receipt) { onNavigate("withdrawals_record") }
+                ProfileMenuItem(stringResource(R.string.withdrawal_record), Icons.Default.Receipt) { onNavigate("withdrawals_record") }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -242,28 +248,30 @@ fun ProfileScreen(
                     .clip(RoundedCornerShape(12.dp))
                     .background(SurfaceColor)
             ) {
-                ProfileMenuItem("My Withdrawal Account", Icons.Default.AccountBox) { onNavigate("withdrawal_account") }
+                ProfileMenuItem(stringResource(R.string.my_withdrawal_account), Icons.Default.AccountBox) { onNavigate("withdrawal_account") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Personal data", Icons.Default.Person) { onNavigate("personal_info") }
+                ProfileMenuItem(stringResource(R.string.personal_data), Icons.Default.Person) { onNavigate("personal_info") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Security", Icons.Default.Security) { onNavigate("security") }
+                ProfileMenuItem(stringResource(R.string.security), Icons.Default.Security) { onNavigate("security") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Help center", Icons.Default.TipsAndUpdates) { onNavigate("help_center") }
+                ProfileMenuItem(stringResource(R.string.languages), Icons.Default.Translate) { onNavigate("languages") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Refer a Friend", Icons.Default.PersonAdd) { onNavigate("affiliate") }
+                ProfileMenuItem(stringResource(R.string.help_center), Icons.Default.TipsAndUpdates) { onNavigate("help_center") }
+                Divider(color = BorderColor, thickness = 0.5.dp)
+                ProfileMenuItem(stringResource(R.string.refer_a_friend), Icons.Default.PersonAdd) { onNavigate("affiliate") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 
                 val context = LocalContext.current
                 val diceIconId = context.resources.getIdentifier("ic_gundu_ata_nav", "drawable", context.packageName)
                 
                 ProfileMenuItem(
-                    text = "Dice Results", 
+                    text = stringResource(R.string.dice_results), 
                     icon = if (diceIconId != 0) null else Icons.Default.Casino,
                     customIconId = if (diceIconId != 0) diceIconId else null
                 ) { onNavigate("dice_results") }
                 
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Game Guidelines", Icons.Default.Casino) { onNavigate("game_guidelines") }
+                ProfileMenuItem(stringResource(R.string.game_guidelines), Icons.Default.Casino) { onNavigate("game_guidelines") }
             }
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -291,7 +299,7 @@ fun ProfileScreen(
                     )
                 ) {
                     Text(
-                        text = "Log out",
+                        text = stringResource(R.string.log_out),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -320,7 +328,7 @@ fun ProfileHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("My Dashboard", color = TextWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.my_dashboard), color = TextWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { onNavigate("deposit") }
@@ -348,7 +356,7 @@ fun ProfileHeader(
             
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Hi~ $username", color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.hi_username, username), color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
                 Surface(
                     color = Color.DarkGray,
@@ -367,7 +375,7 @@ fun ProfileHeader(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        Text("Total/INR", color = TextGrey, fontSize = 14.sp)
+        Text(stringResource(R.string.total_inr), color = TextGrey, fontSize = 14.sp)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("₹", color = PrimaryYellow, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(8.dp))
@@ -412,9 +420,9 @@ fun QuickActionsGrid(onNavigate: (String) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         val actions = listOf(
-            QuickAction("My wallet", Icons.Default.AccountBalanceWallet, "wallet"),
-            QuickAction("Withdrawal", Icons.Default.ArrowDownward, "withdraw"),
-            QuickAction("Deposit", Icons.Default.ArrowUpward, "deposit")
+            QuickAction(stringResource(R.string.my_wallet), Icons.Default.AccountBalanceWallet, "wallet"),
+            QuickAction(stringResource(R.string.withdrawal), Icons.Default.ArrowDownward, "withdraw"),
+            QuickAction(stringResource(R.string.deposit), Icons.Default.ArrowUpward, "deposit")
         )
         
         actions.forEach { action ->

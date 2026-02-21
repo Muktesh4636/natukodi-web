@@ -3,6 +3,7 @@ package com.sikwin.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,10 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +31,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.sikwin.app.R
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 import androidx.compose.ui.text.font.FontWeight
@@ -37,7 +43,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.text.style.TextAlign
-import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +71,7 @@ fun AffiliateScreen(
         TopAppBar(
             title = {
                 Text(
-                    "Refer & Earn",
+                    stringResource(R.string.refer_earn_title),
                     color = TextWhite,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -112,16 +117,10 @@ fun AffiliateScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Invite Friends & Win!",
+                        stringResource(R.string.invite_friends_win),
                         color = TextWhite,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold
-                    )
-                    Text(
-                        "Earn up to ₹10,000 for every friend",
-                        color = PrimaryYellow,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -141,38 +140,45 @@ fun AffiliateScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            "YOUR REFERRAL CODE",
+                            stringResource(R.string.your_referral_code),
                             color = TextGrey,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
+                        val codeCopiedText = stringResource(R.string.code_copied)
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
-                                .wrapContentWidth()
+                                .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(BlackBackground.copy(alpha = 0.5f))
-                                .padding(horizontal = 24.dp, vertical = 12.dp)
+                                .padding(horizontal = 16.dp, vertical = 10.dp)
                                 .clickable {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                                     val clip = android.content.ClipData.newPlainText("Referral Code", referralCode)
                                     clipboard.setPrimaryClip(clip)
-                                    android.widget.Toast.makeText(context, "Code copied!", android.widget.Toast.LENGTH_SHORT).show()
+                                    android.widget.Toast.makeText(context, codeCopiedText, android.widget.Toast.LENGTH_SHORT).show()
                                 }
                         ) {
-                            Text(
-                                text = referralCode,
-                                color = PrimaryYellow,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 2.sp,
-                                maxLines = 1
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Icon(Icons.Default.ContentCopy, null, tint = PrimaryYellow, modifier = Modifier.size(20.dp))
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .horizontalScroll(rememberScrollState()),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = referralCode,
+                                    color = PrimaryYellow,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 1.sp,
+                                    maxLines = 1
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(Icons.Default.ContentCopy, null, tint = PrimaryYellow, modifier = Modifier.size(18.dp))
                         }
                         
                         Spacer(modifier = Modifier.height(20.dp))
@@ -205,7 +211,7 @@ fun AffiliateScreen(
                             ) {
                                 Icon(painterResource(id = R.drawable.ic_whatsapp), null, tint = Color.White, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("WhatsApp", fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.whatsapp), fontWeight = FontWeight.Bold)
                             }
                             
                             Button(
@@ -223,37 +229,49 @@ fun AffiliateScreen(
                             ) {
                                 Icon(Icons.Default.Share, null, tint = BlackBackground, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Share", color = BlackBackground, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.share), color = BlackBackground, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
                 }
 
                 // Stats Section
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        StatCard(
+                            title = stringResource(R.string.total_referrals),
+                            value = "${referralData?.total_referrals ?: 0}",
+                            icon = Icons.Filled.People,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            title = stringResource(R.string.deposited_counts),
+                            value = "${referralData?.active_referrals ?: 0}",
+                            icon = Icons.Filled.CheckCircle,
+                            modifier = Modifier.weight(1f),
+                            color = GreenSuccess
+                        )
+                    }
                     StatCard(
-                        title = "Total Referrals",
-                        value = "${referralData?.total_referrals ?: 0}",
-                        icon = Icons.Filled.People,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        title = "Total Earned",
+                        title = stringResource(R.string.total_earned),
                         value = "₹${referralData?.total_earnings ?: "0"}",
                         icon = Icons.Filled.AccountBalanceWallet,
-                        modifier = Modifier.weight(1f),
-                        color = GreenSuccess
+                        modifier = Modifier.fillMaxWidth(),
+                        color = PrimaryYellow
                     )
                 }
 
                 // Milestone Section
                 Text(
-                    "MILESTONE BONUSES",
+                    stringResource(R.string.milestone_bonuses),
                     color = TextWhite,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Black,
@@ -263,6 +281,12 @@ fun AffiliateScreen(
 
                 // Next Milestone
                 referralData?.next_milestone?.let { next ->
+                    val targetVal = next.target ?: next.next_milestone ?: 3
+                    val nextRewardAmount = when (targetVal) {
+                        3 -> 500
+                        5 -> 1000
+                        else -> next.next_bonus.toInt()
+                    }
                     Surface(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         shape = RoundedCornerShape(16.dp),
@@ -276,9 +300,15 @@ fun AffiliateScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
-                                    Text("Next Reward", color = TextGrey, fontSize = 12.sp)
-                                    Text("₹${next.next_bonus.toInt()}", color = PrimaryYellow, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                                    Text(stringResource(R.string.next_reward), color = TextGrey, fontSize = 12.sp)
+                                    Text(
+                                        text = next.next_bonus_display ?: "₹$nextRewardAmount",
+                                        color = PrimaryYellow,
+                                        fontSize = if (next.next_bonus_display != null) 18.sp else 24.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
                                 }
+                                val current = next.current_progress
                                 Box(contentAlignment = Alignment.Center) {
                                     CircularProgressIndicator(
                                         progress = { (next.progress_percentage / 100).toFloat().coerceIn(0f, 1f) },
@@ -288,7 +318,7 @@ fun AffiliateScreen(
                                         strokeWidth = 6.dp
                                     )
                                     Text(
-                                        "${next.progress_percentage.toInt()}%",
+                                        "$current/$targetVal",
                                         color = TextWhite,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold
@@ -296,8 +326,9 @@ fun AffiliateScreen(
                                 }
                             }
                             Spacer(modifier = Modifier.height(12.dp))
+                            val remaining = targetVal - next.current_progress
                             Text(
-                                "Refer ${next.next_milestone!! - next.current_progress} more friends to unlock!",
+                                stringResource(R.string.refer_more_to_unlock, remaining),
                                 color = TextWhite,
                                 fontSize = 13.sp
                             )
@@ -305,9 +336,84 @@ fun AffiliateScreen(
                     }
                 }
 
+                // All Milestones List (3 refs → ₹500, 5 more → ₹1000)
+                referralData?.milestones?.let { milestones ->
+                    milestones.forEachIndexed { index, m ->
+                        val displayBonus = when (m.count) {
+                            3 -> 500
+                            5 -> 1000
+                            else -> m.bonus
+                        }
+                        MilestoneCard(
+                            count = m.count,
+                            bonus = displayBonus,
+                            bonusDisplay = m.bonus_display,
+                            achieved = m.achieved,
+                            progressCurrent = m.progress_current,
+                            target = m.target,
+                            labelResId = if (index == 1) R.string.five_more_referrals else R.string.referrals_count,
+                            labelFormatArgs = if (index == 1) emptyArray() else arrayOf<Any>(m.count)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // My Referrals section - show 3 initially, View All to expand
+                val referralsList = referralData?.referrals ?: emptyList()
+                if (referralsList.isNotEmpty()) {
+                    var showAllReferrals by remember { mutableStateOf(false) }
+                    val displayedReferrals = if (showAllReferrals) referralsList else referralsList.take(3)
+                    val hasMore = referralsList.size > 3
+
+                    Text(
+                        stringResource(R.string.my_referrals),
+                        color = TextWhite,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = SurfaceColor
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            displayedReferrals.forEachIndexed { index, ref ->
+                                ReferralListItem(
+                                    username = ref.username,
+                                    hasDeposit = ref.has_deposit
+                                )
+                                if (index < displayedReferrals.size - 1) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+                            if (hasMore && !showAllReferrals) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                TextButton(
+                                    onClick = { showAllReferrals = true },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(stringResource(R.string.view_all_more, referralsList.size - 3), color = PrimaryYellow, fontWeight = FontWeight.Bold)
+                                }
+                            } else if (hasMore && showAllReferrals) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                TextButton(
+                                    onClick = { showAllReferrals = false },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(stringResource(R.string.view_less), color = PrimaryYellow, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 // How it works
                 Text(
-                    "HOW IT WORKS",
+                    stringResource(R.string.how_it_works),
                     color = TextWhite,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Black,
@@ -321,13 +427,13 @@ fun AffiliateScreen(
                     color = SurfaceColor
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        StepItem("1", "Share your code with friends")
+                        StepItem("1", stringResource(R.string.step_share_code))
                         StepDivider()
-                        StepItem("2", "Friend registers & deposits ₹100+")
+                        StepItem("2", stringResource(R.string.step_friend_deposits))
                         StepDivider()
-                        StepItem("3", "You get ₹100 instantly!")
+                        StepItem("3", stringResource(R.string.step_get_bonus))
                         StepDivider()
-                        StepItem("4", "Unlock massive milestone bonuses")
+                        StepItem("4", stringResource(R.string.step_milestone_bonuses))
                     }
                 }
             }
@@ -377,7 +483,9 @@ fun StatCard(
         color = SurfaceColor
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -387,16 +495,26 @@ fun StatCard(
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                value,
-                color = TextWhite,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    value,
+                    color = TextWhite,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+            }
             Text(
                 title,
                 color = TextGrey,
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }
@@ -406,9 +524,19 @@ fun StatCard(
 fun MilestoneCard(
     count: Int,
     bonus: Int,
+    bonusDisplay: String? = null,
     achieved: Boolean,
-    currentReferrals: Int
+    progressCurrent: Int = 0,
+    target: Int = count,
+    labelResId: Int? = null,
+    labelFormatArgs: Array<Any> = emptyArray(),
+    label: String? = null
 ) {
+    val resolvedLabel = when {
+        labelResId != null -> if (labelFormatArgs.isEmpty()) stringResource(labelResId) else stringResource(labelResId, *labelFormatArgs)
+        label != null -> label
+        else -> "$count Referrals"
+    }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -429,57 +557,110 @@ fun MilestoneCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Checkmark or Number Icon
-                Surface(
-                    modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
-                    color = if (achieved) PrimaryYellow else SurfaceColor.copy(alpha = 0.5f)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (achieved) {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = null,
-                                tint = BlackBackground,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        } else {
-                            Text(
-                                "$count",
-                                color = TextGrey,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                // Progress circle: X/3 or X/5
+                val progress = if (target > 0) (progressCurrent.toFloat() / target).coerceIn(0f, 1f) else 0f
+                Box(contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.size(44.dp),
+                        color = if (achieved) PrimaryYellow else PrimaryYellow.copy(alpha = 0.6f),
+                        trackColor = Color.DarkGray,
+                        strokeWidth = 4.dp
+                    )
+                    if (achieved) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = BlackBackground,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    } else {
+                        Text(
+                            "$progressCurrent/$target",
+                            color = TextWhite,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(16.dp))
-                
+
                 Column {
                     Text(
-                        "$count Referrals",
+                        resolvedLabel,
                         color = if (achieved) PrimaryYellow else TextWhite,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        if (achieved) "Achieved!" else "${min(count, currentReferrals)} / $count",
+                        if (achieved) stringResource(R.string.achieved) else "$progressCurrent / $target",
                         color = TextGrey,
                         fontSize = 12.sp
                     )
                 }
             }
-            
+
             Text(
-                "₹$bonus",
+                text = bonusDisplay ?: "₹$bonus",
                 color = if (achieved) PrimaryYellow else TextGrey,
-                fontSize = 20.sp,
+                fontSize = if (bonusDisplay != null) 14.sp else 20.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+@Composable
+fun ReferralListItem(
+    username: String,
+    hasDeposit: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(BlackBackground.copy(alpha = 0.5f))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                modifier = Modifier.size(36.dp),
+                shape = CircleShape,
+                color = PrimaryYellow.copy(alpha = 0.3f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Filled.Person,
+                        contentDescription = null,
+                        tint = PrimaryYellow,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = username,
+                color = TextWhite,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        if (hasDeposit) {
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = GreenSuccess.copy(alpha = 0.3f)
+            ) {
+                Text(
+                    stringResource(R.string.deposited),
+                    color = GreenSuccess,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
         }
     }
 }

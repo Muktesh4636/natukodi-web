@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 274c3481393df684bab030b8c0254b6c
+timeCreated: 1507829162
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/Multiline.unity
+  uploadId: 485141

@@ -457,9 +457,16 @@
             <div class="header">
                 <div class="header-left">
                     <h1>👥 Players Management</h1>
-                    <p>View and assign players to workers</p>
+                    <p>View and assign players to admins (manual reassign only)</p>
                 </div>
                 <div class="header-actions">
+                    {% if is_super_admin %}
+                    <form method="post" action="{% url 'manage_players' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_unassigned">
+                        <button type="submit" class="btn" style="margin-right: 12px;">📋 Assign unassigned players equally</button>
+                    </form>
+                    {% endif %}
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>
@@ -534,18 +541,21 @@
                                 <td>{{ player.phone_number|default:"—" }}</td>
                                 <td><span class="time-badge">{{ player.date_joined|date:"M d, Y" }}</span></td>
                                 <td>
+                                    {% if is_super_admin %}
                                     <form action="{% url 'assign_worker' %}" method="post" class="assign-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="client_id" value="{{ player.id }}">
+                                        <input type="hidden" name="next" value="{% url 'manage_players' %}">
                                         <select name="worker_id" onchange="this.form.submit()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; width: 100%; max-width: 180px;">
                                             <option value="">Unassigned</option>
                                             {% for worker in workers %}
-                                                <option value="{{ worker.id }}" {% if player.worker_id == worker.id %}selected{% endif %}>
-                                                    {{ worker.username }} {% if worker.is_superuser %}(Super){% endif %}
-                                                </option>
+                                                <option value="{{ worker.id }}" {% if player.worker_id == worker.id %}selected{% endif %}>{{ worker.username }}</option>
                                             {% endfor %}
                                         </select>
                                     </form>
+                                    {% else %}
+                                    {% if player.worker %}{{ player.worker.username }}{% else %}—{% endif %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <span class="status-badge {% if player.is_active %}active{% else %}inactive{% endif %}">

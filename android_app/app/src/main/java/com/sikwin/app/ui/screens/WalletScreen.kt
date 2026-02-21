@@ -13,13 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +60,7 @@ fun WalletScreen(
                 )
             }
             Text(
-                "My Wallet",
+                stringResource(R.string.my_wallet),
                 color = Color(0xFFDAA520), // Golden color for title
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -99,7 +103,7 @@ fun WalletScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            "Total/INR",
+                            stringResource(R.string.total_inr),
                             color = Color.DarkGray,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
@@ -113,12 +117,27 @@ fun WalletScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.width(12.dp))
-                            IconButton(onClick = { viewModel.fetchWallet() }) {
+                            val rotation = remember { androidx.compose.animation.core.Animatable(0f) }
+                            val scope = rememberCoroutineScope()
+
+                            IconButton(onClick = {
+                                scope.launch {
+                                    rotation.animateTo(
+                                        targetValue = rotation.value + 360f,
+                                        animationSpec = androidx.compose.animation.core.tween(durationMillis = 600)
+                                    )
+                                }
+                                viewModel.fetchWallet()
+                            }) {
                                 Icon(
                                     Icons.Default.Refresh,
                                     contentDescription = "Refresh",
                                     tint = Color.Black,
-                                    modifier = Modifier.size(28.dp)
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .graphicsLayer {
+                                            rotationZ = rotation.value
+                                        }
                                 )
                             }
                         }
@@ -130,7 +149,7 @@ fun WalletScreen(
 
             // Main Wallet Card
             WalletCard(
-                title = "Main wallet",
+                title = stringResource(R.string.main_wallet),
                 amount = balance,
                 icon = Icons.Default.AccountBalanceWallet,
                 actions = {
@@ -139,7 +158,7 @@ fun WalletScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         WalletActionButton(
-                            text = "Withdrawal",
+                            text = stringResource(R.string.withdrawal),
                             icon = Icons.Default.VerticalAlignBottom,
                             onClick = onNavigateToWithdraw
                         )
@@ -148,7 +167,7 @@ fun WalletScreen(
                             color = Color.LightGray
                         )
                         WalletActionButton(
-                            text = "Deposit",
+                            text = stringResource(R.string.deposit),
                             icon = Icons.Default.VerticalAlignTop,
                             onClick = onNavigateToDeposit
                         )

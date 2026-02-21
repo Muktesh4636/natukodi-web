@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 
 @Composable
@@ -54,7 +56,7 @@ fun InfoScreen(
                 )
             }
             Text(
-                "Info",
+                stringResource(R.string.info),
                 color = TextWhite,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -72,30 +74,30 @@ fun InfoScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             InfoItem(
-                title = "Announcement",
+                title = stringResource(R.string.announcement),
                 icon = Icons.Default.Campaign,
                 badgeCount = "10",
                 badgeSubCount = "2",
                 onClick = {}
             )
             InfoItem(
-                title = "System information",
+                title = stringResource(R.string.system_information),
                 icon = Icons.Default.ChatBubbleOutline,
                 badgeCount = "18",
                 onClick = {}
             )
             InfoItem(
-                title = "Online Service",
+                title = stringResource(R.string.online_service),
                 icon = Icons.Default.HeadsetMic,
                 onClick = {}
             )
             InfoItem(
-                title = "WhatsApp Customer Service",
+                title = stringResource(R.string.whatsapp_customer_service),
                 icon = Icons.Default.Chat,
                 onClick = {}
             )
             InfoItem(
-                title = "Telegram",
+                title = stringResource(R.string.telegram),
                 icon = Icons.Default.Send,
                 onClick = {}
             )

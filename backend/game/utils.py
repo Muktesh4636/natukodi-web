@@ -175,6 +175,19 @@ def sync_database_to_redis(redis_client):
 _SETTINGS_CACHE = {}
 _SETTINGS_CACHE_TIME = {}
 
+
+def clear_game_setting_cache(keys=None):
+    """Clear cache for given keys, or all keys if None. Call after updating settings."""
+    global _SETTINGS_CACHE, _SETTINGS_CACHE_TIME
+    if keys is None:
+        _SETTINGS_CACHE.clear()
+        _SETTINGS_CACHE_TIME.clear()
+    else:
+        for k in keys:
+            _SETTINGS_CACHE.pop(k, None)
+            _SETTINGS_CACHE_TIME.pop(k, None)
+
+
 def get_game_setting(key, default=None):
     """
     Get a game setting from the database, with fallback to settings.py defaults.

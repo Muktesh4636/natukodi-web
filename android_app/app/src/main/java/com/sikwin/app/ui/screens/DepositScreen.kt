@@ -21,6 +21,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import androidx.compose.ui.res.stringResource
 import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 
@@ -67,6 +70,8 @@ fun DepositScreen(
         }
     } else 0.0
 
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.fetchWallet()
         viewModel.clearError()
@@ -107,7 +112,7 @@ fun DepositScreen(
 
         // Payment Method
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Payment method", color = TextGrey, fontSize = 16.sp)
+            Text(stringResource(R.string.payment_method), color = TextGrey, fontSize = 16.sp)
             
             Row(modifier = Modifier.padding(vertical = 12.dp)) {
                 PaymentTab("Bank", selectedMethod == "Bank") { 
@@ -159,7 +164,7 @@ fun DepositScreen(
 
         // Deposit Amount
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Deposit amount", color = TextGrey, fontSize = 16.sp)
+            Text(stringResource(R.string.deposit_amount), color = TextGrey, fontSize = 16.sp)
             
             Text(
                 "Deposit ₹2000 or more to get a FREE MEGA SPIN!",
@@ -177,10 +182,10 @@ fun DepositScreen(
                     border = BorderStroke(1.dp, PrimaryYellow)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("USDT Deposit Info:", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("• Exchange Rate: 1 USDT = ₹$usdtExchangeRate", color = TextWhite, fontSize = 13.sp)
-                        Text("• Minimum Deposit: ₹$usdtMinDeposit", color = TextWhite, fontSize = 13.sp)
-                        Text("• Bonus: 5% Extra Cashback", color = GreenSuccess, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(stringResource(R.string.usdt_deposit_info), color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("• ${stringResource(R.string.exchange_rate, usdtExchangeRate.toString())}", color = TextWhite, fontSize = 13.sp)
+                        Text("• ${stringResource(R.string.min_deposit, usdtMinDeposit.toString())}", color = TextWhite, fontSize = 13.sp)
+                        Text("• ${stringResource(R.string.bonus_cashback)}", color = GreenSuccess, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             } else {
@@ -204,7 +209,7 @@ fun DepositScreen(
                         isAmountFocused = focusState.isFocused
                         if (focusState.isFocused) hasBeenFocused = true
                     },
-                placeholder = { Text("Please enter the deposit amount", color = TextGrey) },
+                placeholder = { Text(stringResource(R.string.enter_deposit_amount), color = TextGrey) },
                 leadingIcon = { Text("₹", color = TextGrey, fontSize = 20.sp, modifier = Modifier.padding(start = 12.dp)) },
                 suffix = {
                     if (selectedMethod == "USDT" && usdtAmount > 0) {
@@ -226,7 +231,7 @@ fun DepositScreen(
 
             if (!isAmountValid && !isAmountFocused && hasBeenFocused) {
                 Text(
-                    text = "Minimum deposit is ₹$currentMinDeposit",
+                    text = stringResource(R.string.min_deposit_toast, currentMinDeposit.toString()),
                     color = Color.Red,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp, start = 4.dp)
@@ -245,7 +250,7 @@ fun DepositScreen(
             Spacer(modifier = Modifier.height(12.dp))
             
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Current success deposit rate : ", color = TextGrey, fontSize = 14.sp)
+                Text(stringResource(R.string.current_success_rate), color = TextGrey, fontSize = 14.sp)
                 Surface(
                     color = GreenSuccess,
                     shape = RoundedCornerShape(4.dp)
@@ -265,24 +270,24 @@ fun DepositScreen(
                 onClick = { 
                     if (isAmountValid) {
                         onNavigateToPayment(amount, selectedOption)
+                    } else {
+                        Toast.makeText(context, "Minimum deposit ₹$currentMinDeposit", Toast.LENGTH_SHORT).show()
                     }
                 },
-                enabled = isAmountValid,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryYellow,
-                    disabledContainerColor = PrimaryYellow.copy(alpha = 0.5f)
+                    containerColor = PrimaryYellow
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Submit", color = if (isAmountValid) BlackBackground else BlackBackground.copy(alpha = 0.5f), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.submit), color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            Text("Reminder:", color = Color.Red, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.reminder), color = Color.Red, fontWeight = FontWeight.Bold)
             Text(
-                "Kindly refrain from saving previously used bank account details for your payments, as the receiving bank account changes frequently. Once a deposit is made to a frozen account, we cannot be held accountable for any resulting issues.",
+                stringResource(R.string.deposit_reminder),
                 color = TextGrey,
                 fontSize = 13.sp,
                 lineHeight = 18.sp

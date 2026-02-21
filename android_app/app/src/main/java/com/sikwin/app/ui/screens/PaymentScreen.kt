@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -269,11 +270,11 @@ fun PaymentScreen(
                     border = BorderStroke(1.dp, Color(0xFF4CAF50))
                 ) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("USDT Amount to Pay:", color = Color.Black, fontSize = 14.sp)
+                        Text(stringResource(R.string.usdt_amount_to_pay), color = Color.Black, fontSize = 14.sp)
                         Text("${String.format("%.2f", usdtAmount)} USDT", color = Color(0xFF2E7D32), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                        Text("Exchange Rate: 1 USDT = ₹$usdtExchangeRate", color = Color.Gray, fontSize = 12.sp)
+                        Text(stringResource(R.string.exchange_rate_label, usdtExchangeRate.toString()), color = Color.Gray, fontSize = 12.sp)
                         if (bonusAmount > 0) {
-                            Text("Bonus: ₹${String.format("%.2f", bonusAmount)} (5%) will be added!", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.bonus_added, String.format("%.2f", bonusAmount)), color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
@@ -311,9 +312,11 @@ fun PaymentScreen(
                         val usdtMethod = viewModel.paymentMethods.firstOrNull { 
                             it.method_type.contains("USDT", ignoreCase = true) && it.method_type.contains(network, ignoreCase = true)
                         }
-                        val address = usdtMethod?.upi_id ?: "Please contact support for address"
+                        val address = usdtMethod?.usdt_wallet_address?.takeIf { it.isNotBlank() }
+                            ?: usdtMethod?.upi_id?.takeIf { it.isNotBlank() }
+                            ?: "Please contact support for address"
                         
-                        Text("Network: $network", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.network, network), color = Color.Black, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         // QR Code for USDT if available
@@ -333,7 +336,7 @@ fun PaymentScreen(
                         }
                         
                         Spacer(modifier = Modifier.height(12.dp))
-                        Text("Wallet Address:", color = Color.Gray, fontSize = 12.sp)
+                        Text(stringResource(R.string.wallet_address), color = Color.Gray, fontSize = 12.sp)
                         SelectionContainer {
                             Text(
                                 address,
@@ -356,7 +359,7 @@ fun PaymentScreen(
                         ) {
                             Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Copy Address")
+                            Text(stringResource(R.string.copy_address))
                         }
                     } else if (paymentMethod.contains("BANK", ignoreCase = true)) {
                         // Bank Details
@@ -365,7 +368,7 @@ fun PaymentScreen(
                         }
                         
                         if (bankMethod != null) {
-                            Text("Bank Transfer Details", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text(stringResource(R.string.bank_transfer_details), color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             
                             BankDetailRow("Bank Name", bankMethod.bank_name ?: "N/A", context)
@@ -373,7 +376,7 @@ fun PaymentScreen(
                             BankDetailRow("Account Number", bankMethod.account_number ?: "N/A", context)
                             BankDetailRow("IFSC Code", bankMethod.ifsc_code ?: "N/A", context)
                         } else {
-                            Text("Bank details not available. Please contact support.", color = Color.Red)
+                            Text(stringResource(R.string.bank_details_unavailable), color = Color.Red)
                         }
                     } else {
                         // UPI QR
@@ -434,7 +437,7 @@ fun PaymentScreen(
                     modifier = Modifier.width(120.dp),
                     enabled = currentQrUrl != null
                 ) {
-                    Text("Save", color = Color.White)
+                    Text(stringResource(R.string.save), color = Color.White)
                 }
             }
 
@@ -547,6 +550,12 @@ fun PaymentScreen(
                     modifier = Modifier.padding(start = 2.dp)
                 )
             }
+            Text(
+                "Max file size: 10MB. Supported formats: JPG, PNG",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -579,7 +588,7 @@ fun PaymentScreen(
                             tint = Color.Gray
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Click to select payment screenshot", color = Color.Gray)
+                        Text(stringResource(R.string.select_payment_screenshot), color = Color.Gray)
                     }
                 }
             }
@@ -589,7 +598,7 @@ fun PaymentScreen(
                     onClick = { selectedImageUri = null },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Clear", color = Color.Red)
+                    Text(stringResource(R.string.clear), color = Color.Red)
                 }
             }
 
@@ -609,7 +618,7 @@ fun PaymentScreen(
                 if (viewModel.isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Submit Payment Proof", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(stringResource(R.string.submit_payment_proof), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
             }
             

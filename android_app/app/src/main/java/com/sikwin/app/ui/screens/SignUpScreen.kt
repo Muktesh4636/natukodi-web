@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
@@ -115,14 +117,14 @@ fun SignUpScreen(
 
         Column(modifier = Modifier.align(Alignment.Start)) {
             Text(
-                text = "Sign up",
+                text = stringResource(R.string.sign_up_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     brush = shimmerBrush
                 ),
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "Welcome to Gundu Ata",
+                text = stringResource(R.string.welcome_to_gundu_ata),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextGrey
             )
@@ -136,7 +138,7 @@ fun SignUpScreen(
             value = username,
             onValueChange = { username = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your username", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_username), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Person, null, tint = TextGrey) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
@@ -157,7 +159,7 @@ fun SignUpScreen(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your password", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_password), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Lock, null, tint = TextGrey) },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -188,7 +190,7 @@ fun SignUpScreen(
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Please enter your phone number", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_phone_number), color = TextGrey) },
             leadingIcon = { Text("+91", color = TextWhite, modifier = Modifier.padding(start = 12.dp)) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
@@ -214,7 +216,7 @@ fun SignUpScreen(
                 value = otpCode,
                 onValueChange = { otpCode = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Enter 4-digit OTP", color = TextGrey) },
+                placeholder = { Text(stringResource(R.string.enter_otp), color = TextGrey) },
                 leadingIcon = { Icon(Icons.Default.Lock, null, tint = TextGrey) },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = SurfaceColor,
@@ -267,7 +269,7 @@ fun SignUpScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Have a referral code?",
+                text = stringResource(R.string.have_referral_code),
                 color = PrimaryYellow,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
@@ -281,7 +283,7 @@ fun SignUpScreen(
                 value = referralCode,
                 onValueChange = { referralCode = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Please enter referral code", color = TextGrey) },
+                placeholder = { Text(stringResource(R.string.enter_referral_code), color = TextGrey) },
                 leadingIcon = { Icon(Icons.Default.GroupAdd, null, tint = TextGrey) },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = SurfaceColor,
@@ -321,7 +323,7 @@ fun SignUpScreen(
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Sign-up", color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.sign_up), color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -332,7 +334,7 @@ fun SignUpScreen(
             border = BorderStroke(1.dp, PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Sign-in", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.sign_in), color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
     }
 }

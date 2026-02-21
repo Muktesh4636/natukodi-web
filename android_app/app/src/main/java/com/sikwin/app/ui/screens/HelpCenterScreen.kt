@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sikwin.app.R
+import androidx.compose.ui.res.stringResource
 import com.sikwin.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +77,7 @@ fun HelpCenterScreen(
         TopAppBar(
             title = {
                 Text(
-                    "Help Center",
+                    stringResource(R.string.help_center_title),
                     color = TextWhite,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -137,7 +138,7 @@ fun HelpCenterScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                     
                     Text(
-                        "Need Help?",
+                        stringResource(R.string.need_help),
                         color = TextWhite,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
@@ -146,7 +147,7 @@ fun HelpCenterScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        "Contact our support team via WhatsApp or Telegram",
+                        stringResource(R.string.contact_support),
                         color = TextGrey,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
@@ -159,9 +160,9 @@ fun HelpCenterScreen(
             
             // WhatsApp Card
             ContactCard(
-                title = "WhatsApp Support",
+                title = stringResource(R.string.whatsapp_support),
                 subtitle = whatsappNumber,
-                description = "Get instant help from our support team",
+                description = stringResource(R.string.get_instant_help),
                 iconColor = Color(0xFF25D366),
                 backgroundColor = Color(0xFF25D366).copy(alpha = 0.1f),
                 onClick = { openWhatsApp() },
@@ -172,9 +173,9 @@ fun HelpCenterScreen(
             
             // Telegram Card
             ContactCard(
-                title = "Telegram Support",
+                title = stringResource(R.string.telegram_support),
                 subtitle = "@$telegramUsername",
-                description = "Chat with us on Telegram",
+                description = stringResource(R.string.chat_on_telegram),
                 iconColor = Color(0xFF0088CC),
                 backgroundColor = Color(0xFF0088CC).copy(alpha = 0.1f),
                 onClick = { openTelegram() },
@@ -203,7 +204,7 @@ fun HelpCenterScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "Support Hours",
+                            stringResource(R.string.support_hours),
                             color = TextWhite,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
@@ -213,7 +214,7 @@ fun HelpCenterScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     Text(
-                        "Our support team is available 24/7 to assist you with any questions or issues.",
+                        stringResource(R.string.support_hours_desc),
                         color = TextGrey,
                         fontSize = 14.sp,
                         lineHeight = 20.sp

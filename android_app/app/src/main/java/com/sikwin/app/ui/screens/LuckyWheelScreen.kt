@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -141,7 +142,7 @@ fun LuckyWheelScreen(
                 val message = if (lastResult == "Better luck next time") "Better luck next time! Try again tomorrow." else "Congratulations! You won $lastResult"
                 Text(message)
             },
-            confirmButton = { TextButton(onClick = { showResultDialog = false }) { Text("OK", color = PrimaryYellow) } },
+            confirmButton = { TextButton(onClick = { showResultDialog = false }) { Text(stringResource(R.string.ok), color = PrimaryYellow) } },
             containerColor = SurfaceColor,
             titleContentColor = PrimaryYellow,
             textContentColor = Color.White
@@ -159,7 +160,7 @@ fun LuckyWheelScreen(
                     Box(modifier = Modifier.size(300.dp).align(Alignment.Center)) { WheelCanvas(wheelItems, rotation.value) }
                     Box(modifier = Modifier.padding(top = 10.dp)) { WheelPointer() }
                     Surface(modifier = Modifier.size(60.dp).align(Alignment.Center).clickable(enabled = !isSpinning && !hasClaimedToday) { performSpin() }, shape = CircleShape, color = PrimaryYellow, shadowElevation = 8.dp, border = androidx.compose.foundation.BorderStroke(4.dp, Color.White)) {
-                        Box(contentAlignment = Alignment.Center) { Text("SPIN", color = BlackBackground, fontWeight = FontWeight.Black, fontSize = 14.sp) }
+                        Box(contentAlignment = Alignment.Center) { Text(stringResource(R.string.spin), color = BlackBackground, fontWeight = FontWeight.Black, fontSize = 14.sp) }
                     }
                 }
                 Spacer(modifier = Modifier.height(60.dp))

@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +32,7 @@ fun GameGuidelinesScreen(
         TopAppBar(
             title = {
                 Text(
-                    "Game Guidelines",
+                    stringResource(R.string.game_guidelines_title),
                     color = TextWhite,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -87,7 +89,7 @@ fun GameGuidelinesScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        "How to Play Gundu Ata",
+                        stringResource(R.string.how_to_play),
                         color = TextWhite,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
@@ -96,7 +98,7 @@ fun GameGuidelinesScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        "Learn the rules and strategies to win big!",
+                        stringResource(R.string.learn_rules),
                         color = TextGrey,
                         fontSize = 14.sp
                     )
@@ -107,31 +109,31 @@ fun GameGuidelinesScreen(
             
             // Game Rules Section
             GuidelineSection(
-                title = "Game Rules",
+                title = stringResource(R.string.game_rules),
                 icon = Icons.Filled.Rule
             ) {
                 GuidelineItem(
                     number = "1",
-                    title = "Dice Game Basics",
-                    description = "Gundu Ata is a dice game where 6 dice are rolled. You bet on numbers 1-6 that you think will appear."
+                    title = stringResource(R.string.dice_game_basics),
+                    description = stringResource(R.string.dice_game_basics_desc)
                 )
                 
                 GuidelineItem(
                     number = "2",
-                    title = "Winning Conditions",
-                    description = "Any number appearing 2 or more times is a winner. Your profit equals bet × frequency (e.g., if a number appears 3 times, profit is 3× your bet)."
+                    title = stringResource(R.string.winning_conditions),
+                    description = stringResource(R.string.winning_conditions_desc)
                 )
                 
                 GuidelineItem(
                     number = "3",
-                    title = "Payout Calculation",
-                    description = "You get your bet back plus profit. Example: Bet ₹500 on a number that appears 3 times → profit ₹1,500, total ₹2,000 (₹500 returned + ₹1,500 profit). No commission."
+                    title = stringResource(R.string.payout_calculation),
+                    description = stringResource(R.string.payout_calculation_desc)
                 )
                 
                 GuidelineItem(
                     number = "4",
-                    title = "No Winners",
-                    description = "If no number appears 2+ times in a round, there are no winners and all bets are lost."
+                    title = stringResource(R.string.no_winners),
+                    description = stringResource(R.string.no_winners_desc)
                 )
             }
             
@@ -139,31 +141,31 @@ fun GameGuidelinesScreen(
             
             // Betting Strategy Section
             GuidelineSection(
-                title = "Betting Strategy",
+                title = stringResource(R.string.betting_strategy),
                 icon = Icons.Filled.TrendingUp
             ) {
                 GuidelineItem(
                     number = "1",
-                    title = "Start Small",
-                    description = "Begin with smaller bets to understand the game patterns and build your confidence."
+                    title = stringResource(R.string.start_small),
+                    description = stringResource(R.string.start_small_desc)
                 )
                 
                 GuidelineItem(
                     number = "2",
-                    title = "Diversify Your Bets",
-                    description = "Consider betting on multiple numbers to increase your chances of winning, but manage your bankroll wisely."
+                    title = stringResource(R.string.diversify_bets),
+                    description = stringResource(R.string.diversify_bets_desc)
                 )
                 
                 GuidelineItem(
                     number = "3",
-                    title = "Watch the Patterns",
-                    description = "Observe previous rounds to identify patterns, though each round is independent and random."
+                    title = stringResource(R.string.watch_patterns),
+                    description = stringResource(R.string.watch_patterns_desc)
                 )
                 
                 GuidelineItem(
                     number = "4",
-                    title = "Set Limits",
-                    description = "Always set a budget and stick to it. Never bet more than you can afford to lose."
+                    title = stringResource(R.string.set_limits),
+                    description = stringResource(R.string.set_limits_desc)
                 )
             }
             
@@ -171,31 +173,31 @@ fun GameGuidelinesScreen(
             
             // Tips Section
             GuidelineSection(
-                title = "Pro Tips",
+                title = stringResource(R.string.pro_tips),
                 icon = Icons.Filled.Lightbulb
             ) {
                 GuidelineItem(
                     number = "•",
-                    title = "Timing Matters",
-                    description = "Place your bets before the round closes. Late bets may not be accepted."
+                    title = stringResource(R.string.timing_matters),
+                    description = stringResource(R.string.timing_matters_desc)
                 )
                 
                 GuidelineItem(
                     number = "•",
-                    title = "Check Your Balance",
-                    description = "Always ensure you have sufficient balance before placing bets."
+                    title = stringResource(R.string.check_balance),
+                    description = stringResource(R.string.check_balance_desc)
                 )
                 
                 GuidelineItem(
                     number = "•",
-                    title = "Review History",
-                    description = "Check your betting history to track your performance and learn from past rounds."
+                    title = stringResource(R.string.review_history),
+                    description = stringResource(R.string.review_history_desc)
                 )
                 
                 GuidelineItem(
                     number = "•",
-                    title = "Stay Updated",
-                    description = "Keep an eye on announcements and system information for any game updates or special events."
+                    title = stringResource(R.string.stay_updated),
+                    description = stringResource(R.string.stay_updated_desc)
                 )
             }
             
@@ -222,7 +224,7 @@ fun GameGuidelinesScreen(
                     
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Important Notes",
+                            stringResource(R.string.important_notes),
                             color = PrimaryYellow,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
@@ -231,13 +233,7 @@ fun GameGuidelinesScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         Text(
-                            "• All dice rolls are random and fair\n" +
-                            "• Each round is independent\n" +
-                            "• Results are final once dice are rolled\n" +
-                            "• Play responsibly and within your means\n" +
-                            "• Contact support if you have any questions\n\n" +
-                            "• Company reserves the right to suspend/void any id/bets if the same is found to be illegitimate. For example incase of VPN/robot-use/multiple entry from same or different IP and others. Note: only winning bets will be voided.\n" +
-                            "• In any circumstances management decision will be final.",
+                            stringResource(R.string.important_notes_content),
                             color = TextWhite,
                             fontSize = 14.sp,
                             lineHeight = 22.sp

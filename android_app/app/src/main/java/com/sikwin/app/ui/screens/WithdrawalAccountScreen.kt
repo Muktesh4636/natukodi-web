@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -41,7 +43,7 @@ fun WithdrawalAccountScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "My Withdrawal Account",
+                        stringResource(R.string.my_withdrawal_account),
                         color = Color(0xFFDAA520),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium
@@ -100,7 +102,7 @@ fun WithdrawalAccountScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "No bank accounts added yet",
+                                stringResource(R.string.no_bank_accounts),
                                 color = TextGrey,
                                 fontSize = 14.sp
                             )
@@ -131,7 +133,7 @@ fun WithdrawalAccountScreen(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    "add bank account number",
+                    stringResource(R.string.add_bank_account_button),
                     color = BlackBackground,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold

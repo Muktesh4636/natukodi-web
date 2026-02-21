@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: ab25112ac4e182644964306dd56760cc
+labels:
+- InputField
+timeCreated: 1505416711
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Scripts/InputField/AdvancedInputField.cs
+  uploadId: 485141

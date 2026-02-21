@@ -1919,6 +1919,14 @@ def recent_round_results(request):
 
         results = []
         for round_obj in recent_rounds:
+            dt = round_obj.result_time or round_obj.end_time or round_obj.start_time
+            if dt:
+                if timezone.is_naive(dt):
+                    dt = timezone.make_aware(dt, timezone.utc)
+                ts_utc = dt.astimezone(timezone.utc)
+                timestamp_str = ts_utc.strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
+            else:
+                timestamp_str = None
             results.append({
                 'round_id': round_obj.round_id,
                 'dice_1': round_obj.dice_1,
@@ -1928,7 +1936,7 @@ def recent_round_results(request):
                 'dice_5': round_obj.dice_5,
                 'dice_6': round_obj.dice_6,
                 'dice_result': round_obj.dice_result,
-                'timestamp': round_obj.end_time.isoformat() if round_obj.end_time else round_obj.start_time.isoformat()
+                'timestamp': timestamp_str
             })
 
         # Cache in Redis (short TTL so new rounds appear quickly)

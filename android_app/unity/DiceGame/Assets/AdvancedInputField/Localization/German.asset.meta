@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cd21efabc28e1654589bbd912b607ac3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Localization/German.asset
+  uploadId: 485141

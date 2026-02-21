@@ -19,6 +19,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locale_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Sikwin"
@@ -48,14 +49,23 @@
             android:enabled="true"
             android:exported="false"
             android:hardwareAccelerated="false"
-            android:process=":unity"
+            android:process="${applicationId}"
             android:resizeableActivity="true"
-            android:screenOrientation="fullUser"
-            tools:replace="android:hardwareAccelerated,android:theme,android:exported"
+            android:screenOrientation="portrait"
+            tools:replace="android:hardwareAccelerated,android:theme,android:exported,android:process,android:screenOrientation"
             android:theme="@style/BaseUnityGameActivityTheme">
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="android.app.lib_name" android:value="game" />
         </activity>
+
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"
