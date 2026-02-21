@@ -26,6 +26,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
@@ -41,6 +43,7 @@ fun LoginScreen(
     var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var savePassword by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(viewModel.loginSuccess) {
@@ -116,7 +119,7 @@ fun LoginScreen(
 
         Column(modifier = Modifier.align(Alignment.Start)) {
             Text(
-                text = "Gundu Ata",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     brush = textShimmerBrush,
                     fontFamily = FontFamily.Serif
@@ -127,13 +130,13 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = "Welcome back",
+                text = stringResource(R.string.welcome_back),
                 style = MaterialTheme.typography.headlineSmall,
                 color = TextWhite,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Please enter your phone number and password to log in",
+                text = stringResource(R.string.login_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextGrey
             )
@@ -143,7 +146,7 @@ fun LoginScreen(
 
         // Phone Number
         Text(
-            text = "Phone Number",
+            text = stringResource(R.string.phone_number),
             color = TextWhite,
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.Start).padding(bottom = 8.dp)
@@ -154,7 +157,7 @@ fun LoginScreen(
                 phoneNumber = it
             },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Enter phone number", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_phone_number), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TextGrey) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = PrimaryYellow,
@@ -171,7 +174,7 @@ fun LoginScreen(
 
         // Password
         Text(
-            text = "Password",
+            text = stringResource(R.string.password),
             color = TextWhite,
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.Start).padding(bottom = 8.dp)
@@ -180,7 +183,7 @@ fun LoginScreen(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Enter your password", color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_password), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextGrey) },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -204,17 +207,35 @@ fun LoginScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Save password checkbox
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable { savePassword = !savePassword },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = savePassword,
+                onCheckedChange = { savePassword = it },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = PrimaryYellow,
+                    uncheckedColor = TextGrey
+                )
+            )
+            Text(stringResource(R.string.save_password), color = TextGrey, fontSize = 14.sp)
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Login Button
         Button(
-            onClick = { viewModel.login(phoneNumber, password) },
+            onClick = { viewModel.login(phoneNumber, password, savePassword) },
             enabled = !viewModel.isLoading && phoneNumber.isNotEmpty() && password.isNotEmpty(),
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Sign-in", color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.sign_in), color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -224,7 +245,7 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextButton(onClick = onNavigateToForgotPassword) {
-                Text("Forgot password", color = TextGrey)
+                Text(stringResource(R.string.forgot_password), color = TextGrey)
             }
         }
 
@@ -237,7 +258,7 @@ fun LoginScreen(
             border = BorderStroke(1.dp, PrimaryYellow),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Sign-up", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.sign_up), color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

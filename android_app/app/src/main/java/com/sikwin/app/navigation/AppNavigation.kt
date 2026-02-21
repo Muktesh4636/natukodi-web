@@ -37,7 +37,11 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import com.sikwin.app.utils.Constants
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 
 @Composable
 fun AppNavigation(
@@ -48,6 +52,19 @@ fun AppNavigation(
     val context = LocalContext.current
     val activity = context as? Activity
     var showAuthDialog by remember { mutableStateOf(false) }
+
+    // When app goes to background, set flag so support popup shows on next home visit (after reopen)
+    DisposableEffect(Unit) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.showSupportPopupOnNextHomeVisit = true
+            }
+        }
+        ProcessLifecycleOwner.get().lifecycle.addObserver(observer)
+        onDispose {
+            ProcessLifecycleOwner.get().lifecycle.removeObserver(observer)
+        }
+    }
 
     // App Update Check
     LaunchedEffect(Unit) {
@@ -168,14 +185,14 @@ fun AppNavigation(
     if (showAuthDialog) {
         AlertDialog(
             onDismissRequest = { showAuthDialog = false },
-            title = { Text("Sign In Required", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
-            text = { Text("Please sign in or sign up to play Gundu Ata and start winning!") },
+            title = { Text(stringResource(com.sikwin.app.R.string.sign_in_required), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
+            text = { Text(stringResource(com.sikwin.app.R.string.sign_in_required_message)) },
             confirmButton = {
                 TextButton(onClick = {
                     showAuthDialog = false
                     navController.navigate("login")
                 }) {
-                    Text("Sign In", color = PrimaryYellow, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(stringResource(com.sikwin.app.R.string.sign_in), color = PrimaryYellow, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -183,7 +200,7 @@ fun AppNavigation(
                     showAuthDialog = false
                     navController.navigate("signup")
                 }) {
-                    Text("Sign Up", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(stringResource(com.sikwin.app.R.string.sign_up), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 }
             }
         )
@@ -235,7 +252,7 @@ fun AppNavigation(
             intent.putExtra("auth_timestamp", System.currentTimeMillis())
             intent.putExtra("login_timestamp", System.currentTimeMillis())
             
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             
             // Pass tokens for auto-login in standalone app (duplicate for safety)
             intent.putExtra("token", authToken ?: "")
@@ -587,6 +604,11 @@ fun AppNavigation(
         }
         composable("help_center") {
             HelpCenterScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("languages") {
+            LanguageScreen(
                 onBack = { navController.popBackStack() }
             )
         }

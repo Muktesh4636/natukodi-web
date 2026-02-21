@@ -81,6 +81,16 @@ public class UnityPlayerGameActivity extends GameActivity
     }
 
     static {
+        // Preload Unity classes BEFORE native library load to fix JNI FindClass failures.
+        // Use the same ClassLoader as this class so JNI FindClass can find them.
+        ClassLoader cl = UnityPlayerGameActivity.class.getClassLoader();
+        try {
+            Class.forName("com.unity3d.player.UnityPlayerForActivityOrService", true, cl);
+            Class.forName("com.unity3d.player.UnityPlayerForGameActivity", true, cl);
+            Class.forName("com.unity3d.player.UnityPlayer", true, cl);
+        } catch (Throwable t) {
+            Log.e("UnityPlayerPatch", "Failed to preload Unity glue classes", t);
+        }
         System.loadLibrary("game");
     }
 
@@ -130,7 +140,12 @@ public class UnityPlayerGameActivity extends GameActivity
         // activity native thread would be already started and unity runtime initialized
         // we also cannot initialize before super.onCreate since frameLayout is not yet
         // available.
-        mUnityPlayer = new UnityPlayerForGameActivity(this, frameLayout, mSurfaceView, this);
+        try {
+            mUnityPlayer = new UnityPlayerForGameActivity(this, frameLayout, mSurfaceView, this);
+        } catch (Throwable t) {
+            Log.e("UnityPlayerGameActivity", "Failed to create Unity player", t);
+            finish();
+        }
     }
 
     @Override
@@ -151,58 +166,69 @@ public class UnityPlayerGameActivity extends GameActivity
         } catch (Exception e) {
             // Ignore if already unregistered
         }
-        mUnityPlayer.destroy();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.destroy();
+            mUnityPlayer = null;
+        }
         super.onDestroy();
     }
 
     @Override
     protected void onStop() {
-        // Note: we want Java onStop callbacks to be processed before the native part
-        // processes the onStop callback
-        mUnityPlayer.onStop();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onStop();
+        }
         super.onStop();
     }
 
     @Override
     protected void onStart() {
-        // Note: we want Java onStart callbacks to be processed before the native part
-        // processes the onStart callback
-        mUnityPlayer.onStart();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onStart();
+        }
         super.onStart();
     }
 
     // Pause Unity
     @Override
     protected void onPause() {
-        // Note: we want Java onPause callbacks to be processed before the native part
-        // processes the onPause callback
-        mUnityPlayer.onPause();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onPause();
+        }
         super.onPause();
     }
 
     // Resume Unity
     @Override
     protected void onResume() {
-        // Note: we want Java onResume callbacks to be processed before the native part
-        // processes the onResume callback
-        mUnityPlayer.onResume();
+        if (mUnityPlayer != null) {
+            mUnityPlayer.onResume();
+            sendLoginDataToUnity();
+            addProfileOverlay();
+            addBalanceOverlay();
+        }
         super.onResume();
-        sendLoginDataToUnity();
-        addProfileOverlay();
-        addBalanceOverlay();
     }
 
     // Configuration changes are used by Video playback logic in Unity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        mUnityPlayer.configurationChanged(newConfig);
+        try {
+            if (mUnityPlayer != null) {
+                mUnityPlayer.configurationChanged(newConfig);
+            }
+        } catch (Throwable t) {
+            Log.e("UnityPlayerGameActivity", "configurationChanged failed", t);
+        }
         super.onConfigurationChanged(newConfig);
     }
 
     // Notify Unity of the focus change.
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        mUnityPlayer.windowFocusChanged(hasFocus);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.windowFocusChanged(hasFocus);
+        }
         super.onWindowFocusChanged(hasFocus);
     }
 
@@ -210,40 +236,66 @@ public class UnityPlayerGameActivity extends GameActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         // To support deep linking, we need to make sure that the client can get access
-        // to
-        // the last sent intent. The clients access this through a JNI api that allows
-        // them
-        // to get the intent set on launch. To update that after launch we have to
-        // manually
-        // replace the intent with the one caught here.
+        // to the last sent intent. The clients access this through a JNI api that allows
+        // them to get the intent set on launch. To update that after launch we have to
+        // manually replace the intent with the one caught here.
         setIntent(intent);
-        mUnityPlayer.newIntent(intent);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.newIntent(intent);
+        }
+        // CRITICAL: When user logs out and logs in with new account, we get new tokens via Intent.
+        // Must inject them immediately so Unity uses the new account, not cached old one.
+        sendLoginDataToUnity();
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.M)
     public void requestPermissions(PermissionRequest request) {
-        mUnityPlayer.addPermissionRequest(request);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.addPermissionRequest(request);
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        mUnityPlayer.permissionResponse(this, requestCode, permissions, grantResults);
+        if (mUnityPlayer != null) {
+            mUnityPlayer.permissionResponse(this, requestCode, permissions, grantResults);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        finish();
+        // Navigate back to MainActivity instead of finish() - keeps Unity alive to prevent
+        // crash on second logo click (Unity native lib doesn't handle re-init well)
+        moveToMainActivity();
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-            finish();
+            moveToMainActivity();
             return true;
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    /** Called from Unity when in-game back button is clicked. Navigates to Kotlin home. */
+    public void goToHome() {
+        moveToMainActivity();
+    }
+
+    private void moveToMainActivity() {
+        try {
+            Class<?> mainActivityClass = Class.forName("com.sikwin.app.MainActivity");
+            Intent intent = new Intent(this, mainActivityClass);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            intent.putExtra("redirect", "home");
+            startActivity(intent);
+        } catch (ClassNotFoundException e) {
+            Log.e("UnityPlayerGameActivity", "MainActivity not found, finishing", e);
+            finish();
+        }
     }
 
     private void sendLoginDataToUnity() {
@@ -262,10 +314,31 @@ public class UnityPlayerGameActivity extends GameActivity
         }
 
         // FALLBACK: Check SharedPreferences if Intent was empty
-        if (token == null || token.isEmpty()) {
+        // BUT: Skip fallback if logout was requested - prevents using stale old-account tokens
+        boolean logoutRequested = false;
+        for (String prefName : new String[]{"gunduata_prefs", getPackageName() + ".v2.playerprefs"}) {
+            try {
+                android.content.SharedPreferences p = getSharedPreferences(prefName, android.content.Context.MODE_PRIVATE);
+                if (p.contains("logout_requested") && "true".equals(p.getString("logout_requested", null))) {
+                    logoutRequested = true;
+                    Log.d("UnityLoginBypass", "logout_requested set - skipping SharedPreferences fallback");
+                    break;
+                }
+            } catch (Exception e) { /* ignore */ }
+        }
+        if ((token == null || token.isEmpty()) && !logoutRequested) {
             Log.d("UnityLoginBypass", "No token in Intent, checking SharedPreferences...");
-            String[] prefNames = {"com.company.dicegame.v2.playerprefs", "com.company.dicegame", "gunduata_prefs", "UnityPlayerPrefs", "dicegame.v2.playerprefs"};
-            String[] tokenKeys = {"auth_token", "user_token", "access_token", "access", "token"};
+            // Added more specific Unity preference names
+            String[] prefNames = {
+                "com.company.dicegame.v2.playerprefs", 
+                "com.company.dicegame", 
+                "gunduata_prefs", 
+                "UnityPlayerPrefs", 
+                "dicegame.v2.playerprefs",
+                getPackageName() + ".v2.playerprefs",
+                "PlayerPrefs"
+            };
+            String[] tokenKeys = {"auth_token", "user_token", "access_token", "access", "token", "access_token_v2"};
             
             for (String prefName : prefNames) {
                 android.content.SharedPreferences p = getSharedPreferences(prefName, android.content.Context.MODE_PRIVATE);
@@ -274,6 +347,7 @@ public class UnityPlayerGameActivity extends GameActivity
                     if (token != null && !token.isEmpty()) {
                         Log.d("UnityLoginBypass", "Found token in " + prefName + " with key " + key);
                         if (username == null) username = p.getString("username", null);
+                        if (refreshToken == null) refreshToken = p.getString("refresh_token", null);
                         break;
                     }
                 }
@@ -283,10 +357,13 @@ public class UnityPlayerGameActivity extends GameActivity
 
         if (token != null && !token.isEmpty()) {
             try {
+                // Ensure token is clean (no quotes if it came from some weird PlayerPrefs export)
+                token = token.replace("\"", "");
+                
                 JSONObject json = new JSONObject();
                 json.put("access", token);
-                json.put("refresh", refreshToken != null ? refreshToken : "");
-                json.put("username", username != null ? username : "");
+                json.put("refresh", refreshToken != null ? refreshToken.replace("\"", "") : "");
+                json.put("username", username != null ? username.replace("\"", "") : "");
                 final String jsonString = json.toString();
                 final String finalToken = token;
 
@@ -296,28 +373,30 @@ public class UnityPlayerGameActivity extends GameActivity
                 android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
                 
                 // Increase delays and frequency to ensure we hit the Unity bridge when it's ready
-                long[] delays = { 500, 1000, 2000, 3000, 5000, 8000, 10000 };
+                long[] delays = { 100, 500, 1000, 2000, 3000, 5000, 8000, 10000, 15000 };
 
-                for (long delay : delays) {
+                for (final long delay : delays) {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             Log.d("UnityLoginBypass", "Executing delayed injection (" + delay + "ms)");
                             
-                // 1. Primary injection
-                UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
-                UnityPlayer.UnitySendMessage("GameManager", "SetToken", finalToken);
-                
-                // 2. Redundant injection into other common bridge objects
-                UnityPlayer.UnitySendMessage("AuthManager", "SetToken", finalToken);
-                UnityPlayer.UnitySendMessage("NetworkManager", "SetToken", finalToken);
-                
-                // 3. Inject base URL to ensure Unity connects to the correct server
-                UnityPlayer.UnitySendMessage("GameManager", "SetBaseUrl", "https://gunduata.online/");
-                UnityPlayer.UnitySendMessage("GameManager", "SetApiUrl", "https://gunduata.online/api/");
-                
-                // 4. Trigger auto-login if possible
-                UnityPlayer.UnitySendMessage("GameManager", "AutoLogin", "");
+                            // 1. Primary injection
+                            UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
+                            UnityPlayer.UnitySendMessage("GameManager", "SetToken", finalToken);
+                            
+                            // 2. Redundant injection into other common bridge objects
+                            UnityPlayer.UnitySendMessage("AuthManager", "SetToken", finalToken);
+                            UnityPlayer.UnitySendMessage("NetworkManager", "SetToken", finalToken);
+                            UnityPlayer.UnitySendMessage("LoginManager", "SetToken", finalToken);
+                            
+                            // 3. Inject base URL to ensure Unity connects to the correct server
+                            UnityPlayer.UnitySendMessage("GameManager", "SetBaseUrl", "https://gunduata.online/");
+                            UnityPlayer.UnitySendMessage("GameManager", "SetApiUrl", "https://gunduata.online/api/");
+                            
+                            // 4. Trigger auto-login if possible
+                            UnityPlayer.UnitySendMessage("GameManager", "AutoLogin", "");
+                            UnityPlayer.UnitySendMessage("AuthManager", "AutoLogin", "");
                         }
                     }, delay);
                 }
@@ -345,7 +424,7 @@ public class UnityPlayerGameActivity extends GameActivity
             @Override
             public void onClick(android.view.View v) {
                 android.util.Log.d("UnityNavigation", "Profile overlay clicked, returning to dashboard");
-                finish();
+                moveToMainActivity();
             }
         });
 
@@ -377,7 +456,7 @@ public class UnityPlayerGameActivity extends GameActivity
                     redirectIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     redirectIntent.putExtra("redirect", "deposit");
                     startActivity(redirectIntent);
-                    finish();
+                    // Don't finish() - keep Unity alive to prevent crash on second logo click
                 } catch (ClassNotFoundException e) {
                     Log.e("UnityNavigation", "Could not find MainActivity class", e);
                     finish();
