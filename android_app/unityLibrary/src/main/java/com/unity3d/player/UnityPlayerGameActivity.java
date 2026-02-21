@@ -13,11 +13,50 @@ import android.widget.FrameLayout;
 import androidx.core.view.ViewCompat;
 import org.json.JSONObject;
 import android.util.Log;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 
 import com.google.androidgamesdk.GameActivity;
 
 public class UnityPlayerGameActivity extends GameActivity
         implements IUnityPlayerLifecycleEvents, IUnityPermissionRequestSupport, IUnityPlayerSupport {
+    
+    private BroadcastReceiver tokenReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.sikwin.app.TOKEN_UPDATE".equals(intent.getAction())) {
+                String action = intent.getStringExtra("action");
+                if ("logout".equals(action)) {
+                    Log.d("UnityTokenReceiver", "Received logout signal via broadcast");
+                    UnityPlayer.UnitySendMessage("GameManager", "Logout", "");
+                } else {
+                    String access = intent.getStringExtra("access");
+                    String refresh = intent.getStringExtra("refresh");
+                    String username = intent.getStringExtra("username");
+                    Log.d("UnityTokenReceiver", "Received token update via broadcast");
+                    injectTokens(access, refresh, username);
+                }
+            }
+        }
+    };
+
+    private void injectTokens(String access, String refresh, String username) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("access", access);
+            json.put("refresh", refresh != null ? refresh : "");
+            json.put("username", username != null ? username : "");
+            String jsonString = json.toString();
+
+            UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
+            UnityPlayer.UnitySendMessage("GameManager", "SetToken", access);
+            Log.d("UnityTokenReceiver", "Tokens injected into Unity engine");
+        } catch (Exception e) {
+            Log.e("UnityTokenReceiver", "Error injecting tokens: " + e.getMessage());
+        }
+    }
+
     class GameActivitySurfaceView extends InputEnabledSurfaceView {
         GameActivity mGameActivity;
 
@@ -48,6 +87,14 @@ public class UnityPlayerGameActivity extends GameActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Register token receiver for cross-process communication
+        IntentFilter filter = new IntentFilter("com.sikwin.app.TOKEN_UPDATE");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(tokenReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(tokenReceiver, filter);
+        }
     }
 
     @Override
@@ -99,6 +146,11 @@ public class UnityPlayerGameActivity extends GameActivity
     // Quit Unity
     @Override
     protected void onDestroy() {
+        try {
+            unregisterReceiver(tokenReceiver);
+        } catch (Exception e) {
+            // Ignore if already unregistered
+        }
         mUnityPlayer.destroy();
         super.onDestroy();
     }

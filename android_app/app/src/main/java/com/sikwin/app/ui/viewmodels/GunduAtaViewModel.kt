@@ -248,6 +248,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         // Send tokens to Unity if Unity is already running
                         try {
                             com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                sessionManager.getContext(),
                                 it.access,
                                 it.refresh,
                                 it.user.username ?: ""
@@ -318,6 +319,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         // Send tokens to Unity if Unity is already running
                         try {
                             com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                sessionManager.getContext(),
                                 it.access,
                                 it.refresh,
                                 it.user.username ?: ""
@@ -395,6 +397,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         // Send tokens to Unity if Unity is already running
                         try {
                             com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                sessionManager.getContext(),
                                 it.access,
                                 it.refresh,
                                 it.user.username ?: ""
@@ -904,7 +907,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         
         // Notify Unity to logout
         try {
-            com.sikwin.app.utils.UnityTokenHelper.sendLogoutToUnity()
+            com.sikwin.app.utils.UnityTokenHelper.sendLogoutToUnity(sessionManager.getContext())
         } catch (e: Exception) {
             android.util.Log.d("GunduAtaViewModel", "Unity not running, logout signal skipped: ${e.message}")
         }

@@ -1,85 +1,47 @@
 package com.sikwin.app.utils;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import org.json.JSONObject;
 
 public class UnityTokenHelper {
     
     /**
-     * Send authentication tokens to Unity GameManager using reflection
-     * This should be called after successful login in Kotlin
+     * Send authentication tokens to Unity using Broadcast
+     * This works even across different processes (:unity process)
      */
-    public static void sendTokensToUnity(String access, String refresh, String username) {
+    public static void sendTokensToUnity(Context context, String access, String refresh, String username) {
         try {
-            JSONObject json = new JSONObject();
-            json.put("access", access);
-            json.put("refresh", refresh);
-            json.put("username", username != null ? username : "");
-            final String jsonString = json.toString();
+            Log.d("UnityTokenHelper", "Sending tokens to Unity via Broadcast");
             
-            Log.d("UnityTokenHelper", "Sending tokens to Unity: GameManager");
+            Intent intent = new Intent("com.sikwin.app.TOKEN_UPDATE");
+            intent.putExtra("access", access);
+            intent.putExtra("refresh", refresh);
+            intent.putExtra("username", username != null ? username : "");
             
-            // Run on UI thread to ensure UnityPlayer is accessible
-            android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        // Use reflection to access UnityPlayer since it's in a different module
-                        Class<?> unityPlayerClass = Class.forName("com.unity3d.player.UnityPlayer");
-                        java.lang.reflect.Method unitySendMessage = unityPlayerClass.getMethod(
-                            "UnitySendMessage", 
-                            String.class, 
-                            String.class, 
-                            String.class
-                        );
-                        
-                        // Send to GameManager (primary target)
-                        unitySendMessage.invoke(null, "GameManager", "SetAccessAndRefreshTokens", jsonString);
-                        unitySendMessage.invoke(null, "GameManager", "SetToken", access);
-                        
-                        Log.d("UnityTokenHelper", "Tokens sent successfully to Unity via reflection");
-                    } catch (ClassNotFoundException e) {
-                        Log.d("UnityTokenHelper", "UnityPlayer not available yet");
-                    } catch (Exception e) {
-                        Log.e("UnityTokenHelper", "Error in UI thread sending tokens: " + e.getMessage());
-                    }
-                }
-            });
+            // Ensure the broadcast reaches the :unity process
+            intent.setPackage(context.getPackageName());
+            context.sendBroadcast(intent);
+            
+            Log.d("UnityTokenHelper", "Token broadcast sent successfully");
         } catch (Exception e) {
-            Log.e("UnityTokenHelper", "Error preparing tokens for Unity: " + e.getMessage(), e);
+            Log.e("UnityTokenHelper", "Error sending token broadcast: " + e.getMessage());
         }
     }
 
     /**
-     * Trigger logout in Unity GameManager
+     * Trigger logout in Unity using Broadcast
      */
-    public static void sendLogoutToUnity() {
+    public static void sendLogoutToUnity(Context context) {
         try {
-            Log.d("UnityTokenHelper", "Sending logout to Unity: GameManager");
-            
-            android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Class<?> unityPlayerClass = Class.forName("com.unity3d.player.UnityPlayer");
-                        java.lang.reflect.Method unitySendMessage = unityPlayerClass.getMethod(
-                            "UnitySendMessage", 
-                            String.class, 
-                            String.class, 
-                            String.class
-                        );
-                        
-                        unitySendMessage.invoke(null, "GameManager", "Logout", "");
-                        Log.d("UnityTokenHelper", "Logout signal sent successfully to Unity");
-                    } catch (Exception e) {
-                        Log.e("UnityTokenHelper", "Error sending logout to Unity: " + e.getMessage());
-                    }
-                }
-            });
+            Log.d("UnityTokenHelper", "Sending logout to Unity via Broadcast");
+            Intent intent = new Intent("com.sikwin.app.TOKEN_UPDATE");
+            intent.putExtra("action", "logout");
+            intent.setPackage(context.getPackageName());
+            context.sendBroadcast(intent);
         } catch (Exception e) {
-            Log.e("UnityTokenHelper", "Error preparing logout for Unity: " + e.getMessage());
+            Log.e("UnityTokenHelper", "Error sending logout broadcast: " + e.getMessage());
         }
     }
 }

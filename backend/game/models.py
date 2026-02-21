@@ -203,3 +203,14 @@ class DailyRewardProbability(models.Model):
     def __str__(self):
         return f"Daily Reward Prob for {self.user.username if self.user else 'Global Default'}"
 
+
+class LeaderboardSetting(models.Model):
+    """Leaderboard prize settings"""
+    prize_1st = models.BigIntegerField(default=1000)
+    prize_2nd = models.BigIntegerField(default=500)
+    prize_3rd = models.BigIntegerField(default=100)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Leaderboard Prizes: 1st: {self.prize_1st}, 2nd: {self.prize_2nd}, 3rd: {self.prize_3rd}"
+

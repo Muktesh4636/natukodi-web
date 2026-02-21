@@ -24,6 +24,7 @@ urlpatterns = [
     path('daily-reward/', views.daily_reward, name='daily_reward'),
     path('daily-reward/history/', views.daily_reward_history, name='daily_reward_history'),
     path('lucky-draw/', views.lucky_draw, name='lucky_draw'),
+    path('leaderboard/', views.leaderboard, name='leaderboard'),
 ]
 
 
