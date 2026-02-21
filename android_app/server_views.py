@@ -760,8 +760,9 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
             
             for bet in all_winning_bets:
                 win_num = bet.number
-                payout_ratio = game_settings.get('PAYOUT_RATIOS', {}).get(win_num, 6.0)
-                total_payout_amount = bet.chip_amount * Decimal(str(payout_ratio))
+                payout_ratio = game_settings.get('PAYOUT_RATIOS', {}).get(str(win_num), 6.0)
+                # Total payout = bet + profit = bet * (1 + ratio)
+                total_payout_amount = bet.chip_amount * (1 + Decimal(str(payout_ratio)))
                 
                 # Prepare bet update
                 bet.payout_amount = total_payout_amount
@@ -816,7 +817,8 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
         
         for bet in bets:
             multiplier = winning_info[bet.number]
-            total_payout = bet.chip_amount * multiplier
+            # Total payout = bet + profit = bet * (1 + frequency)
+            total_payout = bet.chip_amount * (1 + multiplier)
             
             # Prepare bet update
             bet.payout_amount = total_payout

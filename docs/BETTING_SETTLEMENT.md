@@ -43,7 +43,8 @@ winning_numbers = [num for num, count in dice_counts.items() if count >= 2]
 # For each bet:
 if bet.number in winning_numbers:
     bet.is_winner = True
-    bet.payout_amount = bet.chip_amount * frequency_of_number
+    # Total = bet + profit = bet * (1 + frequency)
+    bet.payout_amount = bet.chip_amount * (1 + frequency_of_number)
 else:
     bet.is_winner = False
     bet.payout_amount = 0.00  # No payout for losers
@@ -51,13 +52,17 @@ else:
 
 ### **2. Multiplier Calculation**
 
-| Dice Frequency | Multiplier | Formula |
-|---------------|------------|---------|
-| 2 Times | 2x | `bet_amount * 2` |
-| 3 Times | 3x | `bet_amount * 3` |
-| 4 Times | 4x | `bet_amount * 4` |
-| 5 Times | 5x | `bet_amount * 5` |
-| 6 Times | 6x | `bet_amount * 6` |
+Total payout = bet + profit, where profit = bet × frequency.
+
+| Dice Frequency | Profit Multiplier | Total Return (bet ₹100) |
+|----------------|-------------------|-------------------------|
+| 2 Times | 2x profit | ₹100 + ₹200 = ₹300 |
+| 3 Times | 3x profit | ₹100 + ₹300 = ₹400 |
+| 4 Times | 4x profit | ₹100 + ₹400 = ₹500 |
+| 5 Times | 5x profit | ₹100 + ₹500 = ₹600 |
+| 6 Times | 6x profit | ₹100 + ₹600 = ₹700 |
+
+Formula: `total_payout = bet_amount * (1 + frequency)`
 
 ---
 
@@ -100,8 +105,8 @@ def process_winning_bet(bet, multiplier, frequency, round_obj):
     """
     Process a single winning bet
     """
-    # Calculate payout: bet_amount * frequency
-    total_payout = bet.chip_amount * multiplier
+    # Calculate payout: bet + profit = bet * (1 + frequency)
+    total_payout = bet.chip_amount * (1 + multiplier)
 
     # Update bet record
     bet.payout_amount = total_payout

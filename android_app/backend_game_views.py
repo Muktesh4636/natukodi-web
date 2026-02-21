@@ -1038,8 +1038,7 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
     # Process each winning number
     for winning_number in winning_numbers:
         frequency = counts[winning_number]
-        # Payout multiplier = frequency (number of occurrences)
-        # Example: frequency 2 → multiplier 2, frequency 3 → multiplier 3, etc.
+        # Payout: return bet + profit. Profit = bet * frequency. Total = bet * (1 + frequency)
         payout_multiplier = Decimal(str(frequency))
         
         # Get all bets on this winning number
@@ -1050,8 +1049,8 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
             if bet.is_winner:
                 continue
                 
-            # Calculate total payout: bet_amount * multiplier
-            total_payout_amount = bet.chip_amount * payout_multiplier
+            # Calculate total payout: bet + profit = bet * (1 + frequency)
+            total_payout_amount = bet.chip_amount * (1 + payout_multiplier)
             
             # Store the total payout amount in bet.payout_amount for reference
             bet.payout_amount = total_payout_amount

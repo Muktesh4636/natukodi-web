@@ -1195,10 +1195,10 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
     """
     Calculate payouts for all bets in the round based on dice frequency.
 
-    New Rules:
+    Rules:
     - Any number appearing 2+ times is a winner
-    - Payout multiplier = frequency (number of occurrences)
-    - Example: If number appears 3 times, multiplier is 3 (bet 100 → get 300 total return)
+    - Total payout = bet + profit, where profit = bet × frequency
+    - Example: Bet 500, number appears 3x → profit 1500, total 2000 (500 returned + 1500 profit)
     - No commission: Player receives 100% of the payout.
 
     Args:
@@ -1245,8 +1245,9 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
     # Process each winning number
     for winning_number in winning_numbers:
         frequency = counts[winning_number]
-        # Payout multiplier = frequency (number of occurrences)
-        # Example: frequency 2 → multiplier 2, frequency 3 → multiplier 3, etc.
+        # Payout: return bet + profit. Profit = bet * frequency.
+        # Total = bet + (bet * frequency) = bet * (1 + frequency)
+        # Example: bet 500, 3 appears 3x → profit 1500, total 2000
         payout_multiplier = Decimal(str(frequency))
         
         # Get all bets on this winning number
@@ -1257,8 +1258,8 @@ def calculate_payouts(round_obj, dice_result=None, dice_values=None):
             if bet.is_winner:
                 continue
                 
-            # Calculate total payout: bet_amount * multiplier
-            total_payout_amount = bet.chip_amount * payout_multiplier
+            # Calculate total payout: bet + profit = bet * (1 + frequency)
+            total_payout_amount = bet.chip_amount * (1 + payout_multiplier)
             
             # Store the total payout amount in bet.payout_amount for reference
             bet.payout_amount = total_payout_amount
@@ -1930,10 +1931,10 @@ def recent_round_results(request):
                 'timestamp': round_obj.end_time.isoformat() if round_obj.end_time else round_obj.start_time.isoformat()
             })
 
-        # Cache in Redis
+        # Cache in Redis (short TTL so new rounds appear quickly)
         if redis_client:
             try:
-                redis_client.set(cache_key, json.dumps(results), ex=30)
+                redis_client.set(cache_key, json.dumps(results), ex=5)
             except Exception as re:
                 logger.error(f"Redis cache write error: {re}")
 
