@@ -219,11 +219,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         // Initialize RetrofitClient with session manager
         RetrofitClient.init(sessionManager)
 
-        // Clear session to force login every time
-        sessionManager.logout()
-        loginSuccess = false
-        userProfile = null
-        wallet = null
+        // Sync auth to Unity PlayerPrefs on init to ensure consistency
+        sessionManager.syncAuthToUnity()
+        
+        loginSuccess = sessionManager.fetchAuthToken() != null
     }
 
     fun login(username: String, password: String) {

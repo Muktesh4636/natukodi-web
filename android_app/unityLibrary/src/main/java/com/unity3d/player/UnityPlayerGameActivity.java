@@ -247,99 +247,85 @@ public class UnityPlayerGameActivity extends GameActivity
     }
 
     private void sendLoginDataToUnity() {
+        Log.d("UnityLoginBypass", "sendLoginDataToUnity called");
         Intent intent = getIntent();
+        String token = null;
+        String refreshToken = null;
+        String username = null;
+
         if (intent != null) {
-            String token = intent.getStringExtra("token");
-            if (token == null || token.isEmpty()) {
-                token = intent.getStringExtra("auth_token");
-            }
-            if (token == null || token.isEmpty()) {
-                token = intent.getStringExtra("access_token");
-            }
+            token = intent.getStringExtra("token");
+            if (token == null || token.isEmpty()) token = intent.getStringExtra("auth_token");
+            if (token == null || token.isEmpty()) token = intent.getStringExtra("access_token");
+            refreshToken = intent.getStringExtra("refresh_token");
+            username = intent.getStringExtra("username");
+        }
+
+        // FALLBACK: Check SharedPreferences if Intent was empty
+        if (token == null || token.isEmpty()) {
+            Log.d("UnityLoginBypass", "No token in Intent, checking SharedPreferences...");
+            String[] prefNames = {"com.company.dicegame.v2.playerprefs", "gunduata_prefs", "UnityPlayerPrefs", "dicegame.v2.playerprefs"};
+            String[] tokenKeys = {"auth_token", "user_token", "access_token", "access", "token"};
             
-            final String finalToken = token;
-            final String refreshToken = intent.getStringExtra("refresh_token");
-            final String username = intent.getStringExtra("username");
-            final String password = intent.getStringExtra("password");
-
-            if (finalToken != null && !finalToken.isEmpty()) {
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("access", finalToken);
-                    json.put("refresh", refreshToken != null ? refreshToken : "");
-                    json.put("username", username != null ? username : "");
-                    final String jsonString = json.toString();
-
-                    Log.d("UnityLoginBypass", "Preparing to send login data to Unity...");
-
-                    // Use a Handler to send messages after a short delay to ensure Unity is ready
-                    android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-
-                    // Try injection multiple times with different delays to hit the right window
-                    long[] delays = { 500, 1000, 2000, 3000, 5000 };
-
-                    for (long delay : delays) {
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.d("UnityLoginBypass", "Executing delayed injection (delay: " + delay + "ms)");
-                                Log.d("UnityLoginBypass", "SAFE_BRIDGE mode: token injection only (no ShowPanel)");
-
-                                // 1. Inject tokens into GameManager (Primary)
-                                UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
-                                UnityPlayer.UnitySendMessage("GameManager", "SetToken", finalToken);
-                                
-                                // Avoid forcing panel methods here because Unity scene APIs
-                                // differ by build variant; only inject auth payload safely.
-                            }
-                        }, delay);
+            for (String prefName : prefNames) {
+                android.content.SharedPreferences p = getSharedPreferences(prefName, android.content.Context.MODE_PRIVATE);
+                for (String key : tokenKeys) {
+                    token = p.getString(key, null);
+                    if (token != null && !token.isEmpty()) {
+                        Log.d("UnityLoginBypass", "Found token in " + prefName + " with key " + key);
+                        if (username == null) username = p.getString("username", null);
+                        break;
                     }
-
-                } catch (Exception e) {
-                    Log.e("UnityLoginBypass", "Error setting up login data injection", e);
                 }
-            } else {
-                // FALLBACK: Check ALL possible SharedPreferences if Intent was empty
-                Log.d("UnityLoginBypass", "No token in Intent, checking all SharedPreferences...");
-                try {
-                    String savedToken = null;
-                    String[] prefNames = {"gunduata_prefs", "UnityPlayerPrefs", "com.company.dicegame.v2.playerprefs", "com.sikwin.app.v2.playerprefs"};
-                    String[] tokenKeys = {"user_token", "auth_token", "access_token", "access", "token"};
-                    
-                    for (String prefName : prefNames) {
-                        android.content.SharedPreferences p = getSharedPreferences(prefName, android.content.Context.MODE_PRIVATE);
-                        for (String key : tokenKeys) {
-                            savedToken = p.getString(key, null);
-                            if (savedToken != null && !savedToken.isEmpty()) {
-                                Log.d("UnityLoginBypass", "Found token in " + prefName + " with key " + key);
-                                break;
-                            }
-                        }
-                        if (savedToken != null) break;
-                    }
-                    
-                    if (savedToken != null) {
-                        final String finalSavedToken = savedToken;
-                        JSONObject json = new JSONObject();
-                        json.put("access", finalSavedToken);
-                        final String jsonString = json.toString();
-                        
-                        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
-                            }
-                        }, 1000);
-                        return;
-                    }
-                } catch (Exception e) {
-                    Log.e("UnityLoginBypass", "Error checking SharedPreferences", e);
-                }
-
-                // FINAL FALLBACK: leave panel selection to Unity's default startup flow.
-                Log.d("UnityNavigationFix", "No token found, using Unity default panel flow");
+                if (token != null) break;
             }
+        }
+
+        if (token != null && !token.isEmpty()) {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("access", token);
+                json.put("refresh", refreshToken != null ? refreshToken : "");
+                json.put("username", username != null ? username : "");
+                final String jsonString = json.toString();
+                final String finalToken = token;
+
+                Log.d("UnityLoginBypass", "Injecting token: " + token.substring(0, Math.min(token.length(), 10)) + "...");
+
+                // Use a Handler to send messages after a short delay to ensure Unity is ready
+                android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+                
+                // Increase delays and frequency to ensure we hit the Unity bridge when it's ready
+                long[] delays = { 500, 1000, 2000, 3000, 5000, 8000, 10000 };
+
+                for (long delay : delays) {
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("UnityLoginBypass", "Executing delayed injection (" + delay + "ms)");
+                            
+                // 1. Primary injection
+                UnityPlayer.UnitySendMessage("GameManager", "SetAccessAndRefreshTokens", jsonString);
+                UnityPlayer.UnitySendMessage("GameManager", "SetToken", finalToken);
+                
+                // 2. Redundant injection into other common bridge objects
+                UnityPlayer.UnitySendMessage("AuthManager", "SetToken", finalToken);
+                UnityPlayer.UnitySendMessage("NetworkManager", "SetToken", finalToken);
+                
+                // 3. Inject base URL to ensure Unity connects to the correct server
+                UnityPlayer.UnitySendMessage("GameManager", "SetBaseUrl", "https://gunduata.online/");
+                UnityPlayer.UnitySendMessage("GameManager", "SetApiUrl", "https://gunduata.online/api/");
+                
+                // 4. Trigger auto-login if possible
+                UnityPlayer.UnitySendMessage("GameManager", "AutoLogin", "");
+                        }
+                    }, delay);
+                }
+            } catch (Exception e) {
+                Log.e("UnityLoginBypass", "Error in token injection", e);
+            }
+        } else {
+            Log.d("UnityLoginBypass", "CRITICAL: No token found in Intent or SharedPreferences");
         }
     }
 

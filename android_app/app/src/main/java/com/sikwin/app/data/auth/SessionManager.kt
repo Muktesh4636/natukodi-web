@@ -104,27 +104,17 @@ class SessionManager(private val context: Context) {
             // Unity stores its PlayerPrefs in a SharedPreferences file named [PACKAGE_NAME].v2.playerprefs
             val unityPrefsName = "$standalonePackageName.v2.playerprefs"
             
-            // CRITICAL: Since we added <queries> in Manifest, createPackageContext should now work better.
-            val unityContext = try {
-                context.createPackageContext(standalonePackageName, android.content.Context.CONTEXT_IGNORE_SECURITY)
-            } catch (e: Exception) {
-                android.util.Log.e("SessionManager", "Could not create context for $standalonePackageName: ${e.message}")
-                null
-            }
-
             val authToken = fetchAuthToken()
             val username = fetchUsername()
             val userId = fetchUserId()
             
             if (authToken != null) {
-                android.util.Log.d("SessionManager", "Syncing auth data to Unity PlayerPrefs for $standalonePackageName using ${if (unityContext != null) "REMOTE" else "LOCAL"} context")
+                android.util.Log.d("SessionManager", "Syncing auth data to Unity PlayerPrefs for $standalonePackageName")
                 
-                // 1. Write to the primary Unity PlayerPrefs file
-                val targetPrefs = if (unityContext != null) {
-                    unityContext.getSharedPreferences(unityPrefsName, Context.MODE_PRIVATE)
-                } else {
-                    context.getSharedPreferences(unityPrefsName, Context.MODE_PRIVATE)
-                }
+                // 1. Write to the primary Unity PlayerPrefs file in the SAME process
+                // Since Unity is part of the same APK (unityLibrary), it shares the same data directory.
+                // We don't need to use createPackageContext if it's the same app.
+                val targetPrefs = context.getSharedPreferences(unityPrefsName, Context.MODE_PRIVATE)
 
                 targetPrefs.edit()
                     .putString("user_token", authToken)
@@ -134,8 +124,8 @@ class SessionManager(private val context: Context) {
                     .putString("access", authToken)
                     .putString("username", username)
                     .putString("user_id", userId)
-                    .putString("base_url", com.sikwin.app.utils.Constants.BASE_URL.removeSuffix("api/"))
-                    .putString("api_url", com.sikwin.app.utils.Constants.BASE_URL)
+                    .putString("base_url", "https://gunduata.online/")
+                    .putString("api_url", "https://gunduata.online/api/")
                     .putString("is_logged_in", "true")
                     .putString("auto_login", "true")
                     .putString("from_android_app", "true")
@@ -147,11 +137,7 @@ class SessionManager(private val context: Context) {
                     .apply()
                 
                 // 2. Also write to the "UnityPlayerPrefs" file which is common in some Unity versions
-                val altPrefs = if (unityContext != null) {
-                    unityContext.getSharedPreferences("UnityPlayerPrefs", Context.MODE_PRIVATE)
-                } else {
-                    context.getSharedPreferences("UnityPlayerPrefs", Context.MODE_PRIVATE)
-                }
+                val altPrefs = context.getSharedPreferences("UnityPlayerPrefs", Context.MODE_PRIVATE)
                 
                 altPrefs.edit()
                     .putString("auth_token", authToken)
@@ -159,18 +145,21 @@ class SessionManager(private val context: Context) {
                     .putString("is_logged_in", "true")
                     .apply()
 
-                // 3. NEW: Write to the "dicegame.v2.playerprefs" just in case package name is different
+                // 3. Write to the "dicegame.v2.playerprefs" just in case package name is different
                 try {
-                    val fallbackPrefs = if (unityContext != null) {
-                        unityContext.getSharedPreferences("dicegame.v2.playerprefs", Context.MODE_PRIVATE)
-                    } else {
-                        context.getSharedPreferences("dicegame.v2.playerprefs", Context.MODE_PRIVATE)
-                    }
+                    val fallbackPrefs = context.getSharedPreferences("dicegame.v2.playerprefs", Context.MODE_PRIVATE)
                     fallbackPrefs.edit()
                         .putString("auth_token", authToken)
                         .putString("is_logged_in", "true")
                         .apply()
                 } catch (e: Exception) {}
+                
+                // 4. CRITICAL: Also write to the default SharedPreferences that Unity might check
+                val defaultPrefs = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+                defaultPrefs.edit()
+                    .putString("auth_token", authToken)
+                    .putString("is_logged_in", "true")
+                    .apply()
             }
         } catch (e: Exception) {
             android.util.Log.e("SessionManager", "Failed to sync auth to Unity", e)
