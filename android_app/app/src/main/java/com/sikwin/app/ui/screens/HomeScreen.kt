@@ -47,6 +47,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.text.font.FontFamily
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +60,34 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
     var showGuestSpinWheel by remember { mutableStateOf(false) }
     var guestWheelCloseCount by remember { mutableIntStateOf(0) }
+    var showLoginPopup by remember { mutableStateOf(false) }
+    
+    if (showLoginPopup) {
+        AlertDialog(
+            onDismissRequest = { showLoginPopup = false },
+            title = { Text("Login Required", fontWeight = FontWeight.Bold) },
+            text = { Text("Please sign up to access the Gundu Ata game and start winning!") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLoginPopup = false
+                        onNavigate("signup")
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
+                ) {
+                    Text("Sign Up", color = BlackBackground, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLoginPopup = false }) {
+                    Text("Cancel", color = TextGrey)
+                }
+            },
+            containerColor = SurfaceColor,
+            titleContentColor = TextWhite,
+            textContentColor = TextGrey
+        )
+    }
     
     // Show guest spin wheel after 3 seconds if not logged in
     LaunchedEffect(viewModel.loginSuccess, guestWheelCloseCount) {
@@ -115,7 +144,7 @@ fun HomeScreen(
                 onNavigate = onNavigate
             ) 
         },
-        bottomBar = { HomeBottomNavigation(currentRoute = "home", onNavigate = onNavigate) },
+        bottomBar = { HomeBottomNavigation(currentRoute = "home", viewModel = viewModel, onNavigate = onNavigate) },
         containerColor = BlackBackground
     ) { padding ->
         Column(
@@ -133,7 +162,17 @@ fun HomeScreen(
                 
                 // Hot Games
                 SectionHeader(title = "Hot games")
-                HotGamesGrid(viewModel, onGameClick, onNavigate)
+                HotGamesGrid(
+                    viewModel = viewModel,
+                    onGameClick = { gameId ->
+                        if (!viewModel.loginSuccess) {
+                            showLoginPopup = true
+                        } else {
+                            onGameClick(gameId)
+                        }
+                    },
+                    onNavigate = onNavigate
+                )
             } else {
                 // Search Results
                 SectionHeader(title = "Search Results")
@@ -149,7 +188,17 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.Start
                     ) {
                         games.forEach { game ->
-                            GameCard(game, Modifier.fillMaxWidth(0.5f), onGameClick)
+                            GameCard(
+                                game = game,
+                                modifier = Modifier.fillMaxWidth(0.5f),
+                                onGameClick = { gameId ->
+                                    if (!viewModel.loginSuccess) {
+                                        showLoginPopup = true
+                                    } else {
+                                        onGameClick(gameId)
+                                    }
+                                }
+                            )
                         }
                     }
                 } else {
@@ -179,65 +228,76 @@ fun HomeTopBar(
     onNavigate: (String) -> Unit
 ) {
     val context = LocalContext.current
+    
+    // Shimmering light pass effect
+    val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
+    val shimmerTranslate by shimmerTransition.animateFloat(
+        initialValue = -300f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmerTranslate"
+    )
+
+    val textShimmerBrush = Brush.linearGradient(
+        colors = listOf(
+            PrimaryYellow,
+            Color.White,
+            PrimaryYellow
+        ),
+        start = androidx.compose.ui.geometry.Offset(shimmerTranslate, shimmerTranslate),
+        end = androidx.compose.ui.geometry.Offset(shimmerTranslate + 200f, shimmerTranslate + 200f)
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(BlackBackground)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 8.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { 
-                if (viewModel.logoClickCount == 0) {
-                    viewModel.incrementLogoClickCount()
-                    onNavigate("gundu_ata")
-                } else {
-                    onNavigate("me")
+            modifier = Modifier
+                .weight(1f)
+                .clickable { 
+                    if (viewModel.logoClickCount == 0) {
+                        viewModel.incrementLogoClickCount()
+                        onNavigate("gundu_ata")
+                    } else {
+                        onNavigate("me")
+                    }
                 }
-            }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.app_logo),
                 contentDescription = "App Logo",
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(32.dp)
                     .clip(RoundedCornerShape(8.dp))
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            
             Text(
                 text = "Gundu Ata",
-                color = TextWhite,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                style = androidx.compose.ui.text.TextStyle(
+                    brush = textShimmerBrush,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Serif,
+                    letterSpacing = 0.5.sp
+                ),
+                maxLines = 1
             )
         }
         
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // WhatsApp Icon
-            IconButton(
-                onClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = Uri.parse("https://wa.me/919999999999") // Replace with actual support number
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        // Fallback
-                    }
-                },
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_whatsapp),
-                    contentDescription = "WhatsApp",
-                    tint = Color(0xFF25D366), // WhatsApp Green
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(8.dp))
-
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.wrapContentWidth()
+        ) {
             if (isLoggedIn) {
                 // Balance Pill
                 Surface(
@@ -268,27 +328,34 @@ fun HomeTopBar(
                     }
                 }
             } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { onNavigate("login") }) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    TextButton(
+                        onClick = { onNavigate("login") },
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
                         Text(
                             text = "Login",
                             color = TextWhite,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            fontSize = 14.sp
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Button(
                         onClick = { onNavigate("signup") },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
                         shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
                             text = "Register",
                             color = BlackBackground,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
+                            fontSize = 13.sp,
+                            maxLines = 1
                         )
                     }
                 }
@@ -718,6 +785,56 @@ fun GameCard(game: GameItem, modifier: Modifier, onGameClick: (String) -> Unit) 
             ) {
                 if (game.id == "gundu_ata") {
                     VideoPlayer(videoResId = R.raw.gundu_ata_video, modifier = Modifier.fillMaxSize())
+                    
+                    // WhatsApp Support Icon on the top-left
+                    IconButton(
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.data = Uri.parse("https://wa.me/919999999999")
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Fallback
+                            }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(8.dp)
+                            .size(32.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_whatsapp),
+                            contentDescription = "WhatsApp Support",
+                            tint = Color(0xFF25D366),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    // Telegram Support Icon on the top-right
+                    IconButton(
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.data = Uri.parse("https://t.me/your_telegram_handle") // Replace with actual handle
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Fallback
+                            }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .size(32.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_telegram),
+                            contentDescription = "Telegram Support",
+                            tint = Color(0xFF0088cc),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 } else {
                     Image(
                         painter = painterResource(id = R.drawable.gundu_ata_bg),
@@ -783,7 +900,36 @@ fun VideoPlayer(videoResId: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HomeBottomNavigation(currentRoute: String, onNavigate: (String) -> Unit) {
+fun HomeBottomNavigation(currentRoute: String, viewModel: GunduAtaViewModel, onNavigate: (String) -> Unit) {
+    var showLoginPopup by remember { mutableStateOf(false) }
+
+    if (showLoginPopup) {
+        AlertDialog(
+            onDismissRequest = { showLoginPopup = false },
+            title = { Text("Login Required", fontWeight = FontWeight.Bold) },
+            text = { Text("Please sign up to access the Gundu Ata game and start winning!") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLoginPopup = false
+                        onNavigate("signup")
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow)
+                ) {
+                    Text("Sign Up", color = BlackBackground, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLoginPopup = false }) {
+                    Text("Cancel", color = TextGrey)
+                }
+            },
+            containerColor = SurfaceColor,
+            titleContentColor = TextWhite,
+            textContentColor = TextGrey
+        )
+    }
+
     NavigationBar(
         containerColor = BottomNavBackground,
         tonalElevation = 8.dp
@@ -797,7 +943,13 @@ fun HomeBottomNavigation(currentRoute: String, onNavigate: (String) -> Unit) {
         items.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.route,
-                onClick = { onNavigate(item.route) },
+                onClick = { 
+                    if (item.route == "gundu_ata" && !viewModel.loginSuccess) {
+                        showLoginPopup = true
+                    } else {
+                        onNavigate(item.route)
+                    }
+                },
                 icon = { 
                     if (item.route == "gundu_ata") {
                         val context = LocalContext.current

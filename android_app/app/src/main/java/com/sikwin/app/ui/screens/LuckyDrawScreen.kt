@@ -131,6 +131,9 @@ fun LuckyDrawScreen(
 
                     lastResult = "₹$amount"
 
+                    // Refresh wallet balance after successful claim
+                    viewModel.fetchWallet()
+
                     // Calculate spin animation
                     val extraRotations = 10 + Random.nextInt(5)
                     val degreesPerSegment = 360f / wheelItems.size

@@ -62,7 +62,7 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        bottomBar = { HomeBottomNavigation(currentRoute = "me", onNavigate = onNavigate) },
+        bottomBar = { HomeBottomNavigation(currentRoute = "me", viewModel = viewModel, onNavigate = onNavigate) },
         containerColor = BlackBackground
     ) { padding ->
         Column(

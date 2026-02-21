@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,58 +25,12 @@ import androidx.compose.ui.unit.sp
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
-data class LeaderboardPlayer(
-    val name: String,
-    val winnings: String,
-    val prize: String? = null
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
-    val currentUserName = viewModel.userProfile?.username ?: "You"
-    val currentUserRotation = "₹${String.format("%.2f", viewModel.userRotationMoney)}"
-    val currentUserRank = viewModel.userRank
-
-    // Base leaderboard players
-    val basePlayers = listOf(
-        LeaderboardPlayer("Muktesh", "₹1,25,000", "₹1,000"),
-        LeaderboardPlayer("Sai Krishna", "₹98,500", "₹500"),
-        LeaderboardPlayer("Mahesh", "₹85,200", "₹100"),
-        LeaderboardPlayer("Rahul", "₹72,000"),
-        LeaderboardPlayer("Priya", "₹65,400"),
-        LeaderboardPlayer("Vikram", "₹58,900"),
-        LeaderboardPlayer("Anjali", "₹52,100"),
-        LeaderboardPlayer("Suresh", "₹48,300"),
-        LeaderboardPlayer("Kiran", "₹42,700"),
-        LeaderboardPlayer("Deepak", "₹38,500")
-    )
-
-    // Create a dynamic list that includes the current user if they are ranked
-    val dynamicPlayers = remember(currentUserRank, viewModel.userRotationMoney) {
-        val list = basePlayers.toMutableList()
-        
-        // If user is ranked
-        if (currentUserRank > 0) {
-            val userEntry = LeaderboardPlayer(
-                name = "$currentUserName (You)",
-                winnings = currentUserRotation,
-                prize = when(currentUserRank) {
-                    1 -> "₹1,000"; 2 -> "₹500"; 3 -> "₹100"; else -> null
-                }
-            )
-            
-            if (currentUserRank <= 10) {
-                // Replace the entry at that rank (0-indexed)
-                if (currentUserRank - 1 < list.size) {
-                    list[currentUserRank - 1] = userEntry
-                }
-            } else {
-                // Add as an 11th entry if rank is > 10
-                list.add(userEntry)
-            }
-        }
-        list
+    
+    LaunchedEffect(Unit) {
+        viewModel.fetchLeaderboard()
     }
 
     Scaffold(
@@ -131,7 +86,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "ROTATION MONEY",
+                            "YOUR TURNOVER",
                             color = TextGrey,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
@@ -167,7 +122,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "1st: ₹1000 | 2nd: ₹500 | 3rd: ₹100",
+                        "1st: ${viewModel.leaderboardPrizes["1st"]} | 2nd: ${viewModel.leaderboardPrizes["2nd"]} | 3rd: ${viewModel.leaderboardPrizes["3rd"]}",
                         color = TextWhite,
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
@@ -175,7 +130,13 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Daily rewards paid every 24 hours!",
+                        "Turnover based prizes!",
+                        color = TextGrey,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Results will be announced daily 11:00 PM night",
                         color = TextGrey,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center
@@ -183,14 +144,28 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                 }
             }
 
-            // Leaderboard List
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                itemsIndexed(dynamicPlayers) { index, player ->
-                    val rankToShow = if (index < 10) index + 1 else currentUserRank
-                    LeaderboardItem(rankToShow, player)
+            if (viewModel.isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = PrimaryYellow)
+                }
+            } else if (viewModel.leaderboardPlayers.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No data available yet", color = TextGrey)
+                }
+            } else {
+                // Leaderboard List
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    itemsIndexed(viewModel.leaderboardPlayers) { _, playerMap ->
+                        val rank = (playerMap["rank"] as? Double)?.toInt() ?: (playerMap["rank"] as? Int) ?: 0
+                        val name = playerMap["username"] as? String ?: "Unknown"
+                        val turnover = (playerMap["turnover"] as? Double) ?: (playerMap["turnover"] as? Int)?.toDouble() ?: 0.0
+                        val prize = playerMap["prize"] as? String
+                        
+                        LeaderboardItem(rank, name, turnover, prize)
+                    }
                 }
             }
         }
@@ -198,7 +173,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun LeaderboardItem(rank: Int, player: LeaderboardPlayer) {
+fun LeaderboardItem(rank: Int, name: String, turnover: Double, prize: String?) {
     val isTopThree = rank <= 3
     val backgroundColor = when (rank) {
         1 -> Brush.horizontalGradient(listOf(Color(0xFFFFD700).copy(alpha = 0.2f), SurfaceColor))
@@ -246,20 +221,20 @@ fun LeaderboardItem(rank: Int, player: LeaderboardPlayer) {
             // Player Info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = player.name,
+                    text = name,
                     color = TextWhite,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
                 Text(
-                    text = "Total Winnings: ${player.winnings}",
+                    text = "Total Turnover: ₹${String.format("%.2f", turnover)}",
                     color = TextGrey,
                     fontSize = 14.sp
                 )
             }
 
             // Prize for top 3
-            if (player.prize != null) {
+            if (prize != null) {
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "PRIZE",
@@ -268,7 +243,7 @@ fun LeaderboardItem(rank: Int, player: LeaderboardPlayer) {
                         fontWeight = FontWeight.Black
                     )
                     Text(
-                        text = player.prize,
+                        text = prize,
                         color = PrimaryYellow,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 16.sp

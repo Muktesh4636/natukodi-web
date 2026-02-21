@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontFamily
 import com.sikwin.app.ui.theme.*
 
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
@@ -61,7 +62,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
         
-        // Header
+            // Header
         val infiniteTransition = rememberInfiniteTransition(label = "shimmerEffect")
         val shimmerOffset by infiniteTransition.animateFloat(
             initialValue = 0f,
@@ -83,13 +84,45 @@ fun LoginScreen(
             end = androidx.compose.ui.geometry.Offset(shimmerOffset, shimmerOffset)
         )
 
+        // Shimmering light pass effect
+        val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
+        val shimmerTranslate by shimmerTransition.animateFloat(
+            initialValue = -300f,
+            targetValue = 1000f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "shimmerTranslate"
+        )
+
+        val textShimmerBrush = Brush.linearGradient(
+            colors = listOf(
+                PrimaryYellow,
+                Color.White,
+                PrimaryYellow
+            ),
+            start = androidx.compose.ui.geometry.Offset(shimmerTranslate, shimmerTranslate),
+            end = androidx.compose.ui.geometry.Offset(shimmerTranslate + 200f, shimmerTranslate + 200f)
+        )
+
         Column(modifier = Modifier.align(Alignment.Start)) {
             Text(
-                text = "Welcome back",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    brush = shimmerBrush
+                text = "Gundu Ata",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    brush = textShimmerBrush,
+                    fontFamily = FontFamily.Serif
                 ),
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.Black
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Welcome back",
+                style = MaterialTheme.typography.headlineSmall,
+                color = TextWhite,
+                fontWeight = FontWeight.Bold
             )
             Text(
                 text = "Please enter your phone number and password to log in",

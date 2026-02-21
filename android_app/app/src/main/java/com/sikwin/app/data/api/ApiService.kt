@@ -84,6 +84,9 @@ interface ApiService {
     @POST("auth/lucky-draw/")
     suspend fun claimLuckyDraw(): Response<Map<String, Any>>
 
+    @GET("auth/leaderboard/")
+    suspend fun getLeaderboard(): Response<Map<String, Any>>
+
     @GET("game/round/")
     suspend fun getCurrentRound(): Response<Map<String, Any>>
 

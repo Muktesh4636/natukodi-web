@@ -219,12 +219,11 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         // Initialize RetrofitClient with session manager
         RetrofitClient.init(sessionManager)
 
-        // Auto-login if token exists
-        if (sessionManager.fetchAuthToken() != null) {
-            loginSuccess = true
-            fetchProfile()
-            fetchWallet()
-        }
+        // Clear session to force login every time
+        sessionManager.logout()
+        loginSuccess = false
+        userProfile = null
+        wallet = null
     }
 
     fun login(username: String, password: String) {
@@ -990,6 +989,35 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     // Leaderboard and Ranking logic
     var userRank by mutableIntStateOf(0)
     var userRotationMoney by mutableStateOf(0.0)
+    var leaderboardPlayers by mutableStateOf<List<Map<String, Any>>>(emptyList())
+    var leaderboardPrizes by mutableStateOf<Map<String, String>>(mapOf("1st" to "₹1,000", "2nd" to "₹500", "3rd" to "₹100"))
+
+    fun fetchLeaderboard() {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val response = RetrofitClient.apiService.getLeaderboard()
+                if (response.isSuccessful) {
+                    val data = response.body()
+                    val leaderboard = data?.get("leaderboard") as? List<Map<String, Any>> ?: emptyList()
+                    leaderboardPlayers = leaderboard
+                    
+                    val userStats = data?.get("user_stats") as? Map<String, Any>
+                    userRank = (userStats?.get("rank") as? Double)?.toInt() ?: (userStats?.get("rank") as? Int) ?: 0
+                    userRotationMoney = (userStats?.get("turnover") as? Double) ?: (userStats?.get("turnover") as? Int)?.toDouble() ?: 0.0
+
+                    val prizes = data?.get("prizes") as? Map<String, String>
+                    if (prizes != null) {
+                        leaderboardPrizes = prizes
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GunduAtaViewModel", "Fetch leaderboard failed: ${e.message}")
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     fun updateUserRotation(amount: Double) {
         userRotationMoney += amount

@@ -109,6 +109,9 @@ fun LuckyWheelScreen(
                     var angleDiff = targetAngle - currentRotation
                     if (angleDiff <= 0) angleDiff += 360
                     rotationAngle += (extraRotations * 360) + angleDiff
+                    
+                    // Refresh wallet balance after successful claim
+                    viewModel.fetchWallet()
                 } else {
                     isSpinning = false
                     lastResult = message ?: "Failed to claim reward"
