@@ -31,9 +31,12 @@ import com.sikwin.app.R
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import com.sikwin.app.ui.theme.*
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.exoplayer.ExoPlayer
@@ -46,6 +49,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.text.font.FontFamily
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
@@ -147,73 +152,80 @@ fun HomeScreen(
         bottomBar = { HomeBottomNavigation(currentRoute = "home", viewModel = viewModel, onNavigate = onNavigate) },
         containerColor = BlackBackground
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
         ) {
-            // Search Bar
-            SearchBar(onSearch = { searchQuery = it })
-            
-            if (searchQuery.isEmpty()) {
-                // Banners
-                PromotionalBanners(viewModel, onNavigate)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Search Bar
+                SearchBar(onSearch = { searchQuery = it })
                 
-                // Hot Games
-                SectionHeader(title = "Hot games")
-                HotGamesGrid(
-                    viewModel = viewModel,
-                    onGameClick = { gameId ->
-                        if (!viewModel.loginSuccess) {
-                            showLoginPopup = true
-                        } else {
-                            onGameClick(gameId)
-                        }
-                    },
-                    onNavigate = onNavigate
-                )
-            } else {
-                // Search Results
-                SectionHeader(title = "Search Results")
-                val games = listOf(
-                    GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0))
-                ).filter { it.name.contains(searchQuery, ignoreCase = true) }
-                
-                if (games.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        games.forEach { game ->
-                            GameCard(
-                                game = game,
-                                modifier = Modifier.fillMaxWidth(0.5f),
-                                onGameClick = { gameId ->
-                                    if (!viewModel.loginSuccess) {
-                                        showLoginPopup = true
-                                    } else {
-                                        onGameClick(gameId)
-                                    }
-                                }
-                            )
-                        }
-                    }
+                if (searchQuery.isEmpty()) {
+                    // Banners
+                    PromotionalBanners(viewModel, onNavigate)
+                    
+                    // Hot Games
+                    SectionHeader(title = "Hot games")
+                    HotGamesGrid(
+                        viewModel = viewModel,
+                        onGameClick = { gameId ->
+                            if (!viewModel.loginSuccess) {
+                                showLoginPopup = true
+                            } else {
+                                onGameClick(gameId)
+                            }
+                        },
+                        onNavigate = onNavigate,
+                        onRequireLogin = { showLoginPopup = true }
+                    )
                 } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No games found for \"$searchQuery\"", color = TextGrey)
+                    // Search Results
+                    SectionHeader(title = "Search Results")
+                    val games = listOf(
+                        GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0))
+                    ).filter { it.name.contains(searchQuery, ignoreCase = true) }
+                    
+                    if (games.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            games.forEach { game ->
+                                GameCard(
+                                    game = game,
+                                    modifier = Modifier.fillMaxWidth(0.5f),
+                                    onGameClick = { gameId ->
+                                        if (!viewModel.loginSuccess) {
+                                            showLoginPopup = true
+                                        } else {
+                                            onGameClick(gameId)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No games found for \"$searchQuery\"", color = TextGrey)
+                        }
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(20.dp))
             }
-            
-            Spacer(modifier = Modifier.height(20.dp))
+
         }
     }
 }
@@ -263,14 +275,7 @@ fun HomeTopBar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .weight(1f)
-                .clickable { 
-                    if (viewModel.logoClickCount == 0) {
-                        viewModel.incrementLogoClickCount()
-                        onNavigate("gundu_ata")
-                    } else {
-                        onNavigate("me")
-                    }
-                }
+                .clickable { onNavigate("gundu_ata") }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.app_logo),
@@ -518,7 +523,12 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun HotGamesGrid(viewModel: GunduAtaViewModel, onGameClick: (String) -> Unit, onNavigate: (String) -> Unit) {
+fun HotGamesGrid(
+    viewModel: GunduAtaViewModel,
+    onGameClick: (String) -> Unit,
+    onNavigate: (String) -> Unit,
+    onRequireLogin: () -> Unit
+) {
     val games = listOf(GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0)))
     val context = LocalContext.current
     
@@ -591,15 +601,32 @@ fun HotGamesGrid(viewModel: GunduAtaViewModel, onGameClick: (String) -> Unit, on
     val activeWinnings = remember { mutableStateListOf<WinningParticle>() }
     var nextId by remember { mutableIntStateOf(0) }
     
-    // Use a unique key for the LaunchedEffect to ensure it's tied to the composition lifecycle
-    // and doesn't duplicate on activity/fragment recreation from recent tabs
-    LaunchedEffect(Unit) {
-        // CRITICAL FIX: Clear any existing particles to avoid duplicates on resume/re-entry
+    // Detect resume from recent tabs - add 2s delay before sending names to fix glitch
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var hasBeenPaused by remember { mutableStateOf(false) }
+    var resumeTrigger by remember { mutableIntStateOf(0) }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> hasBeenPaused = true
+                Lifecycle.Event.ON_RESUME -> {
+                    if (hasBeenPaused) {
+                        resumeTrigger++
+                    }
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    
+    LaunchedEffect(resumeTrigger) {
         activeWinnings.clear()
-        
-        // Wait for 2 seconds before starting the animation after re-entry
-        delay(2000)
-        
+        // 2 second delay when resuming from recent tabs to prevent glitch
+        if (resumeTrigger > 0) {
+            delay(2000)
+        }
         while (true) {
             val name = if (winnings.isNotEmpty()) winnings.random() else "Player +100"
             activeWinnings.add(WinningParticle(id = nextId++, text = name))
@@ -621,7 +648,109 @@ fun HotGamesGrid(viewModel: GunduAtaViewModel, onGameClick: (String) -> Unit, on
                 GameCard(game, Modifier.fillMaxWidth(0.5f), onGameClick)
             }
         }
-        
+
+        // Customer Support Icon - opposite side of treasury box (left), dropdown shows only WhatsApp & Telegram
+        var supportMenuExpanded by remember { mutableStateOf(false) }
+        // Auto-open on home page load, show for 3 seconds, then close
+        LaunchedEffect(Unit) {
+            supportMenuExpanded = true
+            delay(3000)
+            supportMenuExpanded = false
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .offset(y = 28.dp, x = 4.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            if (!supportMenuExpanded) {
+                IconButton(
+                    onClick = { supportMenuExpanded = true },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SupportAgent,
+                        contentDescription = "Customer Support",
+                        tint = PrimaryYellow,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+            if (supportMenuExpanded) {
+                val density = LocalDensity.current
+                val scaleAlpha = remember { Animatable(0f) }
+                LaunchedEffect(Unit) {
+                    scaleAlpha.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+                    )
+                }
+                Popup(
+                    alignment = Alignment.TopStart,
+                    offset = IntOffset(0, with(density) { (-100).dp.roundToPx() }),
+                    onDismissRequest = { supportMenuExpanded = false },
+                    properties = PopupProperties(
+                        focusable = true,
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .graphicsLayer(
+                                scaleX = scaleAlpha.value,
+                                scaleY = scaleAlpha.value,
+                                alpha = scaleAlpha.value,
+                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 1f)
+                            )
+                            .background(BlackBackground)
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        IconButton(
+                            onClick = {
+                                supportMenuExpanded = false
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data = Uri.parse("https://wa.me/919999999999")
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {}
+                            },
+                            modifier = Modifier.size(52.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_whatsapp),
+                                contentDescription = "WhatsApp",
+                                modifier = Modifier.size(40.dp),
+                                tint = Color(0xFF25D366)
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                supportMenuExpanded = false
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data = Uri.parse("https://t.me/your_telegram_handle")
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {}
+                            },
+                            modifier = Modifier.size(52.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_telegram),
+                                contentDescription = "Telegram",
+                                modifier = Modifier.size(40.dp),
+                                tint = Color(0xFF0088cc)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
                 // Treasury Box Icon and Continuous Winnings Animation
                 val treasuryBoxId = context.resources.getIdentifier("ic_treasury_box", "drawable", context.packageName)
                 if (treasuryBoxId != 0) {
@@ -689,7 +818,13 @@ fun HotGamesGrid(viewModel: GunduAtaViewModel, onGameClick: (String) -> Unit, on
                                 contentDescription = "Treasury Box",
                                 modifier = Modifier
                                     .size(64.dp)
-                                    .clickable { onNavigate("leaderboard") },
+                                    .clickable {
+                                        if (viewModel.loginSuccess) {
+                                            onNavigate("leaderboard")
+                                        } else {
+                                            onRequireLogin()
+                                        }
+                                    },
                                 contentScale = ContentScale.Fit
                             )
                         }
@@ -785,56 +920,6 @@ fun GameCard(game: GameItem, modifier: Modifier, onGameClick: (String) -> Unit) 
             ) {
                 if (game.id == "gundu_ata") {
                     VideoPlayer(videoResId = R.raw.gundu_ata_video, modifier = Modifier.fillMaxSize())
-                    
-                    // WhatsApp Support Icon on the top-left
-                    IconButton(
-                        onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.data = Uri.parse("https://wa.me/919999999999")
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                // Fallback
-                            }
-                        },
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(8.dp)
-                            .size(32.dp)
-                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_whatsapp),
-                            contentDescription = "WhatsApp Support",
-                            tint = Color(0xFF25D366),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    // Telegram Support Icon on the top-right
-                    IconButton(
-                        onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.data = Uri.parse("https://t.me/your_telegram_handle") // Replace with actual handle
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                // Fallback
-                            }
-                        },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(8.dp)
-                            .size(32.dp)
-                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_telegram),
-                            contentDescription = "Telegram Support",
-                            tint = Color(0xFF0088cc),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
                 } else {
                     Image(
                         painter = painterResource(id = R.drawable.gundu_ata_bg),
@@ -902,6 +987,8 @@ fun VideoPlayer(videoResId: Int, modifier: Modifier = Modifier) {
 @Composable
 fun HomeBottomNavigation(currentRoute: String, viewModel: GunduAtaViewModel, onNavigate: (String) -> Unit) {
     var showLoginPopup by remember { mutableStateOf(false) }
+    var lastGameLaunchTime by remember { mutableStateOf(0L) }
+    val gameLaunchCooldown = 1500L // Prevent double-tap crash
 
     if (showLoginPopup) {
         AlertDialog(
@@ -944,10 +1031,21 @@ fun HomeBottomNavigation(currentRoute: String, viewModel: GunduAtaViewModel, onN
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = { 
-                    if (item.route == "gundu_ata" && !viewModel.loginSuccess) {
-                        showLoginPopup = true
-                    } else {
-                        onNavigate(item.route)
+                    if (currentRoute != item.route) {
+                        if (item.route == "gundu_ata") {
+                            if (!viewModel.loginSuccess) {
+                                showLoginPopup = true
+                            } else {
+                                val now = System.currentTimeMillis()
+                                if (now - lastGameLaunchTime >= gameLaunchCooldown) {
+                                    lastGameLaunchTime = now
+                                    viewModel.syncAuthToUnity()
+                                    onNavigate(item.route)
+                                }
+                            }
+                        } else {
+                            onNavigate(item.route)
+                        }
                     }
                 },
                 icon = { 
