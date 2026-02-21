@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7dce0f03461d1da4f93561d1d3f81525
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Scripts/Helper/MinSizeToViewportSize.cs
+  uploadId: 485141

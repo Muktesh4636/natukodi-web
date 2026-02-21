@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0b23d41281afd3540ad927fe918aa69a
+timeCreated: 1498587302
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/Form.unity
+  uploadId: 485141

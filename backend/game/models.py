@@ -27,7 +27,7 @@ class GameRound(models.Model):
     result_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     total_bets = models.IntegerField(default=0)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total_amount = models.BigIntegerField(default=0)
 
     # Timing settings for this specific round (stored when round is created)
     betting_close_seconds = models.IntegerField(default=30)  # Time when betting closes
@@ -54,8 +54,8 @@ class Bet(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bets')
     round = models.ForeignKey(GameRound, on_delete=models.CASCADE, related_name='bets')
     number = models.IntegerField()  # 1-6
-    chip_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payout_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    chip_amount = models.BigIntegerField()
+    payout_amount = models.BigIntegerField(default=0)
     is_winner = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,0 +1,60 @@
+# ninja log v5
+5	230	1770312459298886176	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c27793f793dce1ed
+231	509	1770312459460760593	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libswappywrapper.so	259d5376793a9fa7
+3	893	1770312459964105780	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	2aaef7d0e6d1f54d
+3	917	1770312459985505427	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	35a6d24e853bb84b
+4	939	1770312460010307536	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	9e4db39540d55fc9
+3	969	1770312460039583608	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	905b6d106f24f6c0
+2	985	1770312460056315292	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	660ce8d7da97fe1b
+4	1001	1770312460071725475	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	c0eb466bff684886
+2	1002	1770312460073183352	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a1e1f438050d4b3a
+1	1089	1770312460158557815	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e03c6951d1cc5d8e
+1089	1182	1770312460237593772	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libgame.so	d7433649665491a7
+0	11	0	clean	5a7e709eea5f28cc
+14	559	1770312491506332021	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c27793f793dce1ed
+559	1146	1770312491896771341	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libswappywrapper.so	259d5376793a9fa7
+18	1248	1770312492198912195	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	2aaef7d0e6d1f54d
+19	1253	1770312492205281494	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	9e4db39540d55fc9
+16	1255	1770312492206341036	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	660ce8d7da97fe1b
+19	1263	1770312492213328127	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	35a6d24e853bb84b
+20	1280	1770312492230170228	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	c0eb466bff684886
+18	1280	1770312492230422353	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a1e1f438050d4b3a
+19	1318	1770312492270546186	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	905b6d106f24f6c0
+15	1361	1770312492313014522	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e03c6951d1cc5d8e
+1361	1449	1770312492386721890	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libgame.so	d7433649665491a7
+1	9	0	clean	5a7e709eea5f28cc
+67	947	1770312774541702102	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c27793f793dce1ed
+947	1333	1770312774855832260	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libswappywrapper.so	259d5376793a9fa7
+65	1637	1770312775234008068	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	9e4db39540d55fc9
+64	1696	1770312775292013420	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	35a6d24e853bb84b
+63	1698	1770312775291540752	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	2aaef7d0e6d1f54d
+66	1721	1770312775317986655	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	c0eb466bff684886
+72	1729	1770312775325161204	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	660ce8d7da97fe1b
+62	1756	1770312775353941900	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a1e1f438050d4b3a
+64	1806	1770312775402404034	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	905b6d106f24f6c0
+69	1812	1770312775407971039	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e03c6951d1cc5d8e
+1812	1880	1770312775466705183	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libgame.so	d7433649665491a7
+0	28	0	clean	5a7e709eea5f28cc
+20	395	1770312806889261133	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c27793f793dce1ed
+395	855	1770312807203213833	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libswappywrapper.so	259d5376793a9fa7
+15	963	1770312807458789222	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	2aaef7d0e6d1f54d
+18	1006	1770312807501873642	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	35a6d24e853bb84b
+14	1011	1770312807506336813	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	660ce8d7da97fe1b
+15	1027	1770312807522994497	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a1e1f438050d4b3a
+19	1030	1770312807525868209	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	c0eb466bff684886
+18	1055	1770312807551191068	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	9e4db39540d55fc9
+16	1072	1770312807567459418	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	905b6d106f24f6c0
+14	1098	1770312807592867695	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e03c6951d1cc5d8e
+1098	1172	1770312807653348465	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libgame.so	d7433649665491a7
+0	22	0	clean	5a7e709eea5f28cc
+57	573	1770312835879921361	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c27793f793dce1ed
+37	1001	1770312836308063012	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	2aaef7d0e6d1f54d
+573	1003	1770312836222068423	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libswappywrapper.so	259d5376793a9fa7
+39	1014	1770312836320663358	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	35a6d24e853bb84b
+35	1018	1770312836325324488	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	660ce8d7da97fe1b
+50	1028	1770312836335329123	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	9e4db39540d55fc9
+54	1047	1770312836354046893	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	c0eb466bff684886
+35	1061	1770312836368355491	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a1e1f438050d4b3a
+39	1073	1770312836380137169	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	905b6d106f24f6c0
+34	1095	1770312836401063483	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	e03c6951d1cc5d8e
+1095	1165	1770312836457709041	/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libgame.so	d7433649665491a7

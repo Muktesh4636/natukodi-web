@@ -68,10 +68,6 @@
                 </a></li>
             {% endif %}
 
-            {% if is_super_admin %} <li><a href="{% url 'testing_dashboard' %}" {% if page == 'testing-dashboard' %}class="active" {% endif %}> <span class="menu-icon">🧪</span> Testing Dashboard
-                </a></li>
-            {% endif %}
-
             {% if is_super_admin or admin_permissions.can_manage_payment_methods %} <li><a href="{% url 'payment_methods' %}" {% if page == 'payment-methods' %}class="active" {% endif %}> <span class="menu-icon">🏦</span> Payment Methods
                 </a></li>
             {% endif %}

@@ -1,12 +1,10 @@
 package com.sikwin.app.navigation
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri as AndroidUri
-import java.io.File
-import java.io.FileOutputStream
 import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +27,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Alignment
+import com.sikwin.app.utils.Constants
 
 @Composable
 fun AppNavigation(
@@ -185,25 +187,6 @@ fun AppNavigation(
         )
     }
 
-    fun launchGame() {
-        try {
-            // Check if user is logged in
-            if (!viewModel.loginSuccess) {
-                android.util.Log.w("AppNavigation", "User not logged in, showing auth dialog")
-                showAuthDialog = true
-                return
-            }
-
-            // CRITICAL: Force a fresh timer fetch right before showing the loading screen
-            viewModel.startTimerPreloading()
-
-            // Show loading screen state
-            navController.navigate("game_loading")
-        } catch (e: Exception) {
-            Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     fun executeGameLaunch() {
         try {
             // Get authentication data
@@ -211,39 +194,49 @@ fun AppNavigation(
             val refreshToken = sessionManager.fetchRefreshToken()
             val username = sessionManager.fetchUsername()
             val userId = sessionManager.fetchUserId()
+            val isLoggedIn = !authToken.isNullOrBlank()
 
-            // Verify token exists
-            if (authToken == null || authToken.isEmpty()) {
-                android.util.Log.e("AppNavigation", "Auth token is null or empty!")
-                Toast.makeText(context, "Authentication error. Please login again.", Toast.LENGTH_LONG).show()
-                return
-            }
+            // Launch embedded Unity activity from the same APK (single-app flow).
+            val intent = Intent().setClassName(
+                context.packageName,
+                "com.unity3d.player.UnityPlayerGameActivity"
+            )
 
-            // Sync auth to Unity PlayerPrefs BEFORE launching
-            sessionManager.syncAuthToUnity()
-
-            // Launch Unity with Intent extras
-            val intent = Intent(context, com.unity3d.player.UnityPlayerGameActivity::class.java)
             val password = sessionManager.fetchPassword()
             
-            intent.putExtra("token", authToken)
-            intent.putExtra("auth_token", authToken)
-            intent.putExtra("refresh_token", refreshToken)
-            intent.putExtra("username", username)
+            // Pass auth/session details (if available) for auto-login.
+            intent.putExtra("token", authToken ?: "")
+            intent.putExtra("auth_token", authToken ?: "")
+            intent.putExtra("access_token", authToken ?: "")
+            intent.putExtra("bearer_token", authToken ?: "")
+            intent.putExtra("refresh_token", refreshToken ?: "")
+            intent.putExtra("access", authToken ?: "")
+            intent.putExtra("refresh", refreshToken ?: "")
+            intent.putExtra("username", username ?: "")
             intent.putExtra("user_id", userId)
+            intent.putExtra("user_pass", password ?: "")
             if (password != null) {
                 intent.putExtra("password", password)
             }
             
-            intent.putExtra("base_url", com.sikwin.app.utils.Constants.BASE_URL.removeSuffix("api/"))
-            intent.putExtra("api_url", com.sikwin.app.utils.Constants.BASE_URL)
-            intent.putExtra("is_logged_in", true)
+            intent.putExtra("base_url", Constants.BASE_URL.removeSuffix("api/"))
+            intent.putExtra("api_url", Constants.BASE_URL)
+            intent.putExtra("is_logged_in", isLoggedIn)
             intent.putExtra("auto_login", true)
             intent.putExtra("from_android_app", true)
+            intent.putExtra("guest_mode", !isLoggedIn)
             intent.putExtra("login_method", "android_app")
             intent.putExtra("auth_timestamp", System.currentTimeMillis())
             intent.putExtra("login_timestamp", System.currentTimeMillis())
             
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            
+            // Pass tokens for auto-login in standalone app (duplicate for safety)
+            intent.putExtra("token", authToken ?: "")
+            intent.putExtra("auth_token", authToken ?: "")
+            intent.putExtra("access", authToken ?: "")
+            intent.putExtra("refresh", refreshToken ?: "")
+
             // CRITICAL: Ensure we pass the ABSOLUTE LATEST timer data available
             // This prevents the "70 second freeze" which happens if old data is passed
             viewModel.preLoadedTimer?.let { 
@@ -259,11 +252,21 @@ fun AppNavigation(
             android.util.Log.e("AppNavigation", "Final launch failed", e)
         }
     }
+
+    fun launchGame() {
+        try {
+            executeGameLaunch()
+        } catch (e: Exception) {
+            android.util.Log.e("AppNavigation", "Launch failed", e)
+            Toast.makeText(context, "Unable to open game. Please try again later.", Toast.LENGTH_SHORT).show()
+        }
+    }
     
-    // Handle redirect requests (e.g. from Unity balance click)
+    // Handle redirect requests (e.g. from Unity balance click or dice results click)
     LaunchedEffect(activity?.intent) {
-        activity?.intent?.getStringExtra("redirect")?.let { route ->
-            navController.navigate(route) {
+        val redirectRoute = activity?.intent?.getStringExtra("redirect")
+        if (redirectRoute != null) {
+            navController.navigate(redirectRoute) {
                 launchSingleTop = true
             }
             activity.intent.removeExtra("redirect")
@@ -273,6 +276,13 @@ fun AppNavigation(
     val startDestination = "home"
     
     NavHost(navController = navController, startDestination = startDestination) {
+        composable("gundu_ata_game") {
+            GunduAtaGameScreen(
+                viewModel = viewModel,
+                sessionManager = sessionManager,
+                onBack = { navController.popBackStack() }
+            )
+        }
         composable("login") {
             LoginScreen(
                 viewModel = viewModel,
@@ -342,20 +352,12 @@ fun AppNavigation(
                 viewModel = viewModel,
                 onGameClick = { gameId ->
                     if (gameId == "gundu_ata") {
-                        if (viewModel.loginSuccess) {
-                            launchGame()
-                        } else {
-                            showAuthDialog = true
-                        }
+                        executeGameLaunch()
                     }
                 },
                 onNavigate = { route ->
                     if (route == "gundu_ata") {
-                        if (viewModel.loginSuccess) {
-                            launchGame()
-                        } else {
-                            showAuthDialog = true
-                        }
+                        executeGameLaunch()
                     } else if (route == "me") {
                         if (viewModel.loginSuccess) {
                             navController.navigate("me") {
@@ -382,13 +384,10 @@ fun AppNavigation(
         composable("me") {
             ProfileScreen(
                 viewModel = viewModel,
+                sessionManager = sessionManager,
                 onNavigate = { route ->
                     if (route == "gundu_ata") {
-                        if (viewModel.loginSuccess) {
-                            launchGame()
-                        } else {
-                            showAuthDialog = true
-                        }
+                        executeGameLaunch()
                     } else if (route == "home") {
                         navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
@@ -517,6 +516,12 @@ fun AppNavigation(
                 onNavigate = { route -> navController.navigate(route) }
             )
         }
+        composable("leaderboard") {
+            LeaderboardScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
         composable("withdrawal_account") {
             WithdrawalAccountScreen(
                 viewModel = viewModel,
@@ -537,6 +542,12 @@ fun AppNavigation(
         }
         composable("affiliate") {
             AffiliateScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("dice_results") {
+            DiceResultsScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )

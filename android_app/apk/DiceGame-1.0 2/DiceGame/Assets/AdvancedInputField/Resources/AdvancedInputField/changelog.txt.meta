@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 92f769e0787c7f84193a67bb1ee4a070
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Resources/AdvancedInputField/changelog.txt
+  uploadId: 485141

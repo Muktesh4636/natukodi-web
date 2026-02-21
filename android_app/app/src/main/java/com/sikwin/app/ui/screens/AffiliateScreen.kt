@@ -1,11 +1,13 @@
 package com.sikwin.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -20,6 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import android.content.Context
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.sikwin.app.R
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
@@ -85,344 +90,275 @@ fun AffiliateScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Hero Section
-            Surface(
+            // New Stylish Hero Section with Gradient
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                shape = RoundedCornerShape(20.dp),
-                color = SurfaceColor
+                    .height(220.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(PrimaryYellow.copy(alpha = 0.3f), BlackBackground)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Icon
-                    Surface(
-                        modifier = Modifier.size(80.dp),
-                        shape = CircleShape,
-                        color = PrimaryYellow.copy(alpha = 0.2f)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Campaign,
-                                contentDescription = null,
-                                tint = PrimaryYellow,
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        "Earn More, Refer More!",
-                        color = TextWhite,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Filled.CardGiftcard,
+                        contentDescription = null,
+                        tint = PrimaryYellow,
+                        modifier = Modifier.size(80.dp)
                     )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Invite friends and unlock milestone bonuses",
-                        color = TextGrey,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
+                        "Invite Friends & Win!",
+                        color = TextWhite,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        "Earn up to ₹10,000 for every friend",
+                        color = PrimaryYellow,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
-            
-            // Statistics Cards
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                StatCard(
-                    title = "Total Referrals",
-                    value = "${referralData?.total_referrals ?: 0}",
-                    icon = Icons.Filled.People,
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    title = "Active Referrals",
-                    value = "${referralData?.active_referrals ?: 0}",
-                    icon = Icons.Filled.CheckCircle,
-                    modifier = Modifier.weight(1f),
-                    color = GreenSuccess
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Total Earnings Card
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = SurfaceColor
-            ) {
+
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                // Stylish Referral Code Card
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-30).dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = SurfaceColor,
+                    shadowElevation = 8.dp
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "YOUR REFERRAL CODE",
+                            color = TextGrey,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(BlackBackground.copy(alpha = 0.5f))
+                                .padding(horizontal = 24.dp, vertical = 12.dp)
+                                .clickable {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                    val clip = android.content.ClipData.newPlainText("Referral Code", referralCode)
+                                    clipboard.setPrimaryClip(clip)
+                                    android.widget.Toast.makeText(context, "Code copied!", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                        ) {
+                            Text(
+                                referralCode,
+                                color = PrimaryYellow,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 2.sp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Icon(Icons.Default.ContentCopy, null, tint = PrimaryYellow, modifier = Modifier.size(20.dp))
+                        }
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    val shareMessage = "🎲 Join me on Gundu Ata and win big!\n\nUse my referral code: $referralCode\n\nDownload now: https://gunduata.com/signup?ref=$referralCode"
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TEXT, shareMessage)
+                                        setPackage("com.whatsapp")
+                                    }
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        val genericIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(Intent.EXTRA_TEXT, shareMessage)
+                                        }
+                                        context.startActivity(Intent.createChooser(genericIntent, "Share via"))
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(painterResource(id = R.drawable.ic_whatsapp), null, tint = Color.White, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("WhatsApp", fontWeight = FontWeight.Bold)
+                            }
+                            
+                            Button(
+                                onClick = {
+                                    val shareMessage = "🎲 Join me on Gundu Ata and win big!\n\nUse my referral code: $referralCode\n\nDownload now: https://gunduata.com/signup?ref=$referralCode"
+                                    val genericIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TEXT, shareMessage)
+                                    }
+                                    context.startActivity(Intent.createChooser(genericIntent, "Share via"))
+                                },
+                                modifier = Modifier.weight(1f).height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.Share, null, tint = BlackBackground, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Share", color = BlackBackground, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                // Stats Section
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column {
-                        Text(
-                            "Total Earnings",
-                            color = TextGrey,
-                            fontSize = 14.sp
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            "₹${referralData?.total_earnings ?: "0.00"}",
-                            color = PrimaryYellow,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Filled.AccountBalanceWallet,
-                        contentDescription = null,
-                        tint = PrimaryYellow,
-                        modifier = Modifier.size(32.dp)
+                    StatCard(
+                        title = "Total Referrals",
+                        value = "${referralData?.total_referrals ?: 0}",
+                        icon = Icons.Filled.People,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "Total Earned",
+                        value = "₹${referralData?.total_earnings ?: "0"}",
+                        icon = Icons.Filled.AccountBalanceWallet,
+                        modifier = Modifier.weight(1f),
+                        color = GreenSuccess
                     )
                 }
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Referral Code Section
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = SurfaceColor
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-                    Text(
-                        "Your Referral Code",
-                        color = PrimaryYellow,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            referralCode,
-                            color = TextWhite,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(onClick = {
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                            val clip = android.content.ClipData.newPlainText("Referral Code", referralCode)
-                            clipboard.setPrimaryClip(clip)
-                            android.widget.Toast.makeText(context, "Code copied!", android.widget.Toast.LENGTH_SHORT).show()
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.ContentCopy,
-                                contentDescription = "Copy",
-                                tint = PrimaryYellow,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Share Button
-            Button(
-                onClick = {
-                    val shareMessage = "🎲 Join me on Gundu Ata and win big!\n\nUse my referral code: $referralCode\n\nDownload now: https://gunduata.com/signup?ref=$referralCode"
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, shareMessage)
-                        setPackage("com.whatsapp")
-                    }
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        val genericIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, shareMessage)
-                        }
-                        context.startActivity(Intent.createChooser(genericIntent, "Share via"))
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_whatsapp),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Share on WhatsApp", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            // Milestone Progress Section
-            Text(
-                "Milestone Bonuses",
-                color = TextWhite,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                "Earn bonus rewards when you reach referral milestones!",
-                color = TextGrey,
-                fontSize = 14.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Next Milestone Progress
-            referralData?.next_milestone?.let { nextMilestone ->
-                if (nextMilestone.next_milestone != null) {
+
+                // Milestone Section
+                Text(
+                    "MILESTONE BONUSES",
+                    color = TextWhite,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Next Milestone
+                referralData?.next_milestone?.let { next ->
                     Surface(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                         shape = RoundedCornerShape(16.dp),
-                        color = SurfaceColor
+                        color = SurfaceColor,
+                        border = BorderStroke(1.dp, PrimaryYellow.copy(alpha = 0.5f))
                     ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp)
-                        ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    "Next Milestone",
-                                    color = TextWhite,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    "₹${nextMilestone.next_bonus.toInt()}",
-                                    color = PrimaryYellow,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Column {
+                                    Text("Next Reward", color = TextGrey, fontSize = 12.sp)
+                                    Text("₹${next.next_bonus.toInt()}", color = PrimaryYellow, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                                }
+                                Box(contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(
+                                        progress = { (next.progress_percentage / 100).toFloat().coerceIn(0f, 1f) },
+                                        modifier = Modifier.size(60.dp),
+                                        color = PrimaryYellow,
+                                        trackColor = Color.DarkGray,
+                                        strokeWidth = 6.dp
+                                    )
+                                    Text(
+                                        "${next.progress_percentage.toInt()}%",
+                                        color = TextWhite,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
-                            
                             Spacer(modifier = Modifier.height(12.dp))
-                            
                             Text(
-                                "${nextMilestone.current_progress} / ${nextMilestone.next_milestone} referrals",
-                                color = TextGrey,
-                                fontSize = 14.sp
-                            )
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            // Progress Bar
-                            LinearProgressIndicator(
-                                progress = { (nextMilestone.progress_percentage / 100).toFloat().coerceIn(0f, 1f) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(RoundedCornerShape(4.dp)),
-                                color = PrimaryYellow,
-                                trackColor = SurfaceColor.copy(alpha = 0.3f)
-                            )
-                            
-                            Spacer(modifier = Modifier.height(4.dp))
-                            
-                            Text(
-                                "${nextMilestone.next_milestone!! - nextMilestone.current_progress} more referrals needed",
-                                color = TextGrey,
-                                fontSize = 12.sp
+                                "Refer ${next.next_milestone!! - next.current_progress} more friends to unlock!",
+                                color = TextWhite,
+                                fontSize = 13.sp
                             )
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
-            }
-            
-            // All Milestones List
-            referralData?.milestones?.forEach { milestone ->
-                MilestoneCard(
-                    count = milestone.count,
-                    bonus = milestone.bonus,
-                    achieved = milestone.achieved,
-                    currentReferrals = referralData?.total_referrals ?: 0
+
+                // How it works
+                Text(
+                    "HOW IT WORKS",
+                    color = TextWhite,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Deposit-Based Bonus Rules
-            Text(
-                "Deposit Bonus Rules",
-                color = TextWhite,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = SurfaceColor
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = SurfaceColor
                 ) {
-                    BonusRuleItem("₹100 Deposit", "₹100 Bonus")
-                    BonusRuleItem("₹200 - ₹499 Deposit", "₹150 Bonus")
-                    BonusRuleItem("₹500 - ₹999 Deposit", "₹300 Bonus")
-                    BonusRuleItem("₹1000 - ₹4999 Deposit", "₹500 Bonus")
-                    BonusRuleItem("₹5000+ Deposit", "₹1000 Bonus")
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        StepItem("1", "Share your code with friends")
+                        StepDivider()
+                        StepItem("2", "Friend registers & deposits ₹100+")
+                        StepDivider()
+                        StepItem("3", "You get ₹100 instantly!")
+                        StepDivider()
+                        StepItem("4", "Unlock massive milestone bonuses")
+                    }
                 }
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Text(
-                "💡 Tip: The more friends you refer, the more milestone bonuses you unlock!",
-                color = TextGrey,
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
+}
+
+@Composable
+fun StepItem(number: String, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Surface(
+            modifier = Modifier.size(28.dp),
+            shape = CircleShape,
+            color = PrimaryYellow
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(number, color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(text, color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+fun StepDivider() {
+    Box(
+        modifier = Modifier
+            .padding(start = 13.dp)
+            .width(2.dp)
+            .height(20.dp)
+            .background(PrimaryYellow.copy(alpha = 0.3f))
+    )
 }
 
 @Composable

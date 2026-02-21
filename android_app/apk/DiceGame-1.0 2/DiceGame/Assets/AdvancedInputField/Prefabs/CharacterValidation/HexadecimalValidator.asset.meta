@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d7bad265328046d46bd735720e06f8d5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/CharacterValidation/HexadecimalValidator.asset
+  uploadId: 485141

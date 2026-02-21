@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2635b1c25ba78ab44bd02c3f6cc57d8b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Scripts/TextManipulation/Emoji/TMProEmojiAsset.cs
+  uploadId: 485141

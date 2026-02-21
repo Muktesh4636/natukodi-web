@@ -1,5 +1,8 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,13 +35,21 @@ fun DepositScreen(
     onNavigateToWithdraw: () -> Unit,
     onNavigateToPayment: (String, String) -> Unit
 ) {
-    var amount by remember { mutableStateOf(if (initialMethod == "USDT") "500" else "") }
+    var amount by remember { mutableStateOf(if (initialMethod == "USDT") "500" else "200") }
     var selectedMethod by remember { mutableStateOf(if (initialMethod == "USDT") "USDT" else "UPI") } // "Bank", "UPI", or "USDT"
-    var selectedOption by remember { mutableStateOf(if (initialMethod == "USDT") "usdt_trc20" else "upi(200-10k)") }
+    var selectedOption by remember { mutableStateOf(if (initialMethod == "USDT") "usdt_trc20" else "upi") }
+    
+    val focusManager = LocalFocusManager.current
+    var isAmountFocused by remember { mutableStateOf(false) }
+    var hasBeenFocused by remember { mutableStateOf(false) }
 
     val usdtExchangeRate = 95
     val usdtMinDeposit = 500
+    val normalMinDeposit = 200
     val usdtBonusPercent = 0.05
+
+    val currentMinDeposit = if (selectedMethod == "USDT") usdtMinDeposit else normalMinDeposit
+    val isAmountValid = amount.isNotBlank() && (amount.toIntOrNull() ?: 0) >= currentMinDeposit
 
     val usdtAmount = if (selectedMethod == "USDT" && amount.isNotBlank()) {
         try {
@@ -65,6 +76,12 @@ fun DepositScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BlackBackground)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { 
+                focusManager.clearFocus() 
+            }
             .verticalScroll(rememberScrollState())
     ) {
         // Header
@@ -96,16 +113,25 @@ fun DepositScreen(
                 PaymentTab("Bank", selectedMethod == "Bank") { 
                     selectedMethod = "Bank"
                     selectedOption = "bank"
+                    if (amount.isBlank() || (amount.toIntOrNull() ?: 0) < normalMinDeposit) {
+                        amount = normalMinDeposit.toString()
+                    }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 PaymentTab("UPI", selectedMethod == "UPI") { 
                     selectedMethod = "UPI"
-                    selectedOption = "upi(200-10k)"
+                    selectedOption = "upi"
+                    if (amount.isBlank() || (amount.toIntOrNull() ?: 0) < normalMinDeposit) {
+                        amount = normalMinDeposit.toString()
+                    }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 PaymentTab("USDT", selectedMethod == "USDT") { 
                     selectedMethod = "USDT"
                     selectedOption = "usdt_trc20"
+                    if (amount.isBlank() || (amount.toIntOrNull() ?: 0) < usdtMinDeposit) {
+                        amount = usdtMinDeposit.toString()
+                    }
                 }
             }
 
@@ -116,10 +142,10 @@ fun DepositScreen(
             ) {
                 when (selectedMethod) {
                     "UPI" -> {
-                        PaymentOptionCard("upi (200-10k)", selectedOption == "upi(200-10k)") { selectedOption = "upi(200-10k)" }
+                        PaymentOptionCard("upi", selectedOption == "upi") { selectedOption = "upi" }
                     }
                     "Bank" -> {
-                        PaymentOptionCard("BANK(200-200k)", selectedOption == "bank") { selectedOption = "bank" }
+                        PaymentOptionCard("BANK", selectedOption == "bank") { selectedOption = "bank" }
                     }
                     "USDT" -> {
                         PaymentOptionCard("USDT (TRC20)", selectedOption == "usdt_trc20") { selectedOption = "usdt_trc20" }
@@ -172,7 +198,12 @@ fun DepositScreen(
                     // Filter to allow only digits
                     amount = newValue.filter { it.isDigit() }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                        isAmountFocused = focusState.isFocused
+                        if (focusState.isFocused) hasBeenFocused = true
+                    },
                 placeholder = { Text("Please enter the deposit amount", color = TextGrey) },
                 leadingIcon = { Text("₹", color = TextGrey, fontSize = 20.sp, modifier = Modifier.padding(start = 12.dp)) },
                 suffix = {
@@ -180,16 +211,27 @@ fun DepositScreen(
                         Text("≈ ${String.format("%.2f", usdtAmount)} USDT", color = PrimaryYellow, fontSize = 14.sp)
                     }
                 },
+                isError = !isAmountValid && !isAmountFocused && hasBeenFocused,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 containerColor = SurfaceColor,
                 unfocusedBorderColor = BorderColor,
                 focusedBorderColor = PrimaryYellow,
+                errorBorderColor = Color.Red,
                 focusedTextColor = TextWhite,
                 unfocusedTextColor = TextWhite
             ),
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
+
+            if (!isAmountValid && !isAmountFocused && hasBeenFocused) {
+                Text(
+                    text = "Minimum deposit is ₹$currentMinDeposit",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                )
+            }
 
             if (selectedMethod == "USDT" && bonusAmount > 0) {
                 Text(
@@ -221,19 +263,19 @@ fun DepositScreen(
 
             Button(
                 onClick = { 
-                    if (amount.isNotBlank()) {
-                        if (selectedMethod == "USDT" && amount.toInt() < usdtMinDeposit) {
-                            viewModel.errorMessage = "Minimum deposit for USDT is ₹$usdtMinDeposit"
-                            return@Button
-                        }
+                    if (isAmountValid) {
                         onNavigateToPayment(amount, selectedOption)
                     }
                 },
+                enabled = isAmountValid,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryYellow,
+                    disabledContainerColor = PrimaryYellow.copy(alpha = 0.5f)
+                ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Submit", color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Submit", color = if (isAmountValid) BlackBackground else BlackBackground.copy(alpha = 0.5f), fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
             
             Spacer(modifier = Modifier.height(24.dp))

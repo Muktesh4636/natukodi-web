@@ -1,5 +1,8 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.animation.core.*
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -59,19 +62,41 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(40.dp))
         
         // Header
-        Text(
-            text = "Welcome back",
-            style = MaterialTheme.typography.headlineMedium,
-            color = TextWhite,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Start)
+        val infiniteTransition = rememberInfiniteTransition(label = "shimmerEffect")
+        val shimmerOffset by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "shimmerOffset"
         )
-        Text(
-            text = "Please enter your phone number and password to log in",
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextGrey,
-            modifier = Modifier.align(Alignment.Start)
+
+        val shimmerBrush = Brush.linearGradient(
+            colors = listOf(
+                PrimaryYellow,
+                Color.White,
+                PrimaryYellow
+            ),
+            start = androidx.compose.ui.geometry.Offset(shimmerOffset - 300f, shimmerOffset - 300f),
+            end = androidx.compose.ui.geometry.Offset(shimmerOffset, shimmerOffset)
         )
+
+        Column(modifier = Modifier.align(Alignment.Start)) {
+            Text(
+                text = "Welcome back",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    brush = shimmerBrush
+                ),
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = "Please enter your phone number and password to log in",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextGrey
+            )
+        }
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -151,18 +176,6 @@ fun LoginScreen(
             Text("Sign-in", color = BlackBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Sign-up Button
-        OutlinedButton(
-            onClick = onNavigateToSignUp,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            border = BorderStroke(1.dp, PrimaryYellow),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Sign-up", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
@@ -173,5 +186,19 @@ fun LoginScreen(
                 Text("Forgot password", color = TextGrey)
             }
         }
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        // Sign-up Button moved somewhat upside (not at the very bottom)
+        OutlinedButton(
+            onClick = onNavigateToSignUp,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            border = BorderStroke(1.dp, PrimaryYellow),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Sign-up", color = PrimaryYellow, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

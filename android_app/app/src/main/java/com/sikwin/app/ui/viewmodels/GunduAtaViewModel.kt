@@ -1,6 +1,7 @@
 package com.sikwin.app.ui.viewmodels
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -82,6 +83,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
 
         val lower = raw.lowercase()
         return when {
+            lower.contains("already has a pending request") || 
+            lower.contains("pending withdraw request") -> "Withdrawal already in processing"
             lower.contains("500") || lower.contains("internal server error") -> "Server error. Please try again later."
             lower.contains("502") || lower.contains("bad gateway") -> "Server is busy. Please try again later."
             lower.contains("503") || lower.contains("service unavailable") -> "Service temporarily unavailable. Please try again."
@@ -122,11 +125,20 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     
     var loginSuccess by mutableStateOf(false)
     
+    // Logo click tracking
+    var logoClickCount by mutableIntStateOf(0)
+    
+    fun incrementLogoClickCount() {
+        logoClickCount++
+    }
+    
     // App Update state
     var showUpdateDialog by mutableStateOf(false)
     var updateUrl by mutableStateOf<String?>(null)
     var isForceUpdate by mutableStateOf(false)
     var latestVersionName by mutableStateOf<String?>(null)
+    
+    var recentResults by mutableStateOf<List<RecentRoundResult>>(emptyList())
     
     // Timer pre-loading state
     var preLoadedTimer by mutableStateOf<Int?>(null)
@@ -179,7 +191,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 
                 // Now add the timer specific fields
                 val context = sessionManager.getContext()
-                val unityPrefsName = "${context.packageName}.v2.playerprefs"
+                val standalonePackageName = "com.company.dicegame"
+                val unityPrefsName = "$standalonePackageName.v2.playerprefs"
                 val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
                 unityPrefs.edit()
                     .putInt("preloaded_timer", timer)
@@ -228,6 +241,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
                         sessionManager.savePassword(password)
+                        sessionManager.saveReferralCode(it.user.referral_code)
                         
                         // Sync auth to Unity PlayerPrefs
                         sessionManager.syncAuthToUnity()
@@ -296,6 +310,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         sessionManager.saveRefreshToken(it.refresh)
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
+                        sessionManager.saveReferralCode(it.user.referral_code)
                         // Note: We don't save password for OTP login
                         
                         // Sync auth to Unity PlayerPrefs
@@ -314,6 +329,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         }
                         
                         userProfile = it.user
+                        sessionManager.saveReferralCode(it.user.referral_code)
                         loginSuccess = true
                         otpSent = false // Reset OTP state
                     }
@@ -390,6 +406,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         }
                         
                         userProfile = it.user
+                        sessionManager.saveReferralCode(it.user.referral_code)
                         loginSuccess = true
                     }
                 } else {
@@ -409,7 +426,9 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             try {
                 val response = RetrofitClient.apiService.getProfile()
                 if (response.isSuccessful) {
-                    userProfile = response.body()
+                    val profile = response.body()
+                    userProfile = profile
+                    sessionManager.saveReferralCode(profile?.referral_code)
                 }
             } catch (e: Exception) {
                 errorMessage = handleException(e)
@@ -423,6 +442,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 val response = RetrofitClient.apiService.getWallet()
                 if (response.isSuccessful) {
                     wallet = response.body()
+                    // Re-fetch betting history to update ranking whenever wallet is refreshed
+                    fetchBettingHistory()
                 }
             } catch (e: Exception) {
                 errorMessage = handleException(e)
@@ -514,7 +535,14 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             try {
                 val response = RetrofitClient.apiService.getBettingHistory()
                 if (response.isSuccessful) {
-                    bettingHistory = response.body() ?: emptyList()
+                    val history = response.body() ?: emptyList()
+                    bettingHistory = history
+                    
+                    // Calculate total rotation from betting history to update ranking
+                    // chip_amount is the field name in the Bet model
+                    val totalRotation = history.sumOf { it.chip_amount.toDoubleOrNull() ?: 0.0 }
+                    userRotationMoney = totalRotation
+                    calculateUserRank()
                 }
             } catch (e: Exception) {
                 android.util.Log.e("GunduAtaViewModel", "Fetch betting history failed: ${e.message}")
@@ -874,6 +902,14 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
 
     fun logout() {
         sessionManager.logout()
+        
+        // Notify Unity to logout
+        try {
+            com.sikwin.app.utils.UnityTokenHelper.sendLogoutToUnity()
+        } catch (e: Exception) {
+            android.util.Log.d("GunduAtaViewModel", "Unity not running, logout signal skipped: ${e.message}")
+        }
+
         userProfile = null
         wallet = null
         transactions = emptyList()
@@ -885,8 +921,9 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
 
     fun clearUnityAuthentication(context: android.content.Context) {
         try {
-            // Clear Unity PlayerPrefs
-            val unityPrefsName = "${context.packageName}.v2.playerprefs"
+            // Clear Unity PlayerPrefs for standalone app
+            val standalonePackageName = "com.company.dicegame"
+            val unityPrefsName = "$standalonePackageName.v2.playerprefs"
             val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
             unityPrefs.edit().clear().apply()
 
@@ -930,6 +967,70 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 }
             } catch (e: Exception) {
                 android.util.Log.e("GunduAtaViewModel", "Update check failed: ${e.message}")
+            }
+        }
+    }
+
+    fun fetchRecentRoundResults(count: Int = 20) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val response = RetrofitClient.apiService.getRecentRoundResults(count)
+                if (response.isSuccessful) {
+                    recentResults = response.body() ?: emptyList()
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GunduAtaViewModel", "Fetch recent results failed: ${e.message}")
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    // Leaderboard and Ranking logic
+    var userRank by mutableIntStateOf(0)
+    var userRotationMoney by mutableStateOf(0.0)
+
+    fun updateUserRotation(amount: Double) {
+        userRotationMoney += amount
+        calculateUserRank()
+    }
+
+    private fun calculateUserRank() {
+        // Logic: Rank decreases (gets better) as rotation money increases.
+        // If rotation is 0, rank is 0 (unranked).
+        if (userRotationMoney <= 0) {
+            userRank = 0
+            return
+        }
+
+        // Stable ranking logic based on rotation money:
+        // Rank 1: > 1,00,000 rotation
+        // Rank 2: > 75,000
+        // Rank 3: > 50,000
+        // Rank 4: > 40,000
+        // Rank 5: > 30,000
+        // Rank 6: > 25,000
+        // Rank 7: > 20,000
+        // Rank 8: > 15,000
+        // Rank 9: > 10,000
+        // Rank 10: > 5,000
+        userRank = when {
+            userRotationMoney > 100000 -> 1
+            userRotationMoney > 75000 -> 2
+            userRotationMoney > 50000 -> 3
+            userRotationMoney > 40000 -> 4
+            userRotationMoney > 30000 -> 5
+            userRotationMoney > 25000 -> 6
+            userRotationMoney > 20000 -> 7
+            userRotationMoney > 15000 -> 8
+            userRotationMoney > 10000 -> 9
+            userRotationMoney > 5000 -> 10
+            else -> {
+                // For lower rotations, calculate a stable rank between 11 and 100
+                // Higher rotation = lower rank number
+                val calculated = 100 - (userRotationMoney / 5000 * 90).toInt()
+                calculated.coerceIn(11, 100)
             }
         }
     }

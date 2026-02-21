@@ -52,32 +52,26 @@ class User(AbstractUser):
     def generate_unique_referral_code(self):
         """
         Generate a unique referral code for this user.
-        Format: GunduAta + 3 random digits (e.g., GunduAta123)
+        Format: Gunduata + 6 random digits
         """
         max_attempts = 100
         for _ in range(max_attempts):
-            # Generate code in format: GunduAta + 3 random digits
-            random_digits = ''.join(random.choices(string.digits, k=3))
-            code = f"GunduAta{random_digits}"
+            # Generate code in format: Gunduata + 6 random digits
+            random_digits = ''.join(random.choices(string.digits, k=6))
+            code = f"Gunduata{random_digits}"
 
             # Check if code already exists (excluding current user)
             if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
                 return code
 
-        # Fallback: Use GunduAta + 4 digits if 3-digit codes are exhausted (extremely rare)
-        for _ in range(max_attempts):
-            random_digits = ''.join(random.choices(string.digits, k=4))
-            code = f"GunduAta{random_digits}"
-            if not User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
-                return code
-
-        # Last resort: timestamp-based (should never reach here)
+        # Fallback: Use timestamp-based
         import time
-        code = f"GunduAta{int(time.time()) % 1000000:06d}"
+        code = f"Gunduata{int(time.time()) % 1000000:06d}"
         return code
     
     def save(self, *args, **kwargs):
-        # Ensure referral code is generated if missing (independent of worker system)
+        # Ensure referral code is generated if missing
+        # If it already exists, don't allow it to be overwritten by an empty value
         if not self.referral_code:
             self.referral_code = self.generate_unique_referral_code()
         super().save(*args, **kwargs)
@@ -86,8 +80,8 @@ class User(AbstractUser):
 class Wallet(models.Model):
     """User wallet for managing balance"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-    unavaliable_balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), help_text="Amount currently locked or unavaliable for withdrawal")
+    balance = models.BigIntegerField(default=0)
+    unavaliable_balance = models.BigIntegerField(default=0, help_text="Amount currently locked or unavaliable for withdrawal")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -133,7 +127,7 @@ class Wallet(models.Model):
 class DailyReward(models.Model):
     """Daily reward spin for users"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_rewards')
-    reward_amount = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal('0.00'))
+    reward_amount = models.BigIntegerField(default=0)
     reward_type = models.CharField(max_length=20, choices=[
         ('MONEY', 'Money Reward'),
         ('TRY_AGAIN', 'Try Again'),
@@ -153,8 +147,8 @@ class LuckyDraw(models.Model):
     """Lucky draw spin based on bank transfer deposits"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lucky_draws')
     deposit_request = models.ForeignKey('DepositRequest', on_delete=models.CASCADE, related_name='lucky_draws')
-    reward_amount = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal('0.00'))
-    deposit_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reward_amount = models.BigIntegerField(default=0)
+    deposit_amount = models.BigIntegerField()
     claimed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -178,9 +172,9 @@ class Transaction(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    balance_before = models.DecimalField(max_digits=10, decimal_places=2)
-    balance_after = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.BigIntegerField()
+    balance_before = models.BigIntegerField()
+    balance_after = models.BigIntegerField()
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -200,7 +194,7 @@ class DepositRequest(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deposit_requests')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.BigIntegerField()
     screenshot = models.ImageField(upload_to='deposit_screenshots/')
     payment_method = models.ForeignKey('PaymentMethod', on_delete=models.SET_NULL, null=True, blank=True, related_name='deposit_requests')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
@@ -230,11 +224,12 @@ class WithdrawRequest(models.Model):
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
+        ('COMPLETED', 'Payment Completed'),
         ('REJECTED', 'Rejected'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdraw_requests')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.BigIntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     # Withdrawal details (e.g., UPI ID, Bank details)
     withdrawal_method = models.CharField(max_length=50, blank=True)
@@ -251,6 +246,7 @@ class WithdrawRequest(models.Model):
     )
     processed_at = models.DateTimeField(null=True, blank=True)
     admin_note = models.TextField(blank=True)
+    utr_number = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -284,7 +280,7 @@ class PaymentMethod(models.Model):
     is_active = models.BooleanField(default=True)
     usdt_network = models.CharField(max_length=50, blank=True, null=True, default='')
     usdt_wallet_address = models.CharField(max_length=100, blank=True, null=True, default='')
-    usdt_exchange_rate = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('90.00'), help_text="1 USDT = X Rupees")
+    usdt_exchange_rate = models.BigIntegerField(default=90, help_text="1 USDT = X Rupees")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

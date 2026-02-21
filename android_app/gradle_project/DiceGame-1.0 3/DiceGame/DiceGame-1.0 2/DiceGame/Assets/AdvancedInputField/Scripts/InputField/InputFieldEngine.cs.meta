@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b2187b91bf8fb7f42ab2ecc17aebbd58
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Scripts/InputField/InputFieldEngine.cs
+  uploadId: 485141

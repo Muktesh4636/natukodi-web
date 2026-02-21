@@ -1,0 +1,8 @@
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/GameActivity/CMakeFiles/game.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/FramePacing/CMakeFiles/edit_cache.dir
+/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a/FramePacing/CMakeFiles/rebuild_cache.dir

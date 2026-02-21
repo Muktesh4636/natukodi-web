@@ -1,5 +1,7 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -22,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.sikwin.app.R
@@ -38,9 +41,12 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.ui.PlayerView
 import android.net.Uri
+import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.zIndex
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,9 +81,6 @@ fun HomeScreen(
         )
     }
     
-    // Pass onNavigate to PromotionalBanners
-    PromotionalBanners(viewModel, onNavigate)
-    
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -104,6 +107,7 @@ fun HomeScreen(
     Scaffold(
         topBar = { 
             HomeTopBar(
+                viewModel = viewModel,
                 balance = viewModel.wallet?.balance ?: "0.00",
                 isLoggedIn = viewModel.loginSuccess,
                 onWalletClick = { onNavigate("wallet") },
@@ -129,7 +133,7 @@ fun HomeScreen(
                 
                 // Hot Games
                 SectionHeader(title = "Hot games")
-                HotGamesGrid(onGameClick)
+                HotGamesGrid(viewModel, onGameClick, onNavigate)
             } else {
                 // Search Results
                 SectionHeader(title = "Search Results")
@@ -167,12 +171,14 @@ fun HomeScreen(
 
 @Composable
 fun HomeTopBar(
-    balance: String, 
+    viewModel: GunduAtaViewModel,
+    balance: String,
     isLoggedIn: Boolean,
     onWalletClick: () -> Unit,
     onDepositClick: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -183,7 +189,14 @@ fun HomeTopBar(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onNavigate("gundu_ata") }
+            modifier = Modifier.clickable { 
+                if (viewModel.logoClickCount == 0) {
+                    viewModel.incrementLogoClickCount()
+                    onNavigate("gundu_ata")
+                } else {
+                    onNavigate("me")
+                }
+            }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.app_logo),
@@ -201,19 +214,40 @@ fun HomeTopBar(
             )
         }
         
-        if (isLoggedIn) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // WhatsApp Icon
+            IconButton(
+                onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        intent.data = Uri.parse("https://wa.me/919999999999") // Replace with actual support number
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // Fallback
+                    }
+                },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_whatsapp),
+                    contentDescription = "WhatsApp",
+                    tint = Color(0xFF25D366), // WhatsApp Green
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(8.dp))
+
+            if (isLoggedIn) {
                 // Balance Pill
                 Surface(
                     color = SurfaceColor,
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.padding(end = 12.dp)
+                    shape = RoundedCornerShape(20.dp)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Balance text - clickable to go to deposit
                         Row(
                             modifier = Modifier.clickable { onDepositClick() },
                             verticalAlignment = Alignment.CenterVertically
@@ -223,7 +257,6 @@ fun HomeTopBar(
                             Text(balance, color = TextWhite, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        // Plus icon - clickable to go to deposit
                         Icon(
                             Icons.Default.AddBox,
                             contentDescription = "Add money",
@@ -234,32 +267,30 @@ fun HomeTopBar(
                         )
                     }
                 }
-            }
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(
-                    onClick = { onNavigate("login") }
-                ) {
-                    Text(
-                        text = "Login",
-                        color = TextWhite,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { onNavigate("signup") },
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
-                    shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Register",
-                        color = BlackBackground,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { onNavigate("login") }) {
+                        Text(
+                            text = "Login",
+                            color = TextWhite,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { onNavigate("signup") },
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),
+                        shape = RoundedCornerShape(20.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "Register",
+                            color = BlackBackground,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
         }
@@ -317,9 +348,8 @@ fun PromotionalBanners(
         pageCount = { virtualCount }
     )
 
-    // Prevent multiple rapid clicks
     var lastClickTime by remember { mutableStateOf(0L) }
-    val clickCooldown = 1000L // 1 second cooldown
+    val clickCooldown = 1000L
 
     fun handleBannerClick(route: String) {
         if (!viewModel.loginSuccess) {
@@ -367,12 +397,7 @@ fun PromotionalBanners(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
                     Text(banner.title, color = PrimaryYellow, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp)
-                    Text(
-                        banner.subtitle, 
-                        color = TextWhite, 
-                        fontWeight = FontWeight.Bold,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
+                    Text(banner.subtitle, color = TextWhite, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         onClick = banner.onClick,
@@ -385,7 +410,6 @@ fun PromotionalBanners(
             }
         }
         
-        // Indicators
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -427,134 +451,335 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun HotGamesGrid(onGameClick: (String) -> Unit) {
-    // Grid for hot games - Only Gundu Ata
-    val games = listOf(
-        GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0))
-    )
+fun HotGamesGrid(viewModel: GunduAtaViewModel, onGameClick: (String) -> Unit, onNavigate: (String) -> Unit) {
+    val games = listOf(GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0)))
+    val context = LocalContext.current
     
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        games.forEach { game ->
-            GameCard(game, Modifier.fillMaxWidth(0.5f), onGameClick)
+    // List of fake winning names and amounts
+    val baseWinnings = remember {
+        listOf(
+            "Muktesh", "Sai Krishna", "Mahesh", "Rahul", "Priya", "Vikram", "Anjali", "Suresh", "Kiran", "Deepak",
+            "Amit", "Sneha", "Rohan", "Neha", "Arjun", "Pooja", "Karan", "Ishita", "Sanjay", "Ritu",
+            "Vijay", "Anita", "Rajesh", "Sunita", "Manoj", "Kavita", "Vinay", "Meena", "Sandeep", "Rekha",
+            "Abhishek", "Swati", "Prashant", "Aarti", "Alok", "Shweta", "Vivek", "Jyoti", "Ashish", "Priyanka",
+            "Manish", "Rani", "Dinesh", "Sonia", "Harish", "Preeti", "Naveen", "Madhu", "Pankaj", "Seema",
+            "Rakesh", "Anu", "Om", "Lata", "Ram", "Gita", "Shyam", "Radha", "Krishna", "Meera",
+            "Bala", "Lakshmi", "Murugan", "Parvati", "Ganesh", "Saraswati", "Kartik", "Durga", "Shiva", "Kali",
+            "Mohan", "Indira", "Jawahar", "Sarojini", "Subhash", "Aruna", "Bhagat", "Kamala", "Sardar", "Kasturba",
+            "Vikram", "Kalpana", "Homi", "Shakuntala", "C.V. Raman", "Janaki", "Visvesvaraya", "Asima", "Srinivasa", "Tessy",
+            "Sachin", "Mithali", "Virat", "Mary Kom", "Dhoni", "Saina", "Kapil", "Sindhu", "Sunil", "Dipa",
+            "Aamir", "Deepika", "Shah Rukh", "Alia", "Salman", "Priyanka", "Akshay", "Kareena", "Hrithik", "Katrina",
+            "Ranbir", "Anushka", "Ranveer", "Sonam", "Varun", "Shraddha", "Siddharth", "Jacqueline", "Tiger", "Disha",
+            "Ayushmann", "Taapsee", "Rajkummar", "Bhumi", "Vicky", "Kriti", "Kartik", "Kiara", "Ishaan", "Sara",
+            "Aditya", "Janhvi", "Ananya", "Tara", "Ishaan", "Rakul", "Vijay", "Rashmika", "Dulquer", "Sai Pallavi",
+            "Prabhas", "Samantha", "Mahesh Babu", "Nayanthara", "Allu Arjun", "Keerthy", "Ram Charan", "Trisha", "NTR Jr", "Tamannaah",
+            "Yash", "Pooja Hegde", "Sudeep", "Anupama", "Darshan", "Rashmika", "Puneeth", "Srinidhi", "Rishab", "Sapthami",
+            "Fahadh", "Nazriya", "Prithviraj", "Parvathy", "Nivin", "Manju", "Tovino", "Keerthy", "Dulquer", "Aishwarya",
+            "Suriya", "Jyothika", "Karthi", "Nayanthara", "Dhanush", "Sai Pallavi", "Vijay Sethupathi", "Keerthy", "Sivakarthikeyan", "Trisha",
+            "Mammootty", "Shobana", "Mohanlal", "Revathi", "Jayaram", "Urvashi", "Suresh Gopi", "Geetha", "Dileep", "Kavya",
+            "Amir", "Zahra", "Omar", "Fatima", "Ali", "Maryam", "Hassan", "Aisha", "Hussein", "Khadija",
+            "John", "Mary", "David", "Sarah", "Michael", "Elizabeth", "James", "Jennifer", "Robert", "Linda",
+            "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Margaret", "Charles", "Karen",
+            "Christopher", "Nancy", "Daniel", "Lisa", "Matthew", "Betty", "Anthony", "Dorothy", "Mark", "Sandra",
+            "Donald", "Ashley", "Steven", "Kimberly", "Paul", "Donna", "Andrew", "Emily", "Joshua", "Michelle",
+            "Kenneth", "Carol", "Kevin", "Amanda", "Brian", "Melissa", "George", "Deborah", "Timothy", "Stephanie",
+            "Ronald", "Rebecca", "Edward", "Laura", "Jason", "Sharon", "Jeffrey", "Cynthia", "Ryan", "Kathleen",
+            "Jacob", "Amy", "Gary", "Shirley", "Nicholas", "Angela", "Eric", "Helen", "Jonathan", "Anna",
+            "Stephen", "Brenda", "Larry", "Pamela", "Justin", "Nicole", "Scott", "Emma", "Brandon", "Samantha",
+            "Benjamin", "Katherine", "Samuel", "Christine", "Gregory", "Debra", "Alexander", "Rachel", "Frank", "Catherine",
+            "Patrick", "Carolyn", "Raymond", "Janet", "Jack", "Ruth", "Dennis", "Maria", "Jerry", "Heather",
+            "Tyler", "Diane", "Aaron", "Virginia", "Jose", "Julie", "Adam", "Joyce", "Nathan", "Victoria",
+            "Henry", "Olivia", "Douglas", "Kelly", "Zachary", "Christina", "Peter", "Lauren", "Kyle", "Joan",
+            "Ethan", "Evelyn", "Walter", "Judith", "Noah", "Megan", "Jeremy", "Cheryl", "Christian", "Andrea",
+            "Keith", "Hannah", "Roger", "Martha", "Terry", "Jacqueline", "Gerald", "Frances", "Harold", "Gloria",
+            "Sean", "Ann", "Austin", "Teresa", "Carl", "Kathryn", "Arthur", "Sara", "Lawrence", "Janice",
+            "Dylan", "Jean", "Jesse", "Alice", "Jordan", "Madison", "Bryan", "Doris", "Billy", "Abigail",
+            "Joe", "Julia", "Bruce", "Judy", "Gabriel", "Grace", "Logan", "Denise", "Albert", "Amber",
+            "Willie", "Marilyn", "Alan", "Beverly", "Juan", "Danielle", "Wayne", "Theresa", "Elijah", "Sophia",
+            "Randy", "Marie", "Roy", "Diana", "Vincent", "Brittany", "Ralph", "Natalie", "Eugene", "Isabella",
+            "Russell", "Charlotte", "Bobby", "Rose", "Mason", "Alexis", "Philip", "Kayla", "Louis", "Alice",
+            "Aarav", "Aanya", "Vivaan", "Diya", "Aditya", "Pari", "Vihaan", "Ananya", "Arjun", "Saanvi",
+            "Sai", "Ira", "Reyansh", "Avni", "Krishna", "Prisha", "Ishaan", "Riya", "Shaurya", "Aadhya",
+            "Aryan", "Myra", "Ayush", "Anika", "Atharv", "Navya", "Ganesh", "Kavya", "Advait", "Ishani",
+            "Kabir", "Zoya", "Tushar", "Kiara", "Naksh", "Sara", "Arnav", "Vanya", "Rudr", "Shanaya",
+            "Shivansh", "Kyra", "Kian", "Siya", "Veer", "Inaya", "Aaryan", "Aavya", "Rudra", "Amaira",
+            "Vedant", "Mishka", "Kush", "Anvi", "Yash", "Aarna", "Dev", "Sana", "Rohan", "Zara",
+            "Aadi", "Hazel", "Dhruv", "Aayat", "Kabir", "Meher", "Viaan", "Amaya", "Darsh", "Kaira",
+            "Ranbir", "Miraya", "Agastya", "Riddhima", "Abeer", "Anaya", "Yuvan", "Shanaya", "Ishaan", "Zoya"
+        )
+    }
+    
+    val winnings = remember(baseWinnings, viewModel.userProfile, viewModel.bettingHistory) {
+        val list = baseWinnings.map { "$it +${(100..5000).random()}" }.toMutableList()
+        
+        // Add current user if they have placed a bet
+        val currentUser = viewModel.userProfile?.username
+        if (currentUser != null && viewModel.bettingHistory.isNotEmpty()) {
+            list.add(0, "$currentUser +${(100..2000).random()}")
+        }
+        list
+    }
+    
+    // State to track active winning particles
+    val activeWinnings = remember { mutableStateListOf<WinningParticle>() }
+    var nextId by remember { mutableIntStateOf(0) }
+    
+    // Use a unique key for the LaunchedEffect to ensure it's tied to the composition lifecycle
+    // and doesn't duplicate on activity/fragment recreation from recent tabs
+    LaunchedEffect(Unit) {
+        // CRITICAL FIX: Clear any existing particles to avoid duplicates on resume/re-entry
+        activeWinnings.clear()
+        
+        // Wait for 2 seconds before starting the animation after re-entry
+        delay(2000)
+        
+        while (true) {
+            val name = if (winnings.isNotEmpty()) winnings.random() else "Player +100"
+            activeWinnings.add(WinningParticle(id = nextId++, text = name))
+            delay(1200) // Spawn a new name every 1.2 seconds for continuous flow
         }
     }
+    
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Game Card centered
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            games.forEach { game ->
+                GameCard(game, Modifier.fillMaxWidth(0.5f), onGameClick)
+            }
+        }
+        
+                // Treasury Box Icon and Continuous Winnings Animation
+                val treasuryBoxId = context.resources.getIdentifier("ic_treasury_box", "drawable", context.packageName)
+                if (treasuryBoxId != 0) {
+                    // Real-box shake animation logic
+                    val infiniteTransition = rememberInfiniteTransition(label = "shake")
+                    
+                    // Rotation for side-to-side wobble
+                    val shakeRotation by infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = keyframes {
+                                durationMillis = 6000 // Total cycle: 6 seconds
+                                0f at 0
+                                0f at 5500 // Wait for 5.5 seconds
+                                -8f at 5600 // Start shaking
+                                8f at 5700
+                                -6f at 5800
+                                6f at 5900
+                                0f at 6000 // End shake
+                            },
+                            repeatMode = RepeatMode.Restart
+                        ),
+                        label = "shakeRotation"
+                    )
+
+                    // Scale for a "jumpy" effect
+                    val shakeScale by infiniteTransition.animateFloat(
+                        initialValue = 1f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = keyframes {
+                                durationMillis = 6000 // Total cycle: 6 seconds
+                                1f at 0
+                                1f at 5500
+                                1.15f at 5650
+                                1f at 5800
+                                1.1f at 5900
+                                1f at 6000
+                            },
+                            repeatMode = RepeatMode.Restart
+                        ),
+                        label = "shakeScale"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .offset(y = 10.dp, x = 45.dp),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        // Treasury Box Image (SHAKING) - Layered behind names initially
+                        Box(
+                            modifier = Modifier
+                                .zIndex(1f) // Ensure box is below names that have come out
+                                .graphicsLayer(
+                                    rotationZ = shakeRotation,
+                                    scaleX = shakeScale,
+                                    scaleY = shakeScale,
+                                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 1f)
+                                )
+                        ) {
+                            Image(
+                                painter = painterResource(id = treasuryBoxId),
+                                contentDescription = "Treasury Box",
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clickable { onNavigate("leaderboard") },
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+
+                        // Continuous Winnings Particles container (STABLE - No shake)
+                        // Positioned so names start inside/behind the box
+                        Box(
+                            modifier = Modifier
+                                .width(150.dp)
+                                .height(200.dp)
+                                .zIndex(2f), // Names appear on top of the box
+                            contentAlignment = Alignment.BottomCenter
+                        ) {
+                            activeWinnings.forEach { particle ->
+                                key(particle.id) {
+                                    WinningTextParticle(
+                                        text = particle.text,
+                                        onAnimationFinished = { activeWinnings.remove(particle) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+    }
+}
+
+data class WinningParticle(val id: Int, val text: String)
+
+@Composable
+fun WinningTextParticle(text: String, onAnimationFinished: () -> Unit) {
+    // Animation state for vertical movement and alpha
+    val animProgress = remember { androidx.compose.animation.core.Animatable(0f) }
+    
+    LaunchedEffect(Unit) {
+        animProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 3000, easing = LinearEasing)
+        )
+        onAnimationFinished()
+    }
+    
+    // Calculate offset and alpha based on progress
+    // Start from y=0 (inside box) and move up to -150dp
+    val yOffset = - (animProgress.value * 150).dp 
+    
+    // Fade in quickly at start, then stay visible, then fade out at end
+    val alpha = when {
+        animProgress.value < 0.1f -> animProgress.value / 0.1f // Faster fade in
+        animProgress.value > 0.7f -> 1f - (animProgress.value - 0.7f) / 0.3f // Fade out
+        else -> 1f
+    }
+    
+    // Scale up slightly as it "pops" out of the box
+    val scale = if (animProgress.value < 0.2f) {
+        0.5f + (animProgress.value / 0.2f) * 0.5f
+    } else 1f
+    
+    Text(
+        text = text,
+        color = PrimaryYellow,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+            .offset(y = yOffset)
+            .graphicsLayer(
+                alpha = alpha,
+                scaleX = scale,
+                scaleY = scale
+            )
+    )
 }
 
 data class GameItem(val name: String, val id: String, val color: Color)
 
 @Composable
 fun GameCard(game: GameItem, modifier: Modifier, onGameClick: (String) -> Unit) {
-    Column(
+    val context = LocalContext.current
+    Box(
         modifier = modifier.clickable { onGameClick(game.id) },
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentAlignment = Alignment.BottomCenter
     ) {
-        Box(
-            modifier = Modifier
-                .aspectRatio(0.7f)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(game.color),
-            contentAlignment = Alignment.BottomCenter
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (game.id == "gundu_ata") {
-                VideoPlayer(
-                    videoResId = R.raw.gundu_ata_video,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.gundu_ata_bg),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                
-                Text(
-                    game.name,
-                    color = TextWhite,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                )
+            Box(
+                modifier = Modifier
+                    .aspectRatio(0.7f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(game.color),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                if (game.id == "gundu_ata") {
+                    VideoPlayer(videoResId = R.raw.gundu_ata_video, modifier = Modifier.fillMaxSize())
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.gundu_ata_bg),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    Text(
+                        game.name,
+                        color = TextWhite,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(bottom = 20.dp)
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(game.name, color = TextGrey, fontSize = 14.sp)
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(game.name, color = TextGrey, fontSize = 14.sp)
     }
 }
 
 @Composable
 fun VideoPlayer(videoResId: Int, modifier: Modifier = Modifier) {
-        val context = LocalContext.current
-        val lifecycleOwner = LocalLifecycleOwner.current
-
-        val exoPlayer = remember {
-            ExoPlayer.Builder(context).build().apply {
-                val uri = Uri.parse("android.resource://${context.packageName}/$videoResId")
-                setMediaItem(MediaItem.fromUri(uri))
-                repeatMode = Player.REPEAT_MODE_ALL
-                playWhenReady = false // Start paused
-                prepare()
-            }
-        }
-
-        DisposableEffect(lifecycleOwner) {
-            val observer = LifecycleEventObserver { _, event ->
-                when (event) {
-                    Lifecycle.Event.ON_RESUME -> {
-                        exoPlayer.playWhenReady = true
-                    }
-                    Lifecycle.Event.ON_PAUSE -> {
-                        exoPlayer.playWhenReady = false
-                    }
-                    Lifecycle.Event.ON_DESTROY -> {
-                        exoPlayer.release()
-                    }
-                    else -> {}
-                }
-            }
-            lifecycleOwner.lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
-                exoPlayer.release()
-            }
-        }
-
-        AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    player = exoPlayer
-                    useController = false
-                    resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-                }
-            },
-            modifier = modifier
-        )
-    }
-
-
-@Composable
-fun RelatedGamesList() {
-    LazyRow(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(3) {
-            Box(
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(150.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(SurfaceColor)
-            )
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            val uri = Uri.parse("android.resource://${context.packageName}/$videoResId")
+            setMediaItem(MediaItem.fromUri(uri))
+            repeatMode = Player.REPEAT_MODE_ALL
+            playWhenReady = false
+            prepare()
         }
     }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> exoPlayer.playWhenReady = true
+                Lifecycle.Event.ON_PAUSE -> exoPlayer.playWhenReady = false
+                Lifecycle.Event.ON_DESTROY -> exoPlayer.release()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            exoPlayer.release()
+        }
+    }
+
+    AndroidView(
+        factory = { ctx ->
+            PlayerView(ctx).apply {
+                player = exoPlayer
+                useController = false
+                resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+            }
+        },
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -573,7 +798,25 @@ fun HomeBottomNavigation(currentRoute: String, onNavigate: (String) -> Unit) {
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = { onNavigate(item.route) },
-                icon = { Icon(item.icon, contentDescription = null) },
+                icon = { 
+                    if (item.route == "gundu_ata") {
+                        val context = LocalContext.current
+                        val diceIconId = context.resources.getIdentifier("ic_gundu_ata_nav", "drawable", context.packageName)
+                        if (diceIconId != 0) {
+                            Image(
+                                painter = painterResource(id = diceIconId),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                contentScale = ContentScale.Fit,
+                                colorFilter = if (currentRoute == item.route) null else androidx.compose.ui.graphics.ColorFilter.tint(TextGrey)
+                            )
+                        } else {
+                            Icon(item.icon, contentDescription = null)
+                        }
+                    } else {
+                        Icon(item.icon, contentDescription = null)
+                    }
+                },
                 label = { Text(item.name) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryYellow,
@@ -582,6 +825,49 @@ fun HomeBottomNavigation(currentRoute: String, onNavigate: (String) -> Unit) {
                     unselectedTextColor = TextGrey,
                     indicatorColor = Color.Transparent
                 )
+            )
+        }
+    }
+}
+
+@Composable
+fun WhatsAppSupportButton() {
+    val context = LocalContext.current
+    val phoneNumber = "919999999999" // Replace with actual support number
+    
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse("https://wa.me/$phoneNumber")
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    // Fallback if WhatsApp is not installed
+                }
+            },
+        color = Color(0xFF25D366), // WhatsApp Green
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_whatsapp),
+                contentDescription = "WhatsApp",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                "Contact Support on WhatsApp",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
             )
         }
     }

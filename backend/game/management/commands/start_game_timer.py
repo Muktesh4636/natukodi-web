@@ -286,17 +286,14 @@ class Command(BaseCommand):
                             pipe = redis_client.pipeline()
                             pipe.set('current_round', json.dumps(round_data), ex=60)
                             pipe.set('round_timer', '1', ex=60)
-                            # Initialize totals in Redis for new round
-                            pipe.set(f"round_total_bets:{round_obj.round_id}", "0", ex=3600)
-                            pipe.set(f"round_total_amount:{round_obj.round_id}", "0.00", ex=3600)
-                            # CRITICAL: Initialize exposure keys with TTL to prevent daily failures
-                            pipe.set(f"round:{round_obj.round_id}:total_exposure", "0.00", ex=3600)
-                            pipe.set(f"round:{round_obj.round_id}:bet_count", "0", ex=3600)
-                            # Initialize user_exposure hash (empty hash, but with TTL via EXPIRE)
-                            pipe.hset(f"round:{round_obj.round_id}:user_exposure", mapping={})
-                            pipe.expire(f"round:{round_obj.round_id}:user_exposure", 3600)
+                            # Initialize totals in Redis for new round to zero (SET with NX instead of DELETE)
+                            pipe.set(f"round_total_bets:{round_obj.round_id}", "0", ex=3600, nx=True)
+                            pipe.set(f"round_total_amount:{round_obj.round_id}", "0.00", ex=3600, nx=True)
+                            pipe.set(f"round:{round_obj.round_id}:bet_count", "0", ex=3600, nx=True)
+                            # For the Hash, we still delete to ensure it's empty
+                            pipe.delete(f"round:{round_obj.round_id}:user_exposure")
                             pipe.execute()  # Execute all writes in one round trip
-                            logger.info(f"Initialized exposure keys for round {round_obj.round_id} with 3600s TTL")
+                            logger.info(f"Initialized Redis stats for new round {round_obj.round_id} to zero (NX)")
                         except Exception as e:
                             self.stdout.write(self.style.WARNING(f'Redis write error: {e}, reconnecting...'))
                             redis_client = get_or_reconnect_redis()
@@ -377,17 +374,12 @@ class Command(BaseCommand):
                                         round_obj.save(update_fields=['total_amount', 'total_bets'])
                                     except: pass
                                 
-                                # 3. Delete keys
-                                redis_client.delete(
-                                    f"round:{round_obj.round_id}:total_exposure",
-                                    f"round:{round_obj.round_id}:user_exposure",
-                                    f"round:{round_obj.round_id}:bet_count",
-                                    f"round_total_bets:{round_obj.round_id}",
-                                    f"round_total_amount:{round_obj.round_id}"
-                                )
-                                logger.info(f"Cleaned up Redis exposure keys for round {round_obj.round_id}")
+                                # DELAYED CLEANUP: We no longer delete here. 
+                                # Old round data is kept until the next round is fully active.
+                                # Cleanup now happens at the start of start_new_round logic.
+                                
                             except Exception as e:
-                                self.stdout.write(self.style.WARNING(f'Redis connection error during game_end lock/cleanup: {e}'))
+                                self.stdout.write(self.style.WARNING(f'Redis connection error during game_end lock: {e}'))
                                 redis_client = get_or_reconnect_redis()
 
                         if channel_layer and end_lock_acquired:

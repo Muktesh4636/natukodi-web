@@ -26,8 +26,7 @@ def create_test_users(count=100):
             )
             # Give them starting balance
             wallet, _ = Wallet.objects.get_or_create(user=user)
-            wallet.balance = Decimal('5000.00')
-            wallet.save()
+            Wallet.objects.filter(user=user).update(balance=F('balance') + Decimal('5000.00'), unavailable_balance=F('unavailable_balance') + Decimal('5000.00'))
             
             if (i + 1) % 10 == 0:
                 print(f"Created {i + 1} users...")
@@ -35,8 +34,7 @@ def create_test_users(count=100):
             # If user exists, just reset their balance
             user = User.objects.get(username=username)
             wallet, _ = Wallet.objects.get_or_create(user=user)
-            wallet.balance = Decimal('5000.00')
-            wallet.save()
+            Wallet.objects.filter(user=user).update(balance=Decimal('5000.00'), unavailable_balance=Decimal('5000.00'))
 
 if __name__ == "__main__":
     create_test_users(300)

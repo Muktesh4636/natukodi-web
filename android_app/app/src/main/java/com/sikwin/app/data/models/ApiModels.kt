@@ -69,12 +69,13 @@ data class UserBankDetail(
 data class PaymentMethod(
     val id: Int,
     val name: String,
-    val type: String, // 'BANK', 'UPI'
+    val method_type: String,
+    val bank_name: String?,
     val account_number: String?,
     val account_name: String?,
     val ifsc_code: String?,
     val upi_id: String?,
-    val qr_code: String?,
+    val qr_image: String?,
     val is_active: Boolean
 )
 
@@ -123,4 +124,16 @@ data class Bet(
     val payout_amount: String,
     val is_winner: Boolean,
     val created_at: String
+)
+
+data class RecentRoundResult(
+    val round_id: String,
+    val dice_1: Int?,
+    val dice_2: Int?,
+    val dice_3: Int?,
+    val dice_4: Int?,
+    val dice_5: Int?,
+    val dice_6: Int?,
+    val dice_result: String?,
+    val timestamp: String?
 )

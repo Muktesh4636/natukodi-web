@@ -113,27 +113,136 @@ class Command(BaseCommand):
                         with transaction.atomic():
                             for idx, bet_data in enumerate(bets_to_process):
                                 try:
+                                    event_type = bet_data.get('type', 'place_bet')
                                     round_id = bet_data['round_id']
                                     try:
-                                        round_obj = GameRound.objects.get(round_id=round_id)
+                                        if round_id == 'WITHDRAW':
+                                            # Special case for withdrawals which don't have a game round
+                                            round_obj = None
+                                        else:
+                                            round_obj = GameRound.objects.get(round_id=round_id)
                                     except GameRound.DoesNotExist:
                                         logger.warning(f"Round {round_id} not found, skipping for now")
                                         continue
                                     
                                     user_id = int(bet_data['user_id'])
-                                    number = int(bet_data['number'])
-                                    chip_amount = Decimal(bet_data['chip_amount'])
                                     
-                                    # Create records
-                                    Bet.objects.create(user_id=user_id, round=round_obj, number=number, chip_amount=chip_amount)
+                                    if event_type == 'place_bet':
+                                        number = int(bet_data['number'])
+                                        chip_amount = Decimal(bet_data['chip_amount'])
+                                        
+                                        # Create bet record
+                                        bet = Bet.objects.create(user_id=user_id, round=round_obj, number=number, chip_amount=chip_amount)
+                                        
+                                        # Store the DB ID back in Redis for strict removal
+                                        # We use the message_id from the stream as a unique key to map back
+                                        redis_client.setex(f"bet_msg_to_id:{message_ids[idx]}", 3600, str(bet.id))
+
+                                        # Update DB Wallet atomically
+                                        Wallet.objects.filter(user_id=user_id).update(balance=F('balance') - chip_amount)
+                                        
+                                        # Transaction log
+                                        bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
+                                        Transaction.objects.create(
+                                            user_id=user_id, transaction_type='BET', amount=chip_amount,
+                                            balance_before=bal_after + chip_amount, balance_after=bal_after,
+                                            description=f"Bet on {number} in round {round_id}"
+                                        )
                                     
-                                    # Transaction log
-                                    bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
-                                    Transaction.objects.create(
-                                        user_id=user_id, transaction_type='BET', amount=chip_amount,
-                                        balance_before=bal_after + chip_amount, balance_after=bal_after,
-                                        description=f"Bet on {number} in round {round_id}"
-                                    )
+                                    elif event_type == 'remove_bet':
+                                        refund_amount = Decimal(bet_data['refund_amount'])
+                                        msg_id_to_remove = bet_data.get('msg_id')
+                                        
+                                        # 1. Update DB Wallet atomically (Refund)
+                                        Wallet.objects.filter(user_id=user_id).update(balance=F('balance') + refund_amount)
+                                        
+                                        # 2. Delete the bet record from DB strictly by ID
+                                        # First try to get the ID from Redis mapping
+                                        bet_id = redis_client.get(f"bet_msg_to_id:{msg_id_to_remove}")
+                                        
+                                        if bet_id:
+                                            Bet.objects.filter(id=int(bet_id)).delete()
+                                            redis_client.delete(f"bet_msg_to_id:{msg_id_to_remove}")
+                                        else:
+                                            # Fallback if mapping is missing (e.g. worker restarted)
+                                            number = int(bet_data.get('number', 0))
+                                            bet_id = Bet.objects.filter(
+                                                user_id=user_id,
+                                                round=round_obj,
+                                                number=number,
+                                                chip_amount=refund_amount
+                                            ).order_by('-created_at').values_list('id', flat=True).first()
+
+                                            if bet_id:
+                                                Bet.objects.filter(id=bet_id).delete()
+                                        
+                                        # 3. Transaction log
+                                        bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
+                                        Transaction.objects.create(
+                                            user_id=user_id, transaction_type='REFUND', amount=refund_amount,
+                                            balance_before=bal_after - refund_amount, balance_after=bal_after,
+                                            description=f"Refund for removed bet in round {round_id}"
+                                        )
+
+                                    elif event_type == 'approve_withdraw':
+                                        withdraw_id = bet_data.get('withdraw_id')
+                                        amount = Decimal(bet_data['amount'])
+                                        
+                                        # 1. Update DB Wallet atomically
+                                        # Note: For approve_withdraw, money is already deducted if it came from initiate_withdraw
+                                        # but we keep this for backward compatibility or direct approvals
+                                        # However, we check if it was already deducted by looking at the transaction log or status
+                                        
+                                        # 2. Update Withdrawal Request status
+                                        WithdrawRequest.objects.filter(id=withdraw_id).update(
+                                            status='COMPLETED',
+                                            processed_at=timezone.now()
+                                        )
+                                        
+                                        # 3. Transaction log (only if not already created)
+                                        if not Transaction.objects.filter(user_id=user_id, description__icontains=f"#{withdraw_id}").exists():
+                                            bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
+                                            Transaction.objects.create(
+                                                user_id=user_id, transaction_type='WITHDRAW', amount=amount,
+                                                balance_before=bal_after + amount, balance_after=bal_after,
+                                                description=f"Withdraw approved and completed #{withdraw_id}"
+                                            )
+
+                                    elif event_type == 'initiate_withdraw':
+                                        withdraw_id = bet_data.get('withdraw_id')
+                                        amount = Decimal(bet_data['amount'])
+                                        
+                                        # 1. Update DB Wallet atomically (Deduct money immediately)
+                                        Wallet.objects.filter(user_id=user_id).update(balance=F('balance') - amount)
+                                        
+                                        # 2. Transaction log
+                                        bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
+                                        Transaction.objects.create(
+                                            user_id=user_id, transaction_type='WITHDRAW', amount=amount,
+                                            balance_before=bal_after + amount, balance_after=bal_after,
+                                            description=f"Withdrawal initiated and funds locked #{withdraw_id}"
+                                        )
+
+                                    elif event_type == 'reject_withdraw_refund':
+                                        withdraw_id = bet_data.get('withdraw_id')
+                                        amount = Decimal(bet_data['amount'])
+                                        note = bet_data.get('note', '')
+                                        
+                                        # 1. Update DB Wallet atomically (Refund money)
+                                        Wallet.objects.filter(user_id=user_id).update(balance=F('balance') + amount)
+                                        
+                                        # 2. Transaction log
+                                        bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
+                                        description = f"Withdrawal rejected, funds refunded #{withdraw_id}"
+                                        if note:
+                                            description += f". Note: {note}"
+                                            
+                                        Transaction.objects.create(
+                                            user_id=user_id, transaction_type='REFUND', amount=amount,
+                                            balance_before=bal_after - amount, balance_after=bal_after,
+                                            description=description
+                                        )
+
                                     ack_ids.append(message_ids[idx])
                                 except Exception as e:
                                     logger.error(f"Bet error: {e}")

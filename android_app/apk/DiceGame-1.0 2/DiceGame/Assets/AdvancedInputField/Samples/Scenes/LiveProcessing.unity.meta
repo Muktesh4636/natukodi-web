@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e60887e30fcc5604ba52b96f871b487c
+timeCreated: 1507226042
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/LiveProcessing.unity
+  uploadId: 485141

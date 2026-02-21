@@ -3,7 +3,7 @@ apply from: '../shared/keepUnitySymbols.gradle'
 apply from: '../shared/common.gradle'
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api files('libs/unity-classes.jar')
     implementation(name: 'NativeGallery', ext:'aar')
     implementation(name: 'NativeKeyboard', ext:'aar')
     implementation 'androidx.appcompat:appcompat:1.6.1'

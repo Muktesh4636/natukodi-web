@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0686d2ceefd19b642bab42069657e4da
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/CharacterValidation/ASCIILettersValidator.asset
+  uploadId: 485141

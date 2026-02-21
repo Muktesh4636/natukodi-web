@@ -83,7 +83,6 @@ fun PersonalInfoScreen(
                         onClick = {
                             val key = when (field) {
                                 "Name" -> "username"
-                                "Phone number" -> "phone_number"
                                 "Email" -> "email"
                                 "Telegram" -> "telegram"
                                 "Date of Birth" -> "date_of_birth"
@@ -145,8 +144,7 @@ fun PersonalInfoScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             val items = listOf(
-                InfoRowData("Name", user?.username ?: "", editable = true),
-                InfoRowData("Phone number", maskPhoneNumber(user?.phone_number ?: ""), showArrow = false, editable = false),
+                InfoRowData("Name", user?.username ?: "", editable = false),
                 InfoRowData("Gender", user?.gender ?: "", showArrow = true, editable = true),
                 InfoRowData("Email", user?.email ?: "", showArrow = true, editable = true),
                 InfoRowData("Telegram", user?.telegram ?: "", showArrow = true, editable = true),
@@ -156,7 +154,7 @@ fun PersonalInfoScreen(
             items.forEach { item ->
                 InfoRow(item) {
                     if (item.editable) {
-                        editValue = if (item.label == "Phone number") user?.phone_number ?: "" else item.value
+                        editValue = item.value
                         showEditDialog = item.label
                     }
                 }

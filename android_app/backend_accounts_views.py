@@ -778,8 +778,9 @@ def approve_deposit_request(request, pk):
             wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
             wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
             balance_before = wallet.balance
-            wallet.balance = balance_before + deposit.amount
-            wallet.save()
+            Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + deposit.amount, unavailable_balance=F('unavailable_balance') + deposit.amount)
+            wallet.refresh_from_db()
+            balance_after = wallet.balance
 
             Transaction.objects.create(
                 user=deposit.user,

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 46c147da52277304f955257b7e70e7e2
+timeCreated: 1521907703
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Resources/AdvancedInputField/Settings.asset
+  uploadId: 485141

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 85de853ffbd8e1d48b64db150dbe0afe
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/ActionBar/StandaloneActionBar.prefab
+  uploadId: 485141

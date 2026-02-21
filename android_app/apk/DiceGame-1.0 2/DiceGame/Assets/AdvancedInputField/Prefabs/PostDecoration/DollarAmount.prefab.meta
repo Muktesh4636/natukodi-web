@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7e3235e1394b5264aac0581bcfd7f43c
+timeCreated: 1494691300
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/PostDecoration/DollarAmount.prefab
+  uploadId: 485141

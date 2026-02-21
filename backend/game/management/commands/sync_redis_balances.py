@@ -131,8 +131,8 @@ class Command(BaseCommand):
                                         deduct_from_unavaliable = min(wallet.unavaliable_balance, amount_spent)
                                         wallet.unavaliable_balance -= deduct_from_unavaliable
                                 
-                                wallet.balance = redis_balance
-                                wallet.save(update_fields=['balance', 'unavaliable_balance'])
+                                Wallet.objects.filter(pk=wallet.pk).update(balance=redis_balance, unavaliable_balance=wallet.unavaliable_balance)
+                                wallet.refresh_from_db() # Refresh to get latest values after update
                             else:
                                 # Redis is negative, sync DB balance to Redis (set Redis to DB value)
                                 redis_client.set(balance_key, str(db_balance), ex=3600)

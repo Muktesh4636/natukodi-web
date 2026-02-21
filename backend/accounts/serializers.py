@@ -71,14 +71,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     is_staff = serializers.BooleanField(read_only=True)
     profile_photo_url = serializers.SerializerMethodField()
+    wallet_balance = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'is_staff', 'profile_photo_url', 'referral_code')
-        read_only_fields = ('id',)
+        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'is_staff', 'profile_photo_url', 'referral_code', 'wallet_balance')
+        read_only_fields = ('id', 'referral_code', 'is_staff')
 
     def get_profile_photo_url(self, obj):
         return None  # Return null as requested, APK will use local default
+
+    def get_wallet_balance(self, obj):
+        # Optimized balance fetch
+        try:
+            if hasattr(obj, 'wallet'):
+                return str(obj.wallet.balance)
+            return "0.00"
+        except:
+            return "0.00"
 
 
 class WalletSerializer(serializers.ModelSerializer):

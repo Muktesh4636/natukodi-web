@@ -10,6 +10,7 @@ urlpatterns = [
     path('bet/', views.place_bet, name='place_bet'),
     path('bet', views.place_bet, name='place_bet_no_slash'),
     path('bet/<int:number>/', views.remove_bet, name='remove_bet'),
+    path('bet/id/<int:bet_id>/', views.remove_bet_by_id, name='remove_bet_by_id'),
     path('bet/last/', views.remove_last_bet, name='remove_last_bet'),
     path('bets/', views.my_bets, name='my_bets'),
     path('prediction/', views.submit_prediction, name='submit_prediction'),
@@ -24,7 +25,9 @@ urlpatterns = [
     path('recent-round-results/', views.recent_round_results, name='recent_round_results'),
     path('user-round-results/<str:round_id>/', views.round_results, name='round_results'),
     path('winning-results/', views.winning_results, name='winning_results_current'),
+    path('winning-results', views.winning_results, name='winning_results_current_no_slash'),
     path('winning-results/<str:round_id>/', views.winning_results, name='winning_results'),
+    path('winning-results/<str:round_id>', views.winning_results, name='winning_results_no_slash'),
     path('results/<str:round_id>/', views.round_results, name='winning_results_alias'),
     path('set-dice/', views.set_dice_result, name='set_dice_result'),
     path('dice-mode/', views.dice_mode, name='dice_mode'),
@@ -32,5 +35,12 @@ urlpatterns = [
     path('settings/', views.game_settings_api, name='game_settings_api'),
     path('settings', views.game_settings_api, name='game_settings_api_no_slash'),
     path('settings/timer/', views.game_timer_settings, name='game_timer_settings'),
+    path('settings/sound/', views.user_sound_settings, name='user_sound_settings'),
+    
+    # Admin Probability Settings
+    path('admin/mega-spin-prob/', views.admin_mega_spin_prob, name='admin_mega_spin_prob_global'),
+    path('admin/mega-spin-prob/<int:user_id>/', views.admin_mega_spin_prob, name='admin_mega_spin_prob_user'),
+    path('admin/daily-reward-prob/', views.admin_daily_reward_prob, name='admin_daily_reward_prob_global'),
+    path('admin/daily-reward-prob/<int:user_id>/', views.admin_daily_reward_prob, name='admin_daily_reward_prob_user'),
 ]
 

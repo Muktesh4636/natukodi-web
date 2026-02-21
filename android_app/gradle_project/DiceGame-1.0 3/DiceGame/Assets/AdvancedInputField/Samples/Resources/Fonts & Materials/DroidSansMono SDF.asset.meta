@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 74ff45f294d689b4ca4dc6ecea868dbe
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Resources/Fonts & Materials/DroidSansMono
+    SDF.asset
+  uploadId: 485141

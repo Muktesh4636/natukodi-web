@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 513bb9748e5ac7d43902b2abc4f6eaa3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/ActionBar/IOSActionBar.prefab
+  uploadId: 485141

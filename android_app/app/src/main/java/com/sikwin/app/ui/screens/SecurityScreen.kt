@@ -34,8 +34,6 @@ fun SecurityScreen(
     
     var showEmailDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
-    var showPhoneDialog by remember { mutableStateOf(false) }
-    var showRealNameDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -91,18 +89,10 @@ fun SecurityScreen(
             HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
 
             SecurityItem(
-                label = "Phone",
-                value = user?.phone_number?.let { maskPhoneNumber(it) } ?: "",
-                onClick = { /* Phone number cannot be changed */ },
-                showArrow = false
-            )
-            HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
-
-            SecurityItem(
                 label = "Real name",
                 value = user?.username ?: "",
-                onClick = { showRealNameDialog = true },
-                showArrow = true
+                onClick = { /* Username cannot be changed */ },
+                showArrow = false
             )
         }
     }
@@ -129,34 +119,6 @@ fun SecurityScreen(
                 viewModel.updatePassword(currentPassword, newPassword) {
                     showPasswordDialog = false
                 }
-            }
-        )
-    }
-
-    if (showPhoneDialog) {
-        EditFieldDialog(
-            title = "Edit Phone Number",
-            currentValue = user?.phone_number ?: "",
-            label = "Phone Number",
-            keyboardType = KeyboardType.Phone,
-            onDismiss = { showPhoneDialog = false },
-            onConfirm = { newPhone ->
-                viewModel.updateProfile(mapOf("phone_number" to newPhone))
-                showPhoneDialog = false
-            }
-        )
-    }
-
-    if (showRealNameDialog) {
-        EditFieldDialog(
-            title = "Edit Real Name",
-            currentValue = user?.username ?: "",
-            label = "Real Name",
-            keyboardType = KeyboardType.Text,
-            onDismiss = { showRealNameDialog = false },
-            onConfirm = { newName ->
-                viewModel.updateProfile(mapOf("username" to newName))
-                showRealNameDialog = false
             }
         )
     }

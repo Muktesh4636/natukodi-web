@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,12 +31,10 @@ import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 @Composable
 fun ProfileScreen(
     viewModel: GunduAtaViewModel,
+    sessionManager: com.sikwin.app.data.auth.SessionManager,
     onNavigate: (String) -> Unit
 ) {
     val context = LocalContext.current
-    var showEditNameDialog by remember { mutableStateOf(false) }
-    var newName by remember { mutableStateOf(viewModel.userProfile?.username ?: "") }
-
     val lifecycleOwner = LocalLifecycleOwner.current
     
     // Redirect to login if not logged in
@@ -52,6 +51,7 @@ fun ProfileScreen(
                 if (viewModel.loginSuccess) {
                     viewModel.fetchProfile()
                     viewModel.fetchWallet()
+                    viewModel.fetchDeposits()
                 }
             }
         }
@@ -59,37 +59,6 @@ fun ProfileScreen(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
-    }
-
-    if (showEditNameDialog) {
-        AlertDialog(
-            onDismissRequest = { showEditNameDialog = false },
-            title = { Text("Edit Name") },
-            text = {
-                OutlinedTextField(
-                    value = newName,
-                    onValueChange = { newName = it },
-                    label = { Text("New Username") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                Button(onClick = {
-                    if (newName.isNotBlank()) {
-                        viewModel.updateUsername(newName)
-                        showEditNameDialog = false
-                    }
-                }) {
-                    Text("Save")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEditNameDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 
     Scaffold(
@@ -106,13 +75,131 @@ fun ProfileScreen(
             ProfileHeader(
                 username = viewModel.userProfile?.username ?: sessionManager.fetchUsername() ?: "User",
                 balance = viewModel.wallet?.balance ?: "0.00",
-                onWalletClick = { onNavigate("wallet") },
-                onEditName = {
-                    newName = viewModel.userProfile?.username ?: ""
-                    showEditNameDialog = true
-                },
-                onRefreshBalance = { viewModel.fetchWallet() }
+                onRefreshBalance = { viewModel.fetchWallet() },
+                onNavigate = onNavigate
             )
+
+            // Leaderboard Ranking Highlight
+            if (viewModel.depositRequests.any { it.status.uppercase() == "COMPLETED" }) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { onNavigate("leaderboard") },
+                    color = SurfaceColor,
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, PrimaryYellow.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(PrimaryYellow.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.EmojiEvents,
+                                    contentDescription = null,
+                                    tint = PrimaryYellow,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    "Your Daily Ranking",
+                                    color = TextGrey,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    if (viewModel.userRank > 0) "#${viewModel.userRank}" else "Unranked",
+                                    color = TextWhite,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
+                        }
+                        
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                "Daily Prize",
+                                color = TextGrey,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                when(viewModel.userRank) {
+                                    1 -> "₹1,000"
+                                    2 -> "₹500"
+                                    3 -> "₹100"
+                                    else -> "Win ₹1,000"
+                                },
+                                color = PrimaryYellow,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Refer & Earn Highlight
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clickable { onNavigate("affiliate") },
+                color = PrimaryYellow,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(BlackBackground.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.GroupAdd,
+                            contentDescription = null,
+                            tint = BlackBackground,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "REFER & EARN",
+                            color = BlackBackground,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            "Invite friends and earn up to ₹1000 bonus!",
+                            color = BlackBackground.copy(alpha = 0.7f),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = null,
+                        tint = BlackBackground,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
             
             // Quick Actions Grid
             QuickActionsGrid(onNavigate)
@@ -129,7 +216,16 @@ fun ProfileScreen(
             ) {
                 ProfileMenuItem("Transaction record", Icons.AutoMirrored.Filled.List) { onNavigate("transactions") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
-                ProfileMenuItem("Betting History", Icons.Default.Casino) { onNavigate("betting_record") }
+                
+                val context = LocalContext.current
+                val diceIconId = context.resources.getIdentifier("ic_gundu_ata_nav", "drawable", context.packageName)
+                
+                ProfileMenuItem(
+                    text = "Betting History", 
+                    icon = if (diceIconId != 0) null else Icons.Default.Casino,
+                    customIconId = if (diceIconId != 0) diceIconId else null
+                ) { onNavigate("betting_record") }
+                
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Deposit record", Icons.Default.Description) { onNavigate("deposits_record") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
@@ -155,6 +251,17 @@ fun ProfileScreen(
                 ProfileMenuItem("Help center", Icons.Default.TipsAndUpdates) { onNavigate("help_center") }
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Refer a Friend", Icons.Default.PersonAdd) { onNavigate("affiliate") }
+                Divider(color = BorderColor, thickness = 0.5.dp)
+                
+                val context = LocalContext.current
+                val diceIconId = context.resources.getIdentifier("ic_gundu_ata_nav", "drawable", context.packageName)
+                
+                ProfileMenuItem(
+                    text = "Dice Results", 
+                    icon = if (diceIconId != 0) null else Icons.Default.Casino,
+                    customIconId = if (diceIconId != 0) diceIconId else null
+                ) { onNavigate("dice_results") }
+                
                 Divider(color = BorderColor, thickness = 0.5.dp)
                 ProfileMenuItem("Game Guidelines", Icons.Default.Casino) { onNavigate("game_guidelines") }
             }
@@ -200,9 +307,8 @@ fun ProfileScreen(
 fun ProfileHeader(
     username: String,
     balance: String,
-    onWalletClick: () -> Unit,
-    onEditName: () -> Unit,
-    onRefreshBalance: () -> Unit
+    onRefreshBalance: () -> Unit,
+    onNavigate: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -217,7 +323,7 @@ fun ProfileHeader(
             Text("My Dashboard", color = TextWhite, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onWalletClick() }
+                modifier = Modifier.clickable { onNavigate("deposit") }
             ) {
                 Text("₹ $balance", color = PrimaryYellow, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -229,24 +335,20 @@ fun ProfileHeader(
         
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Static Default Avatar
-            Box(
+            Image(
+                painter = painterResource(id = com.sikwin.app.R.drawable.default_profile),
+                contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Person, null, modifier = Modifier.size(50.dp), tint = TextWhite)
-            }
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
             
             Spacer(modifier = Modifier.width(16.dp))
             
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Hi~ $username", color = TextWhite, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    IconButton(onClick = onEditName, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Edit, "Edit Name", tint = PrimaryYellow, modifier = Modifier.size(16.dp))
-                    }
                 }
                 Surface(
                     color = Color.DarkGray,
@@ -311,8 +413,8 @@ fun QuickActionsGrid(onNavigate: (String) -> Unit) {
     ) {
         val actions = listOf(
             QuickAction("My wallet", Icons.Default.AccountBalanceWallet, "wallet"),
-            QuickAction("Withdrawal", Icons.Default.ArrowUpward, "withdraw"),
-            QuickAction("Deposit", Icons.Default.ArrowDownward, "deposit")
+            QuickAction("Withdrawal", Icons.Default.ArrowDownward, "withdraw"),
+            QuickAction("Deposit", Icons.Default.ArrowUpward, "deposit")
         )
         
         actions.forEach { action ->
@@ -336,7 +438,12 @@ fun QuickActionsGrid(onNavigate: (String) -> Unit) {
 data class QuickAction(val name: String, val icon: ImageVector, val route: String)
 
 @Composable
-fun ProfileMenuItem(text: String, icon: ImageVector, onClick: () -> Unit) {
+fun ProfileMenuItem(
+    text: String, 
+    icon: ImageVector? = null, 
+    customIconId: Int? = null,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -344,7 +451,16 @@ fun ProfileMenuItem(text: String, icon: ImageVector, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null, tint = TextGrey, modifier = Modifier.size(24.dp))
+        if (customIconId != null) {
+            Image(
+                painter = painterResource(id = customIconId),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                contentScale = ContentScale.Fit
+            )
+        } else if (icon != null) {
+            Icon(icon, null, tint = TextGrey, modifier = Modifier.size(24.dp))
+        }
         Spacer(modifier = Modifier.width(16.dp))
         Text(text, color = TextWhite, fontSize = 16.sp, modifier = Modifier.weight(1f))
         Icon(Icons.Default.ArrowForward, null, tint = TextGrey)

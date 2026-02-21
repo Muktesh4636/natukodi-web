@@ -5,6 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
@@ -16,11 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sikwin.app.ui.theme.*
-
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -292,17 +299,27 @@ fun TransactionItem(title: String, amount: String, date: String) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(title, color = TextWhite, fontWeight = FontWeight.Bold)
                 Text(date, color = TextGrey, fontSize = 12.sp)
             }
-            Text("₹ $amount", color = PrimaryYellow, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = "₹ $amount",
+                color = PrimaryYellow,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.widthIn(min = 80.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.End
+            )
         }
     }
 }
 
 @Composable
 fun BettingItem(roundId: String, number: String, amount: String, status: String, statusColor: Color, date: String) {
+    val context = LocalContext.current
+    val diceIconId = context.resources.getIdentifier("ic_gundu_ata_nav", "drawable", context.packageName)
+    
     Surface(
         color = SurfaceColor,
         shape = RoundedCornerShape(8.dp),
@@ -314,10 +331,21 @@ fun BettingItem(roundId: String, number: String, amount: String, status: String,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text("Round: $roundId", color = TextWhite, fontWeight = FontWeight.Bold)
-                    Text("Bet on Number: $number", color = PrimaryYellow, fontSize = 14.sp)
-                    Text(date, color = TextGrey, fontSize = 12.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (diceIconId != 0) {
+                        Image(
+                            painter = painterResource(id = diceIconId),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Column {
+                        Text("Round: $roundId", color = TextWhite, fontWeight = FontWeight.Bold)
+                        Text("Bet on Number: $number", color = PrimaryYellow, fontSize = 14.sp)
+                        Text(date, color = TextGrey, fontSize = 12.sp)
+                    }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text("₹ $amount", color = TextWhite, fontWeight = FontWeight.Bold)

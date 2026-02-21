@@ -817,6 +817,7 @@ def round_details(request, round_id):
 @csrf_exempt
 def user_details(request, user_id):
     """User details page showing all their bets and information"""
+    logger = logging.getLogger(__name__)
     # Check admin permission manually to avoid redirect issues with @admin_required
     if not request.user.is_authenticated:
         from django.urls import reverse

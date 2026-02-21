@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a31d98b29f539944e98a97f2fbac9a2b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/RichText.unity
+  uploadId: 485141

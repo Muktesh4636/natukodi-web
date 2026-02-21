@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cd4d9b1c220d5ab4f8a75e3da5617391
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Materials/Underline.mat
+  uploadId: 485141

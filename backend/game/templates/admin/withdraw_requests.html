@@ -564,6 +564,7 @@
                                 <th>Status</th>
                                 <th>Method</th>
                                 <th>Details</th>
+                                <th>UTR Number</th>
                                 <th>Processed By</th>
                                 <th>Created</th>
                                 <th>Actions</th>
@@ -591,6 +592,13 @@
                                 <td>
                                     {% if request.withdrawal_details %}
                                         <span style="white-space: pre-wrap;">{{ request.withdrawal_details }}</span>
+                                    {% else %}
+                                        <span style="color: #a0aec0;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.utr_number %}
+                                        <span style="font-family: monospace; font-weight: 600; color: #2d3748;">{{ request.utr_number }}</span>
                                     {% else %}
                                         <span style="color: #a0aec0;">-</span>
                                     {% endif %}
@@ -666,9 +674,12 @@
             <div class="modal-body">
                 <p><strong>User:</strong> <span id="approve-modal-username"></span></p>
                 <p><strong>Amount:</strong> ₹<span id="approve-modal-amount"></span></p>
-                <p><strong>Note (optional):</strong></p>
+                <p><strong>UTR Number (Required):</strong></p>
                 <form id="approveForm" method="post">
                     {% csrf_token %}
+                    <input type="text" name="utr_number" placeholder="Enter UTR Number" required
+                        style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 14px; margin-bottom: 12px;">
+                    <p><strong>Note (optional):</strong></p>
                     <textarea name="note" placeholder="Enter note for player (optional)"></textarea>
                 </form>
             </div>

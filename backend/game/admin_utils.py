@@ -135,13 +135,13 @@ def admin_required(view_func):
                 return HttpResponseRedirect(f'{login_url}?next={next_url}')
             if not is_admin(request.user):
                 messages.error(request, 'You do not have permission to access this page.')
-                return redirect('/admin/')
+                return redirect('admin_login')
             return view_func(request, *args, **kwargs)
         except Exception as e:
             import traceback
             traceback.print_exc()
             messages.error(request, f'Permission Error: {str(e)}')
-            return redirect('/admin/')
+            return redirect('admin_login')
     return wrapper
 
 
@@ -151,7 +151,7 @@ def super_admin_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not is_super_admin(request.user):
             messages.error(request, 'You do not have permission to access this page.')
-            return redirect('/admin/')
+            return redirect('admin_login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -163,7 +163,7 @@ def permission_required(permission_name):
         def wrapper(request, *args, **kwargs):
             if not has_permission(request.user, permission_name):
                 messages.error(request, 'You do not have permission to access this page.')
-                return redirect('/admin/')
+                return redirect('admin_login')
             return view_func(request, *args, **kwargs)
         return wrapper
     return decorator

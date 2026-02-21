@@ -1,0 +1,35 @@
+{
+  "buildFiles": [
+    "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/src/main/cpp/CMakeLists.txt",
+    "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/src/main/cpp/FramePacing/CMakeLists.txt",
+    "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/pradyumna/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/pradyumna/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/.cxx/Debug/242622h3/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "game::@d02bb112ea9f9c2ed29f": {
+      "artifactName": "game",
+      "abi": "arm64-v8a",
+      "output": "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libgame.so",
+      "runtimeFiles": []
+    },
+    "swappywrapper::@7e25bd1f32ce224db4e9": {
+      "artifactName": "swappywrapper",
+      "abi": "arm64-v8a",
+      "output": "/Users/pradyumna/apk_of_ata/android_app/Gundu Ata Project/unityLibrary/build/intermediates/cxx/Debug/242622h3/obj/arm64-v8a/libswappywrapper.so",
+      "runtimeFiles": []
+    }
+  }
+}

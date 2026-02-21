@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 61dc7b7cdede3a241a1ac741b21b206d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/RichText/UnityRichTextData.asset
+  uploadId: 485141

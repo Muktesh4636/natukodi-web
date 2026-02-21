@@ -5,7 +5,6 @@ import android.media.MediaPlayer
 import android.media.SoundPool
 import android.util.Log
 import com.sikwin.app.R
-import com.unity3d.player.UnityPlayer
 
 /**
  * Bridge class to allow Unity to trigger sounds from the Android/Kotlin side.
@@ -42,7 +41,9 @@ object UnitySoundBridge {
      */
     @JvmStatic
     fun playSound(soundName: String, isLongSound: Boolean = false) {
-        val context = UnityPlayer.currentActivity ?: return
+        val context = (Class.forName("com.unity3d.player.UnityPlayer")
+            .getField("currentActivity")
+            .get(null) as? android.app.Activity) ?: return
         
         // Try to find the resource ID by name dynamically
         val resId = context.resources.getIdentifier(soundName, "raw", context.packageName)

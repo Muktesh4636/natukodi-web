@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 881193261e09d9f49a825d24ecb34967
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Prefabs/EmojiButton.prefab
+  uploadId: 485141

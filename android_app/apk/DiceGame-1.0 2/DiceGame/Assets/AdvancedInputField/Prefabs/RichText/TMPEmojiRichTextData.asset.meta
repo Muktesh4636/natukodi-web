@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 71d3cb6a300bba44a96a131181de168f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/RichText/TMPEmojiRichTextData.asset
+  uploadId: 485141

@@ -95,13 +95,9 @@ fun LuckyWheelScreen(
         if (!isSpinning && !hasClaimedToday) {
             isSpinning = true
             viewModel.claimDailyReward { success, amount, type, message ->
-                // Force result to 30 for new users or testing as per request
-                val finalAmount = 30
-                val finalSuccess = true
-                val finalType = "MONEY"
-
-                if (finalSuccess) {
-                    hasClaimedToday = true
+                if (success) {
+                    // hasClaimedToday = true // Move this to the animation finished listener to prevent premature disabling
+                    val finalAmount = amount ?: 0
                     val targetIndex = when (finalAmount) {
                         300 -> 0; 100 -> 1; 40 -> 2; 30 -> 3; 20 -> 4; 10 -> 5; 5 -> 6; else -> 7
                     }
@@ -114,15 +110,8 @@ fun LuckyWheelScreen(
                     if (angleDiff <= 0) angleDiff += 360
                     rotationAngle += (extraRotations * 360) + angleDiff
                 } else {
-                    val targetIndex = 7
-                    lastResult = "Better luck next time"
-                    val extraRotations = 10 + Random.nextInt(5)
-                    val degreesPerSegment = 360f / wheelItems.size
-                    val targetAngle = 270f - (targetIndex * degreesPerSegment) - (degreesPerSegment / 2)
-                    val currentRotation = rotationAngle % 360
-                    var angleDiff = targetAngle - currentRotation
-                    if (angleDiff <= 0) angleDiff += 360
-                    rotationAngle += (extraRotations * 360) + angleDiff
+                    isSpinning = false
+                    lastResult = message ?: "Failed to claim reward"
                 }
             }
         }
@@ -132,7 +121,13 @@ fun LuckyWheelScreen(
         targetValue = rotationAngle,
         animationSpec = tween(durationMillis = 4000, easing = CubicBezierEasing(0.1f, 0.0f, 0.2f, 1f)),
         label = "wheel_rotation",
-        finishedListener = { if (rotationAngle != 0f) { isSpinning = false; showResultDialog = true } }
+        finishedListener = { 
+            if (rotationAngle != 0f) { 
+                isSpinning = false
+                hasClaimedToday = true // Disable only AFTER animation finishes
+                showResultDialog = true 
+            } 
+        }
     )
 
     if (showResultDialog) {

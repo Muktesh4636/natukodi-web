@@ -140,7 +140,7 @@ fun WalletScreen(
                     ) {
                         WalletActionButton(
                             text = "Withdrawal",
-                            icon = Icons.Default.VerticalAlignTop,
+                            icon = Icons.Default.VerticalAlignBottom,
                             onClick = onNavigateToWithdraw
                         )
                         Divider(
@@ -149,7 +149,7 @@ fun WalletScreen(
                         )
                         WalletActionButton(
                             text = "Deposit",
-                            icon = Icons.Default.QrCodeScanner,
+                            icon = Icons.Default.VerticalAlignTop,
                             onClick = onNavigateToDeposit
                         )
                     }

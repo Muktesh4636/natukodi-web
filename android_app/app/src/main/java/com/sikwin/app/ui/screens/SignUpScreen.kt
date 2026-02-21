@@ -1,7 +1,11 @@
 package com.sikwin.app.ui.screens
 
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.animation.core.*
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -88,19 +92,41 @@ fun SignUpScreen(
         
         Spacer(modifier = Modifier.height(20.dp))
         
-        Text(
-            text = "Sign up",
-            style = MaterialTheme.typography.headlineLarge,
-            color = TextWhite,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Start)
+        val infiniteTransition = rememberInfiniteTransition(label = "shimmerEffect")
+        val shimmerOffset by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "shimmerOffset"
         )
-        Text(
-            text = "Welcome to Gundu Ata",
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextGrey,
-            modifier = Modifier.align(Alignment.Start)
+
+        val shimmerBrush = Brush.linearGradient(
+            colors = listOf(
+                PrimaryYellow,
+                Color.White,
+                PrimaryYellow
+            ),
+            start = androidx.compose.ui.geometry.Offset(shimmerOffset - 300f, shimmerOffset - 300f),
+            end = androidx.compose.ui.geometry.Offset(shimmerOffset, shimmerOffset)
         )
+
+        Column(modifier = Modifier.align(Alignment.Start)) {
+            Text(
+                text = "Sign up",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    brush = shimmerBrush
+                ),
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = "Welcome to Gundu Ata",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextGrey
+            )
+        }
         
         Spacer(modifier = Modifier.height(40.dp))
 

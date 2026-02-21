@@ -575,6 +575,7 @@
                                 <th>Amount</th>
                                 <th>Status</th>
                                 <th>Screenshot</th>
+                                <th>UTR / Ref</th>
                                 <th>Processed By</th>
                                 <th>Created</th>
                                 <th>Edit</th>
@@ -598,6 +599,27 @@
                                         <a href="{{ request.screenshot.url }}" target="_blank" class="screenshot-link">View</a>
                                     {% else %}
                                         <span style="color: #a0aec0;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.status == 'PENDING' %}
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="text" 
+                                                   id="utr-input-{{ request.pk }}" 
+                                                   value="{{ request.payment_reference|default:'' }}" 
+                                                   placeholder="Enter UTR" 
+                                                   style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; width: 140px;"
+                                            >
+                                            <button type="button" 
+                                                    onclick="extractUtr({{ request.pk }}, '{{ request.screenshot.url|default:'' }}')" 
+                                                    title="Extract from photo"
+                                                    style="padding: 6px; background: #edf2f7; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px;"
+                                            >
+                                                🔍
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <span style="font-family: monospace;">{{ request.payment_reference|default:'-' }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -792,6 +814,23 @@
                 </td>
                 <td>${screenshotHtml}</td>
                 <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="text" 
+                               id="utr-input-${data.id}" 
+                               value="${data.payment_reference || ''}" 
+                               placeholder="Enter UTR" 
+                               style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; width: 140px;"
+                        >
+                        <button type="button" 
+                                onclick="extractUtr(${data.id}, '${data.screenshot_url || ''}')" 
+                                title="Extract from photo"
+                                style="padding: 6px; background: #edf2f7; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px;"
+                        >
+                            🔍
+                        </button>
+                    </div>
+                </td>
+                <td>
                     <span style="color: #a0aec0;">-</span>
                 </td>
                 <td><span class="time-badge">${data.created_at}</span></td>
@@ -867,9 +906,122 @@
         function showApproveModal(requestId, username, amount) {
             document.getElementById('approve-modal-username').textContent = username;
             document.getElementById('approve-modal-amount').textContent = parseFloat(amount).toFixed(2);
-            document.getElementById('approve-modal-utr').value = '';
+            
+            // Get UTR from the inline input field
+            const utrInput = document.getElementById('utr-input-' + requestId);
+            const utrValue = utrInput ? utrInput.value.trim() : '';
+            
+            const modalUtrInput = document.getElementById('approve-modal-utr');
+            modalUtrInput.value = utrValue;
+            
+            // If UTR is already present, highlight the field
+            if (utrValue) {
+                modalUtrInput.style.borderColor = '#28a745';
+                modalUtrInput.style.backgroundColor = '#f6ffed';
+            } else {
+                modalUtrInput.style.borderColor = '#e2e8f0';
+                modalUtrInput.style.backgroundColor = '#ffffff';
+            }
+            
             document.getElementById('approveForm').action = '/game-admin/deposit-requests/' + requestId + '/approve/';
             document.getElementById('approveModal').style.display = 'block';
+        }
+
+        async function extractUtr(requestId, screenshotUrl) {
+            if (!screenshotUrl) {
+                alert('No screenshot available for this request.');
+                return;
+            }
+
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳';
+            btn.disabled = true;
+
+            try {
+                // Fetch the image and send it to process-screenshot API
+                const imgResponse = await fetch(screenshotUrl);
+                const blob = await imgResponse.blob();
+                const formData = new FormData();
+                formData.append('screenshot', blob, 'screenshot.jpg');
+                
+                const apiResponse = await fetch('/api/auth/process-screenshot/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: formData
+                });
+                
+                const result = await apiResponse.json();
+                if (result.success && result.utr) {
+                    const input = document.getElementById('utr-input-' + requestId);
+                    if (input) input.value = result.utr;
+                } else {
+                    alert(result.message || 'Could not extract UTR automatically.');
+                }
+            } catch (error) {
+                console.error('Error extracting UTR:', error);
+                alert('Failed to extract UTR. Please enter it manually.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Auto-extract UTR for all pending requests on page load
+        window.addEventListener('load', () => {
+            const pendingInputs = document.querySelectorAll('input[id^="utr-input-"]');
+            pendingInputs.forEach(input => {
+                const requestId = input.id.replace('utr-input-', '');
+                const btn = input.nextElementSibling;
+                if (btn && btn.onclick) {
+                    // Extract the screenshot URL from the onclick attribute
+                    const match = btn.getAttribute('onclick').match(/'([^']+)'/);
+                    if (match && match[1]) {
+                        // Delay each extraction slightly to avoid rate limiting or heavy load
+                        setTimeout(() => {
+                            // Only auto-extract if the input is empty
+                            if (!input.value.trim()) {
+                                // Find the button and trigger its click logic but without the event object
+                                extractUtrAuto(requestId, match[1], btn);
+                            }
+                        }, 500 * (parseInt(requestId) % 10));
+                    }
+                }
+            });
+        });
+
+        async function extractUtrAuto(requestId, screenshotUrl, btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳';
+            btn.disabled = true;
+
+            try {
+                const imgResponse = await fetch(screenshotUrl);
+                const blob = await imgResponse.blob();
+                const formData = new FormData();
+                formData.append('screenshot', blob, 'screenshot.jpg');
+                
+                const apiResponse = await fetch('/api/auth/process-screenshot/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: formData
+                });
+                
+                const result = await apiResponse.json();
+                if (result.success && result.utr) {
+                    const input = document.getElementById('utr-input-' + requestId);
+                    if (input) input.value = result.utr;
+                }
+            } catch (error) {
+                console.error('Auto-extraction error:', error);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
         
         function closeApproveModal() {

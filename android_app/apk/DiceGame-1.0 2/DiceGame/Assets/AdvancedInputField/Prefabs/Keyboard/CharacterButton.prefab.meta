@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3455f572179d6bb4488323381f48e56b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Prefabs/Keyboard/CharacterButton.prefab
+  uploadId: 485141

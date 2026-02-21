@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 94d85cb8f31a95f48b729491e1d7a5ab
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Resources/AdvancedInputField/Prefabs/AdvancedInputField_TextMeshPro_Text.prefab
+  uploadId: 485141

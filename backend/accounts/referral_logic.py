@@ -134,18 +134,11 @@ def check_and_award_milestone_bonus(referrer_user):
 def calculate_referral_bonus(deposit_amount):
     """
     Calculate referral bonus based on deposit amount.
+    If deposit is ₹100 or more, referrer gets ₹100 bonus.
     """
     amount = decimal.Decimal(str(deposit_amount))
     
-    if amount >= 5000:
-        return decimal.Decimal('1000')
-    elif amount >= 1000:
-        return decimal.Decimal('500')
-    elif amount >= 500:
-        return decimal.Decimal('300')
-    elif amount >= 200:
-        return decimal.Decimal('150')
-    elif amount >= 100:
+    if amount >= 100:
         return decimal.Decimal('100')
     else:
         return decimal.Decimal('0')

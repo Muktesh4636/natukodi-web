@@ -101,6 +101,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Logout()
+    {
+        Debug.Log("[GameManager] Logout triggered via UnitySendMessage");
+        apiClient.SetTokens(null, null);
+        apiClient.CloseWebSocket();
+        WalletAmount = 0;
+        OnWalletUpdated?.Invoke(0);
+        UIManager.Instance.ShowPanel(UIPanelType.Login);
+    }
+
     // 🔒 Future-ready
     // public void RegisterUser(...) {}
     // public void Deposit(...) {}

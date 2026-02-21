@@ -93,6 +93,9 @@ interface ApiService {
     @GET("game/version/")
     suspend fun getAppVersion(): Response<Map<String, Any>>
 
+    @GET("game/recent-round-results/")
+    suspend fun getRecentRoundResults(@Query("count") count: Int): Response<List<RecentRoundResult>>
+
     @DELETE("auth/bank-details/{id}/")
     suspend fun deleteBankDetail(@Path("id") id: Int): Response<Unit>
     

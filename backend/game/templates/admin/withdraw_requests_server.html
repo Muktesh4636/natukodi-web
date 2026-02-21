@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Withdraw Requests - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            color: #2d3748;
+        }
+        .sidebar {
+            width: 260px;
+            background: #0f172a;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: hidden;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            background: #0f172a;
+        }
+        
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-header .logo-icon {
+            font-size: 24px;
+        }
+        
+        .sidebar-header .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        .sidebar-menu-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+            padding: 12px 0;
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-menu-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        
+        .menu-section-title {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 20px;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sidebar-menu li {
+            margin: 0;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu a.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #00CED1;
+        }
+        
+        .sidebar-menu .menu-icon {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .menu-badge {
+            margin-left: auto;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 400;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 32px;
+            min-height: 100vh;
+            width: calc(100% - 260px);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .header a {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .header a:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .stat-card p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        .control-panel {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .control-panel h2 {
+            margin: 0 0 24px 0;
+            color: #1a202c;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        tr:hover {
+            background: #f7fafc;
+        }
+        .status {
+            padding: 6px 12px;
+            font-size: 11px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status.pending {
+            background: #fefcbf;
+            color: #744210;
+            border: 1px solid #faf089;
+        }
+        .status.approved {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .status.rejected {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        .amount {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a202c;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .time-badge {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            color: #718096;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #1a202c;
+            font-size: 20px;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-body p {
+            margin: 8px 0;
+            color: #4a5568;
+        }
+        .modal-body textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 16px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .table-wrapper {
+                overflow-x: scroll;
+            }
+            table {
+                min-width: 1000px;
+            }
+        }
+
+        .logout-btn {
+            background: #dc3545 !important;
+            color: white !important;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #c82333 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    
+    <div class="sidebar">
+                <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🎲🎲</span>
+                <span>Gundu ata</span>
+            </div>
+            <div class="subtitle">Game control</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
+                        <div class="header">
+                <div class="header-left">
+                    <h1>Withdraw Requests</h1>
+                    <p>Manage pending withdraw requests</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="padding: 14px 20px; border-radius: 8px; margin: 16px 0; border: 1px solid;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Requests</h3>
+                    <p>{{ total_requests }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <p>{{ pending_requests }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Approved</h3>
+                    <p>{{ approved_requests }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Rejected</h3>
+                    <p>{{ rejected_requests }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Amount</h3>
+                    <p>₹{{ total_amount|floatformat:2 }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Amount</h3>
+                    <p>₹{{ pending_amount|floatformat:2 }}</p>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <h2 style="margin: 0;">📤 All Withdraw Requests</h2>
+                    
+                    <form method="get" action="/game-admin/withdraw-requests/" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            value="{{ search_query }}" 
+                            placeholder="User, amount, or details..." 
+                            style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; min-width: 200px;"
+                        />
+                        <input type="date" name="from_date" value="{{ from_date }}" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px;" />
+                        <input type="date" name="to_date" value="{{ to_date }}" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px;" />
+                        <select 
+                            name="status" 
+                            style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
+                        >
+                            <option value="">All Status</option>
+                            <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                            <option value="APPROVED" {% if status_filter == 'APPROVED' %}selected{% endif %}>Approved</option>
+                            <option value="REJECTED" {% if status_filter == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <button 
+                            type="submit" 
+                            style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;"
+                        >
+                            🔍 Search
+                        </button>
+                        {% if search_query or status_filter or from_date or to_date %}
+                        <a 
+                            href="{% url 'withdraw_requests' %}" 
+                            style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
+                        >
+                            Clear
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                {% if search_query or status_filter or from_date or to_date %}
+                <div style="margin-bottom: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #667eea;">
+                    <p style="margin: 0; color: #4a5568; font-size: 14px;">
+                        <strong>Filtered results:</strong>
+                        {% if search_query %}Search: "{{ search_query }}"{% endif %}
+                        {% if search_query and status_filter %} | {% endif %}
+                        {% if status_filter %}Status: {{ status_filter }}{% endif %}
+                        <span style="color: #718096;">({{ withdraw_requests|length }} found)</span>
+                    </p>
+                </div>
+                {% endif %}
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Method</th>
+                                <th>Details</th>
+                                <th>Processed By</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdraw-requests-table-body">
+                            {% for request in withdraw_requests %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'user_details' request.user.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                        {{ request.user.username }}
+                                    </a>
+                                </td>
+                                <td><span class="amount">₹{{ request.amount|floatformat:2 }}</span></td>
+                                <td>
+                                    <span class="status {{ request.status|lower }}">{{ request.status }}</span>
+                                </td>
+                                <td>
+                                    {% if request.withdrawal_method %}
+                                        {{ request.withdrawal_method }}
+                                    {% else %}
+                                        <span style="color: #a0aec0;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.withdrawal_details %}
+                                        <span style="white-space: pre-wrap;">{{ request.withdrawal_details }}</span>
+                                    {% else %}
+                                        <span style="color: #a0aec0;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.processed_by %}
+                                        {{ request.processed_by.username }}
+                                    {% else %}
+                                        <span style="color: #a0aec0;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="time-badge">{{ request.created_at|date:"M d, H:i" }}</span></td>
+                                <td>
+                                    {% if request.status == 'PENDING' %}
+                                        <div style="display: flex; gap: 8px;">
+                                            <form method="post" action="{% url 'approve_withdraw' request.pk %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" style="padding: 6px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                                                    ✅ Approve
+                                                </button>
+                                            </form>
+                                            <button type="button" onclick="showRejectModal({{ request.pk }}, '{{ request.user.username|escapejs }}', {{ request.amount }})" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                                                ❌ Reject
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <span style="color: #a0aec0; font-size: 12px;">Processed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📤</div>
+                                        <p>No withdraw requests found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>❌ Reject Withdraw Request</h3>
+            </div>
+            <div class="modal-body">
+                <p><strong>User:</strong> <span id="modal-username"></span></p>
+                <p><strong>Amount:</strong> ₹<span id="modal-amount"></span></p>
+                <p><strong>Reason (optional):</strong></p>
+                <form id="rejectForm" method="post">
+                    {% csrf_token %}
+                    <textarea name="note" placeholder="Enter rejection reason (optional)"></textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
+                <button type="submit" form="rejectForm" class="btn btn-danger">Reject Withdraw</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #28a745;">✅ Approve Withdraw Request</h3>
+            </div>
+            <div class="modal-body">
+                <p><strong>User:</strong> <span id="approve-modal-username"></span></p>
+                <p><strong>Amount:</strong> ₹<span id="approve-modal-amount"></span></p>
+                <p style="color: #dc3545; font-weight: 600; margin-top: 10px;">⚠️ This will immediately deduct the amount from the user's wallet.</p>
+                <form id="approveForm" method="post">
+                    {% csrf_token %}
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Note (Optional):</label>
+                        <textarea name="note" placeholder="Enter note for player (optional)"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeApproveModal()">Cancel</button>
+                <button type="submit" form="approveForm" class="btn btn-primary" style="background: #28a745;">Approve & Deduct Wallet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Payment Modal -->
+    <div id="completePaymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #007bff;">💸 Mark Payment as Completed</h3>
+            </div>
+            <div class="modal-body">
+                <p><strong>User:</strong> <span id="complete-modal-username"></span></p>
+                <p><strong>Amount:</strong> ₹<span id="complete-modal-amount"></span></p>
+                <form id="completePaymentForm" method="post">
+                    {% csrf_token %}
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">UTR Number (Required):</label>
+                        <input type="text" name="utr_number" required placeholder="Enter transaction UTR/Reference number" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeCompletePaymentModal()">Cancel</button>
+                <button type="submit" form="completePaymentForm" class="btn btn-primary" style="background: #007bff;">Payment Completed</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Audio element for notification sound - will be generated via Web Audio API -->
+
+    <script>
+        // Use a flag to avoid duplicate listeners
+        if (window.withdrawListenerInitialized) {
+            console.log('⚠️ Withdraw listener already initialized');
+        } else {
+            console.log('🚀 Initializing real-time withdraw request listener');
+            window.withdrawListenerInitialized = true;
+
+            // Listen for real-time notifications from the sidebar WebSocket
+            window.addEventListener('adminNotification', function(event) {
+                const data = event.detail;
+                console.log('📬 [Page] Received admin notification event:', data);
+                
+                if (data.notification_type === 'withdraw') {
+                    console.log('📬 [Page] Processing new withdraw row for ID:', data.id);
+                    updateWithdrawTable(data);
+                    updateWithdrawStats(data);
+                }
+            });
+        }
+
+        function updateWithdrawTable(data) {
+            const tbody = document.getElementById('withdraw-requests-table-body');
+            if (!tbody) {
+                console.error('❌ [Error] Table body not found!');
+                return;
+            }
+
+            // Check if this ID already exists in the table to avoid duplicates
+            if (document.getElementById(`withdraw-row-${data.id}`)) {
+                console.warn(`⚠️ [System] Row for withdraw ${data.id} already exists`);
+                return;
+            }
+
+            // Remove empty state if it exists
+            const emptyStateRow = tbody.querySelector('.empty-state');
+            if (emptyStateRow) {
+                tbody.innerHTML = '';
+            }
+
+            const row = document.createElement('tr');
+            row.id = `withdraw-row-${data.id}`;
+            row.style.animation = 'highlightNew 3s ease-out';
+            
+            const methodHtml = data.method || `<span style="color: #a0aec0;">-</span>`;
+            const detailsHtml = data.details 
+                ? `<span class="time-badge" title="${data.details}">${data.details.substring(0, 20)}${data.details.length > 20 ? '...' : ''}</span>`
+                : `<span style="color: #a0aec0;">-</span>`;
+
+            row.innerHTML = `
+                <td>
+                    <a href="/game-admin/user/${data.user_id}/" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                        ${data.user}
+                    </a>
+                </td>
+                <td><span class="amount">₹${parseFloat(data.amount).toFixed(2)}</span></td>
+                <td>
+                    <span class="status pending">PENDING</span>
+                </td>
+                <td>${methodHtml}</td>
+                <td>${detailsHtml}</td>
+                <td>
+                    <span style="color: #a0aec0;">-</span>
+                </td>
+                <td><span class="time-badge">${data.created_at}</span></td>
+                <td>
+                    <div style="display: flex; gap: 8px;">
+                        <form method="post" action="/game-admin/withdraw-requests/${data.id}/approve/" style="display: inline;">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                            <button type="submit" style="padding: 6px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                                ✅ Approve
+                            </button>
+                        </form>
+                        <button type="button" onclick="showRejectModal(${data.id}, '${data.user}', ${data.amount})" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                            ❌ Reject
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            tbody.insertBefore(row, tbody.firstChild);
+            console.log('✅ [System] Row added to table');
+        }
+
+        function updateWithdrawStats(data) {
+            // Update "Total Requests"
+            const totalRequestsEl = document.querySelector('.stat-card:nth-child(1) p');
+            if (totalRequestsEl) {
+                totalRequestsEl.textContent = parseInt(totalRequestsEl.textContent) + 1;
+            }
+
+            // Update "Pending"
+            const pendingRequestsEl = document.querySelector('.stat-card:nth-child(2) p');
+            if (pendingRequestsEl) {
+                pendingRequestsEl.textContent = parseInt(pendingRequestsEl.textContent) + 1;
+            }
+
+            // Update "Pending Amount"
+            const pendingAmountEl = document.querySelector('.stat-card:nth-child(6) p');
+            if (pendingAmountEl) {
+                const currentAmount = parseFloat(pendingAmountEl.textContent.replace('₹', ''));
+                pendingAmountEl.textContent = '₹' + (currentAmount + parseFloat(data.amount)).toFixed(2);
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showRejectModal(requestId, username, amount) {
+            document.getElementById('modal-username').textContent = username;
+            document.getElementById('modal-amount').textContent = parseFloat(amount).toFixed(2);
+            document.getElementById('rejectForm').action = '/game-admin/withdraw-requests/' + requestId + '/reject/';
+            document.getElementById('rejectModal').style.display = 'block';
+        }
+        
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            document.getElementById('rejectForm').reset();
+        }
+
+        function showApproveModal(requestId, username, amount) {
+            document.getElementById('approve-modal-username').textContent = username;
+            document.getElementById('approve-modal-amount').textContent = parseFloat(amount).toFixed(2);
+            document.getElementById('approveForm').action = '/game-admin/withdraw-requests/' + requestId + '/approve/';
+            document.getElementById('approveModal').style.display = 'block';
+        }
+        
+        function closeApproveModal() {
+            document.getElementById('approveModal').style.display = 'none';
+            document.getElementById('approveForm').reset();
+        }
+
+        function showCompletePaymentModal(requestId, username, amount) {
+            document.getElementById('complete-modal-username').textContent = username;
+            document.getElementById('complete-modal-amount').textContent = parseFloat(amount).toFixed(2);
+            document.getElementById('completePaymentForm').action = '/game-admin/withdraw-requests/' + requestId + '/complete-payment/';
+            document.getElementById('completePaymentModal').style.display = 'block';
+        }
+
+        function closeCompletePaymentModal() {
+            document.getElementById('completePaymentModal').style.display = 'none';
+            document.getElementById('completePaymentForm').reset();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const rejectModal = document.getElementById('rejectModal');
+            const approveModal = document.getElementById('approveModal');
+            const completeModal = document.getElementById('completePaymentModal');
+            if (event.target == rejectModal) {
+                closeRejectModal();
+            }
+            if (event.target == approveModal) {
+                closeApproveModal();
+            }
+            if (event.target == completeModal) {
+                closeCompletePaymentModal();
+            }
+        }
+
+        // Sidebar scroll position preservation
+        const sidebarWrapper = document.querySelector('.sidebar-menu-wrapper');
+        if (sidebarWrapper) {
+            // Restore scroll position on page load
+            const savedScrollPos = localStorage.getItem('sidebarScrollPos');
+            if (savedScrollPos) {
+                sidebarWrapper.scrollTop = parseInt(savedScrollPos);
+            }
+
+            // Save scroll position before navigation
+            const sidebarLinks = sidebarWrapper.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    localStorage.setItem('sidebarScrollPos', sidebarWrapper.scrollTop);
+                });
+            });
+
+            // Also save on form submissions that navigate away
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    localStorage.setItem('sidebarScrollPos', sidebarWrapper.scrollTop);
+                });
+            });
+        }
+    </script>
+    
+    <style>
+        @keyframes highlightNew {
+            0% { background-color: #fffbe6; border-left: 4px solid #faad14; }
+            100% { background-color: transparent; border-left: 0px solid transparent; }
+        }
+    </style>
+</body>
+</html>

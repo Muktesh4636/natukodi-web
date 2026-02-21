@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 839f93f8508b4204b83b890f13fae1b5
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 185464
+  packageName: Advanced Input Field 2
+  packageVersion: 2.1.6
+  assetPath: Assets/AdvancedInputField/Samples/Scenes/Autofill.unity
+  uploadId: 485141

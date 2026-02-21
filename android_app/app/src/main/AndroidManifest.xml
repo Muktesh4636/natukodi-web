@@ -4,12 +4,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <queries>
-        <package android:name="com.company.dicegame" />
+        <package android:name="com.phonepe.app" />
+        <package android:name="com.google.android.apps.nbu.paisa.user" />
+        <package android:name="net.one97.paytm" />
         <intent>
-            <action android:name="android.intent.action.MAIN" />
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
         </intent>
     </queries>
 
@@ -44,13 +46,12 @@
             android:name="com.unity3d.player.UnityPlayerGameActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:hardwareAccelerated="false"
-            android:launchMode="singleTask"
             android:process=":unity"
             android:resizeableActivity="true"
             android:screenOrientation="fullUser"
-            tools:replace="android:hardwareAccelerated,android:theme"
+            tools:replace="android:hardwareAccelerated,android:theme,android:exported"
             android:theme="@style/BaseUnityGameActivityTheme">
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="android.app.lib_name" android:value="game" />

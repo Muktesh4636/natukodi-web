@@ -128,78 +128,27 @@ fun PaymentScreen(
         // Debug logging
         android.util.Log.d("PaymentScreen", "Opening UPI app - Package: $packageName, UPI URI: $upiUri")
         
-        // If package name is provided, try to open that specific app
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
+        
         if (packageName != null) {
-            // Check if the app is installed before trying to open
             val packageManager = context.packageManager
             try {
+                // Check if the specific app is installed
                 packageManager.getPackageInfo(packageName, 0)
-                // App is installed, try to open it
                 
-                // For PhonePe, try direct launch without package restriction first
-                if (packageName == "com.phonepe.app") {
-                    // Method 1: Try with package name
-                    try {
-                        val intent1 = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
-                        intent1.setPackage(packageName)
-                        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent1)
-                        return
-                    } catch (e1: Exception) {
-                        // Method 2: Try without package restriction (let Android resolve)
-                        try {
-                            val intent2 = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
-                            intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            // Try to resolve PhonePe specifically
-                            val resolveList = packageManager.queryIntentActivities(intent2, 0)
-                            val phonepeResolve = resolveList.firstOrNull { 
-                                it.activityInfo.packageName == packageName 
-                            }
-                            if (phonepeResolve != null) {
-                                intent2.setClassName(
-                                    phonepeResolve.activityInfo.packageName,
-                                    phonepeResolve.activityInfo.name
-                                )
-                                context.startActivity(intent2)
-                                return
-                            } else {
-                                // Fallback to chooser
-                                context.startActivity(Intent.createChooser(intent2, "Pay with PhonePe"))
-                                return
-                            }
-                        } catch (e2: Exception) {
-                            Toast.makeText(context, "Unable to open PhonePe. Please try again.", Toast.LENGTH_SHORT).show()
-                            return
-                        }
-                    }
-                } else {
-                    // For other apps (Google Pay, Paytm), use standard UPI URI
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
-                    intent.setPackage(packageName)
-                    try {
-                        context.startActivity(intent)
-                        return
-                    } catch (e: Exception) {
-                        // If opening with package fails, try without package (let system choose)
-                        val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
-                        try {
-                            context.startActivity(fallbackIntent)
-                            return
-                        } catch (e2: Exception) {
-                            Toast.makeText(context, "Unable to open payment app", Toast.LENGTH_SHORT).show()
-                            return
-                        }
-                    }
-                }
+                // App is installed, try to open it specifically
+                intent.setPackage(packageName)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
             } catch (e: Exception) {
-                // App is not installed
-                Toast.makeText(context, "Please install ${getAppName(packageName)} app", Toast.LENGTH_LONG).show()
-                return
+                // If specific app is not found or fails to open with package name, 
+                // show a toast instead of falling back to chooser to keep it direct as requested
+                android.util.Log.e("PaymentScreen", "Error opening specific app $packageName: ${e.message}")
+                Toast.makeText(context, "Please install ${getAppName(packageName)} to continue", Toast.LENGTH_LONG).show()
             }
         } else {
             // No specific package, let system choose
             try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(upiUri))
                 context.startActivity(Intent.createChooser(intent, "Pay with"))
             } catch (e: Exception) {
                 Toast.makeText(context, "No UPI app found. Please install a UPI app.", Toast.LENGTH_SHORT).show()
@@ -682,9 +631,9 @@ fun PaymentMethodItem(
     onClick: () -> Unit
 ) {
     val iconRes = when {
-        name.contains("Paytm", ignoreCase = true) -> R.drawable.ic_upi
-        name.contains("PhonePe", ignoreCase = true) -> R.drawable.ic_upi
-        name.contains("Google", ignoreCase = true) -> R.drawable.ic_upi
+        name.contains("PhonePe", ignoreCase = true) -> R.drawable.ic_phonepe_custom
+        name.contains("Google", ignoreCase = true) || name.contains("GPay", ignoreCase = true) -> R.drawable.ic_gpay_custom
+        name.contains("Paytm", ignoreCase = true) -> R.drawable.ic_paytm_custom
         name.contains("UPI", ignoreCase = true) -> R.drawable.ic_upi
         name.contains("USDT", ignoreCase = true) -> R.drawable.ic_usdt
         name.contains("BANK", ignoreCase = true) -> R.drawable.ic_bank
@@ -706,7 +655,8 @@ fun PaymentMethodItem(
                 Image(
                     painter = painterResource(id = iconRes),
                     contentDescription = name,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(32.dp).clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 val icon = getPaymentIcon(name)
