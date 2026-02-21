@@ -483,7 +483,12 @@ def profile(request):
     try:
         if request.method == 'GET':
             logger.info(f"Profile access for user: {request.user.username} (ID: {request.user.id})")
-            serializer = UserSerializer(request.user, context={'request': request})
+            user = request.user
+            # Ensure user has a referral code (fix for legacy users or missing codes)
+            if not user.referral_code:
+                user.referral_code = user.generate_unique_referral_code()
+                user.save(update_fields=['referral_code'])
+            serializer = UserSerializer(user, context={'request': request})
             return Response(serializer.data)
         
         elif request.method == 'POST':
@@ -1355,18 +1360,55 @@ def bank_detail_action(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+def get_reward_day():
+    """
+    Get the current 'reward day' for daily rewards.
+    Day resets at 6 AM (Asia/Kolkata). E.g. spin at 5 AM → next spin at 6 AM.
+    Only 1 spin per day; no accumulation if user skips days.
+    """
+    from datetime import timedelta
+    try:
+        import pytz
+        tz = pytz.timezone('Asia/Kolkata')
+    except Exception:
+        tz = timezone.get_current_timezone()
+    now = timezone.now().astimezone(tz)
+    # Before 6 AM: still in previous day (started 6 AM yesterday)
+    if now.hour < 6:
+        return (now - timedelta(days=1)).date()
+    return now.date()
+
+
+def get_next_reward_at():
+    """Return datetime when next reward day starts (6 AM)."""
+    from datetime import timedelta
+    try:
+        import pytz
+        tz = pytz.timezone('Asia/Kolkata')
+    except Exception:
+        tz = timezone.get_current_timezone()
+    now = timezone.now().astimezone(tz)
+    if now.hour < 6:
+        # Next reward at 6 AM today
+        next_6am = now.replace(hour=6, minute=0, second=0, microsecond=0)
+    else:
+        # Next reward at 6 AM tomorrow
+        next_6am = (now + timedelta(days=1)).replace(hour=6, minute=0, second=0, microsecond=0)
+    return next_6am
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def daily_reward(request):
-    """Get daily reward status and spin the wheel"""
+    """Get daily reward status and spin the wheel. 1 spin per day, resets at 6 AM."""
     user = request.user
-    today = timezone.now().date()
+    reward_day = get_reward_day()
 
     if request.method == 'GET':
-        # Check if user has already claimed reward today
+        # Check if user has already claimed reward in this reward day
         existing_reward = DailyReward.objects.filter(
             user=user,
-            reward_date=today
+            reward_date=reward_day
         ).first()
 
         if existing_reward:
@@ -1376,7 +1418,8 @@ def daily_reward(request):
                     'amount': existing_reward.reward_amount,
                     'type': existing_reward.reward_type
                 },
-                'message': 'Daily reward already claimed today'
+                'message': 'Daily reward already claimed today',
+                'next_reward_at': get_next_reward_at().isoformat(),
             })
 
         return Response({
@@ -1385,10 +1428,10 @@ def daily_reward(request):
         })
 
     elif request.method == 'POST':
-        # Check if user has already claimed reward today
+        # Check if user has already claimed reward in this reward day
         existing_reward = DailyReward.objects.filter(
             user=user,
-            reward_date=today
+            reward_date=reward_day
         ).first()
 
         if existing_reward:
@@ -1434,7 +1477,7 @@ def daily_reward(request):
             user=user,
             reward_amount=Decimal(str(selected_reward['amount'])),
             reward_type=selected_reward['type'],
-            reward_date=today
+            reward_date=reward_day
         )
 
         # If it's a money reward, add to wallet
@@ -1510,6 +1553,11 @@ def referral_data(request):
     from .referral_logic import calculate_milestone_bonus, get_next_milestone
     
     user = request.user
+    
+    # Ensure user has a referral code (fix for legacy users or missing codes)
+    if not user.referral_code:
+        user.referral_code = user.generate_unique_referral_code()
+        user.save(update_fields=['referral_code'])
     
     # Count total referrals (users who signed up using this user's referral code)
     total_referrals = User.objects.filter(referred_by=user).count()

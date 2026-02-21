@@ -119,13 +119,13 @@ fun GameGuidelinesScreen(
                 GuidelineItem(
                     number = "2",
                     title = "Winning Conditions",
-                    description = "Any number appearing 2 or more times is a winner. The payout multiplier equals the frequency (e.g., if a number appears 3 times, multiplier is 3x)."
+                    description = "Any number appearing 2 or more times is a winner. Your profit equals bet × frequency (e.g., if a number appears 3 times, profit is 3× your bet)."
                 )
                 
                 GuidelineItem(
                     number = "3",
                     title = "Payout Calculation",
-                    description = "If you bet ₹100 on a number that appears 3 times, you win ₹300 (100 × 3). Players receive 100% of the payout with no commission."
+                    description = "You get your bet back plus profit. Example: Bet ₹500 on a number that appears 3 times → profit ₹1,500, total ₹2,000 (₹500 returned + ₹1,500 profit). No commission."
                 )
                 
                 GuidelineItem(
