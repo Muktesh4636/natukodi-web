@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">गुंडू आटा</string>
+    
+    <!-- Common -->
+    <string name="back">वापस</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="save">सेव करें</string>
+    <string name="submit">जमा करें</string>
+    <string name="clear">साफ करें</string>
+    <string name="ok">ठीक है</string>
+    <string name="search">खोजें</string>
+    <string name="login">लॉगिन</string>
+    <string name="sign_in">साइन इन</string>
+    <string name="sign_up">साइन अप</string>
+    <string name="register">रजिस्टर</string>
+    
+    <!-- Profile -->
+    <string name="my_dashboard">मेरा डैशबोर्ड</string>
+    <string name="total_inr">कुल/INR</string>
+    <string name="transaction_record">लेनदेन रिकॉर्ड</string>
+    <string name="betting_history">बेटिंग इतिहास</string>
+    <string name="deposit_record">जमा रिकॉर्ड</string>
+    <string name="withdrawal_record">निकासी रिकॉर्ड</string>
+    <string name="my_withdrawal_account">मेरा निकासी खाता</string>
+    <string name="personal_data">व्यक्तिगत डेटा</string>
+    <string name="security">सुरक्षा</string>
+    <string name="languages">भाषाएं</string>
+    <string name="help_center">सहायता केंद्र</string>
+    <string name="refer_a_friend">दोस्त को रेफर करें</string>
+    <string name="dice_results">डाइस परिणाम</string>
+    <string name="game_guidelines">गेम दिशानिर्देश</string>
+    <string name="log_out">लॉग आउट</string>
+    <string name="my_wallet">मेरा वॉलेट</string>
+    <string name="withdrawal">निकासी</string>
+    <string name="deposit">जमा</string>
+    <string name="your_daily_ranking">आपकी दैनिक रैंकिंग</string>
+    <string name="unranked">अनरैंक्ड</string>
+    <string name="daily_prize">दैनिक पुरस्कार</string>
+    <string name="win_prize">₹1,000 जीतें</string>
+    <string name="refer_earn">रेफर करें और कमाएं</string>
+    <string name="refer_earn_subtitle">दोस्तों को आमंत्रित करें और ₹1 लाख तक जीतें!</string>
+    
+    <!-- Auth -->
+    <string name="sign_in_required">साइन इन आवश्यक</string>
+    <string name="sign_in_required_message">गुंडू आटा खेलने और जीतने के लिए कृपया साइन इन या साइन अप करें!</string>
+    <string name="login_required">लॉगिन आवश्यक</string>
+    <string name="login_required_message">गुंडू आटा गेम एक्सेस करने और जीतने के लिए कृपया साइन अप करें!</string>
+    <string name="welcome_back">वापस स्वागत है</string>
+    <string name="login_subtitle">लॉगिन करने के लिए अपना फोन नंबर और पासवर्ड दर्ज करें</string>
+    <string name="phone_number">फोन नंबर</string>
+    <string name="enter_phone_number">फोन नंबर दर्ज करें</string>
+    <string name="password">पासवर्ड</string>
+    <string name="enter_password">अपना पासवर्ड दर्ज करें</string>
+    <string name="save_password">त्वरित लॉगिन के लिए पासवर्ड सेव करें</string>
+    <string name="login_with_saved_account">सेव किए गए खाते से लॉगिन करें</string>
+    <string name="forgot_password">पासवर्ड भूल गए</string>
+    <string name="welcome_to_gundu_ata">गुंडू आटा में स्वागत है</string>
+    <string name="enter_username">अपना यूजरनेम दर्ज करें</string>
+    <string name="enter_otp">4 अंकों का OTP दर्ज करें</string>
+    <string name="enter_referral_code">रेफरल कोड दर्ज करें</string>
+    <string name="have_referral_code">रेफरल कोड है?</string>
+    <string name="country_code">+91</string>
+    <string name="reset_password">पासवर्ड रीसेट करें</string>
+    <string name="reset_password_subtitle">पासवर्ड रीसेट करने के लिए अपना फोन नंबर दर्ज करें</string>
+    <string name="enter_new_password">नया पासवर्ड दर्ज करें</string>
+    <string name="confirm_new_password">नया पासवर्ड पुष्टि करें</string>
+    
+    <!-- Language -->
+    <string name="choose_language">अपनी पसंदीदा ऐप भाषा चुनें</string>
+    <string name="english">अंग्रेज़ी</string>
+    <string name="telugu">तेलुगू</string>
+    <string name="hindi">हिन्दी</string>
+    
+    <!-- Home -->
+    <string name="search_games">गेम खोजें…</string>
+    <string name="no_games_found">\"%s\" के लिए कोई गेम नहीं मिला</string>
+    <string name="hot_games">लोकप्रिय गेम</string>
+    <string name="search_results">खोज परिणाम</string>
+    <string name="loading_game_assets">गेम एसेट लोड हो रहे हैं…</string>
+    
+    <!-- Deposit -->
+    <string name="payment_method">भुगतान विधि</string>
+    <string name="deposit_amount">जमा राशि</string>
+    <string name="usdt_deposit_info">USDT जमा जानकारी:</string>
+    <string name="exchange_rate">एक्सचेंज रेट: 1 USDT = ₹%s</string>
+    <string name="min_deposit">न्यूनतम जमा: ₹%s</string>
+    <string name="bonus_cashback">बोनस: 5%% अतिरिक्त कैशबैक</string>
+    <string name="enter_deposit_amount">जमा राशि दर्ज करें</string>
+    <string name="current_success_rate">वर्तमान सफल जमा दर:</string>
+    <string name="high">उच्च</string>
+    <string name="reminder">याद दिलाना:</string>
+    <string name="deposit_reminder">कृपया अपने भुगतान के लिए पहले इस्तेमाल किए गए बैंक खाते के विवरण सेव न करें, क्योंकि प्राप्त करने वाला बैंक खाता अक्सर बदलता है। फ्रीज किए गए खाते में जमा होने के बाद, किसी भी समस्या के लिए हम जिम्मेदार नहीं हैं।</string>
+    
+    <!-- Payment -->
+    <string name="usdt_amount_to_pay">भुगतान करने के लिए USDT राशि:</string>
+    <string name="exchange_rate_label">एक्सचेंज रेट: 1 USDT = ₹%s</string>
+    <string name="bonus_added">बोनस: ₹%s (5%%) जोड़ा जाएगा!</string>
+    <string name="wallet_address">वॉलेट पता:</string>
+    <string name="copy_address">पता कॉपी करें</string>
+    <string name="bank_transfer_details">बैंक ट्रांसफर विवरण</string>
+    <string name="bank_details_unavailable">बैंक विवरण उपलब्ध नहीं। सहायता के लिए संपर्क करें।</string>
+    <string name="select_payment_screenshot">भुगतान स्क्रीनशॉट चुनने के लिए क्लिक करें</string>
+    <string name="submit_payment_proof">भुगतान प्रमाण जमा करें</string>
+    <string name="network">नेटवर्क: %s</string>
+    
+    <!-- Withdraw -->
+    <string name="available_balance">उपलब्ध बैलेंस</string>
+    <string name="unavailable_balance">अनुपलब्ध बैलेंस</string>
+    <string name="add_bank_account">+ बैंक खाता जोड़ें</string>
+    <string name="enter_amount">राशि दर्ज करें</string>
+    
+    <!-- Affiliate -->
+    <string name="whatsapp">व्हाट्सएप</string>
+    <string name="share">शेयर करें</string>
+    <string name="next_reward">अगला इनाम</string>
+    <string name="view_all_more">सभी देखें (%d और)</string>
+    <string name="view_less">कम देखें</string>
+    <string name="total_referrals">कुल रेफरल</string>
+    <string name="deposited_counts">जमा (संख्या)</string>
+    <string name="total_earned">कुल कमाया</string>
+    <string name="referral_code">रेफरल कोड</string>
+    
+    <!-- Other screens -->
+    <string name="recent_dice_results">हाल के डाइस परिणाम</string>
+    <string name="no_results_found">कोई परिणाम नहीं मिला</string>
+    <string name="result">परिणाम</string>
+    <string name="leaderboard">लीडरबोर्ड</string>
+    <string name="no_data_available">डेटा उपलब्ध नहीं</string>
+    <string name="prize">पुरस्कार</string>
+    <string name="spin">स्पिन</string>
+    <string name="claim_and_register">क्लेम और रजिस्टर</string>
+    <string name="maybe_later">बाद में</string>
+    <string name="summary">सारांश:</string>
+    <string name="round">राउंड:</string>
+    <string name="bet_on_number">नंबर पर बेट:</string>
+    <string name="change_password">पासवर्ड बदलें</string>
+    <string name="current_password">वर्तमान पासवर्ड</string>
+    <string name="new_password">नया पासवर्ड</string>
+    <string name="change">बदलें</string>
+    <string name="edit_email">ईमेल संपादित करें</string>
+    <string name="email">ईमेल</string>
+    <string name="real_name">असली नाम</string>
+    <string name="add_bank_account_title">बैंक खाता जोड़ें</string>
+    <string name="account_holder_name">खाताधारक का नाम</string>
+    <string name="account_holder_placeholder">खाताधारक का नाम भरें</string>
+    <string name="account_number">खाता नंबर</string>
+    <string name="account_number_placeholder">बैंक खाता नंबर दर्ज करें</string>
+    <string name="bank_name">बैंक का नाम</string>
+    <string name="bank_name_placeholder">बैंक चुनें</string>
+    <string name="ifsc">IFSC</string>
+    <string name="ifsc_placeholder">खुले खाते बैंक का पता भरें</string>
+    <string name="set_as_default">डिफ़ॉल्ट के रूप में सेट करें</string>
+    <string name="main_wallet">मुख्य वॉलेट</string>
+    <string name="no_bank_accounts">अभी तक कोई बैंक खाता नहीं जोड़ा गया</string>
+    <string name="add_bank_account_button">बैंक खाता नंबर जोड़ें</string>
+    <string name="not_default">डिफ़ॉल्ट नहीं</string>
+    <string name="game_guidelines_title">गेम दिशानिर्देश</string>
+    <string name="how_to_play">गुंडू आटा कैसे खेलें</string>
+    <string name="learn_rules">जीतने के लिए नियम और रणनीतियां सीखें!</string>
+    <string name="help_center_title">सहायता केंद्र</string>
+    <string name="need_help">मदद चाहिए?</string>
+    <string name="contact_support">व्हाट्सएप या टेलीग्राम के माध्यम से हमारी सहायता टीम से संपर्क करें</string>
+    <string name="whatsapp_support">व्हाट्सएप सहायता</string>
+    <string name="get_instant_help">हमारी सहायता टीम से तत्काल मदद पाएं</string>
+    <string name="telegram_support">टेलीग्राम सहायता</string>
+    <string name="chat_on_telegram">टेलीग्राम पर हमसे चैट करें</string>
+    <string name="support_hours">सहायता घंटे</string>
+    <string name="support_hours_desc">किसी भी प्रश्न या समस्या के लिए हमारी सहायता टीम 24/7 उपलब्ध है।</string>
+    <string name="info">जानकारी</string>
+    <string name="announcement">घोषणा</string>
+    <string name="system_information">सिस्टम जानकारी</string>
+    <string name="online_service">ऑनलाइन सेवा</string>
+    <string name="whatsapp_customer_service">व्हाट्सएप ग्राहक सेवा</string>
+    <string name="telegram">टेलीग्राम</string>
+    <string name="lucky_draw_result">लकी ड्रॉ परिणाम</string>
+    <string name="set_as_default_colon">डिफ़ॉल्ट के रूप में सेट करें:</string>
+    <string name="min_deposit_toast">न्यूनतम जमा ₹%s</string>
+    <string name="hi_username">हाय~ %s</string>
+    <string name="edit_field">%s संपादित करें</string>
+    <string name="new_field">नया %s</string>
+    <string name="round_id">राउंड: %s</string>
+    <string name="bet_on_number_value">नंबर पर बेट: %s</string>
+    <string name="total_turnover">कुल टर्नओवर: ₹%s</string>
+    <string name="daily_turnover">दैनिक टर्नओवर: ₹%s</string>
+    <string name="sign_up_title">साइन अप</string>
+    <string name="online_withdrawal">ऑनलाइन निकासी</string>
+    <string name="bank_account">बैंक खाता</string>
+    <string name="refer_earn_title">रेफर करें और कमाएं</string>
+    
+    <!-- Game Guidelines -->
+    <string name="game_rules">गेम नियम</string>
+    <string name="dice_game_basics">डाइस गेम बेसिक्स</string>
+    <string name="dice_game_basics_desc">गुंडू आटा एक डाइस गेम है जहां 6 डाइस रोल किए जाते हैं। आप 1-6 नंबरों पर बेट लगाते हैं जो आपको लगता है कि आएंगे।</string>
+    <string name="winning_conditions">जीतने की शर्तें</string>
+    <string name="winning_conditions_desc">2 या अधिक बार आने वाला कोई भी नंबर विजेता है। आपका लाभ = बेट × आवृत्ति (जैसे: अगर नंबर 3 बार आता है, लाभ 3× आपकी बेट)।</string>
+    <string name="payout_calculation">भुगतान गणना</string>
+    <string name="payout_calculation_desc">आपको अपनी बेट वापस मिलती है और लाभ भी। उदाहरण: 3 बार आने वाले नंबर पर ₹500 बेट → लाभ ₹1,500, कुल ₹2,000। कोई कमीशन नहीं।</string>
+    <string name="no_winners">कोई विजेता नहीं</string>
+    <string name="no_winners_desc">अगर एक राउंड में कोई नंबर 2+ बार नहीं आता, तो कोई विजेता नहीं और सभी बेट खो जाते हैं।</string>
+    <string name="betting_strategy">बेटिंग रणनीति</string>
+    <string name="start_small">छोटे से शुरू करें</string>
+    <string name="start_small_desc">गेम पैटर्न समझने और आत्मविश्वास बनाने के लिए छोटी बेट से शुरू करें।</string>
+    <string name="diversify_bets">अपनी बेट विविध करें</string>
+    <string name="diversify_bets_desc">जीतने की संभावना बढ़ाने के लिए कई नंबरों पर बेट लगाने पर विचार करें, लेकिन बैंकरोल का सावधानी से प्रबंधन करें।</string>
+    <string name="watch_patterns">पैटर्न देखें</string>
+    <string name="watch_patterns_desc">पैटर्न पहचानने के लिए पिछले राउंड देखें, हालांकि हर राउंड स्वतंत्र और यादृच्छिक है।</string>
+    <string name="set_limits">सीमा निर्धारित करें</string>
+    <string name="set_limits_desc">हमेशा बजट निर्धारित करें और उस पर टिके रहें। जितना खो सकते हैं उससे अधिक बेट न लगाएं।</string>
+    <string name="pro_tips">प्रो टिप्स</string>
+    <string name="timing_matters">समय मायने रखता है</string>
+    <string name="timing_matters_desc">राउंड बंद होने से पहले बेट लगाएं। देर से बेट स्वीकार नहीं हो सकते।</string>
+    <string name="check_balance">अपना बैलेंस चेक करें</string>
+    <string name="check_balance_desc">बेट लगाने से पहले हमेशा पर्याप्त बैलेंस सुनिश्चित करें।</string>
+    <string name="review_history">इतिहास समीक्षा करें</string>
+    <string name="review_history_desc">अपने प्रदर्शन को ट्रैक करने और पिछले राउंड से सीखने के लिए बेटिंग इतिहास चेक करें।</string>
+    <string name="stay_updated">अपडेट रहें</string>
+    <string name="stay_updated_desc">किसी भी गेम अपडेट या विशेष इवेंट के लिए घोषणाओं और सिस्टम जानकारी पर नजर रखें।</string>
+    <string name="important_notes">महत्वपूर्ण नोट्स</string>
+    <string name="important_notes_content">• सभी डाइस रोल यादृच्छिक और निष्पक्ष हैं\n• हर राउंड स्वतंत्र है\n• डाइस रोल होने के बाद परिणाम अंतिम\n• अपनी सीमा में जिम्मेदारी से खेलें\n• प्रश्न हों तो सहायता से संपर्क करें\n\n• अवैध पाए जाने पर कंपनी किसी भी आईडी/बेट को निलंबित/रद्द करने का अधिकार रखती है। जैसे VPN/रोबोट-उपयोग/एक ही या अलग IP से एकाधिक प्रवेश आदि। नोट: केवल जीतने वाली बेट रद्द होंगी।\n• किसी भी परिस्थिति में प्रबंधन का निर्णय अंतिम होगा।</string>
+    
+    <!-- Refer &amp; Earn -->
+    <string name="invite_friends_win">दोस्तों को आमंत्रित करें और जीतें!</string>
+    <string name="your_referral_code">आपका रेफरल कोड</string>
+    <string name="code_copied">कोड कॉपी हो गया!</string>
+    <string name="milestone_bonuses">माइलस्टोन बोनस</string>
+    <string name="refer_more_to_unlock">अनलॉक करने के लिए %d और दोस्तों को रेफर करें!</string>
+    <string name="five_more_referrals">5 और रेफरल</string>
+    <string name="referrals_count">%d रेफरल</string>
+    <string name="my_referrals">मेरे रेफरल</string>
+    <string name="deposited">जमा किया</string>
+    <string name="achieved">हासिल!</string>
+    <string name="how_it_works">यह कैसे काम करता है</string>
+    <string name="step_share_code">दोस्तों के साथ अपना कोड शेयर करें</string>
+    <string name="step_friend_deposits">दोस्त रजिस्टर करता है और ₹100+ जमा करता है</string>
+    <string name="step_get_bonus">आपको तुरंत ₹100 मिलता है!</string>
+    <string name="step_milestone_bonuses">माइलस्टोन बोनस अनलॉक करें: 3 रेफरल → ₹500, 5 और → ₹1000</string>
+</resources>

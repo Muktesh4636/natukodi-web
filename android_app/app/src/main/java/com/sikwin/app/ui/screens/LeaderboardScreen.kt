@@ -22,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.sikwin.app.R
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -36,7 +38,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Leaderboard", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.leaderboard), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -86,7 +88,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "YOUR TURNOVER",
+                            "YOUR DAILY TURNOVER",
                             color = TextGrey,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
@@ -130,7 +132,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Turnover based prizes!",
+                        "Daily turnover based prizes!",
                         color = TextGrey,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center
@@ -150,7 +152,7 @@ fun LeaderboardScreen(viewModel: GunduAtaViewModel, onBack: () -> Unit) {
                 }
             } else if (viewModel.leaderboardPlayers.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No data available yet", color = TextGrey)
+                    Text(stringResource(R.string.no_data_available), color = TextGrey)
                 }
             } else {
                 // Leaderboard List
@@ -227,7 +229,7 @@ fun LeaderboardItem(rank: Int, name: String, turnover: Double, prize: String?) {
                     fontSize = 18.sp
                 )
                 Text(
-                    text = "Total Turnover: ₹${String.format("%.2f", turnover)}",
+                    text = stringResource(R.string.daily_turnover, String.format("%.2f", turnover)),
                     color = TextGrey,
                     fontSize = 14.sp
                 )
@@ -237,7 +239,7 @@ fun LeaderboardItem(rank: Int, name: String, turnover: Double, prize: String?) {
             if (prize != null) {
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "PRIZE",
+                        text = stringResource(R.string.prize),
                         color = rankIconColor,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Black

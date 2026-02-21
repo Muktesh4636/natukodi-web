@@ -533,28 +533,26 @@ class WalletView(APIView):
     def get(self, request, format=None):
         user_id = request.user.id
         
-        # 1. Try Redis for real-time balance and cached wallet data
-        # This avoids hitting the DB for every wallet check
-        cache_key = f"wallet_data_cache:{user_id}"
-        cached_wallet = None
+        # 1. Try Redis for real-time balance
         if redis_client:
             try:
-                cached_wallet = redis_client.get(cache_key)
-                if cached_wallet:
-                    wallet_data = json.loads(cached_wallet)
-                    # Always get the most real-time balance from Redis
-                    realtime_balance = redis_client.get(f"user_balance:{user_id}")
-                    if realtime_balance is not None:
-                        wallet_data['balance'] = realtime_balance
-                        # Recalculate withdrawable balance based on realtime balance
-                        try:
-                            unav = Decimal(wallet_data['unavaliable_balance'])
-                            bal = Decimal(realtime_balance)
-                            wallet_data['withdrawable_balance'] = str(max(Decimal('0.00'), bal - unav))
-                        except: pass
+                realtime_balance = redis_client.get(f"user_balance:{user_id}")
+                if realtime_balance is not None:
+                    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+                    bal = Decimal(realtime_balance)
+                    turnover = Decimal(str(wallet.turnover))
+                    unav = max(Decimal('0.00'), bal - turnover)
+                    withdrawable = max(Decimal('0.00'), bal - unav)
+                    wallet_data = {
+                        'id': wallet.id,
+                        'balance': realtime_balance,
+                        'unavaliable_balance': str(unav),
+                        'withdrawable_balance': str(withdrawable),
+                        'unavailable_balance': str(unav)
+                    }
                     return Response(wallet_data)
             except Exception as re:
-                logger.error(f"Redis wallet cache fetch error: {re}")
+                logger.error(f"Redis wallet fetch error: {re}")
 
         # 2. Fallback to DB if not in Redis
         wallet, created = Wallet.objects.get_or_create(user=request.user)
@@ -574,19 +572,23 @@ class WalletView(APIView):
                     redis_client.set(f"user_balance:{user_id}", balance, ex=86400)
                 except: pass
 
+        # unavaliable = max(0, balance - turnover); turnover maintained by bet worker
+        try:
+            bal = Decimal(str(balance))
+            turnover = Decimal(str(wallet.turnover))
+            unav = max(Decimal('0.00'), bal - turnover)
+            withdrawable = str(max(Decimal('0.00'), bal - unav))
+        except Exception:
+            withdrawable = str(wallet.withdrawable_balance)
+            unav = wallet.unavaliable_balance
+
         wallet_response = {
             'id': wallet.id,
             'balance': balance,
-            'unavaliable_balance': str(wallet.unavaliable_balance),
-            'withdrawable_balance': str(wallet.withdrawable_balance),
-            'unavailable_balance': str(wallet.unavaliable_balance)
+            'unavaliable_balance': str(unav),
+            'withdrawable_balance': withdrawable,
+            'unavailable_balance': str(unav)
         }
-
-        # Cache the wallet data (excluding balance which is handled separately) for 5 seconds
-        if redis_client:
-            try:
-                redis_client.set(cache_key, json.dumps(wallet_response), ex=5)
-            except: pass
 
         return Response(wallet_response)
 
@@ -1107,11 +1109,19 @@ def approve_deposit_request(request, pk):
                     )
                     logger.info(f"Referral bonus of ₹{bonus_amount} granted to {referrer.username} for {deposit.user.username}'s deposit")
                     
-                    # Check and award milestone bonus if applicable
-                    from .referral_logic import check_and_award_milestone_bonus
-                    milestone_awarded = check_and_award_milestone_bonus(referrer)
-                    if milestone_awarded:
-                        logger.info(f"Milestone bonus awarded to {referrer.username}")
+                    # Milestone bonus: only when referral completes their FIRST deposit
+                    first_deposit = not DepositRequest.objects.filter(
+                        user=deposit.user, status='APPROVED'
+                    ).exclude(pk=deposit.pk).exists()
+                    if first_deposit:
+                        from .referral_logic import check_and_award_milestone_bonus
+                        active_referrals = User.objects.filter(
+                            referred_by=referrer,
+                            deposit_requests__status='APPROVED'
+                        ).distinct().count()
+                        milestone_awarded = check_and_award_milestone_bonus(referrer, active_referrals)
+                        if milestone_awarded:
+                            logger.info(f"Milestone bonus awarded to {referrer.username}")
     except DepositRequest.DoesNotExist:
         logger.error(f"Admin {request.user.username} failed to approve deposit {pk}: Not found")
         return Response({'error': 'Deposit request not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -1185,12 +1195,16 @@ def initiate_withdraw(request):
         logger.warning(f"Withdrawal failed for user {request.user.username}: Amount {amount} below minimum ₹200")
         return Response({'error': 'Minimum withdrawal amount is ₹200'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Check if user has sufficient withdrawable balance
+    # Check if user has sufficient withdrawable balance (turnover from wallet)
     wallet, created = Wallet.objects.get_or_create(user=request.user)
-    withdrawable = wallet.withdrawable_balance
+    balance_for_withdrawable = redis_client.get(f"user_balance:{request.user.id}") if redis_client else None
+    if balance_for_withdrawable is None:
+        balance_for_withdrawable = str(wallet.balance)
+    bal = Decimal(str(balance_for_withdrawable))
+    turnover = Decimal(str(wallet.turnover))
+    withdrawable = max(Decimal('0.00'), bal - max(Decimal('0.00'), bal - turnover))
     
     # Check Redis balance and exposure for real-time validation
-    from game.views import redis_client
     if redis_client:
         try:
             redis_balance = float(redis_client.get(f"user_balance:{request.user.id}") or 0)
@@ -1551,7 +1565,7 @@ def daily_reward_history(request):
 def referral_data(request):
     """Get referral statistics and milestone information"""
     from django.db.models import Count, Sum, Q
-    from .referral_logic import calculate_milestone_bonus, get_next_milestone
+    from .referral_logic import get_tier_progress, get_next_milestone, TIER_1_COUNT
     
     user = request.user
     
@@ -1576,26 +1590,38 @@ def referral_data(request):
     )
     total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
     
-    # Get current milestone bonus
-    current_milestone_bonus = calculate_milestone_bonus(total_referrals)
-    
-    # Get next milestone info
-    next_milestone_info = get_next_milestone(total_referrals)
-    
-    # Get list of achieved milestones
-    # 3→₹300, 5→₹1000, 10→₹2000, 20→₹5000, 50→Mega Spin (₹10k-1L)
+    # Tier progress: 3 refs (first deposit) → ₹500, 5 more → ₹1000, then cycle resets
+    tier, progress_current, target, _ = get_tier_progress(active_referrals)
+    current_milestone_bonus = '0'  # Not used for display; next_milestone has the reward
+    next_milestone_info = get_next_milestone(active_referrals)
+
+    # Milestones with progress (1/3, 2/3, 3/3) and (1/5, 2/5, ..., 5/5)
+    progress_in_cycle = active_referrals % 8
+    achieved_tier1 = progress_in_cycle >= 3 or (progress_in_cycle == 0 and active_referrals >= 8)
+    achieved_tier2 = progress_in_cycle == 0 and active_referrals >= 8
+    progress_tier1 = 3 if achieved_tier1 else (progress_current if tier == 1 else 0)
+    progress_tier2 = 5 if achieved_tier2 else (progress_current if tier == 2 else 0)
     milestones = [
-        {'count': 3, 'bonus': 300, 'bonus_display': None, 'achieved': total_referrals >= 3},
-        {'count': 5, 'bonus': 1000, 'bonus_display': None, 'achieved': total_referrals >= 5},
-        {'count': 10, 'bonus': 2000, 'bonus_display': None, 'achieved': total_referrals >= 10},
-        {'count': 20, 'bonus': 5000, 'bonus_display': None, 'achieved': total_referrals >= 20},
-        {'count': 50, 'bonus': 0, 'bonus_display': 'Mega Spin: ₹10k-1 Lakh', 'achieved': total_referrals >= 50},
+        {'count': 3, 'bonus': 500, 'bonus_display': None, 'achieved': achieved_tier1, 'progress_current': progress_tier1, 'target': 3},
+        {'count': 5, 'bonus': 1000, 'bonus_display': None, 'achieved': achieved_tier2, 'progress_current': progress_tier2, 'target': 5},
     ]
     
     # Get recent referral bonuses (last 10)
     recent_bonuses = referral_transactions.order_by('-created_at')[:10].values(
         'amount', 'description', 'created_at'
     )
+
+    # Get list of referred users (for display)
+    referrals_qs = User.objects.filter(referred_by=user).order_by('-date_joined')
+    referrals_list = []
+    for ref in referrals_qs:
+        has_deposit = ref.deposit_requests.filter(status='APPROVED').exists()
+        referrals_list.append({
+            'id': ref.id,
+            'username': ref.username,
+            'date_joined': ref.date_joined.isoformat() if ref.date_joined else None,
+            'has_deposit': has_deposit,
+        })
     
     return Response({
         'referral_code': user.referral_code or '',
@@ -1605,7 +1631,8 @@ def referral_data(request):
         'current_milestone_bonus': str(current_milestone_bonus),
         'next_milestone': next_milestone_info,
         'milestones': milestones,
-        'recent_bonuses': list(recent_bonuses)
+        'recent_bonuses': list(recent_bonuses),
+        'referrals': referrals_list,
     })
 
 
@@ -1758,24 +1785,36 @@ def lucky_draw(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):
-    """Get genuine leaderboard based on turnover (total bets)"""
+    """Get leaderboard based on daily turnover (bets placed today IST). Prizes awarded to top 3."""
     try:
         from game.models import Bet, LeaderboardSetting
-        
+        from datetime import datetime, timedelta
+        import pytz
+
+        # Use India timezone (IST) for "today" - daily resets at midnight IST
+        ist = pytz.timezone('Asia/Kolkata')
+        now_ist = datetime.now(ist)
+        today_ist = now_ist.date()
+        today_start_ist = ist.localize(datetime.combine(today_ist, datetime.min.time()))
+        tomorrow_start_ist = ist.localize(datetime.combine(today_ist, datetime.min.time())) + timedelta(days=1)
+        today_start_utc = today_start_ist.astimezone(pytz.UTC)
+        tomorrow_start_utc = tomorrow_start_ist.astimezone(pytz.UTC)
+
         # Get prizes from settings
         setting = LeaderboardSetting.objects.first()
         if not setting:
             setting = LeaderboardSetting.objects.create()
-            
+
         prizes = {
             1: f"₹{setting.prize_1st:,}",
             2: f"₹{setting.prize_2nd:,}",
             3: f"₹{setting.prize_3rd:,}"
         }
-        
-        # Rank users globally by turnover (all users), and expose top 10 for display.
-        # Coalesce ensures null sums become 0 for stable sorting/comparison.
-        ranked_players = Bet.objects.values('user_id', 'user__username') \
+
+        # Rank users by daily turnover (bets created today IST)
+        daily_bet_filter = {'created_at__gte': today_start_utc, 'created_at__lt': tomorrow_start_utc}
+        ranked_players = Bet.objects.filter(**daily_bet_filter) \
+            .values('user_id', 'user__username') \
             .annotate(turnover=Coalesce(Sum('chip_amount'), 0)) \
             .filter(turnover__gt=0) \
             .order_by('-turnover', 'user_id')
@@ -1808,30 +1847,34 @@ def leaderboard(request):
                 
         # If user rank wasn't captured in loop (type mismatch / edge cases), compute directly.
         if user_rank == 0:
-            user_turnover_data = Bet.objects.filter(user=request.user) \
+            user_turnover_data = Bet.objects.filter(user=request.user, **daily_bet_filter) \
                 .aggregate(total_turnover=Coalesce(Sum('chip_amount'), 0))
             user_turnover = float(user_turnover_data['total_turnover'] or 0)
 
             if user_turnover > 0:
-                # Rank = users with strictly higher turnover + 1
-                users_above_count = Bet.objects.values('user_id') \
+                # Rank = users with strictly higher daily turnover + 1
+                users_above_count = Bet.objects.filter(**daily_bet_filter) \
+                    .values('user_id') \
                     .annotate(turnover=Coalesce(Sum('chip_amount'), 0)) \
                     .filter(turnover__gt=user_turnover) \
                     .count()
                 user_rank = users_above_count + 1
 
-        # If user wasn't in ranked players (no bets), keep rank unranked.
+        # If user wasn't in ranked players (no bets today), keep rank unranked.
         if user_rank == 0:
-            user_turnover_data = Bet.objects.filter(user=request.user) \
+            user_turnover_data = Bet.objects.filter(user=request.user, **daily_bet_filter) \
                 .aggregate(total_turnover=Sum('chip_amount'))
             user_turnover = float(user_turnover_data['total_turnover'] or 0)
-            # user_rank remains 0 (unranked) if no turnover
+            # user_rank remains 0 (unranked) if no turnover today
             
         # DEBUG LOGGING
         logger.info(f"Leaderboard Request - User: {request.user.username} (ID: {request.user.id}), Calculated Rank: {user_rank}, Turnover: {user_turnover}")
         
         return Response({
             'leaderboard': leaderboard_list,
+            'period': 'daily',
+            'period_label': 'Daily',
+            'date': today_ist.isoformat(),
             'user_stats': {
                 'rank': user_rank,
                 'turnover': user_turnover,
