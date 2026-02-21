@@ -930,8 +930,7 @@ def user_details(request, user_id):
                     messages.error(request, f'Insufficient balance for adjustment. Current balance: ₹{wallet.balance}')
                     return redirect(request.get_full_path())
                 
-                # 1️⃣ Update DB atomically
-                from django.db.models import F
+                # 1️⃣ Update DB atomically (F is imported at module level)
                 Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') - amount_decimal)
                 wallet.refresh_from_db()
                 
