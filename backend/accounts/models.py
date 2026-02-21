@@ -97,14 +97,16 @@ class Wallet(models.Model):
         return f"{self.user.username} - {self.balance}"
 
     def deduct(self, amount):
-        """Deduct amount from wallet"""
+        """Deduct amount from wallet (e.g. bet placed and lost).
+        Withdrawable = turnover (amount wagered). Unavailable = balance - turnover.
+        When we bet `amount`: balance -= amount, turnover += amount.
+        So unavaliable = balance - turnover drops by 2*amount (balance-amount, turnover+amount).
+        """
         if self.balance >= amount:
-            # When a bet is placed, we first deduct from unavaliable_balance if possible
-            # This counts as "rotating" the money
-            if self.unavaliable_balance > 0:
-                deduct_from_unavaliable = min(self.unavaliable_balance, amount)
-                self.unavaliable_balance -= deduct_from_unavaliable
-            
+            # Reduce unavaliable by 2*amount so withdrawable increases by amount (turnover)
+            release = min(self.unavaliable_balance, 2 * amount)
+            self.unavaliable_balance -= release
+            self.unavaliable_balance = max(0, self.unavaliable_balance)
             self.balance -= amount
             self.save()
             return True

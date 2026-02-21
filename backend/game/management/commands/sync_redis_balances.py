@@ -125,11 +125,13 @@ class Command(BaseCommand):
                                 # When syncing balance, we need to adjust unavaliable_balance
                                 # If balance decreased (betting), unavaliable_balance should decrease too
                                 if diff < 0:
-                                    # Amount spent = abs(diff)
+                                    # Amount spent (turnover) = abs(diff). Withdrawable = turnover.
+                                    # Unavailable = balance - turnover, so when balance drops by X, unavailable drops by 2*X
                                     amount_spent = abs(diff)
                                     if wallet.unavaliable_balance > 0:
-                                        deduct_from_unavaliable = min(wallet.unavaliable_balance, amount_spent)
-                                        wallet.unavaliable_balance -= deduct_from_unavaliable
+                                        release = min(wallet.unavaliable_balance, 2 * amount_spent)
+                                        wallet.unavaliable_balance -= release
+                                        wallet.unavaliable_balance = max(0, wallet.unavaliable_balance)
                                 
                                 Wallet.objects.filter(pk=wallet.pk).update(balance=redis_balance, unavaliable_balance=wallet.unavaliable_balance)
                                 wallet.refresh_from_db() # Refresh to get latest values after update
