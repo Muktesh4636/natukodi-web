@@ -100,11 +100,11 @@ class WorkerV2:
                             chip_amount=amount
                         )
                         
-                        # Update Wallet
+                        # Update Wallet (deduct releases unavaliable_balance when betting)
                         wallet = Wallet.objects.select_for_update().get(user=user)
                         balance_before = wallet.balance
-                        wallet.balance -= amount
-                        wallet.save()
+                        if not wallet.deduct(amount):
+                            raise ValueError(f"Insufficient balance for user {user_id}")
                         
                         # Transaction log
                         Transaction.objects.create(

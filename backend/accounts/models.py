@@ -93,6 +93,7 @@ class Wallet(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
     balance = models.BigIntegerField(default=0)
     unavaliable_balance = models.BigIntegerField(default=0, help_text="Amount currently locked or unavaliable for withdrawal")
+    turnover = models.BigIntegerField(default=0, help_text="Total amount wagered. unavaliable = max(0, balance - turnover)")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -115,9 +116,8 @@ class Wallet(models.Model):
         """
         if self.balance >= amount:
             # Reduce unavaliable by 2*amount so withdrawable increases by amount (turnover)
-            release = min(self.unavaliable_balance, 2 * amount)
-            self.unavaliable_balance -= release
-            self.unavaliable_balance = max(0, self.unavaliable_balance)
+            release = int(min(self.unavaliable_balance, 2 * amount))
+            self.unavaliable_balance = max(0, self.unavaliable_balance - release)
             self.balance -= amount
             self.save()
             return True

@@ -131,21 +131,27 @@ class Command(BaseCommand):
                                         number = int(bet_data['number'])
                                         chip_amount = Decimal(bet_data['chip_amount'])
                                         
+                                        # Update wallet (deduct releases unavaliable_balance when betting)
+                                        wallet = Wallet.objects.select_for_update().get(user_id=user_id)
+                                        bal_before = wallet.balance
+                                        if not wallet.deduct(chip_amount):
+                                            logger.warning(f"Insufficient balance for user {user_id}, bet skipped")
+                                            ack_ids.append(message_ids[idx])  # ack to avoid infinite retry
+                                            continue
+                                        
                                         # Create bet record
                                         bet = Bet.objects.create(user_id=user_id, round=round_obj, number=number, chip_amount=chip_amount)
                                         
                                         # Store the DB ID back in Redis for strict removal
-                                        # We use the message_id from the stream as a unique key to map back
                                         redis_client.setex(f"bet_msg_to_id:{message_ids[idx]}", 3600, str(bet.id))
 
-                                        # Update DB Wallet atomically
-                                        Wallet.objects.filter(user_id=user_id).update(balance=F('balance') - chip_amount)
+                                        # Update turnover (deduct handles balance and unavaliable_balance)
+                                        Wallet.objects.filter(user_id=user_id).update(turnover=F('turnover') + chip_amount)
                                         
                                         # Transaction log
-                                        bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
                                         Transaction.objects.create(
                                             user_id=user_id, transaction_type='BET', amount=chip_amount,
-                                            balance_before=bal_after + chip_amount, balance_after=bal_after,
+                                            balance_before=bal_before, balance_after=wallet.balance,
                                             description=f"Bet on {number} in round {round_id}"
                                         )
                                     
@@ -153,8 +159,11 @@ class Command(BaseCommand):
                                         refund_amount = Decimal(bet_data['refund_amount'])
                                         msg_id_to_remove = bet_data.get('msg_id')
                                         
-                                        # 1. Update DB Wallet atomically (Refund)
-                                        Wallet.objects.filter(user_id=user_id).update(balance=F('balance') + refund_amount)
+                                        # 1. Update DB Wallet atomically (Refund: balance + amount, turnover - amount)
+                                        Wallet.objects.filter(user_id=user_id).update(
+                                            balance=F('balance') + refund_amount,
+                                            turnover=F('turnover') - refund_amount
+                                        )
                                         
                                         # 2. Delete the bet record from DB strictly by ID
                                         # First try to get the ID from Redis mapping

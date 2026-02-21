@@ -134,13 +134,14 @@ async def process_events():
                                     user=user, round=round_obj, number=data['number'],
                                     chip_amount=Decimal(data['chip_amount'])
                                 ))
-                                # Update wallet and create transaction
+                                # Update wallet and create transaction (deduct releases unavaliable_balance)
                                 wallet = user.wallet
                                 balance_before = wallet.balance
-                                wallet.balance -= Decimal(data['chip_amount'])
-                                wallet.save()
+                                chip_amount = Decimal(data['chip_amount'])
+                                if not wallet.deduct(chip_amount):
+                                    raise ValueError(f"Insufficient balance for user {user.id}")
                                 Transaction.objects.create(
-                                    user=user, transaction_type='BET', amount=Decimal(data['chip_amount']),
+                                    user=user, transaction_type='BET', amount=chip_amount,
                                     balance_before=balance_before, balance_after=wallet.balance,
                                     description=f"Bet on {data['number']} in round {data['round_id']}"
                                 )
