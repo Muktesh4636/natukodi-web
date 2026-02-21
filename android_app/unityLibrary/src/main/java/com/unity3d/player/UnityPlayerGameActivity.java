@@ -264,7 +264,7 @@ public class UnityPlayerGameActivity extends GameActivity
         // FALLBACK: Check SharedPreferences if Intent was empty
         if (token == null || token.isEmpty()) {
             Log.d("UnityLoginBypass", "No token in Intent, checking SharedPreferences...");
-            String[] prefNames = {"com.company.dicegame.v2.playerprefs", "gunduata_prefs", "UnityPlayerPrefs", "dicegame.v2.playerprefs"};
+            String[] prefNames = {"com.company.dicegame.v2.playerprefs", "com.company.dicegame", "gunduata_prefs", "UnityPlayerPrefs", "dicegame.v2.playerprefs"};
             String[] tokenKeys = {"auth_token", "user_token", "access_token", "access", "token"};
             
             for (String prefName : prefNames) {

@@ -160,6 +160,14 @@ class SessionManager(private val context: Context) {
                     .putString("auth_token", authToken)
                     .putString("is_logged_in", "true")
                     .apply()
+
+                // 5. NEW: Write to the Unity process specific SharedPreferences
+                // Some Unity versions use the package name as the file name
+                val processPrefs = context.getSharedPreferences("com.company.dicegame", Context.MODE_PRIVATE)
+                processPrefs.edit()
+                    .putString("auth_token", authToken)
+                    .putString("is_logged_in", "true")
+                    .apply()
             }
         } catch (e: Exception) {
             android.util.Log.e("SessionManager", "Failed to sync auth to Unity", e)
