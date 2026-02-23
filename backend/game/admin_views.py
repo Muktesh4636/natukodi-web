@@ -864,7 +864,11 @@ def user_details(request, user_id):
                 # Add money to user balance
                 # Deposit money needs to be rotated 1 time
                 amount_decimal = Decimal(str(amount))
-                wallet.add(amount_decimal, is_bonus=True)
+                
+                # 1️⃣ Update DB atomically
+                Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + amount_decimal)
+                wallet.refresh_from_db()
+                
                 transaction_type = 'DEPOSIT'
                 description = f"deposited by support_team (UTR: {utr_number})"
                 
@@ -884,11 +888,11 @@ def user_details(request, user_id):
                 try:
                     if redis_client:
                         redis_client.incrbyfloat(f"user_balance:{user.id}", float(amount_decimal))
-                        logger.info(f"Updated Redis balance cache for user {user.id}: {wallet.balance}")
+                        logger.info(f"Updated Redis balance cache for user {user.id} after deposit: {wallet.balance}")
                 except Exception as redis_err:
                     logger.error(f"Failed to update Redis balance for user {user.id}: {redis_err}")
 
-                messages.success(request, f'Successfully deposited ₹{amount} to {user.username}\'s account. (Locked for rotation)')
+                messages.success(request, f'Successfully deposited ₹{amount} to {user.username}\'s account.')
             elif action == 'withdraw':
                 # Subtract money from user balance
                 amount_decimal = Decimal(str(amount))
