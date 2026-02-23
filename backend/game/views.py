@@ -5,8 +5,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import F
-from django.db.models import Q
+from django.db.models import F, Q, Sum
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
@@ -317,6 +316,10 @@ return {true, tostring(new_balance)}
 @csrf_exempt
 def place_bet(request):
     """Place a bet on a number using Redis-First logic for high performance"""
+    # Admins/Staff are not allowed to participate in the game
+    if request.user.is_staff or request.user.is_superuser:
+        return Response({'error': 'Admins are not allowed to participate in the game.'}, status=status.HTTP_403_FORBIDDEN)
+
     serializer = CreateBetSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -857,6 +860,59 @@ def my_bets(request):
         return Response(serializer.data)
     
     return Response([])
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def user_bets_summary(request):
+    """
+    Get authenticated user's bets by number. round_id updates automatically to current round on each call.
+    """
+    round_id_param = request.query_params.get('round_id')
+    round_obj = None
+
+    if round_id_param:
+        try:
+            round_obj = GameRound.objects.get(round_id=round_id_param)
+        except GameRound.DoesNotExist:
+            return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        # Current round: try Redis first
+        if redis_client:
+            try:
+                round_data = redis_client.get('current_round')
+                if round_data:
+                    round_data = json.loads(round_data)
+                    try:
+                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
+                    except GameRound.DoesNotExist:
+                        pass
+            except Exception:
+                pass
+        if not round_obj:
+            round_obj = GameRound.objects.order_by('-start_time').first()
+
+    if not round_obj:
+        return Response({
+            'round_id': None,
+            'bets_by_number': [{'number': n, 'amount': 0} for n in range(1, 7)]
+        })
+
+    user_bets = Bet.objects.filter(user=request.user, round=round_obj)
+
+    bets_by_number = []
+    for number in range(1, 7):
+        amount = user_bets.filter(number=number).aggregate(s=Sum('chip_amount'))['s'] or 0
+        bets_by_number.append({
+            'number': number,
+            'amount': float(amount)
+        })
+
+    return Response({
+        'round_id': round_obj.round_id,
+        'bets_by_number': bets_by_number
+    })
 
 
 @api_view(['GET'])
@@ -1659,6 +1715,37 @@ def game_settings_api(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def max_bet(request):
+    """Get or set max bet amount. GET: returns max_bet. POST: set max_bet (admin only)."""
+    from .utils import get_game_setting, clear_game_setting_cache
+
+    if request.method == 'GET':
+        max_bet_val = float(get_game_setting('MAX_BET', 50000))
+        return Response({'max_bet': max_bet_val})
+
+    elif request.method == 'POST':
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return Response({'error': 'Admin only'}, status=403)
+        data = request.data
+        max_bet_val = data.get('max_bet') or data.get('max-bet')
+        if max_bet_val is None:
+            return Response({'error': 'max_bet or max-bet required'}, status=400)
+        try:
+            max_bet_val = float(max_bet_val)
+        except (TypeError, ValueError):
+            return Response({'error': 'max_bet must be a number'}, status=400)
+        if max_bet_val < 0:
+            return Response({'error': 'max_bet must be non-negative'}, status=400)
+        GameSettings.objects.update_or_create(
+            key='MAX_BET',
+            defaults={'value': str(int(max_bet_val)), 'description': 'Maximum bet amount per number'}
+        )
+        clear_game_setting_cache(['MAX_BET'])
+        return Response({'max_bet': max_bet_val})
+
+
+@api_view(['GET', 'POST'])
 @permission_classes([IsAdminUser])
 def game_timer_settings(request):
     """Admin: Get or set game timer settings"""
@@ -2364,6 +2451,10 @@ def submit_prediction(request):
     Users can tap on a number to predict the result (no money involved).
     Only allowed after betting closes and before result is announced.
     """
+    # Admins/Staff are not allowed to participate in the game
+    if request.user.is_staff or request.user.is_superuser:
+        return Response({'error': 'Admins are not allowed to participate in the game.'}, status=status.HTTP_403_FORBIDDEN)
+
     serializer = CreatePredictionSerializer(data=request.data)
     if not serializer.is_valid():
         logger.warning(f"User {request.user.username} provided invalid prediction data: {serializer.errors}")

@@ -280,6 +280,10 @@ def login(request):
         if not user.is_active:
             return Response({'error': 'User account is disabled'}, status=status.HTTP_403_FORBIDDEN)
 
+        # Admins/Staff are not allowed to login to the game app
+        if user.is_staff or user.is_superuser:
+            return Response({'error': 'Admins are not allowed to login to the game app.'}, status=status.HTTP_403_FORBIDDEN)
+
         # 2. Generate JWT tokens (No DB hit)
         refresh = RefreshToken.for_user(user)
         
@@ -431,6 +435,10 @@ def verify_otp_login(request):
 
         if not user.is_active:
             return Response({'error': 'User account is disabled'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Admins/Staff are not allowed to login to the game app
+        if user.is_staff or user.is_superuser:
+            return Response({'error': 'Admins are not allowed to login to the game app.'}, status=status.HTTP_403_FORBIDDEN)
 
         # Success - clear all OTPs for this phone
         _clear_otp_for_phone(clean_phone)
@@ -1431,6 +1439,9 @@ def get_next_reward_at():
 @permission_classes([IsAuthenticated])
 def daily_reward(request):
     """Get daily reward status and spin the wheel. 1 spin per day, resets at 6 AM."""
+    if request.user.is_staff or request.user.is_superuser:
+        return Response({'error': 'Admins are not allowed to participate in daily rewards.'}, status=status.HTTP_403_FORBIDDEN)
+    
     user = request.user
     reward_day = get_reward_day()
 
@@ -1712,6 +1723,9 @@ def referral_data(request):
 @permission_classes([IsAuthenticated])
 def lucky_draw(request):
     """Get lucky draw status and spin the wheel based on bank transfer deposits"""
+    if request.user.is_staff or request.user.is_superuser:
+        return Response({'error': 'Admins are not allowed to participate in lucky draws.'}, status=status.HTTP_403_FORBIDDEN)
+    
     user = request.user
     
     if request.method == 'GET':
