@@ -395,5 +395,19 @@ class PendingPayment(models.Model):
         return f"Round {self.round.round_id} - {self.user.username} - Commission: ₹{self.commission_amount}"
 
 
+class DeviceToken(models.Model):
+    """FCM/APNs token for push notifications"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='device_tokens')
+    fcm_token = models.CharField(max_length=500)
+    platform = models.CharField(max_length=20, default='android')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [['user', 'fcm_token']]
+        indexes = [models.Index(fields=['user']), models.Index(fields=['fcm_token'])]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.platform}"
 
 
