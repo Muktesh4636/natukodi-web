@@ -1022,19 +1022,52 @@ def user_details(request, user_id):
     
     # Admin specific stats
     admin_stats = None
+    assigned_users = None
     if user.is_staff:
+        # Date filtering for reports
+        from datetime import timedelta
         today = timezone.now().date()
-        assigned_users_count = User.objects.filter(worker=user).count()
-        daily_deposits = DepositRequest.objects.filter(processed_by=user, processed_at__date=today, status='APPROVED')
-        daily_withdrawals = WithdrawRequest.objects.filter(processed_by=user, processed_at__date=today, status='COMPLETED')
+        
+        # Get filter type: today, week, month, custom
+        report_range = request.GET.get('report_range', 'today')
+        start_date = today
+        end_date = today
+        
+        if report_range == 'week':
+            start_date = today - timedelta(days=today.weekday())
+        elif report_range == 'month':
+            start_date = today.replace(day=1)
+        elif report_range == 'custom':
+            try:
+                start_date_str = request.GET.get('start_date')
+                end_date_str = request.GET.get('end_date')
+                if start_date_str:
+                    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                if end_date_str:
+                    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                pass
+        
+        assigned_users_qs = User.objects.filter(worker=user, is_staff=False).order_by('-date_joined')
+        assigned_users_count = assigned_users_qs.count()
+        
+        # Filtered reports
+        deposits_qs = DepositRequest.objects.filter(processed_by=user, status='APPROVED', processed_at__date__gte=start_date, processed_at__date__lte=end_date)
+        withdrawals_qs = WithdrawRequest.objects.filter(processed_by=user, status='COMPLETED', processed_at__date__gte=start_date, processed_at__date__lte=end_date)
         
         admin_stats = {
             'assigned_users_count': assigned_users_count,
-            'daily_deposits_count': daily_deposits.count(),
-            'daily_deposits_amount': daily_deposits.aggregate(Sum('amount'))['amount__sum'] or 0,
-            'daily_withdrawals_count': daily_withdrawals.count(),
-            'daily_withdrawals_amount': daily_withdrawals.aggregate(Sum('amount'))['amount__sum'] or 0,
+            'report_range': report_range,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
+            'deposits_count': deposits_qs.count(),
+            'deposits_amount': deposits_qs.aggregate(Sum('amount'))['amount__sum'] or 0,
+            'withdrawals_count': withdrawals_qs.count(),
+            'withdrawals_amount': withdrawals_qs.aggregate(Sum('amount'))['amount__sum'] or 0,
         }
+        
+        # Get assigned users list (paginated)
+        assigned_users = assigned_users_qs[:100] # Limit to 100 for now
     
     context = get_admin_context(request, {
         'player': user,
@@ -1049,6 +1082,7 @@ def user_details(request, user_id):
         'user_withdrawals': user_withdrawals,
         'active_tab': active_tab,
         'admin_stats': admin_stats,
+        'assigned_users': assigned_users,
         'page': 'user-details',
     })
     

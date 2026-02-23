@@ -651,9 +651,28 @@
             </div>
 
             {% if admin_stats %}
-            <!-- Admin Statistics -->
+            <!-- Admin Statistics & Reports -->
             <div class="user-info-card" style="border-left: 4px solid #667eea;">
-                <h2 style="color: #667eea;">📊 Admin Performance (Today)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2 style="color: #667eea; margin: 0;">📊 Admin Performance Reports</h2>
+                    
+                    <form method="get" style="display: flex; gap: 10px; align-items: center;">
+                        <input type="hidden" name="tab" value="{{ active_tab }}">
+                        <select name="report_range" onchange="this.form.submit()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px;">
+                            <option value="today" {% if admin_stats.report_range == 'today' %}selected{% endif %}>Today</option>
+                            <option value="week" {% if admin_stats.report_range == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if admin_stats.report_range == 'month' %}selected{% endif %}>This Month</option>
+                            <option value="custom" {% if admin_stats.report_range == 'custom' %}selected{% endif %}>Custom Range</option>
+                        </select>
+                        
+                        {% if admin_stats.report_range == 'custom' %}
+                            <input type="date" name="start_date" value="{{ admin_stats.start_date }}" style="padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px;">
+                            <input type="date" name="end_date" value="{{ admin_stats.end_date }}" style="padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px;">
+                            <button type="submit" class="btn" style="padding: 8px 16px;">Go</button>
+                        {% endif %}
+                    </form>
+                </div>
+
                 <div class="user-info-grid">
                     <div class="info-item" style="background: #ebf4ff;">
                         <label>Assigned Users</label>
@@ -661,12 +680,63 @@
                     </div>
                     <div class="info-item" style="background: #f0fff4;">
                         <label>Deposits Processed</label>
-                        <value style="color: #2f855a;">📥 {{ admin_stats.daily_deposits_count }} (₹{{ admin_stats.daily_deposits_amount|floatformat:2 }})</value>
+                        <value style="color: #2f855a;">📥 {{ admin_stats.deposits_count }} (₹{{ admin_stats.deposits_amount|floatformat:2 }})</value>
                     </div>
                     <div class="info-item" style="background: #fff5f5;">
                         <label>Withdrawals Processed</label>
-                        <value style="color: #c53030;">📤 {{ admin_stats.daily_withdrawals_count }} (₹{{ admin_stats.daily_withdrawals_amount|floatformat:2 }})</value>
+                        <value style="color: #c53030;">📤 {{ admin_stats.withdrawals_count }} (₹{{ admin_stats.withdrawals_amount|floatformat:2 }})</value>
                     </div>
+                </div>
+            </div>
+
+            <!-- Assigned Users List -->
+            <div class="control-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">👥 Allocated Users ({{ admin_stats.assigned_users_count }})</h2>
+                    <a href="{% url 'manage_players' %}?search={{ player.username }}" class="btn" style="padding: 8px 16px; font-size: 12px; background: #718096;">Manage All</a>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Phone</th>
+                                <th>Joined Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in assigned_users %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'user_details' user.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                                        {{ user.username }}
+                                    </a>
+                                </td>
+                                <td>{{ user.phone_number|default:"—" }}</td>
+                                <td><span class="time-badge">{{ user.date_joined|date:"M d, Y" }}</span></td>
+                                <td>
+                                    <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                                        {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'user_details' user.id %}" style="color: #667eea; text-decoration: none; font-size: 12px;">View Profile</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">👥</div>
+                                        <p>No users assigned to this admin yet.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
             {% endif %}
