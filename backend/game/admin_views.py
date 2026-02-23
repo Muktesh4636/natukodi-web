@@ -1020,6 +1020,22 @@ def user_details(request, user_id):
     else:
         user_withdrawals = user_withdrawals[:20]
     
+    # Admin specific stats
+    admin_stats = None
+    if user.is_staff:
+        today = timezone.now().date()
+        assigned_users_count = User.objects.filter(worker=user).count()
+        daily_deposits = DepositRequest.objects.filter(processed_by=user, processed_at__date=today, status='APPROVED')
+        daily_withdrawals = WithdrawRequest.objects.filter(processed_by=user, processed_at__date=today, status='COMPLETED')
+        
+        admin_stats = {
+            'assigned_users_count': assigned_users_count,
+            'daily_deposits_count': daily_deposits.count(),
+            'daily_deposits_amount': daily_deposits.aggregate(Sum('amount'))['amount__sum'] or 0,
+            'daily_withdrawals_count': daily_withdrawals.count(),
+            'daily_withdrawals_amount': daily_withdrawals.aggregate(Sum('amount'))['amount__sum'] or 0,
+        }
+    
     context = get_admin_context(request, {
         'player': user,
         'wallet': wallet,
@@ -1032,6 +1048,7 @@ def user_details(request, user_id):
         'user_deposits': user_deposits,
         'user_withdrawals': user_withdrawals,
         'active_tab': active_tab,
+        'admin_stats': admin_stats,
         'page': 'user-details',
     })
     

@@ -609,7 +609,7 @@
             
             <!-- User Information -->
             <div class="user-info-card">
-                <h2>👤 User Information</h2>
+                <h2>👤 {% if player.is_staff %}Admin{% else %}User{% endif %} Information</h2>
                 <div class="user-info-grid">
                     <div class="info-item">
                         <label>Username</label>
@@ -628,15 +628,48 @@
                         <value>{{ player.date_joined|date:"M d, Y" }}</value>
                     </div>
                     <div class="info-item">
-                        <label>Is Staff</label>
-                        <value>{% if player.is_staff %}Yes{% else %}No{% endif %}</value>
+                        <label>Role</label>
+                        <value>
+                            {% if player.is_superuser %}
+                                <span class="status-badge" style="background: #e9d8fd; color: #553c9a; font-size: 14px;">👑 Super Admin</span>
+                            {% elif player.is_staff %}
+                                <span class="status-badge" style="background: #bee3f8; color: #2c5282; font-size: 14px;">👔 Admin</span>
+                            {% else %}
+                                <span class="status-badge" style="background: #edf2f7; color: #4a5568; font-size: 14px;">👤 Player</span>
+                            {% endif %}
+                        </value>
                     </div>
                     <div class="info-item">
-                        <label>Is Active</label>
-                        <value>{% if player.is_active %}Yes{% else %}No{% endif %}</value>
+                        <label>Status</label>
+                        <value>
+                            <span class="status-badge {% if player.is_active %}active{% else %}inactive{% endif %}" style="font-size: 14px;">
+                                {% if player.is_active %}✅ Active{% else %}❌ Inactive{% endif %}
+                            </span>
+                        </value>
                     </div>
                 </div>
             </div>
+
+            {% if admin_stats %}
+            <!-- Admin Statistics -->
+            <div class="user-info-card" style="border-left: 4px solid #667eea;">
+                <h2 style="color: #667eea;">📊 Admin Performance (Today)</h2>
+                <div class="user-info-grid">
+                    <div class="info-item" style="background: #ebf4ff;">
+                        <label>Assigned Users</label>
+                        <value style="color: #2b6cb0;">👥 {{ admin_stats.assigned_users_count }}</value>
+                    </div>
+                    <div class="info-item" style="background: #f0fff4;">
+                        <label>Deposits Processed</label>
+                        <value style="color: #2f855a;">📥 {{ admin_stats.daily_deposits_count }} (₹{{ admin_stats.daily_deposits_amount|floatformat:2 }})</value>
+                    </div>
+                    <div class="info-item" style="background: #fff5f5;">
+                        <label>Withdrawals Processed</label>
+                        <value style="color: #c53030;">📤 {{ admin_stats.daily_withdrawals_count }} (₹{{ admin_stats.daily_withdrawals_amount|floatformat:2 }})</value>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             
             <!-- Filter Tabs -->
             <div class="tabs-container">
