@@ -841,10 +841,15 @@ def user_details(request, user_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         amount = request.POST.get('amount', '0').strip()
+        utr_number = request.POST.get('utr_number', '').strip()
 
         # Debug logging
-        logger.info(f"Balance adjustment request: user={user_id}, action={action}, amount={amount}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
-        print(f"DEBUG: Balance adjustment request: user={user_id}, action={action}, amount={amount}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
+        logger.info(f"Balance adjustment request: user={user_id}, action={action}, amount={amount}, utr={utr_number}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
+        
+        # Validate UTR number for deposit and withdraw actions
+        if action in ['deposit', 'withdraw'] and not utr_number:
+            messages.error(request, f'UTR number is mandatory for {action}.')
+            return redirect(request.get_full_path())
 
         try:
             amount = Decimal(amount)
@@ -861,7 +866,7 @@ def user_details(request, user_id):
                 amount_decimal = Decimal(str(amount))
                 wallet.add(amount_decimal, is_bonus=True)
                 transaction_type = 'DEPOSIT'
-                description = f"deposited by support_team"
+                description = f"deposited by support_team (UTR: {utr_number})"
                 
                 # Also create a DepositRequest record so it shows in deposit list
                 DepositRequest.objects.create(
@@ -869,10 +874,10 @@ def user_details(request, user_id):
                     amount=amount_decimal,
                     status='APPROVED',
                     payment_method=None, # Manual adjustment
-                    payment_reference='ADMIN_ADJUSTMENT',
+                    payment_reference=utr_number,
                     processed_by=request.user,
                     processed_at=timezone.now(),
-                    admin_note='Manual deposit by support team'
+                    admin_note=f'Manual deposit by support team. UTR: {utr_number}'
                 )
                 
                 # 2️⃣ Update Redis atomically using INCRBYFLOAT
@@ -898,18 +903,19 @@ def user_details(request, user_id):
                 wallet.refresh_from_db()
                 
                 transaction_type = 'WITHDRAW'
-                description = f"withdrawn by support_team"
+                description = f"withdrawn by support_team (UTR: {utr_number})"
                 
                 # Also create a WithdrawRequest record so it shows in withdrawal list
                 WithdrawRequest.objects.create(
                     user=user,
                     amount=amount_decimal,
-                    status='APPROVED',
+                    status='COMPLETED',
                     withdrawal_method='ADMIN_ADJUSTMENT',
-                    withdrawal_details='Withdrawn by Support Team',
+                    withdrawal_details=f'Withdrawn by Support Team. UTR: {utr_number}',
                     processed_by=request.user,
                     processed_at=timezone.now(),
-                    admin_note='Manual withdrawal by support team'
+                    admin_note=f'Manual withdrawal by support team. UTR: {utr_number}',
+                    utr_number=utr_number
                 )
                 
                 # 2️⃣ Update Redis atomically using INCRBYFLOAT (negative)

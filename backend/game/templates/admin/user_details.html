@@ -692,14 +692,18 @@
                         <p style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
                             Add money to user balance (e.g., WhatsApp payment).
                         </p>
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; gap: 10px; align-items: center;">
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="deposit">
-                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount (₹)" required
-                                   style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
-                            <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                                ➕ Add
-                            </button>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount (₹)" required
+                                       style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
+                                <input type="text" name="utr_number" placeholder="UTR Number" required
+                                       style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1.5;">
+                                <button type="submit" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    ➕ Add
+                                </button>
+                            </div>
                         </form>
                     </div>
 
@@ -726,14 +730,18 @@
                         <p style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 15px;">
                             Deduct balance for processed withdrawal requests.
                         </p>
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; gap: 10px; align-items: center;">
+                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="withdraw">
-                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount (₹)" required
-                                   style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
-                            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                                ➖ Deduct
-                            </button>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" name="amount" step="0.01" min="0.01" placeholder="Amount (₹)" required
+                                       style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1;">
+                                <input type="text" name="utr_number" placeholder="UTR Number" required
+                                       style="padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; background: rgba(255, 255, 255, 0.9); flex: 1.5;">
+                                <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    ➖ Deduct
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
