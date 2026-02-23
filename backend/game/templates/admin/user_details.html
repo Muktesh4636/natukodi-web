@@ -746,6 +746,7 @@
                 <a href="?tab=all" class="tab-link {% if active_tab == 'all' %}active{% endif %}">
                     🏠 Overview
                 </a>
+                {% if not player.is_staff %}
                 <a href="?tab=bets" class="tab-link {% if active_tab == 'bets' %}active{% endif %}">
                     💰 Bets <span class="tab-badge">{{ total_bets }}</span>
                 </a>
@@ -758,350 +759,353 @@
                 <a href="?tab=withdrawals" class="tab-link {% if active_tab == 'withdrawals' %}active{% endif %}">
                     📤 Withdrawals
                 </a>
+                {% endif %}
             </div>
             
-            {% if active_tab == 'all' or active_tab == 'deposits' or active_tab == 'withdrawals' %}
-            <!-- Wallet & Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Wallet Balance</h3>
-                    <p>₹{{ wallet.balance|floatformat:2 }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Withdrawable</h3>
-                    <p style="color: #28a745;">₹{{ wallet.withdrawable_balance|default:0|floatformat:2 }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Unavailable</h3>
-                    <p style="color: #dc3545;">₹{{ wallet.unavaliable_balance|default:0|floatformat:2 }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Total Bets</h3>
-                    <p>{{ total_bets }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Total Bet Amount</h3>
-                    <p>₹{{ total_bet_amount|floatformat:2 }}</p>
-                </div>
-            </div>
-
-            <!-- Balance Management -->
-            <div class="control-panel" style="margin-top: 20px; background: #fff; border: 1px solid #e2e8f0; padding: 0; overflow: hidden;">
-                <div style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 20px;">💰</span>
-                    <h2 style="margin: 0; font-size: 18px; color: #1e293b;">Balance Management</h2>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1px; background: #e2e8f0;">
-                    <!-- Deposit Section -->
-                    <div style="background: white; padding: 24px; display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                            <div style="width: 36px; height: 36px; background: #ecfdf5; color: #059669; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">📥</div>
-                            <div>
-                                <h3 style="margin: 0; font-size: 15px; color: #0f172a;">Deposit Money</h3>
-                                <p style="margin: 0; font-size: 12px; color: #64748b;">Add funds to user balance</p>
-                            </div>
-                        </div>
-                        
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="deposit">
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <div style="flex: 1;">
-                                        <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Amount</label>
-                                        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
-                                               style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s;">
-                                    </div>
-                                    <div style="flex: 1.5;">
-                                        <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">UTR Number</label>
-                                        <input type="text" name="utr_number" placeholder="Reference ID" required
-                                               style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
-                                    </div>
-                                </div>
-                                <button type="submit" style="width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;">
-                                    Confirm Deposit
-                                </button>
-                            </div>
-                        </form>
+            {% if not player.is_staff %}
+                {% if active_tab == 'all' or active_tab == 'deposits' or active_tab == 'withdrawals' %}
+                <!-- Wallet & Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Wallet Balance</h3>
+                        <p>₹{{ wallet.balance|floatformat:2 }}</p>
                     </div>
-
-                    <!-- Withdraw Section -->
-                    <div style="background: white; padding: 24px; display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                            <div style="width: 36px; height: 36px; background: #fef2f2; color: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">📤</div>
-                            <div>
-                                <h3 style="margin: 0; font-size: 15px; color: #0f172a;">Withdraw Money</h3>
-                                <p style="margin: 0; font-size: 12px; color: #64748b;">Deduct balance for withdrawal</p>
-                            </div>
-                        </div>
-                        
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="withdraw">
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <div style="flex: 1;">
-                                        <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Amount</label>
-                                        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
-                                               style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
-                                    </div>
-                                    <div style="flex: 1.5;">
-                                        <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">UTR Number</label>
-                                        <input type="text" name="utr_number" placeholder="Reference ID" required
-                                               style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
-                                    </div>
-                                </div>
-                                <button type="submit" style="width: 100%; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;">
-                                    Confirm Withdrawal
-                                </button>
-                            </div>
-                        </form>
+                    <div class="stat-card">
+                        <h3>Withdrawable</h3>
+                        <p style="color: #28a745;">₹{{ wallet.withdrawable_balance|default:0|floatformat:2 }}</p>
                     </div>
+                    <div class="stat-card">
+                        <h3>Unavailable</h3>
+                        <p style="color: #dc3545;">₹{{ wallet.unavaliable_balance|default:0|floatformat:2 }}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Bets</h3>
+                        <p>{{ total_bets }}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Bet Amount</h3>
+                        <p>₹{{ total_bet_amount|floatformat:2 }}</p>
+                    </div>
+                </div>
 
-                    <!-- Adjustment Section -->
-                    <div style="background: white; padding: 24px; display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                            <div style="width: 36px; height: 36px; background: #fff7ed; color: #ea580c; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">⚖️</div>
-                            <div>
-                                <h3 style="margin: 0; font-size: 15px; color: #0f172a;">Balance Correction</h3>
-                                <p style="margin: 0; font-size: 12px; color: #64748b;">Remove accidental additions</p>
-                            </div>
-                        </div>
-                        
-                        <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="adjust_remove">
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Balance Management -->
+                <div class="control-panel" style="margin-top: 20px; background: #fff; border: 1px solid #e2e8f0; padding: 0; overflow: hidden;">
+                    <div style="background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 20px;">💰</span>
+                        <h2 style="margin: 0; font-size: 18px; color: #1e293b;">Balance Management</h2>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1px; background: #e2e8f0;">
+                        <!-- Deposit Section -->
+                        <div style="background: white; padding: 24px; display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                                <div style="width: 36px; height: 36px; background: #ecfdf5; color: #059669; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">📥</div>
                                 <div>
-                                    <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Amount to Remove</label>
-                                    <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
-                                           style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
+                                    <h3 style="margin: 0; font-size: 15px; color: #0f172a;">Deposit Money</h3>
+                                    <p style="margin: 0; font-size: 12px; color: #64748b;">Add funds to user balance</p>
                                 </div>
-                                <button type="submit" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;" onclick="return confirm('Are you sure you want to REMOVE this amount from the user balance?')">
-                                    Apply Correction
-                                </button>
                             </div>
-                        </form>
+                            
+                            <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="deposit">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="display: flex; gap: 8px;">
+                                        <div style="flex: 1;">
+                                            <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Amount</label>
+                                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
+                                                   style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.2s;">
+                                        </div>
+                                        <div style="flex: 1.5;">
+                                            <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">UTR Number</label>
+                                            <input type="text" name="utr_number" placeholder="Reference ID" required
+                                                   style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
+                                        </div>
+                                    </div>
+                                    <button type="submit" style="width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;">
+                                        Confirm Deposit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Withdraw Section -->
+                        <div style="background: white; padding: 24px; display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                                <div style="width: 36px; height: 36px; background: #fef2f2; color: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">📤</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 15px; color: #0f172a;">Withdraw Money</h3>
+                                    <p style="margin: 0; font-size: 12px; color: #64748b;">Deduct balance for withdrawal</p>
+                                </div>
+                            </div>
+                            
+                            <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="withdraw">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="display: flex; gap: 8px;">
+                                        <div style="flex: 1;">
+                                            <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Amount</label>
+                                            <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
+                                                   style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
+                                        </div>
+                                        <div style="flex: 1.5;">
+                                            <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">UTR Number</label>
+                                            <input type="text" name="utr_number" placeholder="Reference ID" required
+                                                   style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
+                                        </div>
+                                    </div>
+                                    <button type="submit" style="width: 100%; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;">
+                                        Confirm Withdrawal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Adjustment Section -->
+                        <div style="background: white; padding: 24px; display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                                <div style="width: 36px; height: 36px; background: #fff7ed; color: #ea580c; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">⚖️</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 15px; color: #0f172a;">Balance Correction</h3>
+                                    <p style="margin: 0; font-size: 12px; color: #64748b;">Remove accidental additions</p>
+                                </div>
+                            </div>
+                            
+                            <form method="post" action="/game-admin/user/{{ player.id }}/" style="margin-top: auto;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="adjust_remove">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div>
+                                        <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Amount to Remove</label>
+                                        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
+                                               style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
+                                    </div>
+                                    <button type="submit" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;" onclick="return confirm('Are you sure you want to REMOVE this amount from the user balance?')">
+                                        Apply Correction
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- User Bets -->
-            {% if active_tab == 'all' or active_tab == 'bets' %}
-            <div class="control-panel">
-                <h2>💰 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Bets by {{ player.username }}</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Round</th>
-                                <th>Number</th>
-                                <th>Amount</th>
-                                <th>Winner</th>
-                                <th>Payout</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for bet in user_bets %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'round_details' bet.round.round_id %}" style="color: #667eea; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                                        <span class="round-id">#{{ bet.round.round_id }}</span>
-                                    </a>
-                                </td>
-                                <td>
-                                    <span class="dice-result">{{ bet.number }}</span>
-                                </td>
-                                <td><span class="amount">₹{{ bet.chip_amount|floatformat:2 }}</span></td>
-                                <td>
-                                    {% if bet.is_winner %}
-                                        <span class="winner-badge yes">✅ Winner</span>
-                                    {% else %}
-                                        <span class="winner-badge no">❌ Lost</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if bet.payout_amount %}
-                                        <span class="payout">₹{{ bet.payout_amount|floatformat:2 }}</span>
-                                    {% else %}
-                                        <span style="color: #a0aec0;">-</span>
-                                    {% endif %}
-                                </td>
-                                <td><span class="time-badge">{{ bet.created_at|date:"M d, H:i:s" }}</span></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">💰</div>
-                                        <p>No bets found</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <!-- User Bets -->
+                {% if active_tab == 'all' or active_tab == 'bets' %}
+                <div class="control-panel">
+                    <h2>💰 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Bets by {{ player.username }}</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Round</th>
+                                    <th>Number</th>
+                                    <th>Amount</th>
+                                    <th>Winner</th>
+                                    <th>Payout</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bet in user_bets %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'round_details' bet.round.round_id %}" style="color: #667eea; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                            <span class="round-id">#{{ bet.round.round_id }}</span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="dice-result">{{ bet.number }}</span>
+                                    </td>
+                                    <td><span class="amount">₹{{ bet.chip_amount|floatformat:2 }}</span></td>
+                                    <td>
+                                        {% if bet.is_winner %}
+                                            <span class="winner-badge yes">✅ Winner</span>
+                                        {% else %}
+                                            <span class="winner-badge no">❌ Lost</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if bet.payout_amount %}
+                                            <span class="payout">₹{{ bet.payout_amount|floatformat:2 }}</span>
+                                        {% else %}
+                                            <span style="color: #a0aec0;">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="time-badge">{{ bet.created_at|date:"M d, H:i:s" }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">💰</div>
+                                            <p>No bets found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
-            
-            <!-- User Transactions -->
-            {% if active_tab == 'transactions' %}
-            <div class="control-panel">
-                <h2>📋 Reports</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Balance Before</th>
-                                <th>Balance After</th>
-                                <th>Description</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for transaction in user_transactions %}
-                            <tr>
-                                <td>
-                                    <span class="type-badge {{ transaction.transaction_type|lower }}">{{ transaction.transaction_type }}</span>
-                                </td>
-                                <td>
-                                    <span class="amount {% if transaction.transaction_type in 'DEPOSIT,WIN,REFUND' %}positive{% else %}negative{% endif %}" style="{% if transaction.transaction_type in 'DEPOSIT,WIN,REFUND' %}color: #28a745;{% else %}color: #dc3545;{% endif %}">
-                                        {% if transaction.transaction_type in 'WITHDRAW,BET' %}-{% endif %}₹{{ transaction.amount|floatformat:2 }}
-                                    </span>
-                                </td>
-                                <td><span class="time-badge">₹{{ transaction.balance_before|floatformat:2 }}</span></td>
-                                <td><span class="time-badge">₹{{ transaction.balance_after|floatformat:2 }}</span></td>
-                                <td>
-                                    <span style="font-size: 12px; color: #718096;">
-                                        {{ transaction.description|truncatewords:10 }}
-                                    </span>
-                                </td>
-                                <td><span class="time-badge">{{ transaction.created_at|date:"M d, H:i:s" }}</span></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">📋</div>
-                                        <p>No transactions found</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                {% endif %}
+                
+                <!-- User Transactions -->
+                {% if active_tab == 'transactions' %}
+                <div class="control-panel">
+                    <h2>📋 Reports</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Balance Before</th>
+                                    <th>Balance After</th>
+                                    <th>Description</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in user_transactions %}
+                                <tr>
+                                    <td>
+                                        <span class="type-badge {{ transaction.transaction_type|lower }}">{{ transaction.transaction_type }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="amount {% if transaction.transaction_type in 'DEPOSIT,WIN,REFUND' %}positive{% else %}negative{% endif %}" style="{% if transaction.transaction_type in 'DEPOSIT,WIN,REFUND' %}color: #28a745;{% else %}color: #dc3545;{% endif %}">
+                                            {% if transaction.transaction_type in 'WITHDRAW,BET' %}-{% endif %}₹{{ transaction.amount|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td><span class="time-badge">₹{{ transaction.balance_before|floatformat:2 }}</span></td>
+                                    <td><span class="time-badge">₹{{ transaction.balance_after|floatformat:2 }}</span></td>
+                                    <td>
+                                        <span style="font-size: 12px; color: #718096;">
+                                            {{ transaction.description|truncatewords:10 }}
+                                        </span>
+                                    </td>
+                                    <td><span class="time-badge">{{ transaction.created_at|date:"M d, H:i:s" }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">📋</div>
+                                            <p>No transactions found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
-            
-            <!-- User Deposit Requests -->
-            {% if active_tab == 'deposits' %}
-            <div class="control-panel">
-                <h2>📥 Deposit Requests</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Payment Ref</th>
-                                <th>Processed By</th>
-                                <th>Created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for deposit in user_deposits %}
-                            <tr>
-                                <td><span class="amount">₹{{ deposit.amount|floatformat:2 }}</span></td>
-                                <td>
-                                    <span class="status {{ deposit.status|lower }}">{{ deposit.status }}</span>
-                                </td>
-                                <td>
-                                    {% if deposit.payment_reference %}
-                                        <span class="time-badge">{{ deposit.payment_reference }}</span>
-                                    {% else %}
-                                        <span style="color: #a0aec0;">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if deposit.processed_by %}
-                                        {{ deposit.processed_by.username }}
-                                    {% else %}
-                                        <span style="color: #a0aec0;">-</span>
-                                    {% endif %}
-                                </td>
-                                <td><span class="time-badge">{{ deposit.created_at|date:"M d, H:i" }}</span></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">📥</div>
-                                        <p>No deposit requests found</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                {% endif %}
+                
+                <!-- User Deposit Requests -->
+                {% if active_tab == 'deposits' %}
+                <div class="control-panel">
+                    <h2>📥 Deposit Requests</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Payment Ref</th>
+                                    <th>Processed By</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for deposit in user_deposits %}
+                                <tr>
+                                    <td><span class="amount">₹{{ deposit.amount|floatformat:2 }}</span></td>
+                                    <td>
+                                        <span class="status {{ deposit.status|lower }}">{{ deposit.status }}</span>
+                                    </td>
+                                    <td>
+                                        {% if deposit.payment_reference %}
+                                            <span class="time-badge">{{ deposit.payment_reference }}</span>
+                                        {% else %}
+                                            <span style="color: #a0aec0;">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if deposit.processed_by %}
+                                            {{ deposit.processed_by.username }}
+                                        {% else %}
+                                            <span style="color: #a0aec0;">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="time-badge">{{ deposit.created_at|date:"M d, H:i" }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">📥</div>
+                                            <p>No deposit requests found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- User Withdraw Requests -->
-            {% if active_tab == 'withdrawals' %}
-            <div class="control-panel">
-                <h2>📤 Withdraw Requests</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Method</th>
-                                <th>Processed By</th>
-                                <th>Created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for withdrawal in user_withdrawals %}
-                            <tr>
-                                <td><span class="amount" style="color: #dc3545;">₹{{ withdrawal.amount|floatformat:2 }}</span></td>
-                                <td>
-                                    <span class="status {{ withdrawal.status|lower }}">{{ withdrawal.status }}</span>
-                                </td>
-                                <td>
-                                    <span class="time-badge">{{ withdrawal.withdrawal_method|default:"-" }}</span>
-                                </td>
-                                <td>
-                                    {% if withdrawal.processed_by %}
-                                        {{ withdrawal.processed_by.username }}
-                                    {% else %}
-                                        <span style="color: #a0aec0;">-</span>
-                                    {% endif %}
-                                </td>
-                                <td><span class="time-badge">{{ withdrawal.created_at|date:"M d, H:i" }}</span></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">📤</div>
-                                        <p>No withdraw requests found</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <!-- User Withdraw Requests -->
+                {% if active_tab == 'withdrawals' %}
+                <div class="control-panel">
+                    <h2>📤 Withdraw Requests</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Method</th>
+                                    <th>Processed By</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for withdrawal in user_withdrawals %}
+                                <tr>
+                                    <td><span class="amount" style="color: #dc3545;">₹{{ withdrawal.amount|floatformat:2 }}</span></td>
+                                    <td>
+                                        <span class="status {{ withdrawal.status|lower }}">{{ withdrawal.status }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="time-badge">{{ withdrawal.withdrawal_method|default:"-" }}</span>
+                                    </td>
+                                    <td>
+                                        {% if withdrawal.processed_by %}
+                                            {{ withdrawal.processed_by.username }}
+                                        {% else %}
+                                            <span style="color: #a0aec0;">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="time-badge">{{ withdrawal.created_at|date:"M d, H:i" }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">📤</div>
+                                            <p>No withdraw requests found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>
