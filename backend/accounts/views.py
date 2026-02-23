@@ -1083,7 +1083,7 @@ def approve_deposit_request(request, pk):
             # Update Redis balance (CRITICAL for Redis-First betting)
             if redis_client:
                 try:
-                    redis_client.set(f"user_balance:{deposit.user.id}", str(wallet.balance), ex=86400)
+                    redis_client.incrbyfloat(f"user_balance:{deposit.user.id}", float(deposit.amount))
                 except: pass
 
             Transaction.objects.create(
@@ -1120,7 +1120,7 @@ def approve_deposit_request(request, pk):
                     # Update Redis balance for referrer
                     if redis_client:
                         try:
-                            redis_client.set(f"user_balance:{referrer.id}", str(referrer_wallet.balance), ex=86400)
+                            redis_client.incrbyfloat(f"user_balance:{referrer.id}", float(bonus_amount))
                         except: pass
                     
                     Transaction.objects.create(
@@ -1845,6 +1845,14 @@ def lucky_draw(request):
             wallet.add(Decimal(str(selected_amount)))
             balance_after = wallet.balance
             
+            # Update Redis balance (CRITICAL for Redis-First betting)
+            if redis_client:
+                try:
+                    redis_client.incrbyfloat(f"user_balance:{user.id}", float(selected_amount))
+                    logger.info(f"Updated Redis balance for user {user.id} after lucky draw: {selected_amount}")
+                except Exception as re_err:
+                    logger.error(f"Failed to update Redis balance for user {user.id} after lucky draw: {re_err}")
+
             # Create transaction record
             Transaction.objects.create(
                 user=user,

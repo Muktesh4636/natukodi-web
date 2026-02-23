@@ -83,7 +83,18 @@ class UserSerializer(serializers.ModelSerializer):
         return None  # Return null as requested, APK will use local default
 
     def get_wallet_balance(self, obj):
-        # Optimized balance fetch
+        # Optimized balance fetch - try Redis first for real-time consistency
+        from game.utils import get_redis_client
+        redis_client = get_redis_client()
+        if redis_client:
+            try:
+                realtime_balance = redis_client.get(f"user_balance:{obj.id}")
+                if realtime_balance is not None:
+                    return str(realtime_balance)
+            except:
+                pass
+
+        # Fallback to DB
         try:
             if hasattr(obj, 'wallet'):
                 return str(obj.wallet.balance)
