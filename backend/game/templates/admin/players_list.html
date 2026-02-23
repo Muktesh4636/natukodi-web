@@ -549,7 +549,7 @@
                                         <select name="worker_id" onchange="this.form.submit()" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; width: 100%; max-width: 180px;">
                                             <option value="">Unassigned</option>
                                             {% for worker in workers %}
-                                                <option value="{{ worker.id }}" {% if player.worker_id == worker.id %}selected{% endif %}>{{ worker.username }}</option>
+                                                <option value="{{ worker.id }}" {% if player.worker_id == worker.id %}selected{% endif %}>{{ worker.username }} ({{ worker.client_count }})</option>
                                             {% endfor %}
                                         </select>
                                     </form>

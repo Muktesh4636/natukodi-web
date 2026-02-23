@@ -2111,6 +2111,10 @@ def manage_players(request):
     # Workers dropdown: admins only (no super admins) - players are assigned to admins
     workers = get_admins_for_distribution().order_by('username')
     
+    # Annotate workers with client count for display in dropdown
+    for worker in workers:
+        worker.client_count = User.objects.filter(worker=worker, is_staff=False).count()
+    
     context = get_admin_context(request, {
         'page_obj': page_obj,
         'status_filter': status_filter,
