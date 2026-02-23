@@ -28,7 +28,7 @@ try:
 except ImportError:
     TESSERACT_AVAILABLE = False
 
-from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw
+from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw, DeviceToken
 from game.models import MegaSpinProbability
 from .serializers import (
     UserRegistrationSerializer,
@@ -520,6 +520,22 @@ def update_profile_photo(request):
     request.user.save()
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def register_fcm_token(request):
+    """Register FCM token for push notifications"""
+    fcm_token = request.data.get('fcm_token', '').strip()
+    platform = request.data.get('platform', 'android')
+    if not fcm_token:
+        return Response({'error': 'fcm_token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    DeviceToken.objects.update_or_create(
+        user=request.user,
+        fcm_token=fcm_token,
+        defaults={'platform': platform, 'updated_at': timezone.now()}
+    )
+    return Response({'status': 'ok', 'message': 'Token registered'})
 
 
 from rest_framework.views import APIView
@@ -1244,7 +1260,6 @@ def initiate_withdraw(request):
 
     # Create withdraw request with PENDING status
     try:
-        from game.views import redis_client
         from django.db import transaction
         
         with transaction.atomic():
@@ -1593,18 +1608,75 @@ def referral_data(request):
     # Tier progress: 3 refs (first deposit) → ₹500, 5 more → ₹1000, then cycle resets
     tier, progress_current, target, _ = get_tier_progress(active_referrals)
     current_milestone_bonus = '0'  # Not used for display; next_milestone has the reward
-    next_milestone_info = get_next_milestone(active_referrals)
 
-    # Milestones with progress (1/3, 2/3, 3/3) and (1/5, 2/5, ..., 5/5)
+    # Next unachieved milestone from full list (3, 8, 10, 20, 30, 50, 100)
+    next_milestone_counts = [3, 8, 10, 20, 30, 50, 100]
+    next_milestone_config = {
+        3: (500, None), 8: (1000, None), 10: (5000, None), 20: (10000, None),
+        30: (0, 'Mega Spin (up to ₹1 Lakh)'), 50: (25000, None), 100: (50000, None),
+    }
+    next_target = None
+    next_bonus = 0
+    next_bonus_display = None
+    for c in next_milestone_counts:
+        if active_referrals < c:
+            next_target = c
+            bonus_val, disp = next_milestone_config[c]
+            next_bonus = bonus_val
+            next_bonus_display = disp
+            break
+    if next_target is not None:
+        # For 3 and 8, use cycle-aware progress; for 10+, use simple count
+        if next_target in (3, 8):
+            next_milestone_info = get_next_milestone(active_referrals)
+            next_milestone_info['next_milestone'] = next_target
+            next_milestone_info['next_bonus'] = float(next_bonus)
+            next_milestone_info['next_bonus_display'] = next_bonus_display
+        else:
+            progress_to_next = min(active_referrals, next_target)
+            next_milestone_info = {
+                'tier': 1,
+                'current_progress': progress_to_next,
+                'target': next_target,
+                'next_milestone': next_target,
+                'next_bonus': float(next_bonus),
+                'next_bonus_display': next_bonus_display,
+                'progress_percentage': min((progress_to_next / next_target * 100) if next_target > 0 else 0, 100.0)
+            }
+    else:
+        next_milestone_info = get_next_milestone(active_referrals)
+
+    # Milestones: 3 refs → ₹500, 5 more (8 total) → ₹1000, then 10, 20, 30 (Mega Spin), 50, 100
     progress_in_cycle = active_referrals % 8
     achieved_tier1 = progress_in_cycle >= 3 or (progress_in_cycle == 0 and active_referrals >= 8)
     achieved_tier2 = progress_in_cycle == 0 and active_referrals >= 8
     progress_tier1 = 3 if achieved_tier1 else (progress_current if tier == 1 else 0)
     progress_tier2 = 5 if achieved_tier2 else (progress_current if tier == 2 else 0)
-    milestones = [
-        {'count': 3, 'bonus': 500, 'bonus_display': None, 'achieved': achieved_tier1, 'progress_current': progress_tier1, 'target': 3},
-        {'count': 5, 'bonus': 1000, 'bonus_display': None, 'achieved': achieved_tier2, 'progress_current': progress_tier2, 'target': 5},
-    ]
+
+    # All referral tiers including Mega Spin at 30
+    all_milestone_counts = [3, 8, 10, 20, 30, 50, 100]  # 8 = 3+5 "5 more"
+    milestone_config = {
+        3: {'bonus': 500, 'bonus_display': None},
+        8: {'bonus': 1000, 'bonus_display': None},
+        10: {'bonus': 5000, 'bonus_display': None},
+        20: {'bonus': 10000, 'bonus_display': None},
+        30: {'bonus': 0, 'bonus_display': 'Mega Spin (up to ₹1 Lakh)'},
+        50: {'bonus': 25000, 'bonus_display': None},
+        100: {'bonus': 50000, 'bonus_display': None},
+    }
+    milestones = []
+    for c in all_milestone_counts:
+        cfg = milestone_config[c]
+        achieved = active_referrals >= c
+        progress_curr = progress_tier1 if c == 3 else (progress_tier2 if c == 8 else min(active_referrals, c))
+        milestones.append({
+            'count': c,
+            'bonus': cfg['bonus'],
+            'bonus_display': cfg['bonus_display'],
+            'achieved': achieved,
+            'progress_current': progress_curr,
+            'target': 5 if c == 8 else (3 if c == 3 else c),
+        })
     
     # Get recent referral bonuses (last 10)
     recent_bonuses = referral_transactions.order_by('-created_at')[:10].values(
@@ -1643,7 +1715,8 @@ def lucky_draw(request):
     user = request.user
     
     if request.method == 'GET':
-        # Find the most recent approved bank transfer deposit of ₹2000+ that hasn't been used for lucky draw
+        # Find the OLDEST approved deposit of ₹2000+ that hasn't been used for lucky draw (FIFO).
+        # User must use their mega spin before the next deposit grants another.
         recent_deposit = DepositRequest.objects.filter(
             user=user,
             status='APPROVED',
@@ -1651,7 +1724,7 @@ def lucky_draw(request):
             payment_reference__isnull=False  # Bank transfer has UTR/payment reference
         ).exclude(
             lucky_draws__isnull=False  # Exclude deposits that already have lucky draw
-        ).order_by('-processed_at').first()
+        ).order_by('processed_at').first()
         
         # Check if user has already claimed lucky draw for this deposit
         if recent_deposit:
@@ -1683,7 +1756,7 @@ def lucky_draw(request):
         })
 
     elif request.method == 'POST':
-        # Find the most recent approved bank transfer deposit of ₹2000+
+        # Find the OLDEST approved deposit of ₹2000+ (FIFO - must use current spin before next deposit grants one)
         recent_deposit = DepositRequest.objects.filter(
             user=user,
             status='APPROVED',
@@ -1691,7 +1764,7 @@ def lucky_draw(request):
             payment_reference__isnull=False
         ).exclude(
             lucky_draws__isnull=False
-        ).order_by('-processed_at').first()
+        ).order_by('processed_at').first()
         
         if not recent_deposit:
             return Response({
