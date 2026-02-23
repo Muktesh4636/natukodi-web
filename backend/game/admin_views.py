@@ -2172,6 +2172,10 @@ def players(request):
     # Order by superuser first, then staff
     users_query = users_query.order_by('-is_superuser', '-is_staff', 'username')
 
+    # Annotate admins with client count
+    for admin in users_query:
+        admin.client_count = User.objects.filter(worker=admin, is_staff=False).count()
+
     # Pagination
     paginator = Paginator(users_query, 20)  # 20 users per page
     try:

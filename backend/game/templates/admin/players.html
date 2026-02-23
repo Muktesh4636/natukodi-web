@@ -550,6 +550,7 @@
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Status</th>
+                                <th>Users</th>
                                 <th>Joined</th>
                                 <th>Actions</th>
                             </tr>
@@ -574,6 +575,11 @@
                                 <td>
                                     <span class="status-badge {% if admin.is_active %}active{% else %}inactive{% endif %}">
                                         {% if admin.is_active %}✅ Active{% else %}❌ Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge" style="background: #edf2f7; color: #4a5568;">
+                                        👥 {{ admin.client_count }}
                                     </span>
                                 </td>
                                 <td><span class="time-badge">{{ admin.date_joined|date:"M d, Y" }}</span></td>
