@@ -949,9 +949,9 @@
             {% endif %}
             
             <!-- User Transactions -->
-            {% if active_tab == 'all' or active_tab == 'transactions' %}
+            {% if active_tab == 'transactions' %}
             <div class="control-panel">
-                <h2>📋 {% if active_tab == 'all' %}Recent{% endif %} Reports</h2>
+                <h2>📋 Reports</h2>
                 <div class="table-wrapper">
                     <table>
                         <thead>
@@ -1001,9 +1001,9 @@
             {% endif %}
             
             <!-- User Deposit Requests -->
-            {% if active_tab == 'all' or active_tab == 'deposits' %}
+            {% if active_tab == 'deposits' %}
             <div class="control-panel">
-                <h2>📥 {% if active_tab == 'all' %}Recent{% endif %} Deposit Requests</h2>
+                <h2>📥 Deposit Requests</h2>
                 <div class="table-wrapper">
                     <table>
                         <thead>
@@ -1055,9 +1055,9 @@
             {% endif %}
 
             <!-- User Withdraw Requests -->
-            {% if active_tab == 'all' or active_tab == 'withdrawals' %}
+            {% if active_tab == 'withdrawals' %}
             <div class="control-panel">
-                <h2>📤 {% if active_tab == 'all' %}Recent{% endif %} Withdraw Requests</h2>
+                <h2>📤 Withdraw Requests</h2>
                 <div class="table-wrapper">
                     <table>
                         <thead>
