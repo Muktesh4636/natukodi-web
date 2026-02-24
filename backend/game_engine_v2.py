@@ -371,9 +371,24 @@ class GameEngine:
                     # Publish legacy dice_result message
                     await self.publish_state(legacy_type="dice_result")
                     
-                    # CRITICAL: Clear the last_round_results_cache so the API shows fresh data
-                    await self.redis.delete('last_round_results_cache')
-                    logger.info(f"Round {self.round_id}: Cleared last_round_results_cache")
+                    # Keep API aligned with WebSocket immediately (DB worker may lag a few seconds).
+                    # last_round_results endpoint reads this key first.
+                    try:
+                        last_round_cache = {
+                            "round_id": self.round_id,
+                            "dice_1": dice_values[0] if len(dice_values) > 0 else None,
+                            "dice_2": dice_values[1] if len(dice_values) > 1 else None,
+                            "dice_3": dice_values[2] if len(dice_values) > 2 else None,
+                            "dice_4": dice_values[3] if len(dice_values) > 3 else None,
+                            "dice_5": dice_values[4] if len(dice_values) > 4 else None,
+                            "dice_6": dice_values[5] if len(dice_values) > 5 else None,
+                            "dice_result": result_str,
+                            "timestamp": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S') + 'Z',
+                        }
+                        await self.redis.set("last_round_results_cache", json.dumps(last_round_cache), ex=120)
+                        logger.info(f"Round {self.round_id}: Updated last_round_results_cache from engine")
+                    except Exception as cache_err:
+                        logger.error(f"Round {self.round_id}: Failed to update last_round_results_cache: {cache_err}")
                     
                     already_published = True
                     last_publish_time = now  # Update publish time to prevent immediate duplicate

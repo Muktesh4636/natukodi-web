@@ -606,6 +606,26 @@ class Command(BaseCommand):
 
                                 # Calculate payouts
                                 calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
+
+                                # Keep API aligned with WebSocket immediately (DB is already updated here,
+                                # but clients can read Redis faster and without lag).
+                                if redis_client:
+                                    try:
+                                        last_round_cache = {
+                                            'round_id': round_obj.round_id,
+                                            'dice_1': dice_values[0] if len(dice_values) > 0 else None,
+                                            'dice_2': dice_values[1] if len(dice_values) > 1 else None,
+                                            'dice_3': dice_values[2] if len(dice_values) > 2 else None,
+                                            'dice_4': dice_values[3] if len(dice_values) > 3 else None,
+                                            'dice_5': dice_values[4] if len(dice_values) > 4 else None,
+                                            'dice_6': dice_values[5] if len(dice_values) > 5 else None,
+                                            'dice_result': result,
+                                            'timestamp': (round_obj.result_time or timezone.now()).isoformat(),
+                                        }
+                                        redis_client.set('last_round_results_cache', json.dumps(last_round_cache), ex=120)
+                                        logger.info(f"Updated last_round_results_cache after dice result for {round_obj.round_id}")
+                                    except Exception as rc_err:
+                                        self.stdout.write(self.style.WARNING(f'Redis cache clear error: {rc_err}'))
                             except Exception as db_err:
                                 self.stdout.write(self.style.WARNING(f'Failed to save dice result/payouts (non-critical): {db_err}'))
                                 # Continue - timer should keep running even if DB save fails
@@ -625,6 +645,23 @@ class Command(BaseCommand):
                             if all(v is not None for v in dice_values_for_payout):
                                 calculate_payouts(round_obj, dice_result=existing_result, dice_values=dice_values_for_payout)
                                 self.stdout.write(self.style.SUCCESS(f'💰 Payouts calculated for pre-set dice at {timer}s: {existing_result}'))
+                                # Keep API aligned with WebSocket immediately.
+                                if redis_client:
+                                    try:
+                                        last_round_cache = {
+                                            'round_id': round_obj.round_id,
+                                            'dice_1': dice_values_for_payout[0] if len(dice_values_for_payout) > 0 else None,
+                                            'dice_2': dice_values_for_payout[1] if len(dice_values_for_payout) > 1 else None,
+                                            'dice_3': dice_values_for_payout[2] if len(dice_values_for_payout) > 2 else None,
+                                            'dice_4': dice_values_for_payout[3] if len(dice_values_for_payout) > 3 else None,
+                                            'dice_5': dice_values_for_payout[4] if len(dice_values_for_payout) > 4 else None,
+                                            'dice_6': dice_values_for_payout[5] if len(dice_values_for_payout) > 5 else None,
+                                            'dice_result': existing_result,
+                                            'timestamp': (round_obj.result_time or timezone.now()).isoformat(),
+                                        }
+                                        redis_client.set('last_round_results_cache', json.dumps(last_round_cache), ex=120)
+                                    except Exception:
+                                        pass
                             
                             dice_values_for_broadcast = dice_values_for_payout
 

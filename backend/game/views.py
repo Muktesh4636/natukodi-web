@@ -1495,7 +1495,12 @@ def winning_results(request, round_id=None):
         if not round_id or len(round_id) == 0 or round_id.lower() == 'latest' or round_id.lower() == 'current':
             round_id = None
     
-    # Get round by ID or use latest completed round
+    # Get round by ID or use latest completed round.
+    #
+    # Important: The WebSocket/engine publishes results to Redis immediately, but DB persistence
+    # (round_worker) can lag by a few seconds. If we always pick "latest RESULT/COMPLETED" from DB,
+    # we may accidentally return the previous round during that window, which looks like "wrong dice".
+    redis_state = None
     round_obj = None
     if round_id:
         try:
@@ -1505,17 +1510,33 @@ def winning_results(request, round_id=None):
             round_obj = None
     
     if not round_obj:
-        # Get the absolute most recent round with status RESULT or COMPLETED
-        round_obj = GameRound.objects.filter(
-            status__in=['RESULT', 'COMPLETED'],
-            dice_result__isnull=False
-        ).order_by('-id').first()
-        
-        # If no RESULT/COMPLETED round found, fallback to any round with a dice result
+        # Prefer the current engine state if it already has a result.
+        if redis_client:
+            try:
+                state_json = redis_client.get('current_game_state')
+                if state_json:
+                    redis_state = json.loads(state_json)
+                    redis_round_id = (redis_state.get('round_id') or '').strip()
+                    redis_status = (redis_state.get('status') or '').strip().upper()
+                    redis_result = redis_state.get('dice_result') or redis_state.get('result')
+                    redis_dice_values = redis_state.get('dice_values')
+                    if redis_round_id and redis_status in ('RESULT', 'COMPLETED') and redis_result and redis_dice_values:
+                        round_obj = GameRound.objects.filter(round_id=redis_round_id).first()
+            except Exception as re:
+                logger.error(f"Redis error in winning_results (current_game_state): {re}")
+
+        # Fallback: Get the absolute most recent round with status RESULT or COMPLETED
         if not round_obj:
             round_obj = GameRound.objects.filter(
+                status__in=['RESULT', 'COMPLETED'],
                 dice_result__isnull=False
             ).order_by('-id').first()
+            
+            # If no RESULT/COMPLETED round found, fallback to any round with a dice result
+            if not round_obj:
+                round_obj = GameRound.objects.filter(
+                    dice_result__isnull=False
+                ).order_by('-id').first()
         
         if not round_obj:
             return Response({
@@ -1596,17 +1617,49 @@ def winning_results(request, round_id=None):
     # Format net_result as integer as requested
     net_result_formatted = int(user_net_result)
 
+    # If we didn't load redis_state earlier but Redis is available, load it now so we can
+    # fill dice fields from the same source as WebSocket (prevents temporary mismatches).
+    if redis_state is None and redis_client:
+        try:
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                redis_state = json.loads(state_json)
+        except Exception:
+            redis_state = None
+
+    redis_round_id = (redis_state.get('round_id') or '').strip() if isinstance(redis_state, dict) else ''
+    redis_result = (redis_state.get('dice_result') or redis_state.get('result')) if isinstance(redis_state, dict) else None
+    redis_dice_values = redis_state.get('dice_values') if isinstance(redis_state, dict) else None
+    use_redis_for_this_round = bool(round_obj and redis_round_id and round_obj.round_id == redis_round_id and redis_dice_values)
+
+    dice_1 = round_obj.dice_1
+    dice_2 = round_obj.dice_2
+    dice_3 = round_obj.dice_3
+    dice_4 = round_obj.dice_4
+    dice_5 = round_obj.dice_5
+    dice_6 = round_obj.dice_6
+    dice_result_value = str(round_obj.dice_result) if round_obj.dice_result is not None else None
+
+    if use_redis_for_this_round:
+        try:
+            if isinstance(redis_dice_values, list) and len(redis_dice_values) >= 6:
+                dice_1, dice_2, dice_3, dice_4, dice_5, dice_6 = redis_dice_values[:6]
+            if redis_result is not None:
+                dice_result_value = str(redis_result)
+        except Exception:
+            pass
+
     response_data = {
         "round": {
             "round_id": round_obj.round_id,
             "status": round_obj.status,
-            "dice_result": str(round_obj.dice_result) if round_obj.dice_result is not None else None,
-            "dice_1": round_obj.dice_1,
-            "dice_2": round_obj.dice_2,
-            "dice_3": round_obj.dice_3,
-            "dice_4": round_obj.dice_4,
-            "dice_5": round_obj.dice_5,
-            "dice_6": round_obj.dice_6,
+            "dice_result": dice_result_value,
+            "dice_1": dice_1,
+            "dice_2": dice_2,
+            "dice_3": dice_3,
+            "dice_4": dice_4,
+            "dice_5": dice_5,
+            "dice_6": dice_6,
             "start_time": round_obj.start_time.isoformat() if round_obj.start_time else None,
             "result_time": round_obj.result_time.isoformat() if round_obj.result_time else (round_obj.end_time.isoformat() if round_obj.end_time else None)
         },
