@@ -46,6 +46,16 @@ for SERVER in "${SERVERS[@]}"; do
         
         # 4. Restart Docker Services
         echo "🔄 Restarting Docker containers..."
+        # IMPORTANT: Redis is single-source-of-truth for game state/betting.
+        # On the Redis host itself, avoid hairpin to its public IP (can timeout from containers).
+        if [ "$SERVER" == "72.61.254.74" ]; then
+            export REDIS_HOST="redis"
+            echo "🔧 Using local Redis service name on $SERVER (REDIS_HOST=redis)"
+        else
+            export REDIS_HOST="72.61.254.74"
+            echo "🔧 Using shared Redis host (REDIS_HOST=72.61.254.74)"
+        fi
+
         # down --remove-orphans ensures a clean state
         docker compose down --remove-orphans
         
