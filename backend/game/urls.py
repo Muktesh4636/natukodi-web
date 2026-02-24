@@ -13,6 +13,7 @@ urlpatterns = [
     path('bet/id/<int:bet_id>/', views.remove_bet_by_id, name='remove_bet_by_id'),
     path('bet/last/', views.remove_last_bet, name='remove_last_bet'),
     path('bets/', views.my_bets, name='my_bets'),
+    path('user-bets-summary/', views.user_bets_summary, name='user_bets_summary'),
     path('prediction/', views.submit_prediction, name='submit_prediction'),
     path('round/<str:round_id>/predictions/', views.round_predictions, name='round_predictions'),
     path('round/predictions/', views.round_predictions, name='round_predictions_current'),
@@ -34,6 +35,7 @@ urlpatterns = [
     path('stats/', views.game_stats, name='game_stats'),
     path('settings/', views.game_settings_api, name='game_settings_api'),
     path('settings', views.game_settings_api, name='game_settings_api_no_slash'),
+    path('max-bet/', views.max_bet, name='max_bet'),
     path('settings/timer/', views.game_timer_settings, name='game_timer_settings'),
     path('settings/sound/', views.user_sound_settings, name='user_sound_settings'),
     

@@ -1,0 +1,203 @@
+"""
+Maintenance mode middleware.
+
+When MAINTENANCE_MODE is enabled (env var or Redis), most requests return 503.
+APK download routes are ALWAYS allowed so users can get the app during maintenance.
+
+Enable: MAINTENANCE_MODE=1 or set Redis key maintenance_mode=1
+Disable: MAINTENANCE_MODE=0 or unset Redis key
+"""
+import os
+import logging
+from django.http import HttpResponse
+from django.conf import settings
+
+logger = logging.getLogger('django')
+
+# Paths that ALWAYS work during maintenance (APK download + admin panel to turn off)
+MAINTENANCE_ALLOWED_PREFIXES = (
+    '/apk',
+    '/download-apk',
+    '/api/download/apk',
+    '/api/apk',
+    '/gundu-ata.apk',
+    '/app.apk',
+    '/download.apk',
+    '/static/',
+    '/media/',
+    '/game-admin/',  # Admin can access to turn off maintenance
+)
+
+# Exact paths allowed during maintenance
+MAINTENANCE_ALLOWED_EXACT = frozenset([
+    'apk', 'apk/', 'download-apk', 'download-apk/',
+    'gundu-ata.apk', 'gundu-ata.apk/', 'app.apk', 'app.apk/',
+    'download.apk', 'download.apk/',
+])
+
+
+def _is_maintenance_allowed(path):
+    """Check if this path should bypass maintenance mode."""
+    # Normalize: ensure leading slash for prefix checks
+    path = path or '/'
+    if not path.startswith('/'):
+        path = '/' + path
+
+    # Prefix match (covers /apk, /api/download/apk/, /gundu-ata.apk, etc.)
+    for prefix in MAINTENANCE_ALLOWED_PREFIXES:
+        if path.startswith(prefix) or path == prefix.rstrip('/'):
+            return True
+
+    # Exact match for path without leading slash
+    path_no_slash = path.strip('/')
+    if path_no_slash in MAINTENANCE_ALLOWED_EXACT:
+        return True
+
+    return False
+
+
+def _get_maintenance_info():
+    """Get (enabled, until_timestamp). Auto-clear if expired."""
+    import time
+    # 1. Environment variable
+    env_val = os.getenv('MAINTENANCE_MODE', '').lower()
+    if env_val in ('1', 'true', 'yes', 'on'):
+        return True, None  # No end time for env-based
+
+    # 2. Redis (runtime toggle)
+    try:
+        if getattr(settings, 'REDIS_POOL', None):
+            import redis
+            r = redis.Redis(connection_pool=settings.REDIS_POOL)
+            if not r.get('maintenance_mode'):
+                return False, None
+            until_raw = r.get('maintenance_until')
+            if until_raw is not None:
+                until_raw = until_raw.decode() if isinstance(until_raw, bytes) else str(until_raw)
+            until = int(until_raw) if until_raw else None
+            now = int(time.time())
+            if until and until < now:
+                r.delete('maintenance_mode')
+                r.delete('maintenance_until')
+                return False, None
+            return True, until
+    except Exception:
+        pass
+    return False, None
+
+
+def _is_maintenance_enabled():
+    enabled, _ = _get_maintenance_info()
+    return enabled
+
+
+def _maintenance_response(request):
+    """Return 503 maintenance page with duration and Download APK button."""
+    import time
+    _, until = _get_maintenance_info()
+    apk_url = request.build_absolute_uri('/api/download/apk/')
+
+    if until:
+        until_js = until * 1000  # JS uses milliseconds
+        duration_html = '''
+        <p class="duration" id="maintenance-duration">We'll be back in <span id="countdown">--</span></p>
+        <script>
+        (function(){
+            var until = ''' + str(until_js) + ''';
+            function update(){
+                var now = Date.now();
+                if (now >= until) { document.getElementById("countdown").textContent = "any moment"; location.reload(); return; }
+                var s = Math.floor((until - now) / 1000);
+                var m = Math.floor(s / 60);
+                var h = Math.floor(m / 60);
+                m = m % 60;
+                s = s % 60;
+                var parts = [];
+                if (h) parts.push(h + "h");
+                if (m) parts.push(m + "m");
+                parts.push(s + "s");
+                document.getElementById("countdown").textContent = parts.join(" ");
+            }
+            update();
+            setInterval(update, 1000);
+        })();
+        </script>'''
+    else:
+        duration_html = '<p class="duration">We\'re performing scheduled maintenance. Please check back shortly.</p>'
+
+    html = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>App Under Maintenance - Gundu Ata</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }}
+        .card {{
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }}
+        h1 {{ font-size: 1.5rem; margin-bottom: 12px; color: #f8fafc; }}
+        p {{ color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }}
+        .duration {{ font-size: 1.1rem; color: #fbbf24; font-weight: 600; }}
+        #countdown {{ color: #22c55e; }}
+        .btn {{
+            display: inline-block;
+            padding: 14px 28px;
+            background: #22c55e;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }}
+        .btn:hover {{ background: #16a34a; }}
+        .note {{ font-size: 0.875rem; color: #64748b; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔧 App Under Maintenance</h1>
+        {duration_html}
+        <a href="{apk_url}" class="btn">📥 Download Gundu Ata APK</a>
+        <p class="note">You can still download the app while we work.</p>
+    </div>
+</body>
+</html>'''
+    return HttpResponse(html, status=503, content_type='text/html')
+
+
+class MaintenanceModeMiddleware:
+    """
+    When maintenance mode is on, return 503 for most requests.
+    APK download routes always work.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not _is_maintenance_enabled():
+            return self.get_response(request)
+
+        path = request.path
+        if _is_maintenance_allowed(path):
+            return self.get_response(request)
+
+        logger.info(f"Maintenance mode: blocking {request.method} {path}")
+        return _maintenance_response(request)

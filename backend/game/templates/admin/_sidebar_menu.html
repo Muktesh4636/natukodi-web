@@ -386,15 +386,24 @@
 
                         if (data.type === 'admin_notification') {
                             console.log('🔔 [System] Processing admin notification');
-                            showAdminNotification(data);
+                            
+                            // Filter notifications by assigned worker (if not super admin)
+                            const currentUserId = "{{ user.id }}";
+                            const isSuperAdmin = {% if user.is_superuser %}true{% else %}false{% endif %};
+                            
+                            if (isSuperAdmin || !data.worker_id || String(data.worker_id) === String(currentUserId)) {
+                                showAdminNotification(data);
 
-                            // Dispatch a custom event so specific pages can update their UI
-                            const event = new CustomEvent('adminNotification', {
-                                detail: data,
-                                bubbles: true,
-                                cancelable: true
-                            });
-                            window.dispatchEvent(event);
+                                // Dispatch a custom event so specific pages can update their UI
+                                const event = new CustomEvent('adminNotification', {
+                                    detail: data,
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                                window.dispatchEvent(event);
+                            } else {
+                                console.log('🔔 [System] Notification for another admin ignored');
+                            }
                         }
                     } catch (err) {
                         console.error('🔔 [Error] Parsing notification data:', err);

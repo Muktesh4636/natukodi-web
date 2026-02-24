@@ -680,10 +680,10 @@
             <div class="modal-body">
                 <p><strong>User:</strong> <span id="modal-username"></span></p>
                 <p><strong>Amount:</strong> ₹<span id="modal-amount"></span></p>
-                <p><strong>Reason (optional):</strong></p>
+                <p><strong>Reason (shown to user):</strong></p>
                 <form id="rejectForm" method="post">
                     {% csrf_token %}
-                    <textarea name="note" placeholder="Enter rejection reason (optional)"></textarea>
+                    <textarea name="note" placeholder="e.g. Screenshot unclear, wrong amount, UTR mismatch - this will be visible to the user in the app" rows="3" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;"></textarea>
                 </form>
             </div>
             <div class="modal-footer">

@@ -754,9 +754,13 @@ def recent_rounds(request):
     total_bets_count = Bet.objects.count()
     total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
     
+    # Get dice control history
+    dice_control_history = DiceResult.objects.select_related('round', 'set_by').order_by('-set_at')[:50]
+    
     context = get_admin_context(request, {
         'recent_rounds': recent_rounds_list,
         'recent_bets': recent_bets,
+        'dice_control_history': dice_control_history,
         'total_rounds': total_rounds,
         'total_bets_count': total_bets_count,
         'total_bets_amount': total_bets_amount,
@@ -1285,6 +1289,10 @@ def deposit_requests(request):
     # Get all deposit requests
     deposit_requests_list = DepositRequest.objects.select_related('user', 'processed_by').all()
     
+    # Filter by assigned worker (if not super admin)
+    if not is_super_admin(request.user):
+        deposit_requests_list = deposit_requests_list.filter(user__worker=request.user)
+    
     # Apply filters
     if search_query:
         deposit_requests_list = deposit_requests_list.filter(
@@ -1338,7 +1346,13 @@ def check_new_deposit_requests(request):
     new_requests = DepositRequest.objects.filter(
         id__gt=last_id,
         status='PENDING'
-    ).select_related('user').order_by('-id')[:10]
+    )
+    
+    # Filter by assigned worker (if not super admin)
+    if not is_super_admin(request.user):
+        new_requests = new_requests.filter(user__worker=request.user)
+        
+    new_requests = new_requests.select_related('user').order_by('-id')[:10]
     
     requests_data = []
     for req in new_requests:
@@ -1555,6 +1569,10 @@ def withdraw_requests(request):
     # Get all withdraw requests
     withdraw_requests_list = WithdrawRequest.objects.select_related('user', 'processed_by').all()
     
+    # Filter by assigned worker (if not super admin)
+    if not is_super_admin(request.user):
+        withdraw_requests_list = withdraw_requests_list.filter(user__worker=request.user)
+    
     # Apply filters
     if search_query:
         withdraw_requests_list = withdraw_requests_list.filter(
@@ -1612,7 +1630,13 @@ def check_new_withdraw_requests(request):
     new_requests = WithdrawRequest.objects.filter(
         id__gt=last_id,
         status='PENDING'
-    ).select_related('user').order_by('-id')[:10]
+    )
+    
+    # Filter by assigned worker (if not super admin)
+    if not is_super_admin(request.user):
+        new_requests = new_requests.filter(user__worker=request.user)
+        
+    new_requests = new_requests.select_related('user').order_by('-id')[:10]
     
     requests_data = []
     for req in new_requests:
@@ -2514,14 +2538,75 @@ def game_settings(request):
             'input_type': setting_info['input_type'],
         })
     
+    # Maintenance mode status (for display in template)
+    maintenance_enabled = False
+    maintenance_until = None
+    if getattr(settings, 'REDIS_POOL', None):
+        try:
+            r = redis.Redis(connection_pool=settings.REDIS_POOL)
+            if r.get('maintenance_mode'):
+                maintenance_enabled = True
+                until_raw = r.get('maintenance_until')
+                if until_raw:
+                    maintenance_until = int(until_raw)
+        except Exception:
+            pass
+
     context = get_admin_context(request, {
         'settings_list': settings_list,
         'app_version_list': app_version_list,
+        'maintenance_enabled': maintenance_enabled,
+        'maintenance_until': maintenance_until,
         'page': 'game_settings',
         'admin_profile': get_admin_profile(request.user),
     })
-    
+
     return render(request, 'admin/game_settings.html', context)
+
+
+@login_required(login_url='/game-admin/login/')
+@admin_required
+def maintenance_toggle(request):
+    """Enable or disable maintenance mode from admin panel. Requires game_settings permission."""
+    if not has_menu_permission(request.user, 'game_settings'):
+        messages.error(request, 'You do not have permission to manage maintenance.')
+        return redirect('admin_dashboard')
+
+    import time
+    r = None
+    if getattr(settings, 'REDIS_POOL', None):
+        r = redis.Redis(connection_pool=settings.REDIS_POOL)
+
+    if request.method == 'POST':
+        action = request.POST.get('maintenance_action')
+        if action == 'enable':
+            duration_minutes = request.POST.get('maintenance_duration', '30')
+            try:
+                mins = int(duration_minutes)
+                if mins < 1:
+                    mins = 30
+                elif mins > 480:  # max 8 hours
+                    mins = 480
+            except (ValueError, TypeError):
+                mins = 30
+            if r:
+                now = int(time.time())
+                until = now + (mins * 60)
+                r.set('maintenance_mode', '1')
+                r.set('maintenance_until', str(until))
+                messages.success(request, f'Maintenance mode enabled for {mins} minutes. Users will see "Back in X" countdown.')
+            else:
+                messages.error(request, 'Redis not configured. Set MAINTENANCE_MODE=1 in environment instead.')
+        elif action == 'disable':
+            if r:
+                r.delete('maintenance_mode')
+                r.delete('maintenance_until')
+                messages.success(request, 'Maintenance mode disabled. App is live again.')
+            else:
+                messages.error(request, 'Redis not configured. Unset MAINTENANCE_MODE in environment.')
+
+    return redirect('game_settings')
+
 
 @admin_required
 def payment_methods(request):

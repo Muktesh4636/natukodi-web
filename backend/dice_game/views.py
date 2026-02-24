@@ -197,6 +197,15 @@ def download_apk(request):
         str(settings.BASE_DIR / 'staticfiles' / 'apks' / 'gundu_ata_latest.apk'),
         str(settings.BASE_DIR / 'static' / 'apks' / 'gundu_ata_latest.apk'),
         str(settings.BASE_DIR / 'static' / 'assets' / 'gundu_ata_latest.apk'),
+        # Gundu_ata_apk-1 (primary source for present)
+        '/Users/pradyumna/Gundu_ata_apk-1/out/Sikwin_UnityUpdate_v49_signed.apk',
+        '/Users/pradyumna/Gundu_ata_apk-1/out/Sikwin_UnityUpdate_v49.apk',
+        '/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean_signed.apk',
+        '/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean.apk',
+        '/Users/pradyumna/Gundu_ata_apk-1/gundu_ata/extracted_8/Gundu Ata.apk',
+        # Legacy android_app paths (fallback)
+        str(settings.BASE_DIR.parent / 'android_app' / 'Gundu_ata_apk' / 'Gundu Ata 3.apk'),
+        str(settings.BASE_DIR.parent / 'android_app' / 'Gundu_ata_apk' / 'Gundu Ata.apk'),
         # Android app build output (if building locally)
         str(settings.BASE_DIR.parent / 'android_app' / 'app' / 'build' / 'outputs' / 'apk' / 'debug' / 'app-debug.apk'),
         # Absolute paths (server locations)

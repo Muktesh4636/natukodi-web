@@ -1053,10 +1053,10 @@
             }
         }
 
-        // Parse timer value (allow 0; default to 1 only for NaN/negative)
+        // Parse timer value (admin UI expects 1..roundEndTime; clamp <=0 to 1 to avoid glitches)
         function parseTimer(val) {
             const v = parseInt(val, 10);
-            return (isNaN(v) || v < 0) ? 1 : v;
+            return (isNaN(v) || v <= 0) ? 1 : v;
         }
 
         // Handle WebSocket messages

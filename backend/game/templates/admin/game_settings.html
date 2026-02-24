@@ -474,12 +474,63 @@
                     </div>
                     {% endfor %}
                 </div>
-                    
+
                 <div style="margin-top: 32px; display: flex; gap: 12px; padding: 0 32px;">
                     <button type="submit" class="btn btn-primary">Save All Settings</button>
                     <a href="{% url 'admin_dashboard' %}" class="btn" style="background: #e2e8f0; color: #4a5568; text-decoration: none; display: inline-block;">Cancel</a>
                 </div>
             </form>
+
+            <div class="control-panel" style="margin-top: 32px;">
+                <h2>🔧 App Maintenance Mode</h2>
+                <p style="color: #718096; font-size: 14px; margin-bottom: 20px;">When enabled, all users see a maintenance screen with countdown. Admin panel remains accessible. APK download still works.</p>
+                {% if maintenance_enabled %}
+                <div class="alert" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+                    <strong>⚠️ Maintenance is ACTIVE</strong>
+                    {% if maintenance_until %}
+                    <span id="maint-remaining"> — Ends in <span id="maint-countdown">--</span></span>
+                    <script>
+                    (function(){
+                        var until = {{ maintenance_until }}000;
+                        function up(){
+                            var now = Date.now();
+                            if (now >= until) { location.reload(); return; }
+                            var s = Math.floor((until - now) / 1000);
+                            var m = Math.floor(s / 60), h = Math.floor(m / 60);
+                            m %= 60; s %= 60;
+                            var p = [];
+                            if (h) p.push(h + "h");
+                            if (m) p.push(m + "m");
+                            p.push(s + "s");
+                            document.getElementById("maint-countdown").textContent = p.join(" ");
+                        }
+                        up(); setInterval(up, 1000);
+                    })();
+                    </script>
+                    {% endif %}
+                </div>
+                <form method="post" action="{% url 'maintenance_toggle' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="maintenance_action" value="disable">
+                    <button type="submit" class="btn" style="background: #22c55e; color: white;">End Maintenance Now</button>
+                </form>
+                {% else %}
+                <form method="post" action="{% url 'maintenance_toggle' %}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="maintenance_action" value="enable">
+                    <label for="maintenance_duration" style="font-weight: 600;">Enable maintenance for:</label>
+                    <select name="maintenance_duration" id="maintenance_duration" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="120">2 hours</option>
+                        <option value="180">3 hours</option>
+                        <option value="240">4 hours</option>
+                    </select>
+                    <button type="submit" class="btn" style="background: #f59e0b; color: white;">Enable Maintenance</button>
+                </form>
+                {% endif %}
+            </div>
         </div>
     </div>
 

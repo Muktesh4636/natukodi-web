@@ -19,6 +19,34 @@ def get_current_round_state(redis_client):
 
     if redis_client:
         try:
+            # Prefer the engine's primary key first (more reliable than legacy round_timer).
+            state_raw = redis_client.get('current_game_state')
+            if state_raw:
+                try:
+                    round_data = json.loads(state_raw)
+                except Exception:
+                    round_data = None
+
+                if isinstance(round_data, dict) and round_data.get('round_id'):
+                    try:
+                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
+                    except GameRound.DoesNotExist:
+                        round_obj = None
+
+                    status = round_data.get('status', status) if isinstance(round_data, dict) else status
+
+                    # Engine publishes a monotonic "timer" (counts up from 1). Use it if present.
+                    try:
+                        t = int(round_data.get('timer', 0))
+                        timer = t if t >= 0 else 0
+                    except Exception:
+                        timer = 0
+
+                    # If we got a usable state, return early.
+                    if timer > 0:
+                        # Even if the DB row is briefly unavailable, the engine timer is still useful for UI.
+                        return round_obj, timer, status, round_data
+
             round_data_raw = redis_client.get('current_round')
             if round_data_raw:
                 round_data = json.loads(round_data_raw)
@@ -40,7 +68,14 @@ def get_current_round_state(redis_client):
                         pass
                 
                 if not is_stale:
-                    timer = int(redis_client.get('round_timer') or '0')
+                    # Prefer explicit timer in payload if present; otherwise legacy round_timer.
+                    try:
+                        if isinstance(round_data, dict) and round_data.get('timer') is not None:
+                            timer = int(round_data.get('timer') or 0)
+                        else:
+                            timer = int(redis_client.get('round_timer') or '0')
+                    except Exception:
+                        timer = 0
                     status = round_data.get('status', 'WAITING')
                     try:
                         round_obj = GameRound.objects.get(round_id=round_data['round_id'])
@@ -76,6 +111,10 @@ def get_current_round_state(redis_client):
                 'dice_result': round_obj.dice_result,
                 'dice_result_list': round_obj.dice_result_list,
             }
+
+    if round_obj and timer == 0:
+        # Avoid mid-round "0" glitches in admin UIs.
+        timer = 1
 
     return round_obj, timer, status, round_data
 
@@ -123,14 +162,27 @@ def apply_dice_values_to_round(round_obj, dice_values):
 
 
 def extract_dice_values(round_obj, round_data=None, fallback=None):
-    """Return dice values from the round object or cached round data."""
+    """
+    Return dice values from the round object or cached round data.
+    fallback: Only use if it's a single integer 1-6. Never use dice_result string
+    (e.g. "1, 3") as fallback - that represents winning numbers, not individual dice.
+    """
     values = []
+    # Only use fallback if it's a valid single dice value (1-6)
+    valid_fallback = None
+    if fallback is not None:
+        try:
+            n = int(fallback) if not isinstance(fallback, int) else fallback
+            if 1 <= n <= 6:
+                valid_fallback = n
+        except (ValueError, TypeError):
+            pass
     for index in range(1, 7):
         value = getattr(round_obj, f'dice_{index}', None)
         if value is None and round_data:
             value = round_data.get(f'dice_{index}')
-        if value is None:
-            value = fallback
+        if value is None and valid_fallback is not None:
+            value = valid_fallback
         values.append(value)
     return values
 
@@ -211,7 +263,7 @@ def get_game_setting(key, default=None):
             'BETTING_CLOSE_TIME', 'DICE_ROLL_TIME', 'DICE_RESULT_TIME', 'ROUND_END_TIME',
             'BETTING_DURATION', 'RESULT_SELECTION_DURATION', 
             'RESULT_DISPLAY_DURATION', 'TOTAL_ROUND_DURATION',
-            'RESULT_ANNOUNCE_TIME'
+            'RESULT_ANNOUNCE_TIME', 'MAX_BET'
         ]
         if key in numeric_keys:
             try:
@@ -266,7 +318,7 @@ def get_all_game_settings():
         'BETTING_CLOSE_TIME', 'DICE_ROLL_TIME', 'DICE_RESULT_TIME', 'ROUND_END_TIME',
         'BETTING_DURATION', 'RESULT_SELECTION_DURATION', 
         'RESULT_DISPLAY_DURATION', 'TOTAL_ROUND_DURATION',
-        'RESULT_ANNOUNCE_TIME'
+        'RESULT_ANNOUNCE_TIME', 'MAX_BET'
     ]
     for key in numeric_keys:
         if key in result:

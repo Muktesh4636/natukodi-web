@@ -681,6 +681,66 @@
             </div>
             
             {% if not search_query %}
+            <!-- Dice Control History -->
+            <div class="control-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <h2 style="margin: 0;">
+                        <span>🎮</span>
+                        <span>Dice Control History</span>
+                    </h2>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Round ID</th>
+                                <th>Result</th>
+                                <th>Dice Values</th>
+                                <th>Set By</th>
+                                <th>Set At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for history in dice_control_history %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'round_details' history.round.round_id %}" style="color: #5a9fd4; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                        <span class="round-id">#{{ history.round.round_id }}</span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                        {% for res in history.round.dice_result_list %}
+                                            <span class="dice-result">{{ res }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="time-badge">
+                                        {{ history.round.dice_1 }}, {{ history.round.dice_2 }}, {{ history.round.dice_3 }}, 
+                                        {{ history.round.dice_4 }}, {{ history.round.dice_5 }}, {{ history.round.dice_6 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="amount">{{ history.set_by.username|default:"System" }}</span>
+                                </td>
+                                <td><span class="time-badge">{{ history.set_at|date:"M d, Y H:i:s" }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">🎮</div>
+                                        <p>No dice control history yet</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Recent Bets Table -->
             <div class="control-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">

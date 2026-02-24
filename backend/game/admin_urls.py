@@ -33,6 +33,7 @@ urlpatterns = [
     path('players/', admin_views.players, name='players'),
     path('players/assign-worker/', admin_views.assign_worker, name='assign_worker'),
     path('game-settings/', admin_views.game_settings, name='game_settings'),
+    path('maintenance-toggle/', admin_views.maintenance_toggle, name='maintenance_toggle'),
     path('admin-management/', admin_views.admin_management, name='admin_management'),
     path('admin-management/create/', admin_views.create_admin, name='create_admin'),
     path('admin-management/edit/<int:admin_id>/', admin_views.edit_admin, name='edit_admin'),

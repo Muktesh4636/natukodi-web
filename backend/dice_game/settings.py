@@ -58,8 +58,13 @@ INSTALLED_APPS = [
 # Windows: Download installer from GitHub
 TESSERACT_CMD = os.getenv('TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
 
+# Maintenance mode: when enabled, most requests return 503; APK download always works
+# Enable: MAINTENANCE_MODE=1 in env, or: python manage.py maintenance on
+# Disable: python manage.py maintenance off
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'dice_game.maintenance_middleware.MaintenanceModeMiddleware',  # Early: APK download bypass
     # 'dice_game.cloudflare_middleware.CloudflareOnlyMiddleware',  # SECURITY: Block direct IP access
     # 'dice_game.anonymization_middleware.AnonymizationMiddleware',  # SECURITY: Prevent tracing
     # 'dice_game.vpn_protection_middleware.VPNProtectionMiddleware',  # SECURITY: VPN-resistant protection

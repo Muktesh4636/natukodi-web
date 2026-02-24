@@ -134,7 +134,33 @@ Allows an authenticated user to place a bet on a specific number for the current
 
 ---
 
-## 6. Game Settings
+## 6. User Bets Summary (Authorized)
+Returns the authenticated user's total bet amount and breakdown by number for the current (or specified) round.
+
+*   **Endpoint:** `user-bets-summary/`
+*   **Method:** `GET`
+*   **Authentication:** Required (Bearer Token)
+*   **Query Parameters:**
+    *   `round_id` (optional): Specific round ID. If omitted, uses current round.
+*   **Response Format:** round_id updates automatically to current round on each call.
+    ```json
+    {
+      "round_id": "R1770981343",
+      "bets_by_number": [
+        {"number": 1, "amount": 50.0},
+        {"number": 2, "amount": 0.0},
+        {"number": 3, "amount": 100.0},
+        {"number": 4, "amount": 0.0},
+        {"number": 5, "amount": 200.0},
+        {"number": 6, "amount": 0.0}
+      ]
+    }
+    ```
+*   **Notes:** Returns 404 if `round_id` is provided and round not found. When no round exists, returns empty summary.
+
+---
+
+## 7. Game Settings
 Returns the current game configuration, such as durations and payout ratios.
 
 *   **Endpoint:** `settings/`
@@ -152,3 +178,31 @@ Returns the current game configuration, such as durations and payout ratios.
       }
     }
     ```
+
+---
+
+## 8. Max Bet
+Get or set the maximum bet amount per number. GET is public; POST requires admin.
+
+*   **Endpoint:** `max-bet/`
+*   **Methods:** `GET`, `POST`
+*   **Authentication:** GET: None (Public). POST: Required (Admin only)
+*   **GET Response:**
+    ```json
+    {
+      "max_bet": 50000
+    }
+    ```
+*   **POST Request Body:** Pass only `max_bet` or `max-bet`:
+    ```json
+    {
+      "max_bet": 50000
+    }
+    ```
+    or
+    ```json
+    {
+      "max-bet": 50000
+    }
+    ```
+*   **POST Response:** Same as GET on success.
