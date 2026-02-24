@@ -2343,6 +2343,11 @@ def game_settings(request):
             'default': default_settings.get('ROUND_END_TIME', 80),
             'description': 'Total round duration in seconds (default: 80)'
         },
+        {
+            'key': 'MAX_BET',
+            'default': default_settings.get('MAX_BET', 50000),
+            'description': 'Maximum bet amount per number (default: 50000)'
+        },
     ]
 
     # App version settings (for APK update prompts)

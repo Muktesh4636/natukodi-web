@@ -326,6 +326,12 @@ def place_bet(request):
 
     number = serializer.validated_data['number']
     chip_amount = float(serializer.validated_data['chip_amount'])
+    
+    # Check max bet limit
+    max_bet_limit = float(get_game_setting('MAX_BET', 50000))
+    if chip_amount > max_bet_limit:
+        return Response({'error': f'Maximum bet amount is {max_bet_limit}'}, status=status.HTTP_400_BAD_REQUEST)
+
     if chip_amount <= 0:
         return Response({'error': 'Invalid bet amount'}, status=status.HTTP_400_BAD_REQUEST)
     user_id = request.user.id
@@ -1769,6 +1775,7 @@ def game_settings_api(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
+@csrf_exempt
 def max_bet(request):
     """Get or set max bet amount. GET: returns max_bet. POST: set max_bet (admin only)."""
     from .utils import get_game_setting, clear_game_setting_cache
@@ -1778,18 +1785,32 @@ def max_bet(request):
         return Response({'max_bet': max_bet_val})
 
     elif request.method == 'POST':
-        if not request.user.is_authenticated or not request.user.is_staff:
-            return Response({'error': 'Admin only'}, status=403)
+        # Use JWT authentication for POST if available
+        user = request.user
+        if not user.is_authenticated:
+            # Try to authenticate manually if needed (for Unity/manual calls)
+            from rest_framework_simplejwt.authentication import JWTAuthentication
+            try:
+                auth_res = JWTAuthentication().authenticate(request)
+                if auth_res:
+                    user = auth_res[0]
+            except Exception:
+                pass
+
+        if not user.is_authenticated or not user.is_staff:
+            return Response({'error': 'Admin only'}, status=status.HTTP_403_FORBIDDEN)
+        
         data = request.data
         max_bet_val = data.get('max_bet') or data.get('max-bet')
         if max_bet_val is None:
-            return Response({'error': 'max_bet or max-bet required'}, status=400)
+            return Response({'error': 'max_bet or max-bet required'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             max_bet_val = float(max_bet_val)
         except (TypeError, ValueError):
-            return Response({'error': 'max_bet must be a number'}, status=400)
+            return Response({'error': 'max_bet must be a number'}, status=status.HTTP_400_BAD_REQUEST)
         if max_bet_val < 0:
-            return Response({'error': 'max_bet must be non-negative'}, status=400)
+            return Response({'error': 'max_bet must be non-negative'}, status=status.HTTP_400_BAD_REQUEST)
+        
         GameSettings.objects.update_or_create(
             key='MAX_BET',
             defaults={'value': str(int(max_bet_val)), 'description': 'Maximum bet amount per number'}

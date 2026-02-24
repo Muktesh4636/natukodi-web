@@ -47,7 +47,7 @@ class GameSettingsAdminForm(forms.ModelForm):
             'BETTING_CLOSE_TIME', 'DICE_ROLL_TIME', 'DICE_RESULT_TIME', 'ROUND_END_TIME',
             'BETTING_DURATION', 'RESULT_SELECTION_DURATION', 
             'RESULT_DISPLAY_DURATION', 'TOTAL_ROUND_DURATION',
-            'RESULT_ANNOUNCE_TIME'
+            'RESULT_ANNOUNCE_TIME', 'MAX_BET'
         ]
         
         if key in numeric_keys:
@@ -169,10 +169,9 @@ class GameSettingsAdmin(admin.ModelAdmin):
     
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        # Clear any caches if needed (for future caching implementation)
-        if obj.key in ['BETTING_CLOSE_TIME', 'DICE_RESULT_TIME', 'ROUND_END_TIME']:
-            # Could invalidate cache here if caching is implemented
-            pass
+        # Clear setting cache
+        from .utils import clear_game_setting_cache
+        clear_game_setting_cache([obj.key])
 
 
 @admin.register(UserSoundSetting)

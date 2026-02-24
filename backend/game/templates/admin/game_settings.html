@@ -398,6 +398,8 @@
                                 Dice Result Time (When dice result is announced)
                             {% elif setting.key == 'ROUND_END_TIME' %}
                                 Round End Time (Total round duration)
+                            {% elif setting.key == 'MAX_BET' %}
+                                Maximum Bet Amount (Per number)
                             {% else %}
                                 {{ setting.key }}
                             {% endif %}
