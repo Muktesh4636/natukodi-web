@@ -263,9 +263,9 @@ else:
             'CONN_HEALTH_CHECKS': True,
             'OPTIONS': {
                 'connect_timeout': 5,
-                # Required when using PgBouncer (port 6432) - it doesn't support server-side cursors
-                'DISABLE_SERVER_SIDE_CURSORS': True,
             },
+            # Required when using PgBouncer (port 6432) - it doesn't support server-side cursors
+            'DISABLE_SERVER_SIDE_CURSORS': True,
         }
     }
 
