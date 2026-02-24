@@ -284,10 +284,14 @@ fun ProfileScreen(
             ) {
                 Button(
                     onClick = {
+                        // 1. Clear UI state IMMEDIATELY on Main Thread
+                        // This will trigger the LaunchedEffect below to navigate to login
+                        viewModel.loginSuccess = false
+                        viewModel.userProfile = null
+                        viewModel.wallet = null
+                        
+                        // 2. Perform heavy cleanup in background
                         viewModel.logout()
-                        // Clear Unity authentication data
-                        viewModel.clearUnityAuthentication(context)
-                        onNavigate("home")
                     },
                     modifier = Modifier
                         .fillMaxWidth()

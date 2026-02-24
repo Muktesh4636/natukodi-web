@@ -295,6 +295,7 @@ IL2CPP_EXTERN_C RuntimeClass* Exception_t_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* Path_t6EC35555EF601CAFED947AC467DEBA7C1496A0C3_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* RectTransformUtility_t65C00A84A72F17D78B81F2E7D88C2AA98AB61244_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* Rigidbody_t268697F5A994213ED97393309870968BC1C7393C_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* TweenCallback_t7C8B8A38E7B30905FF1B83C943256EF23617BB24_il2cpp_TypeInfo_var;
@@ -2539,6 +2540,10 @@ struct Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_StaticFields
 {
 	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___identityQuaternion;
 };
+struct Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_StaticFields
+{
+	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D ___kZero;
+};
 struct Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_StaticFields
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___zeroVector;
@@ -3323,7 +3328,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59859
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR MonoScriptData_t3405F29D573A6DFAAC547345A6BDBBE41CF54685 UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mC7CA174A23290C34424DF6D2733D5E64B92E5977 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3357,7 +3361,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR MonoScriptData_t3405F29D573A6DFAAC547345A6BDB
 		return L_6;
 	}
 }
-// Method Definition Index: 59860
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_m3C9D09F94200334DD5FA29A465481C7848AF4549 (UnitySourceGeneratedAssemblyMonoScriptTypes_v1_tC4249931E82CEBAEC1968B680E9E9A0DF4A946C6* __this, const RuntimeMethod* method) 
 {
 	{
@@ -3443,7 +3446,6 @@ IL2CPP_EXTERN_C void MonoScriptData_t3405F29D573A6DFAAC547345A6BDBBE41CF54685_ma
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59861
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModuleAudio_DOFade_m1D693C3CE476AABDF1973BE1CDB974276D71307A (AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3468,7 +3470,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:25>
 		float L_3 = ___1_endValue;
 		if ((!(((float)L_3) < ((float)(0.0f)))))
 		{
@@ -3476,14 +3477,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:25>
 		___1_endValue = (0.0f);
 		goto IL_002d;
 	}
 
 IL_001e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:26>
 		float L_4 = ___1_endValue;
 		if ((!(((float)L_4) > ((float)(1.0f)))))
 		{
@@ -3491,13 +3490,11 @@ IL_001e:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:26>
 		___1_endValue = (1.0f);
 	}
 
 IL_002d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:27>
 		U3CU3Ec__DisplayClass0_0_t59F50543B6FEFF5A3083DDBD0014F90AF0F88A43* L_5 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_6 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_6, L_5, (intptr_t)((void*)U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__0_m8143CFDDC70BD69C48E4BBBDF5BD596D88C518F9_RuntimeMethod_var), NULL);
@@ -3509,18 +3506,15 @@ IL_002d:
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_11;
 		L_11 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_6, L_8, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:28>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_12 = L_11;
 		U3CU3Ec__DisplayClass0_0_t59F50543B6FEFF5A3083DDBD0014F90AF0F88A43* L_13 = V_0;
 		NullCheck(L_13);
 		AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* L_14 = L_13->___target;
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:29>
 		return L_12;
 	}
 }
-// Method Definition Index: 59862
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModuleAudio_DOPitch_m21C03AF57AD7EEC7C1CF82CA7F660A58BD17D7CF (AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3545,7 +3539,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:37>
 		U3CU3Ec__DisplayClass1_0_tEAB34591A3D9422D47089AF3756769B92EA68A23* L_3 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_4 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass1_0_U3CDOPitchU3Eb__0_m0E574CBA7B1412BA78918BD8457649F22458B1FD_RuntimeMethod_var), NULL);
@@ -3557,18 +3550,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_9;
 		L_9 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:38>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_10 = L_9;
 		U3CU3Ec__DisplayClass1_0_tEAB34591A3D9422D47089AF3756769B92EA68A23* L_11 = V_0;
 		NullCheck(L_11);
 		AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* L_12 = L_11->___target;
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:39>
 		return L_10;
 	}
 }
-// Method Definition Index: 59863
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModuleAudio_DOSetFloat_m95C5B73E2208425BB0D225DBBE705A62C34ADB8B (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, String_t* ___1_floatName, float ___2_endValue, float ___3_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3598,11 +3588,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_3);
 		L_3->___floatName = L_4;
 		Il2CppCodeGenWriteBarrier((void**)(&L_3->___floatName), (void*)L_4);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:53>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:54>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:55>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:56>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:57>
 		U3CU3Ec__DisplayClass2_0_t983A17B7EA42860742F49575E50045E560CC39B9* L_5 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_6 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_6, L_5, (intptr_t)((void*)U3CU3Ec__DisplayClass2_0_U3CDOSetFloatU3Eb__0_m638EF4CAE8BAF409B36498CC75BE2EECB4E327C7_RuntimeMethod_var), NULL);
@@ -3614,18 +3599,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_11;
 		L_11 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_6, L_8, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:58>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_12 = L_11;
 		U3CU3Ec__DisplayClass2_0_t983A17B7EA42860742F49575E50045E560CC39B9* L_13 = V_0;
 		NullCheck(L_13);
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_14 = L_13->___target;
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:59>
 		return L_12;
 	}
 }
-// Method Definition Index: 59864
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOComplete_mB34A0C4B5156B4D5D7F88E1F1B3549F0ED35048C (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, bool ___1_withCallbacks, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3635,7 +3617,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOComplete_mB34A0C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:74>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		bool L_1 = ___1_withCallbacks;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
@@ -3644,7 +3625,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOComplete_mB34A0C
 		return L_2;
 	}
 }
-// Method Definition Index: 59865
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOKill_mAF9948DBD5491192943527B5FD65561EB5E6DA23 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, bool ___1_complete, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3654,7 +3634,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOKill_mAF9948DBD5
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:85>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		bool L_1 = ___1_complete;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
@@ -3663,7 +3642,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOKill_mAF9948DBD5
 		return L_2;
 	}
 }
-// Method Definition Index: 59866
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOFlip_mA5DAA9E654CBF4C302F7376463DC80EF9FE480B0 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3673,7 +3651,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOFlip_mA5DAA9E654
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:95>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3681,7 +3658,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOFlip_mA5DAA9E654
 		return L_1;
 	}
 }
-// Method Definition Index: 59867
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOGoto_m0E560369CDA932ED0068A0CED7D733FE203E43E1 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, float ___1_to, bool ___2_andPlay, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3691,7 +3667,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOGoto_m0E560369CD
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:108>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		float L_1 = ___1_to;
 		bool L_2 = ___2_andPlay;
@@ -3701,7 +3676,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOGoto_m0E560369CD
 		return L_3;
 	}
 }
-// Method Definition Index: 59868
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPause_mDC395F8C1B08A113E79E42FAB5EE1EF453B1136D (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3711,7 +3685,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPause_mDC395F8C1
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:118>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3719,7 +3692,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPause_mDC395F8C1
 		return L_1;
 	}
 }
-// Method Definition Index: 59869
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlay_m86F982951B3B2786390449AFE30BAEFBDC7E92D7 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3729,7 +3701,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlay_m86F982951B
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:128>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3737,7 +3708,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlay_m86F982951B
 		return L_1;
 	}
 }
-// Method Definition Index: 59870
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlayBackwards_mD371D3D6C3D85A6CE99B597BB0305D9E6EDD87F4 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3747,7 +3717,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlayBackwards_mD
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:138>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3755,7 +3724,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlayBackwards_mD
 		return L_1;
 	}
 }
-// Method Definition Index: 59871
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlayForward_m561924708D16379FF482E79B5710AB2FB5B1E9FB (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3765,7 +3733,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlayForward_m561
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:148>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3773,7 +3740,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOPlayForward_m561
 		return L_1;
 	}
 }
-// Method Definition Index: 59872
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DORestart_m0B4E5FF932DACDE8A3B1C85BE6B5A8FCB12AC0F0 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3783,7 +3749,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DORestart_m0B4E5FF
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:158>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3791,7 +3756,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DORestart_m0B4E5FF
 		return L_1;
 	}
 }
-// Method Definition Index: 59873
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DORewind_m20E78D2E878D7E35D859B4789DBDC2DF968B06E3 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3801,7 +3765,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DORewind_m20E78D2E
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:168>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3809,7 +3772,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DORewind_m20E78D2E
 		return L_1;
 	}
 }
-// Method Definition Index: 59874
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOSmoothRewind_m775A16C85A17C3471062578BCC5A45683A67AC5A (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3819,7 +3781,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOSmoothRewind_m77
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:178>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3827,7 +3788,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOSmoothRewind_m77
 		return L_1;
 	}
 }
-// Method Definition Index: 59875
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOTogglePause_m23CC6F5387C5060B72E4000C5F4A61B944A5F971 (AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3837,7 +3797,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOTogglePause_m23C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:188>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = ___0_target;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		int32_t L_1;
@@ -3853,7 +3812,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t DOTweenModuleAudio_DOTogglePause_m23C
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59876
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m3791FA75A8CE2C48268B7EFD94EA4A3765266D67 (U3CU3Ec__DisplayClass0_0_t59F50543B6FEFF5A3083DDBD0014F90AF0F88A43* __this, const RuntimeMethod* method) 
 {
 	{
@@ -3861,11 +3819,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m3791FA75
 		return;
 	}
 }
-// Method Definition Index: 59877
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__0_m8143CFDDC70BD69C48E4BBBDF5BD596D88C518F9 (U3CU3Ec__DisplayClass0_0_t59F50543B6FEFF5A3083DDBD0014F90AF0F88A43* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:27>
 		AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -3873,11 +3829,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb_
 		return L_1;
 	}
 }
-// Method Definition Index: 59878
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__1_m5E5FBB05013DE3D53572D7BA16CC7C54A0F2D0FC (U3CU3Ec__DisplayClass0_0_t59F50543B6FEFF5A3083DDBD0014F90AF0F88A43* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:27>
 		AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -3893,7 +3847,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59879
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_m7F6CF474218CDB04F1779336A4121CB4413DBA05 (U3CU3Ec__DisplayClass1_0_tEAB34591A3D9422D47089AF3756769B92EA68A23* __this, const RuntimeMethod* method) 
 {
 	{
@@ -3901,11 +3854,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_m7F6CF474
 		return;
 	}
 }
-// Method Definition Index: 59880
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass1_0_U3CDOPitchU3Eb__0_m0E574CBA7B1412BA78918BD8457649F22458B1FD (U3CU3Ec__DisplayClass1_0_tEAB34591A3D9422D47089AF3756769B92EA68A23* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:37>
 		AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -3913,11 +3864,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass1_0_U3CDOPitchU3Eb
 		return L_1;
 	}
 }
-// Method Definition Index: 59881
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0_U3CDOPitchU3Eb__1_m64853930D881A088A3DC9B899622925943A4BC13 (U3CU3Ec__DisplayClass1_0_tEAB34591A3D9422D47089AF3756769B92EA68A23* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:37>
 		AudioSource_t871AC2272F896738252F04EE949AEF5B241D3299* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -3933,7 +3882,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0_U3CDOPitchU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59882
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_m0137DE0DC632BA91C3E6EF826AF8E333F0293D90 (U3CU3Ec__DisplayClass2_0_t983A17B7EA42860742F49575E50045E560CC39B9* __this, const RuntimeMethod* method) 
 {
 	{
@@ -3941,27 +3889,22 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_m0137DE0D
 		return;
 	}
 }
-// Method Definition Index: 59883
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass2_0_U3CDOSetFloatU3Eb__0_m638EF4CAE8BAF409B36498CC75BE2EECB4E327C7 (U3CU3Ec__DisplayClass2_0_t983A17B7EA42860742F49575E50045E560CC39B9* __this, const RuntimeMethod* method) 
 {
 	float V_0 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:55>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = __this->___target;
 		String_t* L_1 = __this->___floatName;
 		NullCheck(L_0);
 		bool L_2;
 		L_2 = AudioMixer_GetFloat_mAED8D277AD30D0346292555CBF81D8961117AEC9(L_0, L_1, (&V_0), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:56>
 		float L_3 = V_0;
 		return L_3;
 	}
 }
-// Method Definition Index: 59884
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0_U3CDOSetFloatU3Eb__1_mD0BF393888DDC1CA4DB4E8035A4033B1FC5F3563 (U3CU3Ec__DisplayClass2_0_t983A17B7EA42860742F49575E50045E560CC39B9* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs:57>
 		AudioMixer_tE2E8D79241711CDF9AB428C7FB96A35D80E40B04* L_0 = __this->___target;
 		String_t* L_1 = __this->___floatName;
 		float L_2 = ___0_x;
@@ -3979,7 +3922,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0_U3CDOSetFloatU3
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59885
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModulePhysics_DOMove_m5B66A39F2C06E19EDFA4D9D79B8CEDD1B2C1AE9C (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4004,7 +3946,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:28>
 		U3CU3Ec__DisplayClass0_0_t7A8E83B59527B3FEAE3B44C39ED05E6008A297C3* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass0_0_U3CDOMoveU3Eb__0_m6E0B04D7869F5FF54EA1C743AC07762BE15C450F_RuntimeMethod_var), NULL);
@@ -4018,7 +3959,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_10;
 		L_10 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_7, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:29>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -4028,11 +3968,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:30>
 		return L_11;
 	}
 }
-// Method Definition Index: 59886
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModulePhysics_DOMoveX_mAE96C9DA1E0C5EC23A773965A91B86C987BAEAAB (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4057,7 +3995,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:39>
 		U3CU3Ec__DisplayClass1_0_t3A78B607DFF930B7D43BCC15854BA73BFD4287A8* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass1_0_U3CDOMoveXU3Eb__0_m44B6924634D19688FB006D483138E93595291D10_RuntimeMethod_var), NULL);
@@ -4074,7 +4011,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11;
 		L_11 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_7, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:40>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_12 = L_11;
 		bool L_13 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_14;
@@ -4084,11 +4020,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_16 = L_15->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:41>
 		return L_12;
 	}
 }
-// Method Definition Index: 59887
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModulePhysics_DOMoveY_mE4DCBAC03F31FBF07EDFB15A55E2822256EAE03A (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4113,7 +4047,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:50>
 		U3CU3Ec__DisplayClass2_0_t8C1AE406019D344EE0395C065C3EC1A3154FEB7A* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass2_0_U3CDOMoveYU3Eb__0_m6BFE21962DA4F6AD341BB59633EDCE28B6E45B67_RuntimeMethod_var), NULL);
@@ -4130,7 +4063,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11;
 		L_11 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_7, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:51>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_12 = L_11;
 		bool L_13 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_14;
@@ -4140,11 +4072,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_16 = L_15->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:52>
 		return L_12;
 	}
 }
-// Method Definition Index: 59888
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModulePhysics_DOMoveZ_m5915FC138CB7BBFFCEF34456590EF4670B1893CE (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4169,7 +4099,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:61>
 		U3CU3Ec__DisplayClass3_0_tD6D6E53B37AFAC161D55DEB2BCFA4F353A7932B9* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass3_0_U3CDOMoveZU3Eb__0_mB670881A3259C5E5997D07DA4A1DDD3EDE75063B_RuntimeMethod_var), NULL);
@@ -4186,7 +4115,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11;
 		L_11 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_7, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:62>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_12 = L_11;
 		bool L_13 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_14;
@@ -4196,11 +4124,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_16 = L_15->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:63>
 		return L_12;
 	}
 }
-// Method Definition Index: 59889
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* DOTweenModulePhysics_DORotate_m65EA16E432A1B477A5A696EF95257FE812C948D6 (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_endValue, float ___2_duration, int32_t ___3_mode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4225,7 +4151,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t392C54729BB024F5802F8E205C5836
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:72>
 		U3CU3Ec__DisplayClass4_0_t9E669FCCA49892C3EB54A986B376D01225F5C32F* L_3 = V_0;
 		DOGetter_1_tB89DD12456B8E79576BB70E1CA6DF899686410D3* L_4 = (DOGetter_1_tB89DD12456B8E79576BB70E1CA6DF899686410D3*)il2cpp_codegen_object_new(DOGetter_1_tB89DD12456B8E79576BB70E1CA6DF899686410D3_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m51479DFF391AD5DCBF44F595E1F6A5855A6C09E4(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass4_0_U3CDORotateU3Eb__0_m1F121B516FF4A3B19D60370CAF7215037FC55AFE_RuntimeMethod_var), NULL);
@@ -4239,24 +4164,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t392C54729BB024F5802F8E205C5836
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_10;
 		L_10 = DOTween_To_m7A731ADF3CCD5C4439F8710B2CD16BC6CEB051D0(L_4, L_7, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:73>
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_11 = L_10;
 		U3CU3Ec__DisplayClass4_0_t9E669FCCA49892C3EB54A986B376D01225F5C32F* L_12 = V_0;
 		NullCheck(L_12);
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_13 = L_12->___target;
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_14;
 		L_14 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3_m5B8DCDA4F2BC949D5A7F4C39C4311718F00F396B(L_11, L_13, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3_m5B8DCDA4F2BC949D5A7F4C39C4311718F00F396B_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:74>
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_15 = L_11;
 		NullCheck(L_15);
 		QuaternionOptions_t1B83700718F7417854E4B6FB0E1726E183F69718* L_16 = (QuaternionOptions_t1B83700718F7417854E4B6FB0E1726E183F69718*)(&L_15->___plugOptions);
 		int32_t L_17 = ___3_mode;
 		L_16->___rotateMode = L_17;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:75>
 		return L_15;
 	}
 }
-// Method Definition Index: 59890
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* DOTweenModulePhysics_DOLookAt_m86BB568C280583D5140AF00ACDB6102191ECD98D (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_towards, float ___2_duration, int32_t ___3_axisConstraint, Nullable_1_t9C51B084784B716FFF4ED4575C63CFD8A71A86FE ___4_up, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4292,8 +4213,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t392C54729BB024F5802F8E205C5836
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:85>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:86>
 		U3CU3Ec__DisplayClass5_0_tCE2250763F6C0A955A4B7F95159E527AECDCCDCC* L_3 = V_0;
 		DOGetter_1_tB89DD12456B8E79576BB70E1CA6DF899686410D3* L_4 = (DOGetter_1_tB89DD12456B8E79576BB70E1CA6DF899686410D3*)il2cpp_codegen_object_new(DOGetter_1_tB89DD12456B8E79576BB70E1CA6DF899686410D3_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m51479DFF391AD5DCBF44F595E1F6A5855A6C09E4(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass5_0_U3CDOLookAtU3Eb__0_m23D8CC0E9DB5CE2D88199B4DDE0CAD4AD1B2BC5E_RuntimeMethod_var), NULL);
@@ -4314,13 +4233,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t392C54729BB024F5802F8E205C5836
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3_m5B8DCDA4F2BC949D5A7F4C39C4311718F00F396B(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3_m5B8DCDA4F2BC949D5A7F4C39C4311718F00F396B_RuntimeMethod_var);
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_14;
 		L_14 = Extensions_SetSpecialStartupMode_TisTweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3_m1FB31CA0D8160EBB636C80C061DA609BC80EC8B5(L_13, 1, Extensions_SetSpecialStartupMode_TisTweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3_m1FB31CA0D8160EBB636C80C061DA609BC80EC8B5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:87>
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_15 = L_14;
 		NullCheck(L_15);
 		QuaternionOptions_t1B83700718F7417854E4B6FB0E1726E183F69718* L_16 = (QuaternionOptions_t1B83700718F7417854E4B6FB0E1726E183F69718*)(&L_15->___plugOptions);
 		int32_t L_17 = ___3_axisConstraint;
 		L_16->___axisConstraint = L_17;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:88>
 		TweenerCore_3_t392C54729BB024F5802F8E205C583653C4E886E3* L_18 = L_15;
 		NullCheck(L_18);
 		QuaternionOptions_t1B83700718F7417854E4B6FB0E1726E183F69718* L_19 = (QuaternionOptions_t1B83700718F7417854E4B6FB0E1726E183F69718*)(&L_18->___plugOptions);
@@ -4356,11 +4273,9 @@ IL_0066:
 IL_006b:
 	{
 		G_B3_1->___up = G_B3_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:89>
 		return G_B3_2;
 	}
 }
-// Method Definition Index: 59891
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModulePhysics_DOJump_m66B1A29F77189B9981097A35A69E00974F0ACA65 (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_endValue, float ___2_jumpPower, int32_t ___3_numJumps, float ___4_duration, bool ___5_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4400,7 +4315,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = ___1_endValue;
 		NullCheck(L_3);
 		L_3->___endValue = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:104>
 		int32_t L_5 = ___3_numJumps;
 		if ((((int32_t)L_5) >= ((int32_t)1)))
 		{
@@ -4408,25 +4322,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:104>
 		___3_numJumps = 1;
 	}
 
 IL_001b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:105>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_6 = V_0;
 		NullCheck(L_6);
 		L_6->___startPosY = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:106>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_7 = V_0;
 		NullCheck(L_7);
 		L_7->___offsetY = (-1.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:107>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_8 = V_0;
 		NullCheck(L_8);
 		L_8->___offsetYSet = (bool)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:108>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_9 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_10;
@@ -4434,10 +4343,6 @@ IL_001b:
 		NullCheck(L_9);
 		L_9->___s = L_10;
 		Il2CppCodeGenWriteBarrier((void**)(&L_9->___s), (void*)L_10);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:109>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:110>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:111>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:112>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_11 = V_0;
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_12 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_13 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
@@ -4473,12 +4378,6 @@ IL_001b:
 		NullCheck(L_11);
 		L_11->___yTween = L_30;
 		Il2CppCodeGenWriteBarrier((void**)(&L_11->___yTween), (void*)L_30);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:113>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:114>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:115>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:116>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:117>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:118>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_31 = V_0;
 		NullCheck(L_31);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_32 = L_31->___s;
@@ -4545,15 +4444,6 @@ IL_001b:
 		int32_t L_69 = ((DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_StaticFields*)il2cpp_codegen_static_fields_for(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var))->___defaultEaseType;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_70;
 		L_70 = TweenSettingsExtensions_SetEase_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m8883E8F9ADB1071F2480D9CE910190D8A121A24D(L_68, L_69, TweenSettingsExtensions_SetEase_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m8883E8F9ADB1071F2480D9CE910190D8A121A24D_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:119>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:120>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:121>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:122>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:123>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:124>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:125>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:126>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:127>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_71 = V_0;
 		NullCheck(L_71);
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_72 = L_71->___yTween;
@@ -4562,14 +4452,12 @@ IL_001b:
 		TweenCallback__ctor_m68CC9304423CBDE43001F9B1413B5DAAF70DB621(L_74, L_73, (intptr_t)((void*)U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__4_m8F3D5C990949F26E7B0CCCC3E56815037389E63C_RuntimeMethod_var), NULL);
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_75;
 		L_75 = TweenSettingsExtensions_OnUpdate_TisTween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C_m57E18275D826369CD94860A3F1C39309D94D7379(L_72, L_74, TweenSettingsExtensions_OnUpdate_TisTween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C_m57E18275D826369CD94860A3F1C39309D94D7379_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:128>
 		U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* L_76 = V_0;
 		NullCheck(L_76);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_77 = L_76->___s;
 		return L_77;
 	}
 }
-// Method Definition Index: 59892
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics_DOPath_m1443BEE665EB5D1A4EF2C356BE311406251657D4 (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* ___1_path, float ___2_duration, int32_t ___3_pathType, int32_t ___4_pathMode, int32_t ___5_resolution, Nullable_1_tEE83D90B507D40B6C58B5EEF5B9D44D377B44F11 ___6_gizmoColor, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4597,7 +4485,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:148>
 		int32_t L_3 = ___5_resolution;
 		if ((((int32_t)L_3) >= ((int32_t)1)))
 		{
@@ -4605,14 +4492,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:148>
 		___5_resolution = 1;
 	}
 
 IL_0015:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:149>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:150>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_4;
 		L_4 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass7_0_t838318FF7AD89F850DE26411D3961E68C2B8507A* L_5 = V_0;
@@ -4640,22 +4524,18 @@ IL_0015:
 		L_19 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_16, L_18, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_20;
 		L_20 = TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF(L_19, 2, TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:152>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_21 = L_20;
 		NullCheck(L_21);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_22 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_21->___plugOptions);
 		L_22->___isRigidbody = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:153>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_23 = L_21;
 		NullCheck(L_23);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_24 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_23->___plugOptions);
 		int32_t L_25 = ___4_pathMode;
 		L_24->___mode = L_25;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:154>
 		return L_23;
 	}
 }
-// Method Definition Index: 59893
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics_DOLocalPath_m16C97084468DB6E53825EEED8132F80E127EF0FA (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* ___1_path, float ___2_duration, int32_t ___3_pathType, int32_t ___4_pathMode, int32_t ___5_resolution, Nullable_1_tEE83D90B507D40B6C58B5EEF5B9D44D377B44F11 ___6_gizmoColor, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4683,7 +4563,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:173>
 		int32_t L_3 = ___5_resolution;
 		if ((((int32_t)L_3) >= ((int32_t)1)))
 		{
@@ -4691,13 +4570,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:173>
 		___5_resolution = 1;
 	}
 
 IL_0015:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:174>
 		U3CU3Ec__DisplayClass8_0_t2C10088D8C53CEFD5E5012FBFC4B65019A1989EF* L_4 = V_0;
 		U3CU3Ec__DisplayClass8_0_t2C10088D8C53CEFD5E5012FBFC4B65019A1989EF* L_5 = V_0;
 		NullCheck(L_5);
@@ -4708,8 +4585,6 @@ IL_0015:
 		NullCheck(L_4);
 		L_4->___trans = L_7;
 		Il2CppCodeGenWriteBarrier((void**)(&L_4->___trans), (void*)L_7);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:175>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:176>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_8;
 		L_8 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass8_0_t2C10088D8C53CEFD5E5012FBFC4B65019A1989EF* L_9 = V_0;
@@ -4735,27 +4610,22 @@ IL_0015:
 		L_22 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_19, L_21, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_23;
 		L_23 = TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF(L_22, 2, TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:178>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_24 = L_23;
 		NullCheck(L_24);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_25 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_24->___plugOptions);
 		L_25->___isRigidbody = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:179>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_26 = L_24;
 		NullCheck(L_26);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_27 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_26->___plugOptions);
 		int32_t L_28 = ___4_pathMode;
 		L_27->___mode = L_28;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:180>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_29 = L_26;
 		NullCheck(L_29);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_30 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_29->___plugOptions);
 		L_30->___useLocalPosition = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:181>
 		return L_29;
 	}
 }
-// Method Definition Index: 59894
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics_DOPath_mF43CCB4AF2A13F42ED05CE2E666422CA4065F328 (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Path_t6EC35555EF601CAFED947AC467DEBA7C1496A0C3* ___1_path, float ___2_duration, int32_t ___3_pathMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4781,8 +4651,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:188>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:189>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_3;
 		L_3 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass9_0_t249DDBCB23E8308D09D0B03AB7A0B2CCB4F854E3* L_4 = V_0;
@@ -4803,22 +4671,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_13 = L_12->___target;
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_14;
 		L_14 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_11, L_13, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:191>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_15 = L_14;
 		NullCheck(L_15);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_16 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_15->___plugOptions);
 		L_16->___isRigidbody = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:192>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_17 = L_15;
 		NullCheck(L_17);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_18 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_17->___plugOptions);
 		int32_t L_19 = ___3_pathMode;
 		L_18->___mode = L_19;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:193>
 		return L_17;
 	}
 }
-// Method Definition Index: 59895
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics_DOLocalPath_mCB4C763749BBB71E0B4ECB3EA7C9C43B9EAA45FF (Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* ___0_target, Path_t6EC35555EF601CAFED947AC467DEBA7C1496A0C3* ___1_path, float ___2_duration, int32_t ___3_pathMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4844,7 +4708,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:199>
 		U3CU3Ec__DisplayClass10_0_tB8A336F0E7DC9883C0E326A2DFE75AB01145E4BF* L_3 = V_0;
 		U3CU3Ec__DisplayClass10_0_tB8A336F0E7DC9883C0E326A2DFE75AB01145E4BF* L_4 = V_0;
 		NullCheck(L_4);
@@ -4855,8 +4718,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_3);
 		L_3->___trans = L_6;
 		Il2CppCodeGenWriteBarrier((void**)(&L_3->___trans), (void*)L_6);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:200>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:201>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_7;
 		L_7 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass10_0_tB8A336F0E7DC9883C0E326A2DFE75AB01145E4BF* L_8 = V_0;
@@ -4875,23 +4736,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_16 = L_15->___target;
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:203>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_18 = L_17;
 		NullCheck(L_18);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_19 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_18->___plugOptions);
 		L_19->___isRigidbody = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:204>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_20 = L_18;
 		NullCheck(L_20);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_21 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_20->___plugOptions);
 		int32_t L_22 = ___3_pathMode;
 		L_21->___mode = L_22;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:205>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_23 = L_20;
 		NullCheck(L_23);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_24 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_23->___plugOptions);
 		L_24->___useLocalPosition = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:206>
 		return L_23;
 	}
 }
@@ -4903,7 +4760,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59896
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m0BEB792A0FE19EAA31D6B34FD5B01D116B6982E8 (U3CU3Ec__DisplayClass0_0_t7A8E83B59527B3FEAE3B44C39ED05E6008A297C3* __this, const RuntimeMethod* method) 
 {
 	{
@@ -4911,11 +4767,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m0BEB792A
 		return;
 	}
 }
-// Method Definition Index: 59897
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass0_0_U3CDOMoveU3Eb__0_m6E0B04D7869F5FF54EA1C743AC07762BE15C450F (U3CU3Ec__DisplayClass0_0_t7A8E83B59527B3FEAE3B44C39ED05E6008A297C3* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:28>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -4931,7 +4785,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59898
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0__ctor_m03E61F264547D93763B90C045BE06D44AAA239DF (U3CU3Ec__DisplayClass10_0_tB8A336F0E7DC9883C0E326A2DFE75AB01145E4BF* __this, const RuntimeMethod* method) 
 {
 	{
@@ -4939,11 +4792,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0__ctor_m03E61F2
 		return;
 	}
 }
-// Method Definition Index: 59899
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass10_0_U3CDOLocalPathU3Eb__0_m7055847965DE725A80D146EAEB0434DF0D185D01 (U3CU3Ec__DisplayClass10_0_tB8A336F0E7DC9883C0E326A2DFE75AB01145E4BF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:200>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0 = __this->___trans;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -4951,7 +4802,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59900
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0_U3CDOLocalPathU3Eb__1_m3744C63CE1A944BF7209BD755A38A3EF757E32C7 (U3CU3Ec__DisplayClass10_0_tB8A336F0E7DC9883C0E326A2DFE75AB01145E4BF* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4966,7 +4816,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0_U3CDOLocalPath
 	memset((&G_B3_0), 0, sizeof(G_B3_0));
 	Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* G_B3_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:200>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_1 = __this->___trans;
 		NullCheck(L_1);
@@ -5018,7 +4867,6 @@ IL_002d:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59901
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_m82174D8C8C82955F6E9E1D59B330645364022DD0 (U3CU3Ec__DisplayClass1_0_t3A78B607DFF930B7D43BCC15854BA73BFD4287A8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5026,11 +4874,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_m82174D8C
 		return;
 	}
 }
-// Method Definition Index: 59902
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass1_0_U3CDOMoveXU3Eb__0_m44B6924634D19688FB006D483138E93595291D10 (U3CU3Ec__DisplayClass1_0_t3A78B607DFF930B7D43BCC15854BA73BFD4287A8* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:39>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5046,7 +4892,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59903
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_m95E3ADCB89ABFACB7D1E91DA4A1CDF392DC794E6 (U3CU3Ec__DisplayClass2_0_t8C1AE406019D344EE0395C065C3EC1A3154FEB7A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5054,11 +4899,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_m95E3ADCB
 		return;
 	}
 }
-// Method Definition Index: 59904
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass2_0_U3CDOMoveYU3Eb__0_m6BFE21962DA4F6AD341BB59633EDCE28B6E45B67 (U3CU3Ec__DisplayClass2_0_t8C1AE406019D344EE0395C065C3EC1A3154FEB7A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:50>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5074,7 +4917,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59905
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m5EFD6FE639198BF1AD1E9FA475731D194EFE073B (U3CU3Ec__DisplayClass3_0_tD6D6E53B37AFAC161D55DEB2BCFA4F353A7932B9* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5082,11 +4924,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m5EFD6FE6
 		return;
 	}
 }
-// Method Definition Index: 59906
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass3_0_U3CDOMoveZU3Eb__0_mB670881A3259C5E5997D07DA4A1DDD3EDE75063B (U3CU3Ec__DisplayClass3_0_tD6D6E53B37AFAC161D55DEB2BCFA4F353A7932B9* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:61>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5102,7 +4942,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59907
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_m0C905B754B9A6187494F408107EE861B650A5DF7 (U3CU3Ec__DisplayClass4_0_t9E669FCCA49892C3EB54A986B376D01225F5C32F* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5110,11 +4949,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_m0C905B75
 		return;
 	}
 }
-// Method Definition Index: 59908
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 U3CU3Ec__DisplayClass4_0_U3CDORotateU3Eb__0_m1F121B516FF4A3B19D60370CAF7215037FC55AFE (U3CU3Ec__DisplayClass4_0_t9E669FCCA49892C3EB54A986B376D01225F5C32F* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:72>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_1;
@@ -5130,7 +4967,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59909
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m5454D12FFC74B0B715588F08E4DA72D94E47D69A (U3CU3Ec__DisplayClass5_0_tCE2250763F6C0A955A4B7F95159E527AECDCCDCC* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5138,11 +4974,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m5454D12F
 		return;
 	}
 }
-// Method Definition Index: 59910
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 U3CU3Ec__DisplayClass5_0_U3CDOLookAtU3Eb__0_m23D8CC0E9DB5CE2D88199B4DDE0CAD4AD1B2BC5E (U3CU3Ec__DisplayClass5_0_tCE2250763F6C0A955A4B7F95159E527AECDCCDCC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:85>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_1;
@@ -5158,7 +4992,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59911
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0__ctor_m0D378F1E0358380DA1CD247F90674C29D9954E0E (U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5166,11 +4999,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0__ctor_m0D378F1E
 		return;
 	}
 }
-// Method Definition Index: 59912
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__0_m41ECCE19967CB8FF9557E9EFC068AB9199CF160D (U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:109>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5178,11 +5009,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59913
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__1_mF4A2E742B3B0550F2D22177E36FB64F1298BE508 (U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:112>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5192,11 +5021,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__
 		return;
 	}
 }
-// Method Definition Index: 59914
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__2_m9DB85188D8D2D2AB9C1656C58A65639CFB20CCAA (U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:113>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5204,11 +5031,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59915
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__3_m20C802577C48BC4FEEC502F10698D6E33014CF3D (U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:115>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5216,7 +5041,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59916
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__4_m8F3D5C990949F26E7B0CCCC3E56815037389E63C (U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* __this, const RuntimeMethod* method) 
 {
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
@@ -5226,7 +5050,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__
 	float G_B4_0 = 0.0f;
 	U3CU3Ec__DisplayClass6_0_tF676EF1983CD3B91B739A19ABEEAB2A5B12A30CA* G_B4_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:120>
 		bool L_0 = __this->___offsetYSet;
 		if (L_0)
 		{
@@ -5234,9 +5057,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOJumpU3Eb__
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:121>
 		__this->___offsetYSet = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:122>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_1 = __this->___s;
 		NullCheck(L_1);
 		bool L_2;
@@ -5273,13 +5094,11 @@ IL_003c:
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:124>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_8 = __this->___target;
 		NullCheck(L_8);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_9;
 		L_9 = Rigidbody_get_position_m4ECB79BDBBF8FD1EA572EDB792D3330DDED24691(L_8, NULL);
 		V_0 = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:125>
 		float* L_10 = (float*)(&(&V_0)->___y);
 		float* L_11 = L_10;
 		float L_12 = *((float*)L_11);
@@ -5290,12 +5109,10 @@ IL_0041:
 		float L_16;
 		L_16 = DOVirtual_EasedValue_m40F83FCD3705E8DD33558C84B3F7067D91F3B9DF((0.0f), L_13, L_15, 6, NULL);
 		*((float*)L_11) = (float)((float)il2cpp_codegen_add(L_12, L_16));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:126>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_17 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_18 = V_0;
 		NullCheck(L_17);
 		Rigidbody_MovePosition_mB2CD29ABC8F59AC338C0A3A5A6B75C38FDA92CA9(L_17, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:127>
 		return;
 	}
 }
@@ -5307,7 +5124,6 @@ IL_0041:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59917
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0__ctor_mC0EAAE8F4A19AAD8FD1BE8F1E1F982463877988F (U3CU3Ec__DisplayClass7_0_t838318FF7AD89F850DE26411D3961E68C2B8507A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5315,11 +5131,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0__ctor_mC0EAAE8F
 		return;
 	}
 }
-// Method Definition Index: 59918
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass7_0_U3CDOPathU3Eb__0_m7C61A8F92F87D76AE9C46EBFDE4A761BD36EEC9D (U3CU3Ec__DisplayClass7_0_t838318FF7AD89F850DE26411D3961E68C2B8507A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:149>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5335,7 +5149,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59919
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mA253330E57ECE63BD9DA2F36F950A44B8D19F75D (U3CU3Ec__DisplayClass8_0_t2C10088D8C53CEFD5E5012FBFC4B65019A1989EF* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5343,11 +5156,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mA253330E
 		return;
 	}
 }
-// Method Definition Index: 59920
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass8_0_U3CDOLocalPathU3Eb__0_m5C5018BD3AB3DEFE56DB1B58F78D8E8B4AE5AC20 (U3CU3Ec__DisplayClass8_0_t2C10088D8C53CEFD5E5012FBFC4B65019A1989EF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:175>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0 = __this->___trans;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5355,7 +5166,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59921
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOLocalPathU3Eb__1_m209F28992EB1879A4349497D0672A7C2749EC393 (U3CU3Ec__DisplayClass8_0_t2C10088D8C53CEFD5E5012FBFC4B65019A1989EF* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5370,7 +5180,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOLocalPathU
 	memset((&G_B3_0), 0, sizeof(G_B3_0));
 	Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* G_B3_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:175>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_1 = __this->___trans;
 		NullCheck(L_1);
@@ -5422,7 +5231,6 @@ IL_002d:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59922
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0__ctor_mE8C66DFD146B85189C06E2392A7CEDA18580DFF1 (U3CU3Ec__DisplayClass9_0_t249DDBCB23E8308D09D0B03AB7A0B2CCB4F854E3* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5430,11 +5238,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0__ctor_mE8C66DFD
 		return;
 	}
 }
-// Method Definition Index: 59923
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass9_0_U3CDOPathU3Eb__0_m780F14A754BC9CD461B328E1D201CCBA31236A3E (U3CU3Ec__DisplayClass9_0_t249DDBCB23E8308D09D0B03AB7A0B2CCB4F854E3* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs:188>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -5450,7 +5256,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59924
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModulePhysics2D_DOMove_m6A74D57E65B6F8E119164B18F17D3ED7BB8B6B44 (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5475,7 +5280,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:27>
 		U3CU3Ec__DisplayClass0_0_tE3BC3F80330AED5085BA4E033B920916AE2EE75C* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass0_0_U3CDOMoveU3Eb__0_m3B437B7A49D2CB3F8665A68251D2037D4D2DFAFB_RuntimeMethod_var), NULL);
@@ -5489,7 +5293,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10;
 		L_10 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_7, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:28>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -5499,11 +5302,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:29>
 		return L_11;
 	}
 }
-// Method Definition Index: 59925
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModulePhysics2D_DOMoveX_m7F9730EFF5DE54338332D74B2364243C211EB7F4 (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5528,7 +5329,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:38>
 		U3CU3Ec__DisplayClass1_0_t1193F41F38E742B3C5DC7DB01E9714978DDCBD01* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass1_0_U3CDOMoveXU3Eb__0_mDCC3F81EA6919A6758DF902C951C7BE90FD9ED21_RuntimeMethod_var), NULL);
@@ -5545,7 +5345,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11;
 		L_11 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_7, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:39>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_12 = L_11;
 		bool L_13 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_14;
@@ -5555,11 +5354,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_16 = L_15->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:40>
 		return L_12;
 	}
 }
-// Method Definition Index: 59926
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModulePhysics2D_DOMoveY_mA3B4A7F4B174180E22FA9F9CC8852B001460E990 (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5584,7 +5381,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:49>
 		U3CU3Ec__DisplayClass2_0_t449E13E54A99AFAE4984651C67700DEC993B98ED* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass2_0_U3CDOMoveYU3Eb__0_m26EFA27B3283A4CDEA74C1C10C2298172D6F3DA7_RuntimeMethod_var), NULL);
@@ -5601,7 +5397,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11;
 		L_11 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_7, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:50>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_12 = L_11;
 		bool L_13 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_14;
@@ -5611,11 +5406,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_16 = L_15->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:51>
 		return L_12;
 	}
 }
-// Method Definition Index: 59927
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModulePhysics2D_DORotate_m914F5F01CD6972EE0FCBA60FBC4AB340E647DC5E (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5640,7 +5433,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:59>
 		U3CU3Ec__DisplayClass3_0_t892F716A8A1CDF8AFF37E5CA93703B60ADC4B9F3* L_3 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_4 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass3_0_U3CDORotateU3Eb__0_mA761FE1B426A6D4F495CF6236077759B83404880_RuntimeMethod_var), NULL);
@@ -5654,18 +5446,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_10;
 		L_10 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_4, L_7, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:60>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_11 = L_10;
 		U3CU3Ec__DisplayClass3_0_t892F716A8A1CDF8AFF37E5CA93703B60ADC4B9F3* L_12 = V_0;
 		NullCheck(L_12);
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_13 = L_12->___target;
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_14;
 		L_14 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5(L_11, L_13, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:61>
 		return L_11;
 	}
 }
-// Method Definition Index: 59928
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModulePhysics2D_DOJump_m994418231434C0151D7ADEE79A02174D6F4E5B2B (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_jumpPower, int32_t ___3_numJumps, float ___4_duration, bool ___5_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5705,7 +5494,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___1_endValue;
 		NullCheck(L_3);
 		L_3->___endValue = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:77>
 		int32_t L_5 = ___3_numJumps;
 		if ((((int32_t)L_5) >= ((int32_t)1)))
 		{
@@ -5713,25 +5501,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:77>
 		___3_numJumps = 1;
 	}
 
 IL_001b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:78>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_6 = V_0;
 		NullCheck(L_6);
 		L_6->___startPosY = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:79>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_7 = V_0;
 		NullCheck(L_7);
 		L_7->___offsetY = (-1.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:80>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_8 = V_0;
 		NullCheck(L_8);
 		L_8->___offsetYSet = (bool)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:81>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_9 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_10;
@@ -5739,10 +5522,6 @@ IL_001b:
 		NullCheck(L_9);
 		L_9->___s = L_10;
 		Il2CppCodeGenWriteBarrier((void**)(&L_9->___s), (void*)L_10);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:82>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:83>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:84>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:85>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_11 = V_0;
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_12 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_13 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
@@ -5776,10 +5555,6 @@ IL_001b:
 		NullCheck(L_11);
 		L_11->___yTween = L_29;
 		Il2CppCodeGenWriteBarrier((void**)(&L_11->___yTween), (void*)L_29);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:86>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:87>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:88>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:89>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_30 = V_0;
 		NullCheck(L_30);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_31 = L_30->___s;
@@ -5819,15 +5594,6 @@ IL_001b:
 		int32_t L_52 = ((DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_StaticFields*)il2cpp_codegen_static_fields_for(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var))->___defaultEaseType;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_53;
 		L_53 = TweenSettingsExtensions_SetEase_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m8883E8F9ADB1071F2480D9CE910190D8A121A24D(L_51, L_52, TweenSettingsExtensions_SetEase_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m8883E8F9ADB1071F2480D9CE910190D8A121A24D_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:90>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:91>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:92>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:93>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:94>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:95>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:96>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:97>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:98>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_54 = V_0;
 		NullCheck(L_54);
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_55 = L_54->___yTween;
@@ -5836,14 +5602,12 @@ IL_001b:
 		TweenCallback__ctor_m68CC9304423CBDE43001F9B1413B5DAAF70DB621(L_57, L_56, (intptr_t)((void*)U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__5_mA4ECC8E0DC621BEC5EA7C6F8B770CCF97FAFFDFB_RuntimeMethod_var), NULL);
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_58;
 		L_58 = TweenSettingsExtensions_OnUpdate_TisTween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C_m57E18275D826369CD94860A3F1C39309D94D7379(L_55, L_57, TweenSettingsExtensions_OnUpdate_TisTween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C_m57E18275D826369CD94860A3F1C39309D94D7379_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:99>
 		U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* L_59 = V_0;
 		NullCheck(L_59);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_60 = L_59->___s;
 		return L_60;
 	}
 }
-// Method Definition Index: 59929
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics2D_DOPath_m0CF606B5F7970A8D1FBC5816ED775CA1736C9D1C (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, Vector2U5BU5D_tFEBBC94BCC6C9C88277BA04047D2B3FDB6ED7FDA* ___1_path, float ___2_duration, int32_t ___3_pathType, int32_t ___4_pathMode, int32_t ___5_resolution, Nullable_1_tEE83D90B507D40B6C58B5EEF5B9D44D377B44F11 ___6_gizmoColor, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5875,7 +5639,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:119>
 		int32_t L_3 = ___5_resolution;
 		if ((((int32_t)L_3) >= ((int32_t)1)))
 		{
@@ -5883,28 +5646,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:119>
 		___5_resolution = 1;
 	}
 
 IL_0015:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:120>
 		Vector2U5BU5D_tFEBBC94BCC6C9C88277BA04047D2B3FDB6ED7FDA* L_4 = ___1_path;
 		NullCheck(L_4);
 		V_1 = ((int32_t)(((RuntimeArray*)L_4)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:121>
 		int32_t L_5 = V_1;
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_6 = (Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)SZArrayNew(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var, (uint32_t)L_5);
 		V_2 = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:122>
 		V_3 = 0;
 		goto IL_003b;
 	}
 
 IL_0024:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:122>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_7 = V_2;
 		int32_t L_8 = V_3;
 		Vector2U5BU5D_tFEBBC94BCC6C9C88277BA04047D2B3FDB6ED7FDA* L_9 = ___1_path;
@@ -5916,14 +5674,12 @@ IL_0024:
 		L_13 = Vector2_op_Implicit_m6D9CABB2C791A192867D7A4559D132BE86DD3EB7_inline(L_12, NULL);
 		NullCheck(L_7);
 		(L_7)->SetAt(static_cast<il2cpp_array_size_t>(L_8), (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2)L_13);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:122>
 		int32_t L_14 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_14, 1));
 	}
 
 IL_003b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:122>
 		int32_t L_15 = V_3;
 		int32_t L_16 = V_1;
 		if ((((int32_t)L_15) < ((int32_t)L_16)))
@@ -5932,8 +5688,6 @@ IL_003b:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:123>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:124>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_17;
 		L_17 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass5_0_t5952AFF296950978CAEC258447E9176598BA17EB* L_18 = V_0;
@@ -5959,22 +5713,18 @@ IL_003b:
 		L_31 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_28, L_30, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_32;
 		L_32 = TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF(L_31, 2, TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:126>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_33 = L_32;
 		NullCheck(L_33);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_34 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_33->___plugOptions);
 		L_34->___isRigidbody2D = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:127>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_35 = L_33;
 		NullCheck(L_35);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_36 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_35->___plugOptions);
 		int32_t L_37 = ___4_pathMode;
 		L_36->___mode = L_37;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:128>
 		return L_35;
 	}
 }
-// Method Definition Index: 59930
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics2D_DOLocalPath_mEC1BAA9AEDBCE7F667D52E04746C6E29C7AFAA5B (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, Vector2U5BU5D_tFEBBC94BCC6C9C88277BA04047D2B3FDB6ED7FDA* ___1_path, float ___2_duration, int32_t ___3_pathType, int32_t ___4_pathMode, int32_t ___5_resolution, Nullable_1_tEE83D90B507D40B6C58B5EEF5B9D44D377B44F11 ___6_gizmoColor, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6006,7 +5756,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:147>
 		int32_t L_3 = ___5_resolution;
 		if ((((int32_t)L_3) >= ((int32_t)1)))
 		{
@@ -6014,28 +5763,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:147>
 		___5_resolution = 1;
 	}
 
 IL_0015:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:148>
 		Vector2U5BU5D_tFEBBC94BCC6C9C88277BA04047D2B3FDB6ED7FDA* L_4 = ___1_path;
 		NullCheck(L_4);
 		V_1 = ((int32_t)(((RuntimeArray*)L_4)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:149>
 		int32_t L_5 = V_1;
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_6 = (Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)SZArrayNew(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var, (uint32_t)L_5);
 		V_2 = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:150>
 		V_3 = 0;
 		goto IL_003b;
 	}
 
 IL_0024:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:150>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_7 = V_2;
 		int32_t L_8 = V_3;
 		Vector2U5BU5D_tFEBBC94BCC6C9C88277BA04047D2B3FDB6ED7FDA* L_9 = ___1_path;
@@ -6047,14 +5791,12 @@ IL_0024:
 		L_13 = Vector2_op_Implicit_m6D9CABB2C791A192867D7A4559D132BE86DD3EB7_inline(L_12, NULL);
 		NullCheck(L_7);
 		(L_7)->SetAt(static_cast<il2cpp_array_size_t>(L_8), (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2)L_13);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:150>
 		int32_t L_14 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_14, 1));
 	}
 
 IL_003b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:150>
 		int32_t L_15 = V_3;
 		int32_t L_16 = V_1;
 		if ((((int32_t)L_15) < ((int32_t)L_16)))
@@ -6063,7 +5805,6 @@ IL_003b:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:151>
 		U3CU3Ec__DisplayClass6_0_tF7A18B8A6B9E46A956B38BDD1913A5AC7CCCD0E6* L_17 = V_0;
 		U3CU3Ec__DisplayClass6_0_tF7A18B8A6B9E46A956B38BDD1913A5AC7CCCD0E6* L_18 = V_0;
 		NullCheck(L_18);
@@ -6074,8 +5815,6 @@ IL_003b:
 		NullCheck(L_17);
 		L_17->___trans = L_20;
 		Il2CppCodeGenWriteBarrier((void**)(&L_17->___trans), (void*)L_20);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:152>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:153>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_21;
 		L_21 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass6_0_tF7A18B8A6B9E46A956B38BDD1913A5AC7CCCD0E6* L_22 = V_0;
@@ -6101,27 +5840,22 @@ IL_003b:
 		L_35 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_32, L_34, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_36;
 		L_36 = TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF(L_35, 2, TweenSettingsExtensions_SetUpdate_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mD2532784744F5E7D0417EE0EB9A48F701F995AFF_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:155>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_37 = L_36;
 		NullCheck(L_37);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_38 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_37->___plugOptions);
 		L_38->___isRigidbody2D = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:156>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_39 = L_37;
 		NullCheck(L_39);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_40 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_39->___plugOptions);
 		int32_t L_41 = ___4_pathMode;
 		L_40->___mode = L_41;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:157>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_42 = L_39;
 		NullCheck(L_42);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_43 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_42->___plugOptions);
 		L_43->___useLocalPosition = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:158>
 		return L_42;
 	}
 }
-// Method Definition Index: 59931
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics2D_DOPath_mB1B83D2F6891C271CC77EB66926701FC799328F3 (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, Path_t6EC35555EF601CAFED947AC467DEBA7C1496A0C3* ___1_path, float ___2_duration, int32_t ___3_pathMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6147,8 +5881,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:165>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:166>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_3;
 		L_3 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass7_0_tAD72DF3E41D581C965CFD52335B1FFAA457EAF96* L_4 = V_0;
@@ -6167,22 +5899,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_12 = L_11->___target;
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:168>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_14 = L_13;
 		NullCheck(L_14);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_15 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_14->___plugOptions);
 		L_15->___isRigidbody2D = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:169>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_16 = L_14;
 		NullCheck(L_16);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_17 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_16->___plugOptions);
 		int32_t L_18 = ___3_pathMode;
 		L_17->___mode = L_18;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:170>
 		return L_16;
 	}
 }
-// Method Definition Index: 59932
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* DOTweenModulePhysics2D_DOLocalPath_m3C71F4FACAA8A8519EA16714625B9B3B693ECC58 (Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* ___0_target, Path_t6EC35555EF601CAFED947AC467DEBA7C1496A0C3* ___1_path, float ___2_duration, int32_t ___3_pathMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6208,7 +5936,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:176>
 		U3CU3Ec__DisplayClass8_0_t9C697E36D5D0AF152BCACC17C1D020869C34C0B8* L_3 = V_0;
 		U3CU3Ec__DisplayClass8_0_t9C697E36D5D0AF152BCACC17C1D020869C34C0B8* L_4 = V_0;
 		NullCheck(L_4);
@@ -6219,8 +5946,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		NullCheck(L_3);
 		L_3->___trans = L_6;
 		Il2CppCodeGenWriteBarrier((void**)(&L_3->___trans), (void*)L_6);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:177>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:178>
 		ABSTweenPlugin_3_t08B14BED068ACE348E543E45725D6C6BFFA60143* L_7;
 		L_7 = PathPlugin_Get_m997FB98C4FEB9E5E74B71034B36E2A40D0153BC6(NULL);
 		U3CU3Ec__DisplayClass8_0_t9C697E36D5D0AF152BCACC17C1D020869C34C0B8* L_8 = V_0;
@@ -6239,23 +5964,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_16 = L_15->___target;
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_17;
 		L_17 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA(L_14, L_16, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA_mF304C456D64A3A40ADCE3F28589D2861FFA16EDA_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:180>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_18 = L_17;
 		NullCheck(L_18);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_19 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_18->___plugOptions);
 		L_19->___isRigidbody2D = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:181>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_20 = L_18;
 		NullCheck(L_20);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_21 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_20->___plugOptions);
 		int32_t L_22 = ___3_pathMode;
 		L_21->___mode = L_22;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:182>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_23 = L_20;
 		NullCheck(L_23);
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A* L_24 = (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A*)(&L_23->___plugOptions);
 		L_24->___useLocalPosition = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:183>
 		return L_23;
 	}
 }
@@ -6267,7 +5988,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59933
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m6E60A649269716DA67C91FEA9DB5E4838B171FFB (U3CU3Ec__DisplayClass0_0_tE3BC3F80330AED5085BA4E033B920916AE2EE75C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6275,11 +5995,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m6E60A649
 		return;
 	}
 }
-// Method Definition Index: 59934
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass0_0_U3CDOMoveU3Eb__0_m3B437B7A49D2CB3F8665A68251D2037D4D2DFAFB (U3CU3Ec__DisplayClass0_0_tE3BC3F80330AED5085BA4E033B920916AE2EE75C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:27>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6295,7 +6013,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59935
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_mAA755EB23D9336AA9EC71EBD7D962163A5D701BB (U3CU3Ec__DisplayClass1_0_t1193F41F38E742B3C5DC7DB01E9714978DDCBD01* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6303,11 +6020,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_mAA755EB2
 		return;
 	}
 }
-// Method Definition Index: 59936
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass1_0_U3CDOMoveXU3Eb__0_mDCC3F81EA6919A6758DF902C951C7BE90FD9ED21 (U3CU3Ec__DisplayClass1_0_t1193F41F38E742B3C5DC7DB01E9714978DDCBD01* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:38>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6323,7 +6038,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59937
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_m287F996454332CC75504F22382E84F764A6703E5 (U3CU3Ec__DisplayClass2_0_t449E13E54A99AFAE4984651C67700DEC993B98ED* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6331,11 +6045,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_m287F9964
 		return;
 	}
 }
-// Method Definition Index: 59938
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass2_0_U3CDOMoveYU3Eb__0_m26EFA27B3283A4CDEA74C1C10C2298172D6F3DA7 (U3CU3Ec__DisplayClass2_0_t449E13E54A99AFAE4984651C67700DEC993B98ED* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:49>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6351,7 +6063,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59939
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m4AB88AEBE4C86B65F1E152630DCC77C868D114EF (U3CU3Ec__DisplayClass3_0_t892F716A8A1CDF8AFF37E5CA93703B60ADC4B9F3* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6359,11 +6070,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m4AB88AEB
 		return;
 	}
 }
-// Method Definition Index: 59940
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass3_0_U3CDORotateU3Eb__0_mA761FE1B426A6D4F495CF6236077759B83404880 (U3CU3Ec__DisplayClass3_0_t892F716A8A1CDF8AFF37E5CA93703B60ADC4B9F3* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:59>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -6379,7 +6088,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass3_0_U3CDORotateU3E
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59941
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_mB04F62E995B27D6A6428EC7912C8E28383226888 (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6387,11 +6095,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_mB04F62E9
 		return;
 	}
 }
-// Method Definition Index: 59942
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__0_mC384861F18478CA4920D44A4FF1DBAC168091984 (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:82>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6399,11 +6105,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 59943
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__1_m4BE94E6CA4A7343449BF1C380C49969ACEAC3258 (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:82>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -6411,11 +6115,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__
 		return;
 	}
 }
-// Method Definition Index: 59944
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__2_mB0AC03FA3A2D44B6659E6FD460970C0AED148A48 (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:85>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6425,11 +6127,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__
 		return;
 	}
 }
-// Method Definition Index: 59945
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__3_m50157E12B08569073B9B7C226EA7E0FF7AF83BE3 (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:86>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6437,11 +6137,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 59946
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__4_mAB03323C38080C1800DA5545B062D5ADAA39CB73 (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:86>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -6449,7 +6147,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__
 		return;
 	}
 }
-// Method Definition Index: 59947
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__5_mA4ECC8E0DC621BEC5EA7C6F8B770CCF97FAFFDFB (U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* __this, const RuntimeMethod* method) 
 {
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
@@ -6459,7 +6156,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__
 	float G_B4_0 = 0.0f;
 	U3CU3Ec__DisplayClass4_0_t5ED7ACF8AF501EC38AC580536C22E8222A74CD9A* G_B4_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:91>
 		bool L_0 = __this->___offsetYSet;
 		if (L_0)
 		{
@@ -6467,9 +6163,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOJumpU3Eb__
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:92>
 		__this->___offsetYSet = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:93>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_1 = __this->___s;
 		NullCheck(L_1);
 		bool L_2;
@@ -6506,7 +6200,6 @@ IL_003c:
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:95>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_8 = __this->___target;
 		NullCheck(L_8);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_9;
@@ -6514,7 +6207,6 @@ IL_0041:
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_10;
 		L_10 = Vector2_op_Implicit_m6D9CABB2C791A192867D7A4559D132BE86DD3EB7_inline(L_9, NULL);
 		V_0 = L_10;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:96>
 		float* L_11 = (float*)(&(&V_0)->___y);
 		float* L_12 = L_11;
 		float L_13 = *((float*)L_12);
@@ -6525,14 +6217,12 @@ IL_0041:
 		float L_17;
 		L_17 = DOVirtual_EasedValue_m40F83FCD3705E8DD33558C84B3F7067D91F3B9DF((0.0f), L_14, L_16, 6, NULL);
 		*((float*)L_12) = (float)((float)il2cpp_codegen_add(L_13, L_17));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:97>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_18 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_19 = V_0;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_20;
 		L_20 = Vector2_op_Implicit_mE8EBEE9291F11BB02F062D6E000F4798968CBD96_inline(L_19, NULL);
 		NullCheck(L_18);
 		Rigidbody2D_MovePosition_m7F24879BB78DA0587168B257C56DCFD248A90895(L_18, L_20, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:98>
 		return;
 	}
 }
@@ -6544,7 +6234,6 @@ IL_0041:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59948
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m7785F019FCF0C76EB1A4663C908429D4552F8864 (U3CU3Ec__DisplayClass5_0_t5952AFF296950978CAEC258447E9176598BA17EB* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6552,11 +6241,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m7785F019
 		return;
 	}
 }
-// Method Definition Index: 59949
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass5_0_U3CDOPathU3Eb__0_mC091AB67A43DA9A1DB9DD889184670E586A7F96F (U3CU3Ec__DisplayClass5_0_t5952AFF296950978CAEC258447E9176598BA17EB* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:123>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6566,11 +6253,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_2;
 	}
 }
-// Method Definition Index: 59950
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0_U3CDOPathU3Eb__1_m2D47B6559DAF1FA18DC18EE9DD442D9A949533C1 (U3CU3Ec__DisplayClass5_0_t5952AFF296950978CAEC258447E9176598BA17EB* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:123>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
@@ -6588,7 +6273,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0_U3CDOPathU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59951
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0__ctor_m08366EEB1AB56732D845835BBA4105463E4F109D (U3CU3Ec__DisplayClass6_0_tF7A18B8A6B9E46A956B38BDD1913A5AC7CCCD0E6* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6596,11 +6280,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0__ctor_m08366EEB
 		return;
 	}
 }
-// Method Definition Index: 59952
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass6_0_U3CDOLocalPathU3Eb__0_m3D8AA6655141216299BC1F1259C20544EEA146C4 (U3CU3Ec__DisplayClass6_0_tF7A18B8A6B9E46A956B38BDD1913A5AC7CCCD0E6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:152>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0 = __this->___trans;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -6608,7 +6290,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59953
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOLocalPathU3Eb__1_mC71B4D60BA6713F56A7626ECA1C0AC87C640EF16 (U3CU3Ec__DisplayClass6_0_tF7A18B8A6B9E46A956B38BDD1913A5AC7CCCD0E6* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6623,7 +6304,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass6_0_U3CDOLocalPathU
 	memset((&G_B3_0), 0, sizeof(G_B3_0));
 	Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* G_B3_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:152>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_1 = __this->___trans;
 		NullCheck(L_1);
@@ -6677,7 +6357,6 @@ IL_002d:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59954
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0__ctor_m51DE98C309B2FDCCE7A04DA3E9B811D60D517172 (U3CU3Ec__DisplayClass7_0_tAD72DF3E41D581C965CFD52335B1FFAA457EAF96* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6685,11 +6364,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0__ctor_m51DE98C3
 		return;
 	}
 }
-// Method Definition Index: 59955
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass7_0_U3CDOPathU3Eb__0_mEF255E84035CB68CA278B84F20B2205441071C17 (U3CU3Ec__DisplayClass7_0_tAD72DF3E41D581C965CFD52335B1FFAA457EAF96* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:165>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -6699,11 +6376,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_2;
 	}
 }
-// Method Definition Index: 59956
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0_U3CDOPathU3Eb__1_m6F66FA57616B9119567C264D23FD5DCFFD500770 (U3CU3Ec__DisplayClass7_0_tAD72DF3E41D581C965CFD52335B1FFAA457EAF96* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:165>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
@@ -6721,7 +6396,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0_U3CDOPathU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59957
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mF3941735BDEE084796E7E2354D5086916112AEBE (U3CU3Ec__DisplayClass8_0_t9C697E36D5D0AF152BCACC17C1D020869C34C0B8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6729,11 +6403,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mF3941735
 		return;
 	}
 }
-// Method Definition Index: 59958
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass8_0_U3CDOLocalPathU3Eb__0_m8859794B8FEADED8E4F54E27B8E0A0F4038629D7 (U3CU3Ec__DisplayClass8_0_t9C697E36D5D0AF152BCACC17C1D020869C34C0B8* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:177>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0 = __this->___trans;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -6741,7 +6413,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 59959
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOLocalPathU3Eb__1_m01DD88F15C2CACDEBC789CE5454E11777144CF82 (U3CU3Ec__DisplayClass8_0_t9C697E36D5D0AF152BCACC17C1D020869C34C0B8* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6756,7 +6427,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOLocalPathU
 	memset((&G_B3_0), 0, sizeof(G_B3_0));
 	Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* G_B3_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs:177>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_0 = __this->___target;
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_1 = __this->___trans;
 		NullCheck(L_1);
@@ -6810,7 +6480,6 @@ IL_002d:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59960
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleSprite_DOColor_m6E59DCD8638072DF9AA02645F45A4367CE903FF3 (SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6835,7 +6504,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:24>
 		U3CU3Ec__DisplayClass0_0_tCF08126DC44C5C3B34BACA4E22626734E523AA4E* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass0_0_U3CDOColorU3Eb__0_mA10A642C6F3D0B140227D1D6B5B972CA9624F6B7_RuntimeMethod_var), NULL);
@@ -6847,18 +6515,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_To_mA1EBEAF49DD682B626CB60B4C53B7069F7933339(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:25>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass0_0_tCF08126DC44C5C3B34BACA4E22626734E523AA4E* L_11 = V_0;
 		NullCheck(L_11);
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:26>
 		return L_10;
 	}
 }
-// Method Definition Index: 59961
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleSprite_DOFade_m6AE51AD4E4655B3A03EE59353450C611725E6D1A (SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6883,7 +6548,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:34>
 		U3CU3Ec__DisplayClass1_0_tDB440B05588765695FD264B656234EFBF64155DA* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass1_0_U3CDOFadeU3Eb__0_m34F6B168CAE3EBDE25B3A62A680E3F5387957414_RuntimeMethod_var), NULL);
@@ -6895,18 +6559,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_ToAlpha_m93AB0EDCF2956A0DD806D9537799F2727CA5E7C1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:35>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass1_0_tDB440B05588765695FD264B656234EFBF64155DA* L_11 = V_0;
 		NullCheck(L_11);
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:36>
 		return L_10;
 	}
 }
-// Method Definition Index: 59962
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModuleSprite_DOGradientColor_mBDB37BF5C3939448FCEFEB812414F303D7C99C72 (SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* ___0_target, Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* ___1_gradient, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6930,36 +6591,30 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 	float G_B8_1 = 0.0f;
 	float G_B10_0 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:45>
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_0;
 		L_0 = DOTween_Sequence_mC3AE53A08EC5DFD7DB9AE18A2FD11226A6611F89(NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:46>
 		Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* L_1 = ___1_gradient;
 		NullCheck(L_1);
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_2;
 		L_2 = Gradient_get_colorKeys_mA4B24805A35BC4FBF04F182FCDA6E9D0CBB52F0A(L_1, NULL);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:47>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_3 = V_1;
 		NullCheck(L_3);
 		V_2 = ((int32_t)(((RuntimeArray*)L_3)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:48>
 		V_3 = 0;
 		goto IL_0098;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:49>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_4 = V_1;
 		int32_t L_5 = V_3;
 		NullCheck(L_4);
 		int32_t L_6 = L_5;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_7 = (L_4)->GetAt(static_cast<il2cpp_array_size_t>(L_6));
 		V_4 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:50>
 		int32_t L_8 = V_3;
 		if (L_8)
 		{
@@ -6975,21 +6630,16 @@ IL_0018:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:51>
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_11 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_12 = V_4;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_13 = L_12.___color;
 		NullCheck(L_11);
 		SpriteRenderer_set_color_mB0EEC2845A0347E296C01C831F967731D2804546(L_11, L_13, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:52>
 		goto IL_0094;
 	}
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:54>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:55>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:56>
 		int32_t L_14 = V_3;
 		int32_t L_15 = V_2;
 		if ((((int32_t)L_14) == ((int32_t)((int32_t)il2cpp_codegen_subtract(L_15, 1)))))
@@ -7045,7 +6695,6 @@ IL_006d:
 IL_0076:
 	{
 		V_5 = G_B10_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:57>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_28 = V_0;
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_29 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_30 = V_4;
@@ -7061,14 +6710,12 @@ IL_0076:
 
 IL_0094:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:48>
 		int32_t L_36 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_36, 1));
 	}
 
 IL_0098:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:48>
 		int32_t L_37 = V_3;
 		int32_t L_38 = V_2;
 		if ((((int32_t)L_37) < ((int32_t)L_38)))
@@ -7077,17 +6724,14 @@ IL_0098:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:59>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_39 = V_0;
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_40 = ___0_target;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_41;
 		L_41 = TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0(L_39, L_40, TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:60>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_42 = V_0;
 		return L_42;
 	}
 }
-// Method Definition Index: 59963
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleSprite_DOBlendableColor_m5570320359C3164713C74486272EC313724DD6F1 (SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7113,7 +6757,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:76>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___1_endValue;
 		U3CU3Ec__DisplayClass3_0_tC6A3C24ECE56869CB1D6AB3A4FE842EF0C4297E1* L_4 = V_0;
 		NullCheck(L_4);
@@ -7124,19 +6767,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_7;
 		L_7 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_3, L_6, NULL);
 		___1_endValue = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:77>
 		U3CU3Ec__DisplayClass3_0_tC6A3C24ECE56869CB1D6AB3A4FE842EF0C4297E1* L_8 = V_0;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_9;
 		memset((&L_9), 0, sizeof(L_9));
 		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_9), (0.0f), (0.0f), (0.0f), (0.0f), NULL);
 		NullCheck(L_8);
 		L_8->___to = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:78>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:79>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:80>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:81>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:82>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:83>
 		U3CU3Ec__DisplayClass3_0_tC6A3C24ECE56869CB1D6AB3A4FE842EF0C4297E1* L_10 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_11 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_11, L_10, (intptr_t)((void*)U3CU3Ec__DisplayClass3_0_U3CDOBlendableColorU3Eb__0_mD1F5CC03348BACDD68A45FC8BC8D379841EF09D6_RuntimeMethod_var), NULL);
@@ -7166,7 +6802,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59964
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m270031771548A13843FD1B9701D5D178797EB9AD (U3CU3Ec__DisplayClass0_0_tCF08126DC44C5C3B34BACA4E22626734E523AA4E* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7174,11 +6809,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m27003177
 		return;
 	}
 }
-// Method Definition Index: 59965
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass0_0_U3CDOColorU3Eb__0_mA10A642C6F3D0B140227D1D6B5B972CA9624F6B7 (U3CU3Ec__DisplayClass0_0_tCF08126DC44C5C3B34BACA4E22626734E523AA4E* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:24>
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -7186,11 +6819,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 59966
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0_U3CDOColorU3Eb__1_m31412CE4EE9499BB433AC04B055AB41BD5047A74 (U3CU3Ec__DisplayClass0_0_tCF08126DC44C5C3B34BACA4E22626734E523AA4E* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:24>
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -7206,7 +6837,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0_U3CDOColorU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59967
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_mDF7123DA26647D6C19E3D8D2131EDB0AFE40446A (U3CU3Ec__DisplayClass1_0_tDB440B05588765695FD264B656234EFBF64155DA* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7214,11 +6844,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_mDF7123DA
 		return;
 	}
 }
-// Method Definition Index: 59968
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass1_0_U3CDOFadeU3Eb__0_m34F6B168CAE3EBDE25B3A62A680E3F5387957414 (U3CU3Ec__DisplayClass1_0_tDB440B05588765695FD264B656234EFBF64155DA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:34>
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -7226,11 +6854,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 59969
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0_U3CDOFadeU3Eb__1_m769F0265E8D0A6320E185169D06F8ED38FF6191E (U3CU3Ec__DisplayClass1_0_tDB440B05588765695FD264B656234EFBF64155DA* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:34>
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -7246,7 +6872,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0_U3CDOFadeU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59970
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m6B0AC5DDB17C25A1A2C8F55A84AC2C5986EF8240 (U3CU3Ec__DisplayClass3_0_tC6A3C24ECE56869CB1D6AB3A4FE842EF0C4297E1* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7254,31 +6879,25 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m6B0AC5DD
 		return;
 	}
 }
-// Method Definition Index: 59971
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass3_0_U3CDOBlendableColorU3Eb__0_mD1F5CC03348BACDD68A45FC8BC8D379841EF09D6 (U3CU3Ec__DisplayClass3_0_tC6A3C24ECE56869CB1D6AB3A4FE842EF0C4297E1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:78>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = __this->___to;
 		return L_0;
 	}
 }
-// Method Definition Index: 59972
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3CDOBlendableColorU3Eb__1_mF6CA7D8E1F46B4CAC9DC17BE940693728B469EE2 (U3CU3Ec__DisplayClass3_0_tC6A3C24ECE56869CB1D6AB3A4FE842EF0C4297E1* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	Color_tD001788D726C3A7F1379BEED0260B9591F440C1F V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:79>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = ___0_x;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = __this->___to;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_2;
 		L_2 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_0, L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:80>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___0_x;
 		__this->___to = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:81>
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_4 = __this->___target;
 		SpriteRenderer_t1DD7FE258F072E1FA87D6577BA27225892B8047B* L_5 = L_4;
 		NullCheck(L_5);
@@ -7289,7 +6908,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3CDOBlendableC
 		L_8 = Color_op_Addition_mA7A51CACA49ED8D23D3D9CA3A0092D32F657E053_inline(L_6, L_7, NULL);
 		NullCheck(L_5);
 		SpriteRenderer_set_color_mB0EEC2845A0347E296C01C831F967731D2804546(L_5, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs:82>
 		return;
 	}
 }
@@ -7301,7 +6919,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3CDOBlendableC
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 59973
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModuleUI_DOFade_mA073F33862AA7BEF33842B8200D0E79E046D114E (CanvasGroup_t048C1461B14628CFAEBE6E7353093ADB04EBC094* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7326,7 +6943,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:31>
 		U3CU3Ec__DisplayClass0_0_tB18B0BBCEBB20AFFAEF4A5DC6E774BB71965CB5D* L_3 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_4 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__0_m43479452AB6CABC809F8BB075F80A6B391A8AA4B_RuntimeMethod_var), NULL);
@@ -7338,18 +6954,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_9;
 		L_9 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:32>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_10 = L_9;
 		U3CU3Ec__DisplayClass0_0_tB18B0BBCEBB20AFFAEF4A5DC6E774BB71965CB5D* L_11 = V_0;
 		NullCheck(L_11);
 		CanvasGroup_t048C1461B14628CFAEBE6E7353093ADB04EBC094* L_12 = L_11->___target;
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:33>
 		return L_10;
 	}
 }
-// Method Definition Index: 59974
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOColor_m961875592E62912276F701C48C3C3C3DDB4E7341 (Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7374,7 +6987,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:45>
 		U3CU3Ec__DisplayClass1_0_tD8156063570C9F9EDAFB40925044950112A26793* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass1_0_U3CDOColorU3Eb__0_m7A0F2549C2C54325EC64A09C154142F9212E4119_RuntimeMethod_var), NULL);
@@ -7386,18 +6998,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_To_mA1EBEAF49DD682B626CB60B4C53B7069F7933339(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:46>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass1_0_tD8156063570C9F9EDAFB40925044950112A26793* L_11 = V_0;
 		NullCheck(L_11);
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:47>
 		return L_10;
 	}
 }
-// Method Definition Index: 59975
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOFade_mE2E3C2482CD1D3B81C2F4B0EA4E95CF2CC10CC21 (Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7422,7 +7031,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:55>
 		U3CU3Ec__DisplayClass2_0_t51A1D3D91AFC969F0DAF516721DDD2B73F01ED0D* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass2_0_U3CDOFadeU3Eb__0_m83DABFF83F53843B3210E3663AA658A393F72C21_RuntimeMethod_var), NULL);
@@ -7434,18 +7042,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_ToAlpha_m93AB0EDCF2956A0DD806D9537799F2727CA5E7C1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:56>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass2_0_t51A1D3D91AFC969F0DAF516721DDD2B73F01ED0D* L_11 = V_0;
 		NullCheck(L_11);
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:57>
 		return L_10;
 	}
 }
-// Method Definition Index: 59976
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOColor_m385F3DCBA53A421BC288521879635D67E8155783 (Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7470,7 +7075,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:69>
 		U3CU3Ec__DisplayClass3_0_t2C69FBF013ADB32163CC4F67A146C846E181C18B* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass3_0_U3CDOColorU3Eb__0_m4568743D7735E8597149620347E7C6C1F8F8F573_RuntimeMethod_var), NULL);
@@ -7482,18 +7086,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_To_mA1EBEAF49DD682B626CB60B4C53B7069F7933339(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:70>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass3_0_t2C69FBF013ADB32163CC4F67A146C846E181C18B* L_11 = V_0;
 		NullCheck(L_11);
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:71>
 		return L_10;
 	}
 }
-// Method Definition Index: 59977
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOFade_mC1C042C14FF418F2BE7B8A6B3B73A2F8D3719EED (Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7518,7 +7119,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:79>
 		U3CU3Ec__DisplayClass4_0_t8053081EDEC54E0DFD42D923A1A91BC995ACC579* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass4_0_U3CDOFadeU3Eb__0_m45ED3C46917C2BF3FA1E62E5E5FA07933322FC8B_RuntimeMethod_var), NULL);
@@ -7530,18 +7130,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_ToAlpha_m93AB0EDCF2956A0DD806D9537799F2727CA5E7C1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:80>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass4_0_t8053081EDEC54E0DFD42D923A1A91BC995ACC579* L_11 = V_0;
 		NullCheck(L_11);
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:81>
 		return L_10;
 	}
 }
-// Method Definition Index: 59978
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModuleUI_DOFillAmount_mF99B81AA5E4A001FD8DEB2C7F6056271802D153D (Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7566,7 +7163,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:89>
 		float L_3 = ___1_endValue;
 		if ((!(((float)L_3) > ((float)(1.0f)))))
 		{
@@ -7574,14 +7170,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:89>
 		___1_endValue = (1.0f);
 		goto IL_002d;
 	}
 
 IL_001e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:90>
 		float L_4 = ___1_endValue;
 		if ((!(((float)L_4) < ((float)(0.0f)))))
 		{
@@ -7589,13 +7183,11 @@ IL_001e:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:90>
 		___1_endValue = (0.0f);
 	}
 
 IL_002d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:91>
 		U3CU3Ec__DisplayClass5_0_t97A2D1591F4437C9A3355B842244B21EEDFC7D3C* L_5 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_6 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_6, L_5, (intptr_t)((void*)U3CU3Ec__DisplayClass5_0_U3CDOFillAmountU3Eb__0_mA61D89DB8E1FCE175F34BFC13C1173C788BC70FF_RuntimeMethod_var), NULL);
@@ -7607,18 +7199,15 @@ IL_002d:
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_11;
 		L_11 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_6, L_8, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:92>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_12 = L_11;
 		U3CU3Ec__DisplayClass5_0_t97A2D1591F4437C9A3355B842244B21EEDFC7D3C* L_13 = V_0;
 		NullCheck(L_13);
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_14 = L_13->___target;
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1_mA243607C4C4547BCED17CDE4E9E424AE2B7D2AA5_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:93>
 		return L_12;
 	}
 }
-// Method Definition Index: 59979
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModuleUI_DOGradientColor_mB08E7CC98E98E7A0A8A04DC84CDE434B038CF03E (Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* ___0_target, Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* ___1_gradient, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7642,36 +7231,30 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 	float G_B8_1 = 0.0f;
 	float G_B10_0 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:102>
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_0;
 		L_0 = DOTween_Sequence_mC3AE53A08EC5DFD7DB9AE18A2FD11226A6611F89(NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:103>
 		Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* L_1 = ___1_gradient;
 		NullCheck(L_1);
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_2;
 		L_2 = Gradient_get_colorKeys_mA4B24805A35BC4FBF04F182FCDA6E9D0CBB52F0A(L_1, NULL);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:104>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_3 = V_1;
 		NullCheck(L_3);
 		V_2 = ((int32_t)(((RuntimeArray*)L_3)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:105>
 		V_3 = 0;
 		goto IL_0098;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:106>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_4 = V_1;
 		int32_t L_5 = V_3;
 		NullCheck(L_4);
 		int32_t L_6 = L_5;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_7 = (L_4)->GetAt(static_cast<il2cpp_array_size_t>(L_6));
 		V_4 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:107>
 		int32_t L_8 = V_3;
 		if (L_8)
 		{
@@ -7687,21 +7270,16 @@ IL_0018:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:108>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_11 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_12 = V_4;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_13 = L_12.___color;
 		NullCheck(L_11);
 		VirtualActionInvoker1< Color_tD001788D726C3A7F1379BEED0260B9591F440C1F >::Invoke(23, L_11, L_13);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:109>
 		goto IL_0094;
 	}
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:111>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:112>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:113>
 		int32_t L_14 = V_3;
 		int32_t L_15 = V_2;
 		if ((((int32_t)L_14) == ((int32_t)((int32_t)il2cpp_codegen_subtract(L_15, 1)))))
@@ -7757,7 +7335,6 @@ IL_006d:
 IL_0076:
 	{
 		V_5 = G_B10_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:114>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_28 = V_0;
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_29 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_30 = V_4;
@@ -7773,14 +7350,12 @@ IL_0076:
 
 IL_0094:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:105>
 		int32_t L_36 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_36, 1));
 	}
 
 IL_0098:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:105>
 		int32_t L_37 = V_3;
 		int32_t L_38 = V_2;
 		if ((((int32_t)L_37) < ((int32_t)L_38)))
@@ -7789,17 +7364,14 @@ IL_0098:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:116>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_39 = V_0;
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_40 = ___0_target;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_41;
 		L_41 = TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0(L_39, L_40, TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:117>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_42 = V_0;
 		return L_42;
 	}
 }
-// Method Definition Index: 59980
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOFlexibleSize_m2476B21F9C3D8213723B01A0FA93553D8E45F3B7 (LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7824,10 +7396,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:130>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:131>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:132>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:133>
 		U3CU3Ec__DisplayClass7_0_t6825EE9800F145C3DC6520DEBF5CCD211D160E49* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass7_0_U3CDOFlexibleSizeU3Eb__0_m3785D78D950D02D749F4640AA0C67FB2CA01DB48_RuntimeMethod_var), NULL);
@@ -7839,7 +7407,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:134>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -7849,11 +7416,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:135>
 		return L_10;
 	}
 }
-// Method Definition Index: 59981
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOMinSize_m2D92E524BAEA78CDA2815597D779B2835EF8CC03 (LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7878,10 +7443,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:144>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:145>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:146>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:147>
 		U3CU3Ec__DisplayClass8_0_t20FEDD5A66AA07E40BC3977804178A67426F6D3D* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass8_0_U3CDOMinSizeU3Eb__0_mCB197686B19FEE2A3789796C320289EDEBCA59DD_RuntimeMethod_var), NULL);
@@ -7893,7 +7454,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:148>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -7903,11 +7463,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:149>
 		return L_10;
 	}
 }
-// Method Definition Index: 59982
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOPreferredSize_m59E62BDF15A51E4529FC3D920EBC77178DFEDFD8 (LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7932,10 +7490,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:158>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:159>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:160>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:161>
 		U3CU3Ec__DisplayClass9_0_tE85C8192601740DA12B6A252D29726E9A7F06E5C* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass9_0_U3CDOPreferredSizeU3Eb__0_m1AB892211B71DB2D4E8F21F9BA126944DF9D500C_RuntimeMethod_var), NULL);
@@ -7947,7 +7501,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:162>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -7957,11 +7510,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:163>
 		return L_10;
 	}
 }
-// Method Definition Index: 59983
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOColor_mAF1146331160A3A8C7FFA916BFA8B71A8531FCF2 (Outline_t9CF146E077DC65F441EDEC463AA6710374108084* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7986,7 +7537,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:175>
 		U3CU3Ec__DisplayClass10_0_tCC949A20CDD228AC8F8B3A8CD5753ADA411636B3* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass10_0_U3CDOColorU3Eb__0_mA4364DFDB200823F9D4FF95D114157C2A424D9DC_RuntimeMethod_var), NULL);
@@ -7998,18 +7548,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_To_mA1EBEAF49DD682B626CB60B4C53B7069F7933339(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:176>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass10_0_tCC949A20CDD228AC8F8B3A8CD5753ADA411636B3* L_11 = V_0;
 		NullCheck(L_11);
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:177>
 		return L_10;
 	}
 }
-// Method Definition Index: 59984
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOFade_mFDEF44F0F048DD606FEF46F539D4F47AF40EF817 (Outline_t9CF146E077DC65F441EDEC463AA6710374108084* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8034,7 +7581,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:185>
 		U3CU3Ec__DisplayClass11_0_t65D5FA900D6220B15D4F61001E4C0761C72A6796* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass11_0_U3CDOFadeU3Eb__0_mDCACD4D30AEE9D07134544798AB5B9C5D979BE93_RuntimeMethod_var), NULL);
@@ -8046,18 +7592,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_ToAlpha_m93AB0EDCF2956A0DD806D9537799F2727CA5E7C1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:186>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass11_0_t65D5FA900D6220B15D4F61001E4C0761C72A6796* L_11 = V_0;
 		NullCheck(L_11);
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:187>
 		return L_10;
 	}
 }
-// Method Definition Index: 59985
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOScale_mEBEA04E6C90874A4903841D8D2720867B2CA292F (Outline_t9CF146E077DC65F441EDEC463AA6710374108084* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8082,7 +7625,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:195>
 		U3CU3Ec__DisplayClass12_0_tCD751A3A64E63AA8CAAFAF76B7A47FB79314B30B* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass12_0_U3CDOScaleU3Eb__0_m5C34A94B2CF727A19CE3D6D99933B680E7847F2A_RuntimeMethod_var), NULL);
@@ -8094,18 +7636,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:196>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		U3CU3Ec__DisplayClass12_0_tCD751A3A64E63AA8CAAFAF76B7A47FB79314B30B* L_11 = V_0;
 		NullCheck(L_11);
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_12 = L_11->___target;
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:197>
 		return L_10;
 	}
 }
-// Method Definition Index: 59986
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOAnchorPos_m5B60876E10960019C209F1C215F921E6F994831A (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8130,7 +7669,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:210>
 		U3CU3Ec__DisplayClass13_0_tA7908A005DAFADE5E96F672B1A0AC21105DC4A84* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass13_0_U3CDOAnchorPosU3Eb__0_m45698E882FAA3963ED0653B5927E9B5F99C8B4E4_RuntimeMethod_var), NULL);
@@ -8142,7 +7680,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:211>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -8152,11 +7689,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:212>
 		return L_10;
 	}
 }
-// Method Definition Index: 59987
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOAnchorPosX_m483100309684443A215A8279D4E54B2769DAF3E8 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8181,7 +7716,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:220>
 		U3CU3Ec__DisplayClass14_0_t14BD385BD495A01BD6C66D2D92360407933E64E9* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass14_0_U3CDOAnchorPosXU3Eb__0_m77F354FDCA32A28B5E166D92E7AD31A13AAC60FA_RuntimeMethod_var), NULL);
@@ -8196,7 +7730,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10;
 		L_10 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:221>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -8206,11 +7739,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:222>
 		return L_11;
 	}
 }
-// Method Definition Index: 59988
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOAnchorPosY_mBCFDB7E014D45E6B56588C598C23D4EB111D1395 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8235,7 +7766,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:230>
 		U3CU3Ec__DisplayClass15_0_tD42752F57E0F92A701F49E8A350FDCE98CD5B0F8* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass15_0_U3CDOAnchorPosYU3Eb__0_m3B38EF80DFF9D4EF696F2F08DCC156C16FE55E8D_RuntimeMethod_var), NULL);
@@ -8250,7 +7780,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10;
 		L_10 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:231>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -8260,11 +7789,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:232>
 		return L_11;
 	}
 }
-// Method Definition Index: 59989
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModuleUI_DOAnchorPos3D_mBFA28183F6CBCCD444AF47AA85A0272E8D1CAA48 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8289,7 +7816,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:241>
 		U3CU3Ec__DisplayClass16_0_t19F6A4F2A285615B2EFC11553DF0D96149166E7A* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass16_0_U3CDOAnchorPos3DU3Eb__0_m2E02A40A5465C662FCB26908E7F13C7DD3A4BBC2_RuntimeMethod_var), NULL);
@@ -8301,7 +7827,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_9;
 		L_9 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:242>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -8311,11 +7836,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:243>
 		return L_10;
 	}
 }
-// Method Definition Index: 59990
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModuleUI_DOAnchorPos3DX_m6AE58A54659B9562734FB13539AE84FA69C34980 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8340,7 +7863,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:251>
 		U3CU3Ec__DisplayClass17_0_t284A2013A9CF39A877F17C22914B8003908BAF2A* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass17_0_U3CDOAnchorPos3DXU3Eb__0_mC5FAD099F119CE2ACDEAD414435B244F21CDB4E7_RuntimeMethod_var), NULL);
@@ -8355,7 +7877,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_10;
 		L_10 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:252>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -8365,11 +7886,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:253>
 		return L_11;
 	}
 }
-// Method Definition Index: 59991
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModuleUI_DOAnchorPos3DY_mC051E07149C6D443662E3682338A26D0ADC6591C (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8394,7 +7913,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:261>
 		U3CU3Ec__DisplayClass18_0_t8041ED4DE7248F565E86D82594DDD9BD74602121* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass18_0_U3CDOAnchorPos3DYU3Eb__0_m30DD1FDFC6B5104DB734F01FB77F60BAB3C67578_RuntimeMethod_var), NULL);
@@ -8409,7 +7927,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_10;
 		L_10 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:262>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -8419,11 +7936,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:263>
 		return L_11;
 	}
 }
-// Method Definition Index: 59992
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* DOTweenModuleUI_DOAnchorPos3DZ_m334F6667A6103C39B84749DC1EBE6557CCBE91D3 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8448,7 +7963,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:271>
 		U3CU3Ec__DisplayClass19_0_tE0338A49FF6F541CD74258CC0E361949F17279F8* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass19_0_U3CDOAnchorPos3DZU3Eb__0_m81FCF7B95ACC17C67BE6C8D68B570D959D88EADC_RuntimeMethod_var), NULL);
@@ -8463,7 +7977,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_10;
 		L_10 = DOTween_To_m29FF04132DD76AFF686CF5DBCCD84CB6105A2DB8(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:272>
 		TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D7D16BFFE77* L_11 = L_10;
 		bool L_12 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_13;
@@ -8473,11 +7986,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tCD82DFC45FB71C681FA8659EA63A7D
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_15 = L_14->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_16;
 		L_16 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_13, L_15, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:273>
 		return L_11;
 	}
 }
-// Method Definition Index: 59993
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOAnchorMax_mA7BFD0284B3A23C3BF4DE76F542F60EAE1CC5368 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8502,7 +8013,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:282>
 		U3CU3Ec__DisplayClass20_0_t984E360099B0FDF4B884478FC49D03EC7CC5FC62* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass20_0_U3CDOAnchorMaxU3Eb__0_mD50D23ECA6FBD3AE03536697B9ED7332E4FDD2CD_RuntimeMethod_var), NULL);
@@ -8514,7 +8024,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:283>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -8524,11 +8033,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:284>
 		return L_10;
 	}
 }
-// Method Definition Index: 59994
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOAnchorMin_m7EC8E45746F25D2679DE1267FBD5DEB4CC619057 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8553,7 +8060,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:293>
 		U3CU3Ec__DisplayClass21_0_t103F15D006C0D1B8C5D8BF3FB799D36CD246036A* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass21_0_U3CDOAnchorMinU3Eb__0_m33BBB55D66991F54EE55E79B0AE622F40FFCD764_RuntimeMethod_var), NULL);
@@ -8565,7 +8071,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:294>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -8575,11 +8080,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:295>
 		return L_10;
 	}
 }
-// Method Definition Index: 59995
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOPivot_m3F8012446C42571C9F1549771422917AEC9EEDF8 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8604,7 +8107,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:303>
 		U3CU3Ec__DisplayClass22_0_t5C323042506D23A90B58A769162DBBF0BC76B035* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass22_0_U3CDOPivotU3Eb__0_m5FE19E82DBA2702E7A7ADF66BB937773CACBEC6D_RuntimeMethod_var), NULL);
@@ -8616,18 +8118,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:304>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		U3CU3Ec__DisplayClass22_0_t5C323042506D23A90B58A769162DBBF0BC76B035* L_11 = V_0;
 		NullCheck(L_11);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_12 = L_11->___target;
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:305>
 		return L_10;
 	}
 }
-// Method Definition Index: 59996
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOPivotX_mFD1858E2B5933F093EB84E3D87A69783B04CA7F4 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8652,7 +8151,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:312>
 		U3CU3Ec__DisplayClass23_0_t3DFCA163008250F066061F9E3ED061A2BCFA666F* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass23_0_U3CDOPivotXU3Eb__0_mEBA64E950B901D99C27662F211C5357066A46C1B_RuntimeMethod_var), NULL);
@@ -8667,7 +8165,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10;
 		L_10 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:313>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11 = L_10;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
 		L_12 = TweenSettingsExtensions_SetOptions_mFD076C0377973484D8607E062753FE55478F0D0C(L_11, 2, (bool)0, NULL);
@@ -8676,11 +8173,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:314>
 		return L_11;
 	}
 }
-// Method Definition Index: 59997
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOPivotY_m7CA2B8D7162770DC0700106C9ADB97F9A4BD877B (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8705,7 +8200,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:321>
 		U3CU3Ec__DisplayClass24_0_t04F97A805A71B33C86A4F3A2F05635361548FD88* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass24_0_U3CDOPivotYU3Eb__0_mB9A0E99B23333028B4BA97E332DA19268ADFEBBB_RuntimeMethod_var), NULL);
@@ -8720,7 +8214,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10;
 		L_10 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_8, L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:322>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_11 = L_10;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
 		L_12 = TweenSettingsExtensions_SetOptions_mFD076C0377973484D8607E062753FE55478F0D0C(L_11, 4, (bool)0, NULL);
@@ -8729,11 +8222,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:323>
 		return L_11;
 	}
 }
-// Method Definition Index: 59998
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUI_DOSizeDelta_mC2236310385A8326B78FE900A33586006C8B4474 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8758,7 +8249,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:332>
 		U3CU3Ec__DisplayClass25_0_t4DA808F4CFC3EA9D61AC01DF1B84F0601D03DABB* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass25_0_U3CDOSizeDeltaU3Eb__0_m9465A762A443D9DAA50004FF4EC3E7A5710D24F3_RuntimeMethod_var), NULL);
@@ -8770,7 +8260,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_9;
 		L_9 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:333>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -8780,11 +8269,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:334>
 		return L_10;
 	}
 }
-// Method Definition Index: 59999
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOPunchAnchorPos_mCE5DF2A8B462E813FBB84C4DBC5697848D1C2B45 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_punch, float ___2_duration, int32_t ___3_vibrato, float ___4_elasticity, bool ___5_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8809,8 +8296,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:349>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:350>
 		U3CU3Ec__DisplayClass26_0_t124EF2B4B70F54D478CDCCFB5BCD1975BB607407* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass26_0_U3CDOPunchAnchorPosU3Eb__0_m8A97B30EF54DCC1B5253F2CE036DA7BEF521F9E2_RuntimeMethod_var), NULL);
@@ -8837,7 +8322,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_17;
 	}
 }
-// Method Definition Index: 60000
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOShakeAnchorPos_m12477B21C8CD40EF1A6CA4F73A6AF1E35883B992 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_duration, float ___2_strength, int32_t ___3_vibrato, float ___4_randomness, bool ___5_snapping, bool ___6_fadeOut, int32_t ___7_randomnessMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8863,8 +8347,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:365>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:366>
 		U3CU3Ec__DisplayClass27_0_t5DF692DEA21E1F075A801B6B88FD7309CD5F86B7* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass27_0_U3CDOShakeAnchorPosU3Eb__0_m28D2453CAB4630D898B61CF1679C5C4955EC5761_RuntimeMethod_var), NULL);
@@ -8893,7 +8375,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_19;
 	}
 }
-// Method Definition Index: 60001
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOShakeAnchorPos_m919C4BA7526A3CEA6FF8F4CF669FB7681E2893BB (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, float ___1_duration, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___2_strength, int32_t ___3_vibrato, float ___4_randomness, bool ___5_snapping, bool ___6_fadeOut, int32_t ___7_randomnessMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8919,8 +8400,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:380>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:381>
 		U3CU3Ec__DisplayClass28_0_tD0958576900019D44F20769282634622310A6335* L_3 = V_0;
 		DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338* L_4 = (DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338*)il2cpp_codegen_object_new(DOGetter_1_t709462C08281F3AA5DFEF36CAF91404B1004C338_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m59C11B3FE64C69454BE28721314FD6189629F27E(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass28_0_U3CDOShakeAnchorPosU3Eb__0_mE987488CB26087991EB5B2AF5E1BB03633A9C5E9_RuntimeMethod_var), NULL);
@@ -8951,7 +8430,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_20;
 	}
 }
-// Method Definition Index: 60002
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModuleUI_DOJumpAnchorPos_m5629EA273819E9C2EE98068F8793202EC96765F3 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_jumpPower, int32_t ___3_numJumps, float ___4_duration, bool ___5_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8992,7 +8470,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___1_endValue;
 		NullCheck(L_3);
 		L_3->___endValue = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:396>
 		int32_t L_5 = ___3_numJumps;
 		if ((((int32_t)L_5) >= ((int32_t)1)))
 		{
@@ -9000,25 +8477,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:396>
 		___3_numJumps = 1;
 	}
 
 IL_001b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:397>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_6 = V_0;
 		NullCheck(L_6);
 		L_6->___startPosY = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:398>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_7 = V_0;
 		NullCheck(L_7);
 		L_7->___offsetY = (-1.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:399>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_8 = V_0;
 		NullCheck(L_8);
 		L_8->___offsetYSet = (bool)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:403>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_9 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_10;
@@ -9026,10 +8498,6 @@ IL_001b:
 		NullCheck(L_9);
 		L_9->___s = L_10;
 		Il2CppCodeGenWriteBarrier((void**)(&L_9->___s), (void*)L_10);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:404>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:405>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:406>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:407>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_11 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_12 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_12, L_11, (intptr_t)((void*)U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__0_m82918F5D73CE67BC9AD9979A3F81C717AA95A5EF_RuntimeMethod_var), NULL);
@@ -9060,10 +8528,6 @@ IL_001b:
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_28;
 		L_28 = TweenSettingsExtensions_OnStart_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m91BC1289F73A9909A236B66B621A8CFE5A8A8FAD(L_25, L_27, TweenSettingsExtensions_OnStart_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m91BC1289F73A9909A236B66B621A8CFE5A8A8FAD_RuntimeMethod_var);
 		V_1 = L_28;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:408>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:409>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:410>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:411>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_29 = V_0;
 		NullCheck(L_29);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_30 = L_29->___s;
@@ -9101,15 +8565,6 @@ IL_001b:
 		int32_t L_50 = ((DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_StaticFields*)il2cpp_codegen_static_fields_for(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var))->___defaultEaseType;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_51;
 		L_51 = TweenSettingsExtensions_SetEase_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m8883E8F9ADB1071F2480D9CE910190D8A121A24D(L_49, L_50, TweenSettingsExtensions_SetEase_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m8883E8F9ADB1071F2480D9CE910190D8A121A24D_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:412>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:413>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:414>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:415>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:416>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:417>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:418>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:419>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:420>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_52 = V_0;
 		NullCheck(L_52);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_53 = L_52->___s;
@@ -9118,14 +8573,12 @@ IL_001b:
 		TweenCallback__ctor_m68CC9304423CBDE43001F9B1413B5DAAF70DB621(L_55, L_54, (intptr_t)((void*)U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__5_m31B52507CE1503653EED1573137622C1202BA9D9_RuntimeMethod_var), NULL);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_56;
 		L_56 = TweenSettingsExtensions_OnUpdate_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m03D8242DF57323B66FBF83879F79072F3127AD12(L_53, L_55, TweenSettingsExtensions_OnUpdate_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m03D8242DF57323B66FBF83879F79072F3127AD12_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:421>
 		U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* L_57 = V_0;
 		NullCheck(L_57);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_58 = L_57->___s;
 		return L_58;
 	}
 }
-// Method Definition Index: 60003
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DONormalizedPos_mABC0EB2280EEC8C8A990E76E16D7BB5DA48A1706 (ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9150,12 +8603,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:436>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:437>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:438>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:439>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:440>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:441>
 		U3CU3Ec__DisplayClass30_0_tEC2889D7CADE796A4FFB321716EC8FE47DEEBC46* L_3 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_4 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass30_0_U3CDONormalizedPosU3Eb__0_m80C5E010B8B0C14A9F1358140D6DB2AE6C5374A9_RuntimeMethod_var), NULL);
@@ -9178,7 +8625,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_14;
 	}
 }
-// Method Definition Index: 60004
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOHorizontalNormalizedPos_m41E8A271B7FE392B43523F6B123DCBF26CB0BA74 (ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9203,8 +8649,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:449>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:450>
 		U3CU3Ec__DisplayClass31_0_tA83E5335930C3B73B36584C0C49AEF4D60F994FA* L_3 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_4 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass31_0_U3CDOHorizontalNormalizedPosU3Eb__0_m77E495AE88490935170B5479753B0D251A5D3CA4_RuntimeMethod_var), NULL);
@@ -9227,7 +8671,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_14;
 	}
 }
-// Method Definition Index: 60005
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOVerticalNormalizedPos_mC141061A07ACD836F365221BA33198FF316BFBA3 (ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9252,8 +8695,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:458>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:459>
 		U3CU3Ec__DisplayClass32_0_tC0A04FC69DFA3D09F95256B3260E19CDF93CFFAB* L_3 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_4 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass32_0_U3CDOVerticalNormalizedPosU3Eb__0_m38805643288D85CEE1588577A69586E047726867_RuntimeMethod_var), NULL);
@@ -9276,7 +8717,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_14;
 	}
 }
-// Method Definition Index: 60006
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* DOTweenModuleUI_DOValue_m38DB0CB09A73E2DDC33B3EEE49D74944FBA82A38 (Slider_t87EA570E3D6556CABF57456C2F3873FFD86E652F* ___0_target, float ___1_endValue, float ___2_duration, bool ___3_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9301,7 +8741,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:472>
 		U3CU3Ec__DisplayClass33_0_t5E307A3D92BFAC7CC6F0D5285761865A1041D7A8* L_3 = V_0;
 		DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03* L_4 = (DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03*)il2cpp_codegen_object_new(DOGetter_1_tE8B39477E96408653D0242624F4D7E48ABFD1B03_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mD5E79861254E8BFB1618B3AB0B9755D18F553CFA(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass33_0_U3CDOValueU3Eb__0_m8E6B52F72A726C09781FAAE48C1097CE6C2D8188_RuntimeMethod_var), NULL);
@@ -9313,7 +8752,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_9;
 		L_9 = DOTween_To_m9C9EBC0FB6CF94364DD4FF85C476D8EE0A7FF4B1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:473>
 		TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D8122059AC2C1* L_10 = L_9;
 		bool L_11 = ___3_snapping;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_12;
@@ -9323,11 +8761,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t88CA32E51F4E95E6907CE2C6FD5D81
 		Slider_t87EA570E3D6556CABF57456C2F3873FFD86E652F* L_14 = L_13->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_15;
 		L_15 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_12, L_14, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:474>
 		return L_10;
 	}
 }
-// Method Definition Index: 60007
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOColor_mAF96B607A774C0B0D912E56C3C11A87E4F093440 (Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9352,7 +8788,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:486>
 		U3CU3Ec__DisplayClass34_0_t18D864D495A67B8E3723FF168949A00B63EE2EC5* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass34_0_U3CDOColorU3Eb__0_mBA716E6626BB3051125B19AC02EC825AA305B9A6_RuntimeMethod_var), NULL);
@@ -9364,18 +8799,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_To_mA1EBEAF49DD682B626CB60B4C53B7069F7933339(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:487>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass34_0_t18D864D495A67B8E3723FF168949A00B63EE2EC5* L_11 = V_0;
 		NullCheck(L_11);
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:488>
 		return L_10;
 	}
 }
-// Method Definition Index: 60008
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t9535EBAA281A1D58F2F4C103D11394072D85754C* DOTweenModuleUI_DOCounter_m85EC79863973B9D9DF9D67E7B5DD835C86BF1438 (Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___0_target, int32_t ___1_fromValue, int32_t ___2_endValue, float ___3_duration, bool ___4_addThousandsSeparator, CultureInfo_t9BA817D41AD55AC8BD07480DD8AC22F8FFA378E0* ___5_culture, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9411,12 +8843,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t9535EBAA281A1D58F2F4C103D11394
 		bool L_4 = ___4_addThousandsSeparator;
 		NullCheck(L_3);
 		L_3->___addThousandsSeparator = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:502>
 		U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* L_5 = V_0;
 		int32_t L_6 = ___1_fromValue;
 		NullCheck(L_5);
 		L_5->___v = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:503>
 		U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* L_7 = V_0;
 		U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* L_8 = V_0;
 		NullCheck(L_8);
@@ -9460,12 +8890,6 @@ IL_0033:
 		NullCheck(G_B4_1);
 		G_B4_1->___cInfo = G_B4_0;
 		Il2CppCodeGenWriteBarrier((void**)(&G_B4_1->___cInfo), (void*)G_B4_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:504>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:505>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:506>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:507>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:508>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:509>
 		U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* L_13 = V_0;
 		DOGetter_1_t126D20ADA2999ECC8E5336D1EDE57C560F53784B* L_14 = (DOGetter_1_t126D20ADA2999ECC8E5336D1EDE57C560F53784B*)il2cpp_codegen_object_new(DOGetter_1_t126D20ADA2999ECC8E5336D1EDE57C560F53784B_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m5586C4AB5126DB0C5D2BDB10005E502A150C7710(L_14, L_13, (intptr_t)((void*)U3CU3Ec__DisplayClass35_0_U3CDOCounterU3Eb__0_mD4515C9E2BA21A91E51DCA562DB8BD859BB73D4B_RuntimeMethod_var), NULL);
@@ -9477,18 +8901,15 @@ IL_0033:
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t9535EBAA281A1D58F2F4C103D11394072D85754C* L_19;
 		L_19 = DOTween_To_mE00A5CA8947AD59966A2CFE3810F1FEEC83E157B(L_14, L_16, L_17, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:510>
 		TweenerCore_3_t9535EBAA281A1D58F2F4C103D11394072D85754C* L_20 = L_19;
 		U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* L_21 = V_0;
 		NullCheck(L_21);
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_22 = L_21->___target;
 		TweenerCore_3_t9535EBAA281A1D58F2F4C103D11394072D85754C* L_23;
 		L_23 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t9535EBAA281A1D58F2F4C103D11394072D85754C_m82894E84FCB9577C2BA36B22C720E143E6AAA5E1(L_20, L_22, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t9535EBAA281A1D58F2F4C103D11394072D85754C_m82894E84FCB9577C2BA36B22C720E143E6AAA5E1_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:511>
 		return L_20;
 	}
 }
-// Method Definition Index: 60009
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* DOTweenModuleUI_DOFade_m5AD3262DBFA4B713B61D3F2203B2930562A3B54D (Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___0_target, float ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9513,7 +8934,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:519>
 		U3CU3Ec__DisplayClass36_0_tAE460456A155A97552A76CF67AF3D3BE866F30C8* L_3 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_4 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass36_0_U3CDOFadeU3Eb__0_m72BB7D6C818418B6497D3356DA77BA4A5B325E47_RuntimeMethod_var), NULL);
@@ -9525,18 +8945,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_tC0593021331EF2AF46590E2184F512
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_9;
 		L_9 = DOTween_ToAlpha_m93AB0EDCF2956A0DD806D9537799F2727CA5E7C1(L_4, L_6, L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:520>
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_10 = L_9;
 		U3CU3Ec__DisplayClass36_0_tAE460456A155A97552A76CF67AF3D3BE866F30C8* L_11 = V_0;
 		NullCheck(L_11);
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_12 = L_11->___target;
 		TweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3* L_13;
 		L_13 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83(L_10, L_12, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_tC0593021331EF2AF46590E2184F512C0D38FD4C3_mD27623FACC7C328BD7538BCC8936E001F91CBA83_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:521>
 		return L_10;
 	}
 }
-// Method Definition Index: 60010
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t390910F1CE8B4737AA72FEED470399C8DBE1AF8B* DOTweenModuleUI_DOText_mDE24022401FC6820F90F1BE517FF46F73AE9BC15 (Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___0_target, String_t* ___1_endValue, float ___2_duration, bool ___3_richTextEnabled, int32_t ___4_scrambleMode, String_t* ___5_scrambleChars, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9563,7 +8980,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t390910F1CE8B4737AA72FEED470399
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:535>
 		String_t* L_3 = ___1_endValue;
 		if (L_3)
 		{
@@ -9571,7 +8987,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t390910F1CE8B4737AA72FEED470399
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:536>
 		int32_t L_4;
 		L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -9580,19 +8995,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t390910F1CE8B4737AA72FEED470399
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:536>
 		Debugger_LogWarning_mB528DCD3175EB2D670A62A6507A656F8DE76D06E(_stringLiteralE41209BF9C5F52C0362394BD3BC6A948E0B35B91, (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C*)NULL, NULL);
 	}
 
 IL_0023:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:537>
 		___1_endValue = _stringLiteralDA39A3EE5E6B4B0D3255BFEF95601890AFD80709;
 	}
 
 IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:539>
 		U3CU3Ec__DisplayClass37_0_tEB346CC740290347A0EAF5C4DBE0B8B55EC9B6D0* L_5 = V_0;
 		DOGetter_1_t65A2B66606014CD7EFBA1D8DDD1273F57511D146* L_6 = (DOGetter_1_t65A2B66606014CD7EFBA1D8DDD1273F57511D146*)il2cpp_codegen_object_new(DOGetter_1_t65A2B66606014CD7EFBA1D8DDD1273F57511D146_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_mC8C03B65352C1426F2985D1516464D9A6E48D1EC(L_6, L_5, (intptr_t)((void*)U3CU3Ec__DisplayClass37_0_U3CDOTextU3Eb__0_m02FF7D2EC040673A6A8DAF254FA06CCB5E19150D_RuntimeMethod_var), NULL);
@@ -9604,8 +9016,6 @@ IL_002a:
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t390910F1CE8B4737AA72FEED470399C8DBE1AF8B* L_11;
 		L_11 = DOTween_To_mA4E61D06204BD01537C08EEB9ED148C18ABC75ED(L_6, L_8, L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:540>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:541>
 		TweenerCore_3_t390910F1CE8B4737AA72FEED470399C8DBE1AF8B* L_12 = L_11;
 		bool L_13 = ___3_richTextEnabled;
 		int32_t L_14 = ___4_scrambleMode;
@@ -9617,11 +9027,9 @@ IL_002a:
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_18 = L_17->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_19;
 		L_19 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_16, L_18, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:542>
 		return L_12;
 	}
 }
-// Method Definition Index: 60011
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOBlendableColor_m69717A08080A14BE5A01F1E8886EBF829CEF7227 (Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9647,7 +9055,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:558>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___1_endValue;
 		U3CU3Ec__DisplayClass38_0_t267FF01517518B123F4EB11811FAF5BEDB2CB83D* L_4 = V_0;
 		NullCheck(L_4);
@@ -9658,19 +9065,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_7;
 		L_7 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_3, L_6, NULL);
 		___1_endValue = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:559>
 		U3CU3Ec__DisplayClass38_0_t267FF01517518B123F4EB11811FAF5BEDB2CB83D* L_8 = V_0;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_9;
 		memset((&L_9), 0, sizeof(L_9));
 		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_9), (0.0f), (0.0f), (0.0f), (0.0f), NULL);
 		NullCheck(L_8);
 		L_8->___to = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:560>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:561>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:562>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:563>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:564>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:565>
 		U3CU3Ec__DisplayClass38_0_t267FF01517518B123F4EB11811FAF5BEDB2CB83D* L_10 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_11 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_11, L_10, (intptr_t)((void*)U3CU3Ec__DisplayClass38_0_U3CDOBlendableColorU3Eb__0_mE68FE0C254E1D0E7E8D659FF3E4A3AA5F7738351_RuntimeMethod_var), NULL);
@@ -9692,7 +9092,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_20;
 	}
 }
-// Method Definition Index: 60012
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOBlendableColor_m9D9F47100CD74C031BBA7ABF9A16E45AC29D2E8F (Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9718,7 +9117,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:579>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___1_endValue;
 		U3CU3Ec__DisplayClass39_0_t38D78B606D82F31C19D959AF12B5C4F1D4AF65C2* L_4 = V_0;
 		NullCheck(L_4);
@@ -9729,19 +9127,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_7;
 		L_7 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_3, L_6, NULL);
 		___1_endValue = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:580>
 		U3CU3Ec__DisplayClass39_0_t38D78B606D82F31C19D959AF12B5C4F1D4AF65C2* L_8 = V_0;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_9;
 		memset((&L_9), 0, sizeof(L_9));
 		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_9), (0.0f), (0.0f), (0.0f), (0.0f), NULL);
 		NullCheck(L_8);
 		L_8->___to = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:581>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:582>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:583>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:584>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:585>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:586>
 		U3CU3Ec__DisplayClass39_0_t38D78B606D82F31C19D959AF12B5C4F1D4AF65C2* L_10 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_11 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_11, L_10, (intptr_t)((void*)U3CU3Ec__DisplayClass39_0_U3CDOBlendableColorU3Eb__0_m897EF1C1C8D7A638D7271A6E3BD8640F834CA567_RuntimeMethod_var), NULL);
@@ -9763,7 +9154,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_20;
 	}
 }
-// Method Definition Index: 60013
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* DOTweenModuleUI_DOBlendableColor_m7569CFBAB6EFA6049EECFDBC96898880565C368A (Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* ___0_target, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_endValue, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9789,7 +9179,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:600>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___1_endValue;
 		U3CU3Ec__DisplayClass40_0_t0E7A83E8D1C93359BF9EB9E6A9AF3AA18311CD24* L_4 = V_0;
 		NullCheck(L_4);
@@ -9800,19 +9189,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_7;
 		L_7 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_3, L_6, NULL);
 		___1_endValue = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:601>
 		U3CU3Ec__DisplayClass40_0_t0E7A83E8D1C93359BF9EB9E6A9AF3AA18311CD24* L_8 = V_0;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_9;
 		memset((&L_9), 0, sizeof(L_9));
 		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_9), (0.0f), (0.0f), (0.0f), (0.0f), NULL);
 		NullCheck(L_8);
 		L_8->___to = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:602>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:603>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:604>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:605>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:606>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:607>
 		U3CU3Ec__DisplayClass40_0_t0E7A83E8D1C93359BF9EB9E6A9AF3AA18311CD24* L_10 = V_0;
 		DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95* L_11 = (DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95*)il2cpp_codegen_object_new(DOGetter_1_t4DFFF7454A1BCD259676FED36CCF2114E34B5B95_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m7ABE4FFF2BF8792E4DA3957B81F6BD369634F5F3(L_11, L_10, (intptr_t)((void*)U3CU3Ec__DisplayClass40_0_U3CDOBlendableColorU3Eb__0_m031A8418D686ADB8B4AD6572C18FCBAD1E42B0F6_RuntimeMethod_var), NULL);
@@ -9834,7 +9216,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830
 		return L_20;
 	}
 }
-// Method Definition Index: 60014
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3F2FAE1D947* DOTweenModuleUI_DOShapeCircle_m0A5FCD4C41E4B1FF07B94647146806013735FAE4 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_center, float ___2_endValueDegrees, float ___3_duration, bool ___4_relativeCenter, bool ___5_snapping, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9860,9 +9241,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3
 		NullCheck(L_1);
 		L_1->___target = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___target), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:628>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:629>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:630>
 		ABSTweenPlugin_3_tF3514EEC2BD29A12B4641076F59405DFB6106DAE* L_3;
 		L_3 = CirclePlugin_Get_m58C3CF891705AD223A52D2A1E66D96E114BFE195(NULL);
 		U3CU3Ec__DisplayClass41_0_t7022E6DD68301100D1A7392EF5170CF153EDAD93* L_4 = V_0;
@@ -9876,7 +9254,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3F2FAE1D947* L_10;
 		L_10 = DOTween_To_TisVector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_TisVector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_TisCircleOptions_tB7B463413662FD10ECA7DF439BF0B36AC7685008_m1E4E072867EDD465D9516798EFC1C3F2BBE3220D(L_3, L_5, L_7, L_8, L_9, DOTween_To_TisVector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_TisVector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_TisCircleOptions_tB7B463413662FD10ECA7DF439BF0B36AC7685008_m1E4E072867EDD465D9516798EFC1C3F2BBE3220D_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:631>
 		TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3F2FAE1D947* L_11 = L_10;
 		float L_12 = ___2_endValueDegrees;
 		bool L_13 = ___4_relativeCenter;
@@ -9888,7 +9265,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_17 = L_16->___target;
 		Tweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140* L_18;
 		L_18 = TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273(L_15, L_17, TweenSettingsExtensions_SetTarget_TisTweener_tD38633F1A42EDF47A73CE3BF1894D946E830E140_m0BD4EC3CF03134447DFCBD733FC34CB1A965A273_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:632>
 		return L_11;
 	}
 }
@@ -9900,13 +9276,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2AB8873CFFA96FCD79C3731A380BE3
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60015
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Utils_SwitchToRectTransform_m6A264948787CBEE108E0D97B235AE921BFBB6152 (RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_from, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___1_to, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&RectTransformUtility_t65C00A84A72F17D78B81F2E7D88C2AA98AB61244_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
@@ -9920,12 +9296,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_4;
 	memset((&V_4), 0, sizeof(V_4));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:652>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = ___0_from;
 		NullCheck(L_0);
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_1;
 		L_1 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_0, NULL);
 		V_4 = L_1;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_2;
 		L_2 = Rect_get_width_m620D67551372073C9C32C4C4624C2A5713F7F9A9_inline((&V_4), NULL);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_3 = ___0_from;
@@ -9950,7 +9326,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		float L_11;
 		L_11 = Rect_get_yMin_mB19848FB25DE61EDF958F7A22CFDD86DE103062F_inline((&V_4), NULL);
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&V_1), ((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_2, (0.5f))), L_5)), ((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_8, (0.5f))), L_11)), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:653>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_12 = ___0_from;
 		NullCheck(L_12);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_13;
@@ -9959,18 +9334,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_14;
 		L_14 = RectTransformUtility_WorldToScreenPoint_mC8701032E223BA296C43799F4AEE98626686238F((Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184*)NULL, L_13, NULL);
 		V_2 = L_14;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:654>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_15 = V_2;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_16 = V_1;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_17;
 		L_17 = Vector2_op_Addition_m8136742CE6EE33BA4EB81C5F584678455917D2AE_inline(L_15, L_16, NULL);
 		V_2 = L_17;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:655>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_18 = ___1_to;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_19 = V_2;
 		bool L_20;
 		L_20 = RectTransformUtility_ScreenPointToLocalPointInRectangle_m01A75CAFB6D1019F1C65BA606635EAB10AF31195(L_18, L_19, (Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184*)NULL, (&V_0), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:656>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_21 = ___1_to;
 		NullCheck(L_21);
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_22;
@@ -10000,7 +9372,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		float L_32;
 		L_32 = Rect_get_yMin_mB19848FB25DE61EDF958F7A22CFDD86DE103062F_inline((&V_4), NULL);
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&V_3), ((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_23, (0.5f))), L_26)), ((float)il2cpp_codegen_add(((float)il2cpp_codegen_multiply(L_29, (0.5f))), L_32)), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:657>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_33 = ___1_to;
 		NullCheck(L_33);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_34;
@@ -10022,7 +9393,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60016
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m7CDF4DE59B75149775AFE16A0C4AB5482BC4C442 (U3CU3Ec__DisplayClass0_0_tB18B0BBCEBB20AFFAEF4A5DC6E774BB71965CB5D* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10030,11 +9400,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0__ctor_m7CDF4DE5
 		return;
 	}
 }
-// Method Definition Index: 60017
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__0_m43479452AB6CABC809F8BB075F80A6B391A8AA4B (U3CU3Ec__DisplayClass0_0_tB18B0BBCEBB20AFFAEF4A5DC6E774BB71965CB5D* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:31>
 		CanvasGroup_t048C1461B14628CFAEBE6E7353093ADB04EBC094* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -10042,11 +9410,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb_
 		return L_1;
 	}
 }
-// Method Definition Index: 60018
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__1_mB9CCB118057D74D8F6C152B0FA27DE980521FD9A (U3CU3Ec__DisplayClass0_0_tB18B0BBCEBB20AFFAEF4A5DC6E774BB71965CB5D* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:31>
 		CanvasGroup_t048C1461B14628CFAEBE6E7353093ADB04EBC094* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10062,7 +9428,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass0_0_U3CDOFadeU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60019
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0__ctor_m985D8AA039C4BC8FC17F125005481B94749837C7 (U3CU3Ec__DisplayClass10_0_tCC949A20CDD228AC8F8B3A8CD5753ADA411636B3* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10070,11 +9435,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0__ctor_m985D8AA
 		return;
 	}
 }
-// Method Definition Index: 60020
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass10_0_U3CDOColorU3Eb__0_mA4364DFDB200823F9D4FF95D114157C2A424D9DC (U3CU3Ec__DisplayClass10_0_tCC949A20CDD228AC8F8B3A8CD5753ADA411636B3* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:175>
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -10082,11 +9445,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60021
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0_U3CDOColorU3Eb__1_mD28650B7F8BE4B8C96C0AB9DF5BB4B53C443CE41 (U3CU3Ec__DisplayClass10_0_tCC949A20CDD228AC8F8B3A8CD5753ADA411636B3* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:175>
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10102,7 +9463,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass10_0_U3CDOColorU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60022
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass11_0__ctor_m69309DF61BEF60177017EDBE3811AA7119806287 (U3CU3Ec__DisplayClass11_0_t65D5FA900D6220B15D4F61001E4C0761C72A6796* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10110,11 +9470,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass11_0__ctor_m69309DF
 		return;
 	}
 }
-// Method Definition Index: 60023
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass11_0_U3CDOFadeU3Eb__0_mDCACD4D30AEE9D07134544798AB5B9C5D979BE93 (U3CU3Ec__DisplayClass11_0_t65D5FA900D6220B15D4F61001E4C0761C72A6796* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:185>
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -10122,11 +9480,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60024
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass11_0_U3CDOFadeU3Eb__1_m73D2BA809B8464E6E216465A623D609E96823BD9 (U3CU3Ec__DisplayClass11_0_t65D5FA900D6220B15D4F61001E4C0761C72A6796* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:185>
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10142,7 +9498,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass11_0_U3CDOFadeU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60025
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass12_0__ctor_m64C4DEEF82977228537228CAAAF48792AE080622 (U3CU3Ec__DisplayClass12_0_tCD751A3A64E63AA8CAAFAF76B7A47FB79314B30B* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10150,11 +9505,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass12_0__ctor_m64C4DEE
 		return;
 	}
 }
-// Method Definition Index: 60026
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass12_0_U3CDOScaleU3Eb__0_m5C34A94B2CF727A19CE3D6D99933B680E7847F2A (U3CU3Ec__DisplayClass12_0_tCD751A3A64E63AA8CAAFAF76B7A47FB79314B30B* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:195>
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10162,11 +9515,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60027
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass12_0_U3CDOScaleU3Eb__1_m79C4D6FE81FC8292C6B825B55A2F711DE92D835C (U3CU3Ec__DisplayClass12_0_tCD751A3A64E63AA8CAAFAF76B7A47FB79314B30B* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:195>
 		Outline_t9CF146E077DC65F441EDEC463AA6710374108084* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10182,7 +9533,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass12_0_U3CDOScaleU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60028
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass13_0__ctor_mBD97A0B94BB8F658AA2895C371742B0E74198455 (U3CU3Ec__DisplayClass13_0_tA7908A005DAFADE5E96F672B1A0AC21105DC4A84* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10190,11 +9540,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass13_0__ctor_mBD97A0B
 		return;
 	}
 }
-// Method Definition Index: 60029
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass13_0_U3CDOAnchorPosU3Eb__0_m45698E882FAA3963ED0653B5927E9B5F99C8B4E4 (U3CU3Ec__DisplayClass13_0_tA7908A005DAFADE5E96F672B1A0AC21105DC4A84* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:210>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10202,11 +9550,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60030
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass13_0_U3CDOAnchorPosU3Eb__1_m5DD4C4D9473EA1DD1B2021D9131B4F6D8124BD57 (U3CU3Ec__DisplayClass13_0_tA7908A005DAFADE5E96F672B1A0AC21105DC4A84* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:210>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10222,7 +9568,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass13_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60031
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass14_0__ctor_mF03BAB1D5A00A73CAA680F13E3BE0B226712B8C3 (U3CU3Ec__DisplayClass14_0_t14BD385BD495A01BD6C66D2D92360407933E64E9* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10230,11 +9575,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass14_0__ctor_mF03BAB1
 		return;
 	}
 }
-// Method Definition Index: 60032
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass14_0_U3CDOAnchorPosXU3Eb__0_m77F354FDCA32A28B5E166D92E7AD31A13AAC60FA (U3CU3Ec__DisplayClass14_0_t14BD385BD495A01BD6C66D2D92360407933E64E9* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:220>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10242,11 +9585,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60033
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass14_0_U3CDOAnchorPosXU3Eb__1_m017F7F1E8BC9250F6CF7A0B75ED09A7ED669BA34 (U3CU3Ec__DisplayClass14_0_t14BD385BD495A01BD6C66D2D92360407933E64E9* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:220>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10262,7 +9603,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass14_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60034
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass15_0__ctor_m48FC24F32D0415BE4512FB1D5C17CFF39D8149DC (U3CU3Ec__DisplayClass15_0_tD42752F57E0F92A701F49E8A350FDCE98CD5B0F8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10270,11 +9610,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass15_0__ctor_m48FC24F
 		return;
 	}
 }
-// Method Definition Index: 60035
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass15_0_U3CDOAnchorPosYU3Eb__0_m3B38EF80DFF9D4EF696F2F08DCC156C16FE55E8D (U3CU3Ec__DisplayClass15_0_tD42752F57E0F92A701F49E8A350FDCE98CD5B0F8* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:230>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10282,11 +9620,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60036
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass15_0_U3CDOAnchorPosYU3Eb__1_mEB016F250A040B81AEEF7C5D3A98D0B05E3B231F (U3CU3Ec__DisplayClass15_0_tD42752F57E0F92A701F49E8A350FDCE98CD5B0F8* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:230>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10302,7 +9638,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass15_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60037
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass16_0__ctor_m6A7514F7CF8978AD8D2179728B06E74F14F4485E (U3CU3Ec__DisplayClass16_0_t19F6A4F2A285615B2EFC11553DF0D96149166E7A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10310,11 +9645,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass16_0__ctor_m6A7514F
 		return;
 	}
 }
-// Method Definition Index: 60038
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass16_0_U3CDOAnchorPos3DU3Eb__0_m2E02A40A5465C662FCB26908E7F13C7DD3A4BBC2 (U3CU3Ec__DisplayClass16_0_t19F6A4F2A285615B2EFC11553DF0D96149166E7A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:241>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -10322,11 +9655,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 60039
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass16_0_U3CDOAnchorPos3DU3Eb__1_mEC7A7D9EDE2E44E5EAF9ACBA9A993FC950F4EEE2 (U3CU3Ec__DisplayClass16_0_t19F6A4F2A285615B2EFC11553DF0D96149166E7A* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:241>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10342,7 +9673,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass16_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60040
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass17_0__ctor_m54FF0D8E95B7DE95B74B8886D64EA0F803C66D9A (U3CU3Ec__DisplayClass17_0_t284A2013A9CF39A877F17C22914B8003908BAF2A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10350,11 +9680,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass17_0__ctor_m54FF0D8
 		return;
 	}
 }
-// Method Definition Index: 60041
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass17_0_U3CDOAnchorPos3DXU3Eb__0_mC5FAD099F119CE2ACDEAD414435B244F21CDB4E7 (U3CU3Ec__DisplayClass17_0_t284A2013A9CF39A877F17C22914B8003908BAF2A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:251>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -10362,11 +9690,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 60042
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass17_0_U3CDOAnchorPos3DXU3Eb__1_mA7F32AA90629508030AAD74E0725D4B5DF28B76D (U3CU3Ec__DisplayClass17_0_t284A2013A9CF39A877F17C22914B8003908BAF2A* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:251>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10382,7 +9708,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass17_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60043
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass18_0__ctor_mE054C2ABDC10BD5D710C5AF29506CA2841AA72E2 (U3CU3Ec__DisplayClass18_0_t8041ED4DE7248F565E86D82594DDD9BD74602121* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10390,11 +9715,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass18_0__ctor_mE054C2A
 		return;
 	}
 }
-// Method Definition Index: 60044
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass18_0_U3CDOAnchorPos3DYU3Eb__0_m30DD1FDFC6B5104DB734F01FB77F60BAB3C67578 (U3CU3Ec__DisplayClass18_0_t8041ED4DE7248F565E86D82594DDD9BD74602121* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:261>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -10402,11 +9725,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 60045
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass18_0_U3CDOAnchorPos3DYU3Eb__1_m46549819EBCBEB1EE8404F9888866CD75997825D (U3CU3Ec__DisplayClass18_0_t8041ED4DE7248F565E86D82594DDD9BD74602121* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:261>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10422,7 +9743,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass18_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60046
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass19_0__ctor_m74B141AA06FF97B9170A5CD56D2E4422B6511AE3 (U3CU3Ec__DisplayClass19_0_tE0338A49FF6F541CD74258CC0E361949F17279F8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10430,11 +9750,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass19_0__ctor_m74B141A
 		return;
 	}
 }
-// Method Definition Index: 60047
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass19_0_U3CDOAnchorPos3DZU3Eb__0_m81FCF7B95ACC17C67BE6C8D68B570D959D88EADC (U3CU3Ec__DisplayClass19_0_tE0338A49FF6F541CD74258CC0E361949F17279F8* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:271>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1;
@@ -10442,11 +9760,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_1;
 	}
 }
-// Method Definition Index: 60048
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass19_0_U3CDOAnchorPos3DZU3Eb__1_m27CE65B98533504D302D8580C61D7D3F09A48D27 (U3CU3Ec__DisplayClass19_0_tE0338A49FF6F541CD74258CC0E361949F17279F8* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:271>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10462,7 +9778,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass19_0_U3CDOAnchorPos
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60049
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_m6513901DE6123169BD8642D3EDF9341AD2C78AB9 (U3CU3Ec__DisplayClass1_0_tD8156063570C9F9EDAFB40925044950112A26793* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10470,11 +9785,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0__ctor_m6513901D
 		return;
 	}
 }
-// Method Definition Index: 60050
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass1_0_U3CDOColorU3Eb__0_m7A0F2549C2C54325EC64A09C154142F9212E4119 (U3CU3Ec__DisplayClass1_0_tD8156063570C9F9EDAFB40925044950112A26793* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:45>
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -10482,11 +9795,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60051
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0_U3CDOColorU3Eb__1_mFE2DE0E537DD7B1255D9B75969C15549646E6C94 (U3CU3Ec__DisplayClass1_0_tD8156063570C9F9EDAFB40925044950112A26793* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:45>
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10502,7 +9813,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass1_0_U3CDOColorU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60052
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass20_0__ctor_mA78DA0FD1C871D24DEB547744F4DE38ABEACD0B4 (U3CU3Ec__DisplayClass20_0_t984E360099B0FDF4B884478FC49D03EC7CC5FC62* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10510,11 +9820,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass20_0__ctor_mA78DA0F
 		return;
 	}
 }
-// Method Definition Index: 60053
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass20_0_U3CDOAnchorMaxU3Eb__0_mD50D23ECA6FBD3AE03536697B9ED7332E4FDD2CD (U3CU3Ec__DisplayClass20_0_t984E360099B0FDF4B884478FC49D03EC7CC5FC62* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:282>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10522,11 +9830,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60054
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass20_0_U3CDOAnchorMaxU3Eb__1_mFEA7E952BB247F3CC01585B3C896AE53BB7B6540 (U3CU3Ec__DisplayClass20_0_t984E360099B0FDF4B884478FC49D03EC7CC5FC62* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:282>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10542,7 +9848,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass20_0_U3CDOAnchorMax
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60055
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass21_0__ctor_mCAB7F9CC3BBBA542AF258E0D021EC7AEFE5C2AF1 (U3CU3Ec__DisplayClass21_0_t103F15D006C0D1B8C5D8BF3FB799D36CD246036A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10550,11 +9855,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass21_0__ctor_mCAB7F9C
 		return;
 	}
 }
-// Method Definition Index: 60056
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass21_0_U3CDOAnchorMinU3Eb__0_m33BBB55D66991F54EE55E79B0AE622F40FFCD764 (U3CU3Ec__DisplayClass21_0_t103F15D006C0D1B8C5D8BF3FB799D36CD246036A* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:293>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10562,11 +9865,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60057
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass21_0_U3CDOAnchorMinU3Eb__1_m9D2C994ECFF4FB4237C178E213B731C1BD197F0A (U3CU3Ec__DisplayClass21_0_t103F15D006C0D1B8C5D8BF3FB799D36CD246036A* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:293>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10582,7 +9883,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass21_0_U3CDOAnchorMin
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60058
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass22_0__ctor_mE10D2BDE628966FE49512531B20C51F6C2787089 (U3CU3Ec__DisplayClass22_0_t5C323042506D23A90B58A769162DBBF0BC76B035* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10590,11 +9890,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass22_0__ctor_mE10D2BD
 		return;
 	}
 }
-// Method Definition Index: 60059
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass22_0_U3CDOPivotU3Eb__0_m5FE19E82DBA2702E7A7ADF66BB937773CACBEC6D (U3CU3Ec__DisplayClass22_0_t5C323042506D23A90B58A769162DBBF0BC76B035* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:303>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10602,11 +9900,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60060
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass22_0_U3CDOPivotU3Eb__1_mE3E48A091761963476D9CB2F1004A83281EE2643 (U3CU3Ec__DisplayClass22_0_t5C323042506D23A90B58A769162DBBF0BC76B035* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:303>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10622,7 +9918,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass22_0_U3CDOPivotU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60061
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass23_0__ctor_m983854683F9F5CE4B7F0BD9033AB45DDA296F9E7 (U3CU3Ec__DisplayClass23_0_t3DFCA163008250F066061F9E3ED061A2BCFA666F* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10630,11 +9925,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass23_0__ctor_m9838546
 		return;
 	}
 }
-// Method Definition Index: 60062
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass23_0_U3CDOPivotXU3Eb__0_mEBA64E950B901D99C27662F211C5357066A46C1B (U3CU3Ec__DisplayClass23_0_t3DFCA163008250F066061F9E3ED061A2BCFA666F* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:312>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10642,11 +9935,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60063
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass23_0_U3CDOPivotXU3Eb__1_m2BECC738B1793D1B2B8F075191056F44AE61DD6D (U3CU3Ec__DisplayClass23_0_t3DFCA163008250F066061F9E3ED061A2BCFA666F* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:312>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10662,7 +9953,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass23_0_U3CDOPivotXU3E
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60064
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass24_0__ctor_m41C1CA93D499089E6C5CD68BEB55BD64ADBFE43F (U3CU3Ec__DisplayClass24_0_t04F97A805A71B33C86A4F3A2F05635361548FD88* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10670,11 +9960,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass24_0__ctor_m41C1CA9
 		return;
 	}
 }
-// Method Definition Index: 60065
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass24_0_U3CDOPivotYU3Eb__0_mB9A0E99B23333028B4BA97E332DA19268ADFEBBB (U3CU3Ec__DisplayClass24_0_t04F97A805A71B33C86A4F3A2F05635361548FD88* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:321>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10682,11 +9970,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60066
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass24_0_U3CDOPivotYU3Eb__1_mC0B65C0BEC4968B86083A8E493E782A486638E3F (U3CU3Ec__DisplayClass24_0_t04F97A805A71B33C86A4F3A2F05635361548FD88* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:321>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10702,7 +9988,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass24_0_U3CDOPivotYU3E
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60067
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0__ctor_mDF25A8BF6CB8B1A343590B334D354F5EAC765572 (U3CU3Ec__DisplayClass25_0_t4DA808F4CFC3EA9D61AC01DF1B84F0601D03DABB* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10710,11 +9995,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0__ctor_mDF25A8B
 		return;
 	}
 }
-// Method Definition Index: 60068
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass25_0_U3CDOSizeDeltaU3Eb__0_m9465A762A443D9DAA50004FF4EC3E7A5710D24F3 (U3CU3Ec__DisplayClass25_0_t4DA808F4CFC3EA9D61AC01DF1B84F0601D03DABB* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:332>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10722,11 +10005,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60069
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0_U3CDOSizeDeltaU3Eb__1_mE4D6E5ADF19E5741ADB793A0E043CAE94C18772B (U3CU3Ec__DisplayClass25_0_t4DA808F4CFC3EA9D61AC01DF1B84F0601D03DABB* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:332>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10742,7 +10023,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0_U3CDOSizeDelta
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60070
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass26_0__ctor_m7F4C69BB9BF2084453CFD95533563FC7C6AF5941 (U3CU3Ec__DisplayClass26_0_t124EF2B4B70F54D478CDCCFB5BCD1975BB607407* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10750,11 +10030,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass26_0__ctor_m7F4C69B
 		return;
 	}
 }
-// Method Definition Index: 60071
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass26_0_U3CDOPunchAnchorPosU3Eb__0_m8A97B30EF54DCC1B5253F2CE036DA7BEF521F9E2 (U3CU3Ec__DisplayClass26_0_t124EF2B4B70F54D478CDCCFB5BCD1975BB607407* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:349>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10764,11 +10042,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_2;
 	}
 }
-// Method Definition Index: 60072
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass26_0_U3CDOPunchAnchorPosU3Eb__1_mA354D1798B36E08566BC12DEDD0A878C47D19C46 (U3CU3Ec__DisplayClass26_0_t124EF2B4B70F54D478CDCCFB5BCD1975BB607407* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:349>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
@@ -10786,7 +10062,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass26_0_U3CDOPunchAnch
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60073
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass27_0__ctor_m8180394F95E4CEDEA6E4B91A408E7CBC7F36A8D5 (U3CU3Ec__DisplayClass27_0_t5DF692DEA21E1F075A801B6B88FD7309CD5F86B7* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10794,11 +10069,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass27_0__ctor_m8180394
 		return;
 	}
 }
-// Method Definition Index: 60074
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass27_0_U3CDOShakeAnchorPosU3Eb__0_m28D2453CAB4630D898B61CF1679C5C4955EC5761 (U3CU3Ec__DisplayClass27_0_t5DF692DEA21E1F075A801B6B88FD7309CD5F86B7* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:365>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10808,11 +10081,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_2;
 	}
 }
-// Method Definition Index: 60075
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass27_0_U3CDOShakeAnchorPosU3Eb__1_m08D936A746E8737C9E37B326E975EDCB90427B5F (U3CU3Ec__DisplayClass27_0_t5DF692DEA21E1F075A801B6B88FD7309CD5F86B7* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:365>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
@@ -10830,7 +10101,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass27_0_U3CDOShakeAnch
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60076
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass28_0__ctor_m4179B6F77D9F8B2D07F78D25FC745F542063F335 (U3CU3Ec__DisplayClass28_0_tD0958576900019D44F20769282634622310A6335* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10838,11 +10108,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass28_0__ctor_m4179B6F
 		return;
 	}
 }
-// Method Definition Index: 60077
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 U3CU3Ec__DisplayClass28_0_U3CDOShakeAnchorPosU3Eb__0_mE987488CB26087991EB5B2AF5E1BB03633A9C5E9 (U3CU3Ec__DisplayClass28_0_tD0958576900019D44F20769282634622310A6335* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:380>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10852,11 +10120,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A
 		return L_2;
 	}
 }
-// Method Definition Index: 60078
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass28_0_U3CDOShakeAnchorPosU3Eb__1_m223F195EA08AAF2F03AE46C9DE4761B0BC7FB7EC (U3CU3Ec__DisplayClass28_0_tD0958576900019D44F20769282634622310A6335* __this, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:380>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = ___0_x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
@@ -10874,7 +10140,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass28_0_U3CDOShakeAnch
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60079
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0__ctor_mCA183B392317E1ABAF1B8CA84C02784D75678A78 (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10882,11 +10147,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0__ctor_mCA183B3
 		return;
 	}
 }
-// Method Definition Index: 60080
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__0_m82918F5D73CE67BC9AD9979A3F81C717AA95A5EF (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:404>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10894,11 +10157,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60081
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__1_mACBA5402D427457E33770E20ABBF153EE8EA73B2 (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:404>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10906,11 +10167,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAncho
 		return;
 	}
 }
-// Method Definition Index: 60082
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__2_m6BAF800D607189779E65F18B54EA2A29AC45D84B (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:407>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10920,11 +10179,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAncho
 		return;
 	}
 }
-// Method Definition Index: 60083
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__3_mA6D64EC026FB4AA6873394DBB91E728E6F6EFF3D (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:408>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -10932,11 +10189,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60084
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__4_mD71EC1A09CD5404D79A2FA0B068A00F3D2E7D12F (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:408>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -10944,7 +10199,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAncho
 		return;
 	}
 }
-// Method Definition Index: 60085
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAnchorPosU3Eb__5_m31B52507CE1503653EED1573137622C1202BA9D9 (U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* __this, const RuntimeMethod* method) 
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
@@ -10954,7 +10208,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAncho
 	float G_B4_0 = 0.0f;
 	U3CU3Ec__DisplayClass29_0_tAF3D1F414662AB44D54A1823AC81F9067EB039C5* G_B4_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:413>
 		bool L_0 = __this->___offsetYSet;
 		if (L_0)
 		{
@@ -10962,9 +10215,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass29_0_U3CDOJumpAncho
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:414>
 		__this->___offsetYSet = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:415>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_1 = __this->___s;
 		NullCheck(L_1);
 		bool L_2;
@@ -11001,13 +10252,11 @@ IL_003c:
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:417>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_8 = __this->___target;
 		NullCheck(L_8);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_9;
 		L_9 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_8, NULL);
 		V_0 = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:418>
 		float* L_10 = (float*)(&(&V_0)->___y);
 		float* L_11 = L_10;
 		float L_12 = *((float*)L_11);
@@ -11018,12 +10267,10 @@ IL_0041:
 		float L_16;
 		L_16 = DOVirtual_EasedValue_m40F83FCD3705E8DD33558C84B3F7067D91F3B9DF((0.0f), L_13, L_15, 6, NULL);
 		*((float*)L_11) = (float)((float)il2cpp_codegen_add(L_12, L_16));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:419>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_17 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_18 = V_0;
 		NullCheck(L_17);
 		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_17, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:420>
 		return;
 	}
 }
@@ -11035,7 +10282,6 @@ IL_0041:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60086
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_mAC2FAC72E368A0770D2C88F39065B0CD1B860FDC (U3CU3Ec__DisplayClass2_0_t51A1D3D91AFC969F0DAF516721DDD2B73F01ED0D* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11043,11 +10289,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0__ctor_mAC2FAC72
 		return;
 	}
 }
-// Method Definition Index: 60087
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass2_0_U3CDOFadeU3Eb__0_m83DABFF83F53843B3210E3663AA658A393F72C21 (U3CU3Ec__DisplayClass2_0_t51A1D3D91AFC969F0DAF516721DDD2B73F01ED0D* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:55>
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -11055,11 +10299,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60088
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0_U3CDOFadeU3Eb__1_mEBA98F9D99539591FC60AFBE48FD7336309CFE1D (U3CU3Ec__DisplayClass2_0_t51A1D3D91AFC969F0DAF516721DDD2B73F01ED0D* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:55>
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11075,7 +10317,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass2_0_U3CDOFadeU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60089
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass30_0__ctor_m5F4F51BC32159EE37265F7032DE223AC3AB6A1C0 (U3CU3Ec__DisplayClass30_0_tEC2889D7CADE796A4FFB321716EC8FE47DEEBC46* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11083,11 +10324,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass30_0__ctor_m5F4F51B
 		return;
 	}
 }
-// Method Definition Index: 60090
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass30_0_U3CDONormalizedPosU3Eb__0_m80C5E010B8B0C14A9F1358140D6DB2AE6C5374A9 (U3CU3Ec__DisplayClass30_0_tEC2889D7CADE796A4FFB321716EC8FE47DEEBC46* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:436>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11102,23 +10341,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_4;
 	}
 }
-// Method Definition Index: 60091
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass30_0_U3CDONormalizedPosU3Eb__1_m8185551DA74F9CE20DAD3392E7DDE2490EB1D301 (U3CU3Ec__DisplayClass30_0_tEC2889D7CADE796A4FFB321716EC8FE47DEEBC46* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:438>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		float L_2 = L_1.___x;
 		NullCheck(L_0);
 		ScrollRect_set_horizontalNormalizedPosition_m9B268C9AE7891FC73623DC7BE6B9900640C029B6(L_0, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:439>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_3 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___0_x;
 		float L_5 = L_4.___y;
 		NullCheck(L_3);
 		ScrollRect_set_verticalNormalizedPosition_m4AF461113925E6710BF04F46A49CF1F856F7738C(L_3, L_5, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:440>
 		return;
 	}
 }
@@ -11130,7 +10365,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass30_0_U3CDONormalize
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60092
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass31_0__ctor_m417F41C2607E2F3A10C14B9556514FC2BBA1B035 (U3CU3Ec__DisplayClass31_0_tA83E5335930C3B73B36584C0C49AEF4D60F994FA* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11138,11 +10372,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass31_0__ctor_m417F41C
 		return;
 	}
 }
-// Method Definition Index: 60093
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass31_0_U3CDOHorizontalNormalizedPosU3Eb__0_m77E495AE88490935170B5479753B0D251A5D3CA4 (U3CU3Ec__DisplayClass31_0_tA83E5335930C3B73B36584C0C49AEF4D60F994FA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:449>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11150,11 +10382,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass31_0_U3CDOHorizont
 		return L_1;
 	}
 }
-// Method Definition Index: 60094
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass31_0_U3CDOHorizontalNormalizedPosU3Eb__1_mF7393D7DDB277D5BFB5CE86BEB93E25B0558B7BD (U3CU3Ec__DisplayClass31_0_tA83E5335930C3B73B36584C0C49AEF4D60F994FA* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:449>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11170,7 +10400,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass31_0_U3CDOHorizonta
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60095
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass32_0__ctor_mA218955A26898E155307DDE47E12B7E53255AB3E (U3CU3Ec__DisplayClass32_0_tC0A04FC69DFA3D09F95256B3260E19CDF93CFFAB* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11178,11 +10407,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass32_0__ctor_mA218955
 		return;
 	}
 }
-// Method Definition Index: 60096
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass32_0_U3CDOVerticalNormalizedPosU3Eb__0_m38805643288D85CEE1588577A69586E047726867 (U3CU3Ec__DisplayClass32_0_tC0A04FC69DFA3D09F95256B3260E19CDF93CFFAB* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:458>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11190,11 +10417,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass32_0_U3CDOVertical
 		return L_1;
 	}
 }
-// Method Definition Index: 60097
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass32_0_U3CDOVerticalNormalizedPosU3Eb__1_mD395D9118A7944AE3F2ACF8AADCF71B0611F80BB (U3CU3Ec__DisplayClass32_0_tC0A04FC69DFA3D09F95256B3260E19CDF93CFFAB* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:458>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11210,7 +10435,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass32_0_U3CDOVerticalN
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60098
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass33_0__ctor_mFDBB24E2EB71DAB7C3811F51BCF45EE7733321D3 (U3CU3Ec__DisplayClass33_0_t5E307A3D92BFAC7CC6F0D5285761865A1041D7A8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11218,11 +10442,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass33_0__ctor_mFDBB24E
 		return;
 	}
 }
-// Method Definition Index: 60099
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass33_0_U3CDOValueU3Eb__0_m8E6B52F72A726C09781FAAE48C1097CE6C2D8188 (U3CU3Ec__DisplayClass33_0_t5E307A3D92BFAC7CC6F0D5285761865A1041D7A8* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:472>
 		Slider_t87EA570E3D6556CABF57456C2F3873FFD86E652F* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11230,11 +10452,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass33_0_U3CDOValueU3E
 		return L_1;
 	}
 }
-// Method Definition Index: 60100
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass33_0_U3CDOValueU3Eb__1_m02996BC134ED2E96E505224009462007F093F825 (U3CU3Ec__DisplayClass33_0_t5E307A3D92BFAC7CC6F0D5285761865A1041D7A8* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:472>
 		Slider_t87EA570E3D6556CABF57456C2F3873FFD86E652F* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11250,7 +10470,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass33_0_U3CDOValueU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60101
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass34_0__ctor_m6903649B5BDBAA53F5C179B09D1C77AABC913561 (U3CU3Ec__DisplayClass34_0_t18D864D495A67B8E3723FF168949A00B63EE2EC5* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11258,11 +10477,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass34_0__ctor_m6903649
 		return;
 	}
 }
-// Method Definition Index: 60102
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass34_0_U3CDOColorU3Eb__0_mBA716E6626BB3051125B19AC02EC825AA305B9A6 (U3CU3Ec__DisplayClass34_0_t18D864D495A67B8E3723FF168949A00B63EE2EC5* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:486>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -11270,11 +10487,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60103
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass34_0_U3CDOColorU3Eb__1_m534299537BAA83C8B80BDB7C0622F05B8501D4C6 (U3CU3Ec__DisplayClass34_0_t18D864D495A67B8E3723FF168949A00B63EE2EC5* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:486>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11290,7 +10505,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass34_0_U3CDOColorU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60104
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass35_0__ctor_m6F52791A710AA19C73082E0EED5D298E31EDF1EF (U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11298,16 +10512,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass35_0__ctor_m6F52791
 		return;
 	}
 }
-// Method Definition Index: 60105
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t U3CU3Ec__DisplayClass35_0_U3CDOCounterU3Eb__0_mD4515C9E2BA21A91E51DCA562DB8BD859BB73D4B (U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:504>
 		int32_t L_0 = __this->___v;
 		return L_0;
 	}
 }
-// Method Definition Index: 60106
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass35_0_U3CDOCounterU3Eb__1_m91616BD436B4FAB5C826763E445C8A59C11AF221 (U3CU3Ec__DisplayClass35_0_tB39D8ABA66B038B793C44B42BF240EA543CB3427* __this, int32_t ___0_x, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11321,12 +10532,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass35_0_U3CDOCounterU3
 	String_t* G_B3_0 = NULL;
 	Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* G_B3_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:505>
 		int32_t L_0 = ___0_x;
 		__this->___v = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:506>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:507>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:508>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_1 = __this->___target;
 		bool L_2 = __this->___addThousandsSeparator;
 		if (L_2)
@@ -11359,7 +10566,6 @@ IL_0038:
 	{
 		NullCheck(G_B3_1);
 		VirtualActionInvoker1< String_t* >::Invoke(75, G_B3_1, G_B3_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:509>
 		return;
 	}
 }
@@ -11371,7 +10577,6 @@ IL_0038:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60107
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass36_0__ctor_m7C683C9CF75033301DA090C8B583860556AF7F29 (U3CU3Ec__DisplayClass36_0_tAE460456A155A97552A76CF67AF3D3BE866F30C8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11379,11 +10584,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass36_0__ctor_m7C683C9
 		return;
 	}
 }
-// Method Definition Index: 60108
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass36_0_U3CDOFadeU3Eb__0_m72BB7D6C818418B6497D3356DA77BA4A5B325E47 (U3CU3Ec__DisplayClass36_0_tAE460456A155A97552A76CF67AF3D3BE866F30C8* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:519>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -11391,11 +10594,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60109
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass36_0_U3CDOFadeU3Eb__1_m4083DFAFABE118FAC072D3EE81663ACA96DD8F10 (U3CU3Ec__DisplayClass36_0_tAE460456A155A97552A76CF67AF3D3BE866F30C8* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:519>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11411,7 +10612,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass36_0_U3CDOFadeU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60110
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass37_0__ctor_m30C619C273CA88E1630ADE30076D3BAB756E8037 (U3CU3Ec__DisplayClass37_0_tEB346CC740290347A0EAF5C4DBE0B8B55EC9B6D0* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11419,11 +10619,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass37_0__ctor_m30C619C
 		return;
 	}
 }
-// Method Definition Index: 60111
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass37_0_U3CDOTextU3Eb__0_m02FF7D2EC040673A6A8DAF254FA06CCB5E19150D (U3CU3Ec__DisplayClass37_0_tEB346CC740290347A0EAF5C4DBE0B8B55EC9B6D0* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:539>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___target;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -11431,11 +10629,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass37_0_U3CDOText
 		return L_1;
 	}
 }
-// Method Definition Index: 60112
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass37_0_U3CDOTextU3Eb__1_m2838FBD1C16B38207C0B4528D6E805E6308E1E6B (U3CU3Ec__DisplayClass37_0_tEB346CC740290347A0EAF5C4DBE0B8B55EC9B6D0* __this, String_t* ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:539>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___target;
 		String_t* L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11451,7 +10647,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass37_0_U3CDOTextU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60113
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass38_0__ctor_m82948A429B319CC7B45105656F6DD0ADBB2136CC (U3CU3Ec__DisplayClass38_0_t267FF01517518B123F4EB11811FAF5BEDB2CB83D* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11459,31 +10654,25 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass38_0__ctor_m82948A4
 		return;
 	}
 }
-// Method Definition Index: 60114
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass38_0_U3CDOBlendableColorU3Eb__0_mE68FE0C254E1D0E7E8D659FF3E4A3AA5F7738351 (U3CU3Ec__DisplayClass38_0_t267FF01517518B123F4EB11811FAF5BEDB2CB83D* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:560>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = __this->___to;
 		return L_0;
 	}
 }
-// Method Definition Index: 60115
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass38_0_U3CDOBlendableColorU3Eb__1_mA5048FA5B74BD7E9906C80159B99ACB2AFED6634 (U3CU3Ec__DisplayClass38_0_t267FF01517518B123F4EB11811FAF5BEDB2CB83D* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	Color_tD001788D726C3A7F1379BEED0260B9591F440C1F V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:561>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = ___0_x;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = __this->___to;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_2;
 		L_2 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_0, L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:562>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___0_x;
 		__this->___to = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:563>
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_4 = __this->___target;
 		Graphic_tCBFCA4585A19E2B75465AECFEAC43F4016BF7931* L_5 = L_4;
 		NullCheck(L_5);
@@ -11494,7 +10683,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass38_0_U3CDOBlendable
 		L_8 = Color_op_Addition_mA7A51CACA49ED8D23D3D9CA3A0092D32F657E053_inline(L_6, L_7, NULL);
 		NullCheck(L_5);
 		VirtualActionInvoker1< Color_tD001788D726C3A7F1379BEED0260B9591F440C1F >::Invoke(23, L_5, L_8);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:564>
 		return;
 	}
 }
@@ -11506,7 +10694,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass38_0_U3CDOBlendable
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60116
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass39_0__ctor_mBAA4D644FB605A60D0C3BEB67229723BB3874E6D (U3CU3Ec__DisplayClass39_0_t38D78B606D82F31C19D959AF12B5C4F1D4AF65C2* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11514,31 +10701,25 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass39_0__ctor_mBAA4D64
 		return;
 	}
 }
-// Method Definition Index: 60117
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass39_0_U3CDOBlendableColorU3Eb__0_m897EF1C1C8D7A638D7271A6E3BD8640F834CA567 (U3CU3Ec__DisplayClass39_0_t38D78B606D82F31C19D959AF12B5C4F1D4AF65C2* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:581>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = __this->___to;
 		return L_0;
 	}
 }
-// Method Definition Index: 60118
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass39_0_U3CDOBlendableColorU3Eb__1_m059D299137E18F4172FB89D42BBC0DBE0408311C (U3CU3Ec__DisplayClass39_0_t38D78B606D82F31C19D959AF12B5C4F1D4AF65C2* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	Color_tD001788D726C3A7F1379BEED0260B9591F440C1F V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:582>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = ___0_x;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = __this->___to;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_2;
 		L_2 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_0, L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:583>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___0_x;
 		__this->___to = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:584>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_4 = __this->___target;
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_5 = L_4;
 		NullCheck(L_5);
@@ -11549,7 +10730,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass39_0_U3CDOBlendable
 		L_8 = Color_op_Addition_mA7A51CACA49ED8D23D3D9CA3A0092D32F657E053_inline(L_6, L_7, NULL);
 		NullCheck(L_5);
 		VirtualActionInvoker1< Color_tD001788D726C3A7F1379BEED0260B9591F440C1F >::Invoke(23, L_5, L_8);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:585>
 		return;
 	}
 }
@@ -11561,7 +10741,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass39_0_U3CDOBlendable
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60119
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m6F636F1E7727A97A11CD562DA6C62E44D0CE8D37 (U3CU3Ec__DisplayClass3_0_t2C69FBF013ADB32163CC4F67A146C846E181C18B* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11569,11 +10748,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m6F636F1E
 		return;
 	}
 }
-// Method Definition Index: 60120
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass3_0_U3CDOColorU3Eb__0_m4568743D7735E8597149620347E7C6C1F8F8F573 (U3CU3Ec__DisplayClass3_0_t2C69FBF013ADB32163CC4F67A146C846E181C18B* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:69>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -11581,11 +10758,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60121
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3CDOColorU3Eb__1_m931C95B84B1BCD2FB3A2D8038972C9570DAB288D (U3CU3Ec__DisplayClass3_0_t2C69FBF013ADB32163CC4F67A146C846E181C18B* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:69>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11601,7 +10776,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3CDOColorU3Eb_
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60122
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass40_0__ctor_m6C547429D9E437CED8C4BDCB96EE8BE2D7182763 (U3CU3Ec__DisplayClass40_0_t0E7A83E8D1C93359BF9EB9E6A9AF3AA18311CD24* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11609,31 +10783,25 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass40_0__ctor_m6C54742
 		return;
 	}
 }
-// Method Definition Index: 60123
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass40_0_U3CDOBlendableColorU3Eb__0_m031A8418D686ADB8B4AD6572C18FCBAD1E42B0F6 (U3CU3Ec__DisplayClass40_0_t0E7A83E8D1C93359BF9EB9E6A9AF3AA18311CD24* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:602>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = __this->___to;
 		return L_0;
 	}
 }
-// Method Definition Index: 60124
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass40_0_U3CDOBlendableColorU3Eb__1_m74D298854E55DD21E0191F65A0A67376028748EC (U3CU3Ec__DisplayClass40_0_t0E7A83E8D1C93359BF9EB9E6A9AF3AA18311CD24* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	Color_tD001788D726C3A7F1379BEED0260B9591F440C1F V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:603>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = ___0_x;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = __this->___to;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_2;
 		L_2 = Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline(L_0, L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:604>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_3 = ___0_x;
 		__this->___to = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:605>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_4 = __this->___target;
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_5 = L_4;
 		NullCheck(L_5);
@@ -11644,7 +10812,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass40_0_U3CDOBlendable
 		L_8 = Color_op_Addition_mA7A51CACA49ED8D23D3D9CA3A0092D32F657E053_inline(L_6, L_7, NULL);
 		NullCheck(L_5);
 		VirtualActionInvoker1< Color_tD001788D726C3A7F1379BEED0260B9591F440C1F >::Invoke(23, L_5, L_8);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:606>
 		return;
 	}
 }
@@ -11656,7 +10823,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass40_0_U3CDOBlendable
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60125
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass41_0__ctor_mE07F5C0560792F3960473CBCEC46C945FB514D35 (U3CU3Ec__DisplayClass41_0_t7022E6DD68301100D1A7392EF5170CF153EDAD93* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11664,11 +10830,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass41_0__ctor_mE07F5C0
 		return;
 	}
 }
-// Method Definition Index: 60126
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass41_0_U3CDOShapeCircleU3Eb__0_m3BF121FFD58F01B8268A055F42A85BF0546709BB (U3CU3Ec__DisplayClass41_0_t7022E6DD68301100D1A7392EF5170CF153EDAD93* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:629>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		NullCheck(L_0);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1;
@@ -11676,11 +10840,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_1;
 	}
 }
-// Method Definition Index: 60127
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass41_0_U3CDOShapeCircleU3Eb__1_mA39DE4F3403BF27C206BFDFD704F57CBA06D74C2 (U3CU3Ec__DisplayClass41_0_t7022E6DD68301100D1A7392EF5170CF153EDAD93* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:629>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11696,7 +10858,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass41_0_U3CDOShapeCirc
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60128
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_m9953E31874A19DF4ACB95C87FCE12660693A6AD5 (U3CU3Ec__DisplayClass4_0_t8053081EDEC54E0DFD42D923A1A91BC995ACC579* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11704,11 +10865,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_m9953E318
 		return;
 	}
 }
-// Method Definition Index: 60129
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F U3CU3Ec__DisplayClass4_0_U3CDOFadeU3Eb__0_m45ED3C46917C2BF3FA1E62E5E5FA07933322FC8B (U3CU3Ec__DisplayClass4_0_t8053081EDEC54E0DFD42D923A1A91BC995ACC579* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:79>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_0 = __this->___target;
 		NullCheck(L_0);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1;
@@ -11716,11 +10875,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 60130
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOFadeU3Eb__1_m1FCDD6D867999371C3AA240FAC66D48DD045C3DC (U3CU3Ec__DisplayClass4_0_t8053081EDEC54E0DFD42D923A1A91BC995ACC579* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:79>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_0 = __this->___target;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11736,7 +10893,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3CDOFadeU3Eb__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60131
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m8826744854B3DF452491AF2C9F78CF8CD21E5ADF (U3CU3Ec__DisplayClass5_0_t97A2D1591F4437C9A3355B842244B21EEDFC7D3C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11744,11 +10900,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m88267448
 		return;
 	}
 }
-// Method Definition Index: 60132
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass5_0_U3CDOFillAmountU3Eb__0_mA61D89DB8E1FCE175F34BFC13C1173C788BC70FF (U3CU3Ec__DisplayClass5_0_t97A2D1591F4437C9A3355B842244B21EEDFC7D3C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:91>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11756,11 +10910,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float U3CU3Ec__DisplayClass5_0_U3CDOFillAmoun
 		return L_1;
 	}
 }
-// Method Definition Index: 60133
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0_U3CDOFillAmountU3Eb__1_mD611009CE94D3EBF2517D0EA25B6858E54C6FBAE (U3CU3Ec__DisplayClass5_0_t97A2D1591F4437C9A3355B842244B21EEDFC7D3C* __this, float ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:91>
 		Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* L_0 = __this->___target;
 		float L_1 = ___0_x;
 		NullCheck(L_0);
@@ -11776,7 +10928,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0_U3CDOFillAmount
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60134
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0__ctor_mC3A13E5D8A90789E6C1F6A26DFC8C8ED6B5B42DF (U3CU3Ec__DisplayClass7_0_t6825EE9800F145C3DC6520DEBF5CCD211D160E49* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11784,11 +10935,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0__ctor_mC3A13E5D
 		return;
 	}
 }
-// Method Definition Index: 60135
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass7_0_U3CDOFlexibleSizeU3Eb__0_m3785D78D950D02D749F4640AA0C67FB2CA01DB48 (U3CU3Ec__DisplayClass7_0_t6825EE9800F145C3DC6520DEBF5CCD211D160E49* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:130>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11803,23 +10952,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_4;
 	}
 }
-// Method Definition Index: 60136
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0_U3CDOFlexibleSizeU3Eb__1_m1E713C41B3EC5ED27907BEFDB2CDCB2D9649D3F0 (U3CU3Ec__DisplayClass7_0_t6825EE9800F145C3DC6520DEBF5CCD211D160E49* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:131>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		float L_2 = L_1.___x;
 		NullCheck(L_0);
 		VirtualActionInvoker1< float >::Invoke(40, L_0, L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:132>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_3 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___0_x;
 		float L_5 = L_4.___y;
 		NullCheck(L_3);
 		VirtualActionInvoker1< float >::Invoke(42, L_3, L_5);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:133>
 		return;
 	}
 }
@@ -11831,7 +10976,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass7_0_U3CDOFlexibleSi
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60137
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_m12549EFF091117C02D5BD5BBAF860766EFFBD335 (U3CU3Ec__DisplayClass8_0_t20FEDD5A66AA07E40BC3977804178A67426F6D3D* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11839,11 +10983,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_m12549EFF
 		return;
 	}
 }
-// Method Definition Index: 60138
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass8_0_U3CDOMinSizeU3Eb__0_mCB197686B19FEE2A3789796C320289EDEBCA59DD (U3CU3Ec__DisplayClass8_0_t20FEDD5A66AA07E40BC3977804178A67426F6D3D* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:144>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11858,23 +11000,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_4;
 	}
 }
-// Method Definition Index: 60139
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOMinSizeU3Eb__1_m8B8E20DB6700A9E435B4EC30F00578E23B81F319 (U3CU3Ec__DisplayClass8_0_t20FEDD5A66AA07E40BC3977804178A67426F6D3D* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:145>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		float L_2 = L_1.___x;
 		NullCheck(L_0);
 		VirtualActionInvoker1< float >::Invoke(32, L_0, L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:146>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_3 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___0_x;
 		float L_5 = L_4.___y;
 		NullCheck(L_3);
 		VirtualActionInvoker1< float >::Invoke(34, L_3, L_5);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:147>
 		return;
 	}
 }
@@ -11886,7 +11024,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOMinSizeU3E
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60140
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0__ctor_m638C89DD65FC918306CF707CF4B3EA9CFACAF02E (U3CU3Ec__DisplayClass9_0_tE85C8192601740DA12B6A252D29726E9A7F06E5C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11894,11 +11031,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0__ctor_m638C89DD
 		return;
 	}
 }
-// Method Definition Index: 60141
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass9_0_U3CDOPreferredSizeU3Eb__0_m1AB892211B71DB2D4E8F21F9BA126944DF9D500C (U3CU3Ec__DisplayClass9_0_tE85C8192601740DA12B6A252D29726E9A7F06E5C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:158>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_0 = __this->___target;
 		NullCheck(L_0);
 		float L_1;
@@ -11913,23 +11048,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_4;
 	}
 }
-// Method Definition Index: 60142
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0_U3CDOPreferredSizeU3Eb__1_mBA091FF947DA978F76C73673E1472EB9BEABDCC8 (U3CU3Ec__DisplayClass9_0_tE85C8192601740DA12B6A252D29726E9A7F06E5C* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:159>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_0 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = ___0_x;
 		float L_2 = L_1.___x;
 		NullCheck(L_0);
 		VirtualActionInvoker1< float >::Invoke(36, L_0, L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:160>
 		LayoutElement_tB1F24CC11AF4AA87015C8D8EE06D22349C5BF40A* L_3 = __this->___target;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___0_x;
 		float L_5 = L_4.___y;
 		NullCheck(L_3);
 		VirtualActionInvoker1< float >::Invoke(38, L_3, L_5);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs:161>
 		return;
 	}
 }
@@ -11941,7 +11072,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0_U3CDOPreferredS
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60143
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModuleUnityVersion_DOGradientColor_m5989D5E5CCAA8B96FEC40CE899DDD9BC255F4126 (Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* ___0_target, Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* ___1_gradient, float ___2_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11965,36 +11095,30 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 	float G_B8_1 = 0.0f;
 	float G_B10_0 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:29>
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_0;
 		L_0 = DOTween_Sequence_mC3AE53A08EC5DFD7DB9AE18A2FD11226A6611F89(NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:30>
 		Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* L_1 = ___1_gradient;
 		NullCheck(L_1);
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_2;
 		L_2 = Gradient_get_colorKeys_mA4B24805A35BC4FBF04F182FCDA6E9D0CBB52F0A(L_1, NULL);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:31>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_3 = V_1;
 		NullCheck(L_3);
 		V_2 = ((int32_t)(((RuntimeArray*)L_3)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:32>
 		V_3 = 0;
 		goto IL_0098;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:33>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_4 = V_1;
 		int32_t L_5 = V_3;
 		NullCheck(L_4);
 		int32_t L_6 = L_5;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_7 = (L_4)->GetAt(static_cast<il2cpp_array_size_t>(L_6));
 		V_4 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:34>
 		int32_t L_8 = V_3;
 		if (L_8)
 		{
@@ -12010,21 +11134,16 @@ IL_0018:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:35>
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_11 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_12 = V_4;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_13 = L_12.___color;
 		NullCheck(L_11);
 		Material_set_color_m5C32DEBB215FF9EE35E7B575297D8C2F29CC2A2D(L_11, L_13, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:36>
 		goto IL_0094;
 	}
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:38>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:39>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:40>
 		int32_t L_14 = V_3;
 		int32_t L_15 = V_2;
 		if ((((int32_t)L_14) == ((int32_t)((int32_t)il2cpp_codegen_subtract(L_15, 1)))))
@@ -12080,7 +11199,6 @@ IL_006d:
 IL_0076:
 	{
 		V_5 = G_B10_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:41>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_28 = V_0;
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_29 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_30 = V_4;
@@ -12096,14 +11214,12 @@ IL_0076:
 
 IL_0094:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:32>
 		int32_t L_36 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_36, 1));
 	}
 
 IL_0098:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:32>
 		int32_t L_37 = V_3;
 		int32_t L_38 = V_2;
 		if ((((int32_t)L_37) < ((int32_t)L_38)))
@@ -12112,17 +11228,14 @@ IL_0098:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:43>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_39 = V_0;
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_40 = ___0_target;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_41;
 		L_41 = TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0(L_39, L_40, TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:44>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_42 = V_0;
 		return L_42;
 	}
 }
-// Method Definition Index: 60144
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* DOTweenModuleUnityVersion_DOGradientColor_m16A5065B7DA6EA92AC15D1E186EE14617F64896B (Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* ___0_target, Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* ___1_gradient, String_t* ___2_property, float ___3_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12146,36 +11259,30 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC
 	float G_B8_1 = 0.0f;
 	float G_B10_0 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:54>
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_0;
 		L_0 = DOTween_Sequence_mC3AE53A08EC5DFD7DB9AE18A2FD11226A6611F89(NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:55>
 		Gradient_tA7FEBE2FDB4929FFF6C997134841046F713DAC1E* L_1 = ___1_gradient;
 		NullCheck(L_1);
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_2;
 		L_2 = Gradient_get_colorKeys_mA4B24805A35BC4FBF04F182FCDA6E9D0CBB52F0A(L_1, NULL);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:56>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_3 = V_1;
 		NullCheck(L_3);
 		V_2 = ((int32_t)(((RuntimeArray*)L_3)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:57>
 		V_3 = 0;
 		goto IL_009a;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:58>
 		GradientColorKeyU5BU5D_tB8929E6EE130CA1F3C1664B300BE83A95A642C18* L_4 = V_1;
 		int32_t L_5 = V_3;
 		NullCheck(L_4);
 		int32_t L_6 = L_5;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_7 = (L_4)->GetAt(static_cast<il2cpp_array_size_t>(L_6));
 		V_4 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:59>
 		int32_t L_8 = V_3;
 		if (L_8)
 		{
@@ -12191,22 +11298,17 @@ IL_0018:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:60>
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_11 = ___0_target;
 		String_t* L_12 = ___2_property;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_13 = V_4;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_14 = L_13.___color;
 		NullCheck(L_11);
 		Material_SetColor_mFAB32FAA44461E46FD707B34184EC080CBB3539F(L_11, L_12, L_14, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:61>
 		goto IL_0096;
 	}
 
 IL_0042:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:63>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:64>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:65>
 		int32_t L_15 = V_3;
 		int32_t L_16 = V_2;
 		if ((((int32_t)L_15) == ((int32_t)((int32_t)il2cpp_codegen_subtract(L_16, 1)))))
@@ -12262,7 +11364,6 @@ IL_006e:
 IL_0077:
 	{
 		V_5 = G_B10_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:66>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_29 = V_0;
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_30 = ___0_target;
 		GradientColorKey_tBD03A613338639E3774A10265CC5F3619C13421A L_31 = V_4;
@@ -12279,14 +11380,12 @@ IL_0077:
 
 IL_0096:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:57>
 		int32_t L_38 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_38, 1));
 	}
 
 IL_009a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:57>
 		int32_t L_39 = V_3;
 		int32_t L_40 = V_2;
 		if ((((int32_t)L_39) < ((int32_t)L_40)))
@@ -12295,17 +11394,14 @@ IL_009a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:68>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_41 = V_0;
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_42 = ___0_target;
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_43;
 		L_43 = TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0(L_41, L_42, TweenSettingsExtensions_SetTarget_TisSequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C_m87E21291C6C5BECA753976C5CA64050E8AFF93C0_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:69>
 		Sequence_tEADBE56D6ED2E9EE8FB2E5459C3E57131EC0545C* L_44 = V_0;
 		return L_44;
 	}
 }
-// Method Definition Index: 60145
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617* DOTweenModuleUnityVersion_WaitForCompletion_m080081BC7D031CAE8CB22FC166C6E19FAA91295C (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, bool ___1_returnCustomYieldInstruction, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12315,7 +11411,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:83>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_t;
 		NullCheck(L_0);
 		bool L_1;
@@ -12326,7 +11421,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:84>
 		int32_t L_2;
 		L_2 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_2) <= ((int32_t)0)))
@@ -12335,27 +11429,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:84>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_3 = ___0_t;
 		Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_3, NULL);
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:85>
 		return (CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617*)NULL;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:87>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_4 = ___0_t;
 		WaitForCompletion_tC84400E0FA4E28B95AA56DF28973D5FFDA16AFA0* L_5 = (WaitForCompletion_tC84400E0FA4E28B95AA56DF28973D5FFDA16AFA0*)il2cpp_codegen_object_new(WaitForCompletion_tC84400E0FA4E28B95AA56DF28973D5FFDA16AFA0_il2cpp_TypeInfo_var);
 		WaitForCompletion__ctor_mE85B7CC8B7FE6A2AE84DB8210249A61018118C4D(L_5, L_4, NULL);
 		return L_5;
 	}
 }
-// Method Definition Index: 60146
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617* DOTweenModuleUnityVersion_WaitForRewind_m7EB6AB643D5F309EE41F15305ADB1324E16853A7 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, bool ___1_returnCustomYieldInstruction, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12365,7 +11455,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:97>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_t;
 		NullCheck(L_0);
 		bool L_1;
@@ -12376,7 +11465,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:98>
 		int32_t L_2;
 		L_2 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_2) <= ((int32_t)0)))
@@ -12385,27 +11473,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:98>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_3 = ___0_t;
 		Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_3, NULL);
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:99>
 		return (CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617*)NULL;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:101>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_4 = ___0_t;
 		WaitForRewind_t2ABB006386A81D361C36B476044786442726743D* L_5 = (WaitForRewind_t2ABB006386A81D361C36B476044786442726743D*)il2cpp_codegen_object_new(WaitForRewind_t2ABB006386A81D361C36B476044786442726743D_il2cpp_TypeInfo_var);
 		WaitForRewind__ctor_mD79A34DBDAC1B30FBEBD36A8D749EC81935520B2(L_5, L_4, NULL);
 		return L_5;
 	}
 }
-// Method Definition Index: 60147
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617* DOTweenModuleUnityVersion_WaitForKill_m9592B2D81F0C76C9F8003645BDB0C4C3BA4E6A3B (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, bool ___1_returnCustomYieldInstruction, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12415,7 +11499,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:111>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_t;
 		NullCheck(L_0);
 		bool L_1;
@@ -12426,7 +11509,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:112>
 		int32_t L_2;
 		L_2 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_2) <= ((int32_t)0)))
@@ -12435,27 +11517,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:112>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_3 = ___0_t;
 		Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_3, NULL);
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:113>
 		return (CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617*)NULL;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:115>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_4 = ___0_t;
 		WaitForKill_t532BDFE32D7C3892E01BF80054F95A9A5C1C24DE* L_5 = (WaitForKill_t532BDFE32D7C3892E01BF80054F95A9A5C1C24DE*)il2cpp_codegen_object_new(WaitForKill_t532BDFE32D7C3892E01BF80054F95A9A5C1C24DE_il2cpp_TypeInfo_var);
 		WaitForKill__ctor_m75C2D3D54DBBBB35DE297B947C08C982CABF1BAF(L_5, L_4, NULL);
 		return L_5;
 	}
 }
-// Method Definition Index: 60148
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617* DOTweenModuleUnityVersion_WaitForElapsedLoops_m08D7DB6E86076A4D3224DE7F651529C03B0C9B93 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, int32_t ___1_elapsedLoops, bool ___2_returnCustomYieldInstruction, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12465,7 +11543,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:126>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_t;
 		NullCheck(L_0);
 		bool L_1;
@@ -12476,7 +11553,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:127>
 		int32_t L_2;
 		L_2 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_2) <= ((int32_t)0)))
@@ -12485,20 +11561,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:127>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_3 = ___0_t;
 		Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_3, NULL);
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:128>
 		return (CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617*)NULL;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:130>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_4 = ___0_t;
 		int32_t L_5 = ___1_elapsedLoops;
 		WaitForElapsedLoops_t24C0691B408798B4BE5CCC92DC8B4D40430717BC* L_6 = (WaitForElapsedLoops_t24C0691B408798B4BE5CCC92DC8B4D40430717BC*)il2cpp_codegen_object_new(WaitForElapsedLoops_t24C0691B408798B4BE5CCC92DC8B4D40430717BC_il2cpp_TypeInfo_var);
@@ -12506,7 +11579,6 @@ IL_0018:
 		return L_6;
 	}
 }
-// Method Definition Index: 60149
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617* DOTweenModuleUnityVersion_WaitForPosition_m918A05EB65877997F48B218DE2B9B95A4E198A0E (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, float ___1_position, bool ___2_returnCustomYieldInstruction, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12516,7 +11588,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:142>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_t;
 		NullCheck(L_0);
 		bool L_1;
@@ -12527,7 +11598,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:143>
 		int32_t L_2;
 		L_2 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_2) <= ((int32_t)0)))
@@ -12536,20 +11606,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:143>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_3 = ___0_t;
 		Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_3, NULL);
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:144>
 		return (CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617*)NULL;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:146>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_4 = ___0_t;
 		float L_5 = ___1_position;
 		WaitForPosition_t302B4F4C6FC89426E08DDC65543F45785B20B84B* L_6 = (WaitForPosition_t302B4F4C6FC89426E08DDC65543F45785B20B84B*)il2cpp_codegen_object_new(WaitForPosition_t302B4F4C6FC89426E08DDC65543F45785B20B84B_il2cpp_TypeInfo_var);
@@ -12557,7 +11624,6 @@ IL_0018:
 		return L_6;
 	}
 }
-// Method Definition Index: 60150
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617* DOTweenModuleUnityVersion_WaitForStart_m3E6DF08DBF844D468C3DD2A14AB96AAF3717BA53 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, bool ___1_returnCustomYieldInstruction, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12567,7 +11633,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:157>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_t;
 		NullCheck(L_0);
 		bool L_1;
@@ -12578,7 +11643,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:158>
 		int32_t L_2;
 		L_2 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_2) <= ((int32_t)0)))
@@ -12587,27 +11651,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CustomYieldInstruction_t6B81A50D5D210C1ACAAE2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:158>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_3 = ___0_t;
 		Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_3, NULL);
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:159>
 		return (CustomYieldInstruction_t6B81A50D5D210C1ACAAE247FB53B65CDFFEB7617*)NULL;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:161>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_4 = ___0_t;
 		WaitForStart_t4448F8E46F59EE599CA8DCEF52FC706221093F30* L_5 = (WaitForStart_t4448F8E46F59EE599CA8DCEF52FC706221093F30*)il2cpp_codegen_object_new(WaitForStart_t4448F8E46F59EE599CA8DCEF52FC706221093F30_il2cpp_TypeInfo_var);
 		WaitForStart__ctor_m3AEC2F6E37815ED0D94C2FA5F3B784456C6E49D1(L_5, L_4, NULL);
 		return L_5;
 	}
 }
-// Method Definition Index: 60151
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUnityVersion_DOOffset_mB985D0A38167056313BD49AA97A9A2F12B6C1CA2 (Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, int32_t ___2_propertyID, float ___3_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12636,7 +11696,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		int32_t L_4 = ___2_propertyID;
 		NullCheck(L_3);
 		L_3->___propertyID = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:178>
 		U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* L_5 = V_0;
 		NullCheck(L_5);
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_6 = L_5->___target;
@@ -12652,7 +11711,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:179>
 		int32_t L_10;
 		L_10 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_10) <= ((int32_t)0)))
@@ -12661,7 +11719,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:179>
 		U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* L_11 = V_0;
 		NullCheck(L_11);
 		int32_t L_12 = L_11->___propertyID;
@@ -12670,13 +11727,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 
 IL_003a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:180>
 		return (TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271*)NULL;
 	}
 
 IL_003c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:182>
 		U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* L_13 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_14 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_14, L_13, (intptr_t)((void*)U3CU3Ec__DisplayClass8_0_U3CDOOffsetU3Eb__0_m0247C66637BE1BC486E9B83E29D9A8C539F0C4C7_RuntimeMethod_var), NULL);
@@ -12688,18 +11743,15 @@ IL_003c:
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_19;
 		L_19 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_14, L_16, L_17, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:183>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_20 = L_19;
 		U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* L_21 = V_0;
 		NullCheck(L_21);
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_22 = L_21->___target;
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_23;
 		L_23 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876(L_20, L_22, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:184>
 		return L_20;
 	}
 }
-// Method Definition Index: 60152
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* DOTweenModuleUnityVersion_DOTiling_m354938745AA34ED1539D3CBF54C94A5E5753B903 (Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* ___0_target, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_endValue, int32_t ___2_propertyID, float ___3_duration, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12728,7 +11780,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		int32_t L_4 = ___2_propertyID;
 		NullCheck(L_3);
 		L_3->___propertyID = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:194>
 		U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* L_5 = V_0;
 		NullCheck(L_5);
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_6 = L_5->___target;
@@ -12744,7 +11795,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:195>
 		int32_t L_10;
 		L_10 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 		if ((((int32_t)L_10) <= ((int32_t)0)))
@@ -12753,7 +11803,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:195>
 		U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* L_11 = V_0;
 		NullCheck(L_11);
 		int32_t L_12 = L_11->___propertyID;
@@ -12762,13 +11811,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE4045
 
 IL_003a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:196>
 		return (TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271*)NULL;
 	}
 
 IL_003c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:198>
 		U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* L_13 = V_0;
 		DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66* L_14 = (DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66*)il2cpp_codegen_object_new(DOGetter_1_t13276681BE97FCE6AB699EF1F894EA98C825FE66_il2cpp_TypeInfo_var);
 		DOGetter_1__ctor_m718AE8DCD0734283AD4D7B50ABBA14ED1F4A967C(L_14, L_13, (intptr_t)((void*)U3CU3Ec__DisplayClass9_0_U3CDOTilingU3Eb__0_m049884D699FDEDD9B8CE44EC9104A8055F7E4DD8_RuntimeMethod_var), NULL);
@@ -12780,18 +11827,15 @@ IL_003c:
 		il2cpp_codegen_runtime_class_init_inline(DOTween_t96369E1D40ABE93A56308F57DEA6B04219C66D13_il2cpp_TypeInfo_var);
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_19;
 		L_19 = DOTween_To_mAF71D4F17109689870406A4565636216CCFE7680(L_14, L_16, L_17, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:199>
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_20 = L_19;
 		U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* L_21 = V_0;
 		NullCheck(L_21);
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_22 = L_21->___target;
 		TweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271* L_23;
 		L_23 = TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876(L_20, L_22, TweenSettingsExtensions_SetTarget_TisTweenerCore_3_t2FB3CB0C11B50649FE6CFC6DBE404552B898B271_m7563CA4B8BD3EA41428B31557409B6456D19A876_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:200>
 		return L_20;
 	}
 }
-// Method Definition Index: 60153
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* DOTweenModuleUnityVersion_AsyncWaitForCompletion_m47D1F5AACF019F8C3233238D5B73EBD325685681 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12827,7 +11871,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA857
 		return L_4;
 	}
 }
-// Method Definition Index: 60154
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* DOTweenModuleUnityVersion_AsyncWaitForRewind_m4B4AD3964B5CBB9F56BB1050E8EF7C0AF414060E (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12863,7 +11906,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA857
 		return L_4;
 	}
 }
-// Method Definition Index: 60155
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* DOTweenModuleUnityVersion_AsyncWaitForKill_m4CE6BA6CDF93365F4D14CE2909C7F7FF6B332928 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12899,7 +11941,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA857
 		return L_4;
 	}
 }
-// Method Definition Index: 60156
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* DOTweenModuleUnityVersion_AsyncWaitForElapsedLoops_m08434CDEC811346692A3795B1736C8499E391277 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, int32_t ___1_elapsedLoops, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12937,7 +11978,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA857
 		return L_5;
 	}
 }
-// Method Definition Index: 60157
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* DOTweenModuleUnityVersion_AsyncWaitForPosition_mA1767089E7840940CEB85BEAF15FBC02CE56D487 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, float ___1_position, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12975,7 +12015,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA857
 		return L_5;
 	}
 }
-// Method Definition Index: 60158
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572* DOTweenModuleUnityVersion_AsyncWaitForStart_m3BAC94C50C109B2795BAA10D582617B3F2F95126 (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_t, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13019,7 +12058,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA857
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60159
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mF5EC87634B90C628AE370887DCF280218F814B4C (U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* __this, const RuntimeMethod* method) 
 {
 	{
@@ -13027,11 +12065,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mF5EC8763
 		return;
 	}
 }
-// Method Definition Index: 60160
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass8_0_U3CDOOffsetU3Eb__0_m0247C66637BE1BC486E9B83E29D9A8C539F0C4C7 (U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:182>
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_0 = __this->___target;
 		int32_t L_1 = __this->___propertyID;
 		NullCheck(L_0);
@@ -13040,11 +12076,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_2;
 	}
 }
-// Method Definition Index: 60161
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOOffsetU3Eb__1_m3FB8CA36F894BB6D62D812DF2F13F0714F48945A (U3CU3Ec__DisplayClass8_0_t841A32590F7E9B5CE337F1E7576F44ACC997C081* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:182>
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_0 = __this->___target;
 		int32_t L_1 = __this->___propertyID;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = ___0_x;
@@ -13061,7 +12095,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3CDOOffsetU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60162
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0__ctor_m1E2466F9751381E5A3C76E5E2970972957741B9E (U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* __this, const RuntimeMethod* method) 
 {
 	{
@@ -13069,11 +12102,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0__ctor_m1E2466F9
 		return;
 	}
 }
-// Method Definition Index: 60163
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 U3CU3Ec__DisplayClass9_0_U3CDOTilingU3Eb__0_m049884D699FDEDD9B8CE44EC9104A8055F7E4DD8 (U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:198>
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_0 = __this->___target;
 		int32_t L_1 = __this->___propertyID;
 		NullCheck(L_0);
@@ -13082,11 +12113,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		return L_2;
 	}
 }
-// Method Definition Index: 60164
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0_U3CDOTilingU3Eb__1_m5C1495C9398445575DA1139EF2967F0C6535992D (U3CU3Ec__DisplayClass9_0_t67C62AE5CAF58BCB265D7E092190857BFBCCEC86* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_x, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:198>
 		Material_t18053F08F347D0DCA5E1140EC7EC4533DD8A14E3* L_0 = __this->___target;
 		int32_t L_1 = __this->___propertyID;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = ___0_x;
@@ -13103,7 +12132,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass9_0_U3CDOTilingU3Eb
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60165
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForCompletionU3Ed__10_MoveNext_m7AE96D202005CC27A2EBEB47057FADA081D6DCDA (U3CAsyncWaitForCompletionU3Ed__10_tC84049D47EAD23B14384BDEF646D532785ECBF0E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13136,7 +12164,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForCompletionU3Ed__10_MoveNe
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:218>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = __this->___t;
 			NullCheck(L_2);
 			bool L_3;
@@ -13147,7 +12174,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForCompletionU3Ed__10_MoveNe
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:219>
 			int32_t L_4;
 			L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 			if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -13156,20 +12182,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForCompletionU3Ed__10_MoveNe
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:219>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_5 = __this->___t;
 			Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_5, NULL);
 		}
 
 IL_002a_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:220>
 			goto IL_00bc;
 		}
 
 IL_002f_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:222>
 			il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 			YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_6;
 			L_6 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -13216,7 +12239,6 @@ IL_0082_1:
 
 IL_0089_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:222>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_15 = __this->___t;
 			NullCheck(L_15);
 			bool L_16;
@@ -13266,7 +12288,6 @@ CATCH_00a5:
 
 IL_00bc:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:223>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* L_22 = (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*)(&__this->___U3CU3Et__builder);
 		il2cpp_codegen_runtime_class_init_inline(AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06_il2cpp_TypeInfo_var);
@@ -13285,7 +12306,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForCompletionU3Ed__10_MoveNext_m7AE96D202005CC
 	_thisAdjusted = reinterpret_cast<U3CAsyncWaitForCompletionU3Ed__10_tC84049D47EAD23B14384BDEF646D532785ECBF0E*>(__this + _offset);
 	U3CAsyncWaitForCompletionU3Ed__10_MoveNext_m7AE96D202005CC27A2EBEB47057FADA081D6DCDA(_thisAdjusted, method);
 }
-// Method Definition Index: 60166
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForCompletionU3Ed__10_SetStateMachine_m6240E5A12BCFEF8EA8588C4C18B3BB48BBA71FBB (U3CAsyncWaitForCompletionU3Ed__10_tC84049D47EAD23B14384BDEF646D532785ECBF0E* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13317,7 +12337,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForCompletionU3Ed__10_SetStateMachine_m6240E5A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60167
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForElapsedLoopsU3Ed__13_MoveNext_mF44348C1C974B48E1B0F6FE03AD1F713A4A6F8A2 (U3CAsyncWaitForElapsedLoopsU3Ed__13_tC7B431C2393096ACD1A6BA0EAFEA84EE62DAF825* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13350,7 +12369,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForElapsedLoopsU3Ed__13_Move
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:261>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = __this->___t;
 			NullCheck(L_2);
 			bool L_3;
@@ -13361,7 +12379,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForElapsedLoopsU3Ed__13_Move
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:262>
 			int32_t L_4;
 			L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 			if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -13370,20 +12387,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForElapsedLoopsU3Ed__13_Move
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:262>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_5 = __this->___t;
 			Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_5, NULL);
 		}
 
 IL_002a_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:263>
 			goto IL_00c2;
 		}
 
 IL_002f_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:265>
 			il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 			YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_6;
 			L_6 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -13430,7 +12444,6 @@ IL_0082_1:
 
 IL_0089_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:265>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_15 = __this->___t;
 			NullCheck(L_15);
 			bool L_16;
@@ -13481,7 +12494,6 @@ CATCH_00ab:
 
 IL_00c2:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:266>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* L_23 = (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*)(&__this->___U3CU3Et__builder);
 		il2cpp_codegen_runtime_class_init_inline(AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06_il2cpp_TypeInfo_var);
@@ -13500,7 +12512,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForElapsedLoopsU3Ed__13_MoveNext_mF44348C1C974
 	_thisAdjusted = reinterpret_cast<U3CAsyncWaitForElapsedLoopsU3Ed__13_tC7B431C2393096ACD1A6BA0EAFEA84EE62DAF825*>(__this + _offset);
 	U3CAsyncWaitForElapsedLoopsU3Ed__13_MoveNext_mF44348C1C974B48E1B0F6FE03AD1F713A4A6F8A2(_thisAdjusted, method);
 }
-// Method Definition Index: 60168
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForElapsedLoopsU3Ed__13_SetStateMachine_m4D5053D74FA671E83FA48E11A3EE5C6534F995AB (U3CAsyncWaitForElapsedLoopsU3Ed__13_tC7B431C2393096ACD1A6BA0EAFEA84EE62DAF825* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13532,7 +12543,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForElapsedLoopsU3Ed__13_SetStateMachine_m4D505
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60169
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForKillU3Ed__12_MoveNext_mC10BB60238B855C88268AEE7DA0D7E8CF59AC885 (U3CAsyncWaitForKillU3Ed__12_t6EA9E2438625431E39D01AB7EEBB4501D6B5E54E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13565,7 +12575,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForKillU3Ed__12_MoveNext_mC1
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:246>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = __this->___t;
 			NullCheck(L_2);
 			bool L_3;
@@ -13576,7 +12585,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForKillU3Ed__12_MoveNext_mC1
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:247>
 			int32_t L_4;
 			L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 			if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -13585,20 +12593,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForKillU3Ed__12_MoveNext_mC1
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:247>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_5 = __this->___t;
 			Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_5, NULL);
 		}
 
 IL_002a_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:248>
 			goto IL_00af;
 		}
 
 IL_002f_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:250>
 			il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 			YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_6;
 			L_6 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -13645,7 +12650,6 @@ IL_0082_1:
 
 IL_0089_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:250>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_15 = __this->___t;
 			NullCheck(L_15);
 			bool L_16;
@@ -13684,7 +12688,6 @@ CATCH_0098:
 
 IL_00af:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:251>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* L_20 = (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*)(&__this->___U3CU3Et__builder);
 		il2cpp_codegen_runtime_class_init_inline(AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06_il2cpp_TypeInfo_var);
@@ -13703,7 +12706,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForKillU3Ed__12_MoveNext_mC10BB60238B855C88268
 	_thisAdjusted = reinterpret_cast<U3CAsyncWaitForKillU3Ed__12_t6EA9E2438625431E39D01AB7EEBB4501D6B5E54E*>(__this + _offset);
 	U3CAsyncWaitForKillU3Ed__12_MoveNext_mC10BB60238B855C88268AEE7DA0D7E8CF59AC885(_thisAdjusted, method);
 }
-// Method Definition Index: 60170
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForKillU3Ed__12_SetStateMachine_m7BC3B905F4C08F129E4E6DFD12DDA73E5756DD0B (U3CAsyncWaitForKillU3Ed__12_t6EA9E2438625431E39D01AB7EEBB4501D6B5E54E* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13735,7 +12737,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForKillU3Ed__12_SetStateMachine_m7BC3B905F4C08
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60171
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForPositionU3Ed__14_MoveNext_mB726C581B4A8055414678A86C800C4A0525E5121 (U3CAsyncWaitForPositionU3Ed__14_tA6006769EC53BBEBA0665ECA79096B606FDA8A4A* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13768,7 +12769,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForPositionU3Ed__14_MoveNext
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:277>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = __this->___t;
 			NullCheck(L_2);
 			bool L_3;
@@ -13779,7 +12779,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForPositionU3Ed__14_MoveNext
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:278>
 			int32_t L_4;
 			L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 			if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -13788,20 +12787,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForPositionU3Ed__14_MoveNext
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:278>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_5 = __this->___t;
 			Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_5, NULL);
 		}
 
 IL_002a_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:279>
 			goto IL_00d7;
 		}
 
 IL_002f_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:281>
 			il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 			YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_6;
 			L_6 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -13848,7 +12844,6 @@ IL_0085_1:
 
 IL_008c_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:281>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_15 = __this->___t;
 			NullCheck(L_15);
 			bool L_16;
@@ -13903,7 +12898,6 @@ CATCH_00c0:
 
 IL_00d7:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:282>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* L_25 = (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*)(&__this->___U3CU3Et__builder);
 		il2cpp_codegen_runtime_class_init_inline(AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06_il2cpp_TypeInfo_var);
@@ -13922,7 +12916,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForPositionU3Ed__14_MoveNext_mB726C581B4A80554
 	_thisAdjusted = reinterpret_cast<U3CAsyncWaitForPositionU3Ed__14_tA6006769EC53BBEBA0665ECA79096B606FDA8A4A*>(__this + _offset);
 	U3CAsyncWaitForPositionU3Ed__14_MoveNext_mB726C581B4A8055414678A86C800C4A0525E5121(_thisAdjusted, method);
 }
-// Method Definition Index: 60172
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForPositionU3Ed__14_SetStateMachine_m060A3B894F6700B46D57FD2443F396C7C9CC7111 (U3CAsyncWaitForPositionU3Ed__14_tA6006769EC53BBEBA0665ECA79096B606FDA8A4A* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13954,7 +12947,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForPositionU3Ed__14_SetStateMachine_m060A3B894
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60173
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForRewindU3Ed__11_MoveNext_m5E01823C6DBEFF1763AD6606972918D90935D340 (U3CAsyncWaitForRewindU3Ed__11_tC8D7C20224797881A037D09DA8079ECCC3E518FE* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13987,7 +12979,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForRewindU3Ed__11_MoveNext_m
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:232>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = __this->___t;
 			NullCheck(L_2);
 			bool L_3;
@@ -13998,7 +12989,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForRewindU3Ed__11_MoveNext_m
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:233>
 			int32_t L_4;
 			L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 			if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -14007,20 +12997,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForRewindU3Ed__11_MoveNext_m
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:233>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_5 = __this->___t;
 			Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_5, NULL);
 		}
 
 IL_002a_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:234>
 			goto IL_00e3;
 		}
 
 IL_002f_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:236>
 			il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 			YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_6;
 			L_6 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -14067,7 +13054,6 @@ IL_0085_1:
 
 IL_008c_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:236>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_15 = __this->___t;
 			NullCheck(L_15);
 			bool L_16;
@@ -14131,7 +13117,6 @@ CATCH_00cc:
 
 IL_00e3:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:237>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* L_26 = (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*)(&__this->___U3CU3Et__builder);
 		il2cpp_codegen_runtime_class_init_inline(AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06_il2cpp_TypeInfo_var);
@@ -14150,7 +13135,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForRewindU3Ed__11_MoveNext_m5E01823C6DBEFF1763
 	_thisAdjusted = reinterpret_cast<U3CAsyncWaitForRewindU3Ed__11_tC8D7C20224797881A037D09DA8079ECCC3E518FE*>(__this + _offset);
 	U3CAsyncWaitForRewindU3Ed__11_MoveNext_m5E01823C6DBEFF1763AD6606972918D90935D340(_thisAdjusted, method);
 }
-// Method Definition Index: 60174
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForRewindU3Ed__11_SetStateMachine_m3F25AF370573B0A32A25D5D01483AF62C16AD5C3 (U3CAsyncWaitForRewindU3Ed__11_tC8D7C20224797881A037D09DA8079ECCC3E518FE* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14182,7 +13166,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForRewindU3Ed__11_SetStateMachine_m3F25AF37057
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60175
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForStartU3Ed__15_MoveNext_mDBD2BBC1B727D4C915B0E2AB910330411086BC12 (U3CAsyncWaitForStartU3Ed__15_tB4B1CE199FE822B67BCF87301159986D9D50961B* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14215,7 +13198,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForStartU3Ed__15_MoveNext_mD
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:291>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = __this->___t;
 			NullCheck(L_2);
 			bool L_3;
@@ -14226,7 +13208,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForStartU3Ed__15_MoveNext_mD
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:292>
 			int32_t L_4;
 			L_4 = Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline(NULL);
 			if ((((int32_t)L_4) <= ((int32_t)0)))
@@ -14235,20 +13216,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForStartU3Ed__15_MoveNext_mD
 			}
 		}
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:292>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_5 = __this->___t;
 			Debugger_LogInvalidTween_mEC44C60EC29E4EE401EFE473B01A209D79F3A83F(L_5, NULL);
 		}
 
 IL_002a_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:293>
 			goto IL_00bc;
 		}
 
 IL_002f_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:295>
 			il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 			YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_6;
 			L_6 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -14295,7 +13273,6 @@ IL_0082_1:
 
 IL_0089_1:
 		{
-			//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:295>
 			Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_15 = __this->___t;
 			NullCheck(L_15);
 			bool L_16;
@@ -14346,7 +13323,6 @@ CATCH_00a5:
 
 IL_00bc:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:296>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06* L_22 = (AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06*)(&__this->___U3CU3Et__builder);
 		il2cpp_codegen_runtime_class_init_inline(AsyncTaskMethodBuilder_t7A5128C134547B5918EB1AA24FE47ED4C1DF3F06_il2cpp_TypeInfo_var);
@@ -14365,7 +13341,6 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForStartU3Ed__15_MoveNext_mDBD2BBC1B727D4C915B
 	_thisAdjusted = reinterpret_cast<U3CAsyncWaitForStartU3Ed__15_tB4B1CE199FE822B67BCF87301159986D9D50961B*>(__this + _offset);
 	U3CAsyncWaitForStartU3Ed__15_MoveNext_mDBD2BBC1B727D4C915B0E2AB910330411086BC12(_thisAdjusted, method);
 }
-// Method Definition Index: 60176
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CAsyncWaitForStartU3Ed__15_SetStateMachine_m3B0B96BE14F355F5A0AF74DD42C7774158140A41 (U3CAsyncWaitForStartU3Ed__15_tB4B1CE199FE822B67BCF87301159986D9D50961B* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14405,11 +13380,9 @@ IL2CPP_EXTERN_C  void U3CAsyncWaitForStartU3Ed__15_SetStateMachine_m3B0B96BE14F3
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60177
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForCompletion_get_keepWaiting_mD2C729ECA6B6F6BE57B718492953D588237F743D (WaitForCompletion_tC84400E0FA4E28B95AA56DF28973D5FFDA16AFA0* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:316>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = __this->___t;
 		NullCheck(L_0);
 		bool L_1;
@@ -14431,17 +13404,13 @@ IL_001c:
 		return (bool)0;
 	}
 }
-// Method Definition Index: 60178
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForCompletion__ctor_mE85B7CC8B7FE6A2AE84DB8210249A61018118C4D (WaitForCompletion_tC84400E0FA4E28B95AA56DF28973D5FFDA16AFA0* __this, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_tween, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:319>
 		CustomYieldInstruction__ctor_mB64531EC09E871EF60BFAC16918A774C977C7B50(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:321>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_tween;
 		__this->___t = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___t), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:322>
 		return;
 	}
 }
@@ -14453,11 +13422,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForCompletion__ctor_mE85B7CC8B7FE6A2
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60179
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForRewind_get_keepWaiting_mF46CA00D1A5FDF140C0C027C4109C7373245A16C (WaitForRewind_t2ABB006386A81D361C36B476044786442726743D* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:328>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = __this->___t;
 		NullCheck(L_0);
 		bool L_1;
@@ -14498,17 +13465,13 @@ IL_003e:
 		return (bool)0;
 	}
 }
-// Method Definition Index: 60180
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForRewind__ctor_mD79A34DBDAC1B30FBEBD36A8D749EC81935520B2 (WaitForRewind_t2ABB006386A81D361C36B476044786442726743D* __this, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_tween, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:331>
 		CustomYieldInstruction__ctor_mB64531EC09E871EF60BFAC16918A774C977C7B50(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:333>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_tween;
 		__this->___t = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___t), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:334>
 		return;
 	}
 }
@@ -14520,11 +13483,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForRewind__ctor_mD79A34DBDAC1B30FBEB
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60181
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForKill_get_keepWaiting_m4C085E03853426F4D4F5C312334101AE9BA75E3F (WaitForKill_t532BDFE32D7C3892E01BF80054F95A9A5C1C24DE* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:340>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = __this->___t;
 		NullCheck(L_0);
 		bool L_1;
@@ -14532,17 +13493,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForKill_get_keepWaiting_m4C085E03853
 		return L_1;
 	}
 }
-// Method Definition Index: 60182
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForKill__ctor_m75C2D3D54DBBBB35DE297B947C08C982CABF1BAF (WaitForKill_t532BDFE32D7C3892E01BF80054F95A9A5C1C24DE* __this, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_tween, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:343>
 		CustomYieldInstruction__ctor_mB64531EC09E871EF60BFAC16918A774C977C7B50(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:345>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_tween;
 		__this->___t = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___t), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:346>
 		return;
 	}
 }
@@ -14554,11 +13511,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForKill__ctor_m75C2D3D54DBBBB35DE297
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60183
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForElapsedLoops_get_keepWaiting_mC2A906DBE9A06B7697041B76EC7C6AF58F928D6C (WaitForElapsedLoops_t24C0691B408798B4BE5CCC92DC8B4D40430717BC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:352>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = __this->___t;
 		NullCheck(L_0);
 		bool L_1;
@@ -14581,20 +13536,15 @@ IL_0021:
 		return (bool)0;
 	}
 }
-// Method Definition Index: 60184
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForElapsedLoops__ctor_mA0E7D5A115AB56AD618E24B320476B81B9CAEC7A (WaitForElapsedLoops_t24C0691B408798B4BE5CCC92DC8B4D40430717BC* __this, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_tween, int32_t ___1_elapsedLoops, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:356>
 		CustomYieldInstruction__ctor_mB64531EC09E871EF60BFAC16918A774C977C7B50(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:358>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_tween;
 		__this->___t = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___t), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:359>
 		int32_t L_1 = ___1_elapsedLoops;
 		__this->___elapsedLoops = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:360>
 		return;
 	}
 }
@@ -14606,11 +13556,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForElapsedLoops__ctor_mA0E7D5A115AB5
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60185
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForPosition_get_keepWaiting_mA71AB7B7C269AB062BB6AF9CDF42E0F54EA6549F (WaitForPosition_t302B4F4C6FC89426E08DDC65543F45785B20B84B* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:366>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = __this->___t;
 		NullCheck(L_0);
 		bool L_1;
@@ -14637,20 +13585,15 @@ IL_0030:
 		return (bool)0;
 	}
 }
-// Method Definition Index: 60186
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForPosition__ctor_mB6CCFCE59F142931CF19AC3BA4FE5CAFF1CBA4AD (WaitForPosition_t302B4F4C6FC89426E08DDC65543F45785B20B84B* __this, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_tween, float ___1_position, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:370>
 		CustomYieldInstruction__ctor_mB64531EC09E871EF60BFAC16918A774C977C7B50(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:372>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_tween;
 		__this->___t = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___t), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:373>
 		float L_1 = ___1_position;
 		__this->___position = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:374>
 		return;
 	}
 }
@@ -14662,11 +13605,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForPosition__ctor_mB6CCFCE59F142931C
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60187
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool WaitForStart_get_keepWaiting_mA0B7858981A2CEDE516D5F2C5133629C6D537E0B (WaitForStart_t4448F8E46F59EE599CA8DCEF52FC706221093F30* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:380>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = __this->___t;
 		NullCheck(L_0);
 		bool L_1;
@@ -14689,17 +13630,13 @@ IL_001c:
 		return (bool)0;
 	}
 }
-// Method Definition Index: 60188
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForStart__ctor_m3AEC2F6E37815ED0D94C2FA5F3B784456C6E49D1 (WaitForStart_t4448F8E46F59EE599CA8DCEF52FC706221093F30* __this, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___0_tween, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:383>
 		CustomYieldInstruction__ctor_mB64531EC09E871EF60BFAC16918A774C977C7B50(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:385>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_0 = ___0_tween;
 		__this->___t = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___t), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs:386>
 		return;
 	}
 }
@@ -14711,7 +13648,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaitForStart__ctor_m3AEC2F6E37815ED0D94C
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60189
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Init_m8FD2F0DFE3D768ECE332A27B64ED208ED53568D5 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14723,7 +13659,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Init_m8FD2F0DFE3D768E
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:40>
 		bool L_0 = ((DOTweenModuleUtils_t5554865584F951A4A4E5DD282E6EBC60F5CEC6E9_StaticFields*)il2cpp_codegen_static_fields_for(DOTweenModuleUtils_t5554865584F951A4A4E5DD282E6EBC60F5CEC6E9_il2cpp_TypeInfo_var))->____initialized;
 		if (!L_0)
 		{
@@ -14731,23 +13666,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Init_m8FD2F0DFE3D768E
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:40>
 		return;
 	}
 
 IL_0008:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:42>
 		((DOTweenModuleUtils_t5554865584F951A4A4E5DD282E6EBC60F5CEC6E9_StaticFields*)il2cpp_codegen_static_fields_for(DOTweenModuleUtils_t5554865584F951A4A4E5DD282E6EBC60F5CEC6E9_il2cpp_TypeInfo_var))->____initialized = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:43>
 		Action_4_t9AF66ACF00E5AEB0F9B4A06FAEFEA18B2F266BDB* L_1 = (Action_4_t9AF66ACF00E5AEB0F9B4A06FAEFEA18B2F266BDB*)il2cpp_codegen_object_new(Action_4_t9AF66ACF00E5AEB0F9B4A06FAEFEA18B2F266BDB_il2cpp_TypeInfo_var);
 		Action_4__ctor_mE887FA5D76A46664CDCF21964B144098A77B4DD5(L_1, NULL, (intptr_t)((void*)Physics_SetOrientationOnPath_mC2C4E6FA124458E00765F647C3E824CC31A4696D_RuntimeMethod_var), NULL);
 		DOTweenExternalCommand_add_SetOrientationOnPath_mBD8B37B1978CBE4534F9B8868C734F5C0A2B2804(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:52>
 		return;
 	}
 }
-// Method Definition Index: 60190
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Preserver_m6DD0C54BCF6FBA75AA80562BFBEDF89F7A224189 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14758,13 +13688,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Preserver_m6DD0C54BCF
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:60>
 		AppDomain_tFF7010567CBABAEEA7BB19835234D6485E16AD5F* L_0;
 		L_0 = AppDomain_get_CurrentDomain_m38D86FD149C2C62AD0FAB0159D70ECB13D841667(NULL);
 		NullCheck(L_0);
 		AssemblyU5BU5D_t97B7B4E3FD4DA4944A4BFAA4DC484EA7D990B339* L_1;
 		L_1 = AppDomain_GetAssemblies_m8EE862747CADACB8CC0BDDBD8CA7DAD7BD9D9249(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:61>
 		RuntimeTypeHandle_t332A452B8B6179E4469B69525D0FE82A88030F7B L_2 = { reinterpret_cast<intptr_t> (MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71_0_0_0_var) };
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.systemtype_class);
 		Type_t* L_3;
@@ -14772,7 +13700,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Preserver_m6DD0C54BCF
 		NullCheck(L_3);
 		MethodInfo_t* L_4;
 		L_4 = Type_GetMethod_m66AD062187F19497DBCA900823B0C268322DC231(L_3, _stringLiteral0D1BA8C0E521925077224DB11A6C93FB8E930E14, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:62>
 		return;
 	}
 }
@@ -14784,7 +13711,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void DOTweenModuleUtils_Preserver_m6DD0C54BCF
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 60191
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Physics_SetOrientationOnPath_mC2C4E6FA124458E00765F647C3E824CC31A4696D (PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A ___0_options, Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* ___1_t, Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___2_newRot, Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* ___3_trans, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14794,7 +13720,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Physics_SetOrientationOnPath_mC2C4E6FA12
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:91>
 		PathOptions_t76F1CBAC082454349D530B799121EB15BFA4CB3A L_0 = ___0_options;
 		bool L_1 = L_0.___isRigidbody;
 		if (!L_1)
@@ -14803,7 +13728,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Physics_SetOrientationOnPath_mC2C4E6FA12
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:91>
 		Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* L_2 = ___1_t;
 		NullCheck(L_2);
 		RuntimeObject* L_3 = L_2->___target;
@@ -14815,16 +13739,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Physics_SetOrientationOnPath_mC2C4E6FA12
 
 IL_001a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:92>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_5 = ___3_trans;
 		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_6 = ___2_newRot;
 		NullCheck(L_5);
 		Transform_set_rotation_m61340DE74726CF0F9946743A727C4D444397331D(L_5, L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:96>
 		return;
 	}
 }
-// Method Definition Index: 60192
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Physics_HasRigidbody2D_m80204646E4EEA6187F16FE74B1608D54DC0EFA00 (Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14835,7 +13756,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Physics_HasRigidbody2D_m80204646E4EEA618
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:102>
 		Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3* L_0 = ___0_target;
 		NullCheck(L_0);
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_1;
@@ -14846,7 +13766,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Physics_HasRigidbody2D_m80204646E4EEA618
 		return L_2;
 	}
 }
-// Method Definition Index: 60193
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Physics_HasRigidbody_m81595D61A93C148222BD16F87F82F465286457B8 (Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3* ___0_target, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14857,7 +13776,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Physics_HasRigidbody_m81595D61A93C148222
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:119>
 		Component_t39FBE53E5EFCF4409111FB22C15FF73717632EC3* L_0 = ___0_target;
 		NullCheck(L_0);
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_1;
@@ -14868,7 +13786,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool Physics_HasRigidbody_m81595D61A93C148222
 		return L_2;
 	}
 }
-// Method Definition Index: 60194
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* Physics_CreateDOTweenPathTween_m9AA6DE226F6876ACF693B7254E3DB5773E7651E0 (MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71* ___0_target, bool ___1_tweenRigidbody, bool ___2_isLocal, Path_t6EC35555EF601CAFED947AC467DEBA7C1496A0C3* ___3_path, float ___4_duration, int32_t ___5_pathMode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14887,11 +13804,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 	TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* G_B11_0 = NULL;
 	TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* G_B16_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:132>
 		V_0 = (TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA*)NULL;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:133>
 		V_1 = (bool)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:135>
 		bool L_0 = ___1_tweenRigidbody;
 		if (!L_0)
 		{
@@ -14899,13 +13813,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:136>
 		MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71* L_1 = ___0_target;
 		NullCheck(L_1);
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_2;
 		L_2 = Component_GetComponent_TisRigidbody_t268697F5A994213ED97393309870968BC1C7393C_m4B5CAD64B52D153BEA96432633CA9A45FA523DD8(L_1, Component_GetComponent_TisRigidbody_t268697F5A994213ED97393309870968BC1C7393C_m4B5CAD64B52D153BEA96432633CA9A45FA523DD8_RuntimeMethod_var);
 		V_2 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:137>
 		Rigidbody_t268697F5A994213ED97393309870968BC1C7393C* L_3 = V_2;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_4;
@@ -14916,11 +13828,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TweenerCore_3_t4911E6704673AA7505D10A9D0B0D98
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:138>
 		V_1 = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:139>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:140>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:141>
 		bool L_5 = ___2_isLocal;
 		if (L_5)
 		{
@@ -14956,7 +13864,6 @@ IL_0034:
 
 IL_0035:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:146>
 		bool L_16 = V_1;
 		bool L_17 = ___1_tweenRigidbody;
 		if (!((int32_t)(((((int32_t)L_16) == ((int32_t)0))? 1 : 0)&(int32_t)L_17)))
@@ -14965,13 +13872,11 @@ IL_0035:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:147>
 		MonoBehaviour_t532A11E69716D348D8AA7F854AFCBFCB8AD17F71* L_18 = ___0_target;
 		NullCheck(L_18);
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_19;
 		L_19 = Component_GetComponent_TisRigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F_m0712B7A9DBBAE2C319B4B03394E7731B86FACBF2(L_18, Component_GetComponent_TisRigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F_m0712B7A9DBBAE2C319B4B03394E7731B86FACBF2_RuntimeMethod_var);
 		V_3 = L_19;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:148>
 		Rigidbody2D_tBEBE9523CF4448544085AF46BF7E10AA499F320F* L_20 = V_3;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_21;
@@ -14982,11 +13887,7 @@ IL_0035:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:149>
 		V_1 = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:150>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:151>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:152>
 		bool L_22 = ___2_isLocal;
 		if (L_22)
 		{
@@ -15022,7 +13923,6 @@ IL_006a:
 
 IL_006b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:156>
 		bool L_33 = V_1;
 		if (L_33)
 		{
@@ -15030,9 +13930,6 @@ IL_006b:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:157>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:158>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:159>
 		bool L_34 = ___2_isLocal;
 		if (L_34)
 		{
@@ -15074,7 +13971,6 @@ IL_0093:
 
 IL_0094:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs:161>
 		TweenerCore_3_t4911E6704673AA7505D10A9D0B0D989CEC689DCA* L_47 = V_0;
 		return L_47;
 	}
@@ -15106,7 +14002,6 @@ IL_0094:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-// Method Definition Index: 45716
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector3__ctor_m376936E6B999EF1ECBE57D990A386303E2283DE0_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* __this, float ___0_x, float ___1_y, float ___2_z, const RuntimeMethod* method) 
 {
 	{
@@ -15119,7 +14014,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector3__ctor_m376936E6B999E
 		return;
 	}
 }
-// Method Definition Index: 45736
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_get_up_m128AF3FDC820BF59D5DE86D973E7DE3F20C3AEBA_inline (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15128,21 +14022,11 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
-	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
-	memset((&V_0), 0, sizeof(V_0));
 	{
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ((Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_StaticFields*)il2cpp_codegen_static_fields_for(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var))->___upVector;
-		V_0 = L_0;
-		goto IL_0009;
-	}
-
-IL_0009:
-	{
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 55813
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Tween_get_isRelative_mC31C34D21C3953F9AA7F25C0429BEBE45D2DBAE2_inline (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15150,7 +14034,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Tween_get_isRelative_mC31C34
 		return L_0;
 	}
 }
-// Method Definition Index: 45833
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* __this, float ___0_x, float ___1_y, const RuntimeMethod* method) 
 {
 	{
@@ -15161,88 +14044,69 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector2__ctor_m9525B79969AFF
 		return;
 	}
 }
-// Method Definition Index: 45860
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector2_op_Implicit_m6D9CABB2C791A192867D7A4559D132BE86DD3EB7_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_v, const RuntimeMethod* method) 
 {
 	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_v;
 		float L_1 = L_0.___x;
+		(&V_0)->___x = L_1;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = ___0_v;
 		float L_3 = L_2.___y;
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4;
-		memset((&L_4), 0, sizeof(L_4));
-		Vector3__ctor_m376936E6B999EF1ECBE57D990A386303E2283DE0_inline((&L_4), L_1, L_3, (0.0f), NULL);
-		V_0 = L_4;
-		goto IL_001a;
-	}
-
-IL_001a:
-	{
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_5 = V_0;
-		return L_5;
+		(&V_0)->___y = L_3;
+		(&V_0)->___z = (0.0f);
+		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_4 = V_0;
+		return L_4;
 	}
 }
-// Method Definition Index: 45859
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Vector2_op_Implicit_mE8EBEE9291F11BB02F062D6E000F4798968CBD96_inline (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_v, const RuntimeMethod* method) 
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7));
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ___0_v;
 		float L_1 = L_0.___x;
+		(&V_0)->___x = L_1;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_2 = ___0_v;
 		float L_3 = L_2.___y;
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4;
-		memset((&L_4), 0, sizeof(L_4));
-		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_4), L_1, L_3, NULL);
-		V_0 = L_4;
-		goto IL_0015;
-	}
-
-IL_0015:
-	{
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_5 = V_0;
-		return L_5;
+		(&V_0)->___y = L_3;
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = V_0;
+		return L_4;
 	}
 }
-// Method Definition Index: 45639
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F Color_op_Subtraction_mF003448D819F2A41405BB6D85F1563CDA900B07F_inline (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_a, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_b, const RuntimeMethod* method) 
 {
 	Color_tD001788D726C3A7F1379BEED0260B9591F440C1F V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Color_tD001788D726C3A7F1379BEED0260B9591F440C1F));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = ___0_a;
 		float L_1 = L_0.___r;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_2 = ___1_b;
 		float L_3 = L_2.___r;
+		(&V_0)->___r = ((float)il2cpp_codegen_subtract(L_1, L_3));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_4 = ___0_a;
 		float L_5 = L_4.___g;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_6 = ___1_b;
 		float L_7 = L_6.___g;
+		(&V_0)->___g = ((float)il2cpp_codegen_subtract(L_5, L_7));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_8 = ___0_a;
 		float L_9 = L_8.___b;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_10 = ___1_b;
 		float L_11 = L_10.___b;
+		(&V_0)->___b = ((float)il2cpp_codegen_subtract(L_9, L_11));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_12 = ___0_a;
 		float L_13 = L_12.___a;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_14 = ___1_b;
 		float L_15 = L_14.___a;
-		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_16;
-		memset((&L_16), 0, sizeof(L_16));
-		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_16), ((float)il2cpp_codegen_subtract(L_1, L_3)), ((float)il2cpp_codegen_subtract(L_5, L_7)), ((float)il2cpp_codegen_subtract(L_9, L_11)), ((float)il2cpp_codegen_subtract(L_13, L_15)), NULL);
-		V_0 = L_16;
-		goto IL_003d;
-	}
-
-IL_003d:
-	{
-		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_17 = V_0;
-		return L_17;
+		(&V_0)->___a = ((float)il2cpp_codegen_subtract(L_13, L_15));
+		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_16 = V_0;
+		return L_16;
 	}
 }
-// Method Definition Index: 45631
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F* __this, float ___0_r, float ___1_g, float ___2_b, float ___3_a, const RuntimeMethod* method) 
 {
 	{
@@ -15257,42 +14121,36 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Color__ctor_m3786F0D6E510D9C
 		return;
 	}
 }
-// Method Definition Index: 45638
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F Color_op_Addition_mA7A51CACA49ED8D23D3D9CA3A0092D32F657E053_inline (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_a, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___1_b, const RuntimeMethod* method) 
 {
 	Color_tD001788D726C3A7F1379BEED0260B9591F440C1F V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Color_tD001788D726C3A7F1379BEED0260B9591F440C1F));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = ___0_a;
 		float L_1 = L_0.___r;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_2 = ___1_b;
 		float L_3 = L_2.___r;
+		(&V_0)->___r = ((float)il2cpp_codegen_add(L_1, L_3));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_4 = ___0_a;
 		float L_5 = L_4.___g;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_6 = ___1_b;
 		float L_7 = L_6.___g;
+		(&V_0)->___g = ((float)il2cpp_codegen_add(L_5, L_7));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_8 = ___0_a;
 		float L_9 = L_8.___b;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_10 = ___1_b;
 		float L_11 = L_10.___b;
+		(&V_0)->___b = ((float)il2cpp_codegen_add(L_9, L_11));
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_12 = ___0_a;
 		float L_13 = L_12.___a;
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_14 = ___1_b;
 		float L_15 = L_14.___a;
-		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_16;
-		memset((&L_16), 0, sizeof(L_16));
-		Color__ctor_m3786F0D6E510D9CFA544523A955870BD2A514C8C_inline((&L_16), ((float)il2cpp_codegen_add(L_1, L_3)), ((float)il2cpp_codegen_add(L_5, L_7)), ((float)il2cpp_codegen_add(L_9, L_11)), ((float)il2cpp_codegen_add(L_13, L_15)), NULL);
-		V_0 = L_16;
-		goto IL_003d;
-	}
-
-IL_003d:
-	{
-		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_17 = V_0;
-		return L_17;
+		(&V_0)->___a = ((float)il2cpp_codegen_add(L_13, L_15));
+		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_16 = V_0;
+		return L_16;
 	}
 }
-// Method Definition Index: 56119
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t Debugger_get_logPriority_m7AC0D46AE0BA9AC3ED1ED50AD20734033D16D0AC_inline (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15306,152 +14164,95 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t Debugger_get_logPriority_
 		return L_0;
 	}
 }
-// Method Definition Index: 44883
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Rect_get_width_m620D67551372073C9C32C4C4624C2A5713F7F9A9_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
-	float V_0 = 0.0f;
 	{
 		float L_0 = __this->___m_Width;
-		V_0 = L_0;
-		goto IL_000a;
-	}
-
-IL_000a:
-	{
-		float L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 44889
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Rect_get_xMin_mE89C40702926D016A633399E20DB9501E251630D_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
-	float V_0 = 0.0f;
 	{
 		float L_0 = __this->___m_XMin;
-		V_0 = L_0;
-		goto IL_000a;
-	}
-
-IL_000a:
-	{
-		float L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 44885
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Rect_get_height_mE1AA6C6C725CCD2D317BD2157396D3CF7D47C9D8_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
-	float V_0 = 0.0f;
 	{
 		float L_0 = __this->___m_Height;
-		V_0 = L_0;
-		goto IL_000a;
-	}
-
-IL_000a:
-	{
-		float L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 44891
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Rect_get_yMin_mB19848FB25DE61EDF958F7A22CFDD86DE103062F_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
-	float V_0 = 0.0f;
 	{
 		float L_0 = __this->___m_YMin;
-		V_0 = L_0;
-		goto IL_000a;
-	}
-
-IL_000a:
-	{
-		float L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 45849
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Vector2_op_Addition_m8136742CE6EE33BA4EB81C5F584678455917D2AE_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_a, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_b, const RuntimeMethod* method) 
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_a;
 		float L_1 = L_0.___x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = ___1_b;
 		float L_3 = L_2.___x;
+		(&V_0)->___x = ((float)il2cpp_codegen_add(L_1, L_3));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___0_a;
 		float L_5 = L_4.___y;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_6 = ___1_b;
 		float L_7 = L_6.___y;
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8;
-		memset((&L_8), 0, sizeof(L_8));
-		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_8), ((float)il2cpp_codegen_add(L_1, L_3)), ((float)il2cpp_codegen_add(L_5, L_7)), NULL);
-		V_0 = L_8;
-		goto IL_0023;
-	}
-
-IL_0023:
-	{
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_9 = V_0;
-		return L_9;
+		(&V_0)->___y = ((float)il2cpp_codegen_add(L_5, L_7));
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8 = V_0;
+		return L_8;
 	}
 }
-// Method Definition Index: 45850
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Vector2_op_Subtraction_m44475FCDAD2DA2F98D78A6625EC2DCDFE8803837_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_a, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_b, const RuntimeMethod* method) 
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_a;
 		float L_1 = L_0.___x;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = ___1_b;
 		float L_3 = L_2.___x;
+		(&V_0)->___x = ((float)il2cpp_codegen_subtract(L_1, L_3));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4 = ___0_a;
 		float L_5 = L_4.___y;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_6 = ___1_b;
 		float L_7 = L_6.___y;
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8;
-		memset((&L_8), 0, sizeof(L_8));
-		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_8), ((float)il2cpp_codegen_subtract(L_1, L_3)), ((float)il2cpp_codegen_subtract(L_5, L_7)), NULL);
-		V_0 = L_8;
-		goto IL_0023;
-	}
-
-IL_0023:
-	{
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_9 = V_0;
-		return L_9;
+		(&V_0)->___y = ((float)il2cpp_codegen_subtract(L_5, L_7));
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8 = V_0;
+		return L_8;
 	}
 }
-// Method Definition Index: 51860
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F Shadow_get_effectColor_m6E7751BB8792C85BE9DAD0D133D787317D9CF59B_inline (Shadow_tCAA59FE9D6B0DC6DCC505E8E22D8D3C05BE6DE95* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/UGUI/UI/Core/VertexModifiers/Shadow.cs:40>
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_0 = __this->___m_EffectColor;
 		return L_0;
 	}
 }
-// Method Definition Index: 51862
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Shadow_get_effectDistance_mA87EB50066AFEBC13C69D27376E50033930FA58F_inline (Shadow_tCAA59FE9D6B0DC6DCC505E8E22D8D3C05BE6DE95* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/UGUI/UI/Core/VertexModifiers/Shadow.cs:54>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = __this->___m_EffectDistance;
 		return L_0;
 	}
 }
-// Method Definition Index: 50843
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Image_get_fillAmount_mDEE52490D07124E21E7CB36718A5E3714D8B9788_inline (Image_tBC1D03F63BF71132E9A5E472B8742F172A011E7E* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/UGUI/UI/Core/Image.cs:502>
 		float L_0 = __this->___m_FillAmount;
 		return L_0;
 	}
 }
-// Method Definition Index: 55815
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Tween_get_active_mD4253DD1A64623E342282E139081B787935A3E5E_inline (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15459,7 +14260,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Tween_get_active_mD4253DD1A6
 		return L_0;
 	}
 }
-// Method Definition Index: 55822
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Tween_get_position_mF8A2FF9C0DA291DEC595AC8C00E2E096A009B5A8_inline (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15467,7 +14267,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Tween_get_position_mF8A2FF9
 		return L_0;
 	}
 }
-// Method Definition Index: 55820
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Tween_get_playedOnce_mDA42B6964058549DB8BBC9217DBBB2F0EB67A335_inline (Tween_t8CB06EBC48A5B6F5065C490E4F4909C18CE7983C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15475,7 +14274,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Tween_get_playedOnce_mDA42B6
 		return L_0;
 	}
 }
-// Method Definition Index: 2146
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR bool Nullable_1_get_HasValue_m6B76086B0E863AB1D634FD03E30154F230070435_gshared_inline (Nullable_1_t9C51B084784B716FFF4ED4575C63CFD8A71A86FE* __this, const RuntimeMethod* method) 
 {
 	{

@@ -1,4 +1,4 @@
-﻿using AIFLogger;
+using AIFLogger;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -88,6 +88,15 @@ public class GameController : MonoBehaviour
     }
 
     #region WebSocket Events
+
+    public void ResetState()
+    {
+        Debug.Log("[GameController] Resetting state");
+        StopReconnectRoutine();
+        currentStatus = RoundStatus.NONE;
+        currentRoundData = null;
+        isFreshLaunched = true;
+    }
 
     private void SubscribeEvents()
     {

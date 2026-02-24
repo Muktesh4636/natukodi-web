@@ -281,6 +281,7 @@ IL2CPP_EXTERN_C RuntimeClass* OnKeyboardHeightChangedHandler_tE766EBA926C5765E1B
 IL2CPP_EXTERN_C RuntimeClass* OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* Predicate_1_t0886AB194A3FD11EA78E6A2F70230FBC7CADA29D_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_il2cpp_TypeInfo_var;
+IL2CPP_EXTERN_C RuntimeClass* Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA_il2cpp_TypeInfo_var;
 IL2CPP_EXTERN_C RuntimeClass* SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3_il2cpp_TypeInfo_var;
@@ -2172,6 +2173,10 @@ struct Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_StaticFields
 {
 	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 ___identityQuaternion;
 };
+struct Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_StaticFields
+{
+	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D ___kZero;
+};
 struct Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_StaticFields
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___zeroVector;
@@ -3269,45 +3274,35 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Format_mFB7DA489BD99F4670881
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54840
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RichTextRegion_get_Text_m875601F54979EDBF869653BCB3A6F504BBD32057 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:27>
 		String_t* L_0 = __this->___text;
 		return L_0;
 	}
 }
-// Method Definition Index: 54841
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_set_Text_m7BCDFE0B24FDF62F20C9AE1B75A18988A3C8B64F (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, String_t* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:30>
 		String_t* L_0 = ___0_value;
 		__this->___text = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___text), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:31>
 		__this->___startContentPosition = 0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:32>
 		String_t* L_1 = __this->___text;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_1, NULL);
 		__this->___endContentPosition = ((int32_t)il2cpp_codegen_subtract(L_2, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:33>
 		return;
 	}
 }
-// Method Definition Index: 54842
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RichTextRegion_get_RichText_m3A79EE2E75FE103DA3C1210B9C7ADD390B5BEE85 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:36>
 		String_t* L_0 = __this->___richText;
 		return L_0;
 	}
 }
-// Method Definition Index: 54843
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion__ctor_m17143FA66B888801D1F1CE341E0236836D0692A8 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, String_t* ___0_text, List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* ___1_startTags, List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* ___2_endTags, bool ___3_isModifiable, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3318,12 +3313,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion__ctor_m17143FA66B888801D1
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:38>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:40>
 		String_t* L_0 = ___0_text;
 		RichTextRegion_set_Text_m7BCDFE0B24FDF62F20C9AE1B75A18988A3C8B64F(__this, L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:41>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = ___1_startTags;
 		if (!L_1)
 		{
@@ -3331,11 +3323,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion__ctor_m17143FA66B888801D1
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:43>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_2 = ___1_startTags;
 		__this->___startTags = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___startTags), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:44>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_3 = ___2_endTags;
 		__this->___endTags = L_3;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___endTags), (void*)L_3);
@@ -3344,12 +3334,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion__ctor_m17143FA66B888801D1
 
 IL_0020:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:48>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_4 = (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)il2cpp_codegen_object_new(List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD_il2cpp_TypeInfo_var);
 		List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E(L_4, List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E_RuntimeMethod_var);
 		__this->___startTags = L_4;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___startTags), (void*)L_4);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:49>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_5 = (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)il2cpp_codegen_object_new(List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD_il2cpp_TypeInfo_var);
 		List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E(L_5, List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E_RuntimeMethod_var);
 		__this->___endTags = L_5;
@@ -3358,14 +3346,11 @@ IL_0020:
 
 IL_0036:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:52>
 		bool L_6 = ___3_isModifiable;
 		__this->___isModifiable = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:53>
 		return;
 	}
 }
-// Method Definition Index: 54844
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_RemoveTag_m7AF2215D4F26F29FFF9DE6EC5885C09E7849231B (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, String_t* ___0_endTag, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3377,7 +3362,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_RemoveTag_m7AF2215D4F26F2
 	}
 	int32_t V_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:57>
 		bool L_0 = __this->___isModifiable;
 		if (L_0)
 		{
@@ -3385,20 +3369,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_RemoveTag_m7AF2215D4F26F2
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:57>
 		return;
 	}
 
 IL_0009:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:59>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = __this->___endTags;
 		String_t* L_2 = ___0_endTag;
 		NullCheck(L_1);
 		int32_t L_3;
 		L_3 = List_1_IndexOf_m407F5E43ED8B2BD39036693B8F25F363362CE9D4(L_1, L_2, List_1_IndexOf_m407F5E43ED8B2BD39036693B8F25F363362CE9D4_RuntimeMethod_var);
 		V_0 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:60>
 		int32_t L_4 = V_0;
 		if ((((int32_t)L_4) == ((int32_t)(-1))))
 		{
@@ -3406,12 +3387,10 @@ IL_0009:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:62>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_5 = __this->___startTags;
 		int32_t L_6 = V_0;
 		NullCheck(L_5);
 		List_1_RemoveAt_m031D3A21689276A872FCA7566C8F2F79F9581F0D(L_5, L_6, List_1_RemoveAt_m031D3A21689276A872FCA7566C8F2F79F9581F0D_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:63>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_7 = __this->___endTags;
 		int32_t L_8 = V_0;
 		NullCheck(L_7);
@@ -3420,11 +3399,9 @@ IL_0009:
 
 IL_0032:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:65>
 		return;
 	}
 }
-// Method Definition Index: 54845
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_UpdateTag_m0E4EF3C25210476DC6DAEF66886367FA14D1FC82 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, String_t* ___0_startTag, String_t* ___1_endTag, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3436,7 +3413,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_UpdateTag_m0E4EF3C2521047
 	}
 	int32_t V_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:69>
 		bool L_0 = __this->___isModifiable;
 		if (L_0)
 		{
@@ -3444,20 +3420,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_UpdateTag_m0E4EF3C2521047
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:69>
 		return;
 	}
 
 IL_0009:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:71>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = __this->___endTags;
 		String_t* L_2 = ___1_endTag;
 		NullCheck(L_1);
 		int32_t L_3;
 		L_3 = List_1_IndexOf_m407F5E43ED8B2BD39036693B8F25F363362CE9D4(L_1, L_2, List_1_IndexOf_m407F5E43ED8B2BD39036693B8F25F363362CE9D4_RuntimeMethod_var);
 		V_0 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:72>
 		int32_t L_4 = V_0;
 		if ((((int32_t)L_4) == ((int32_t)(-1))))
 		{
@@ -3465,7 +3438,6 @@ IL_0009:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:74>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_5 = __this->___startTags;
 		int32_t L_6 = V_0;
 		String_t* L_7 = ___0_startTag;
@@ -3475,11 +3447,9 @@ IL_0009:
 
 IL_0027:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:76>
 		return;
 	}
 }
-// Method Definition Index: 54846
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_AddTag_mEF9A3F4AB73CF33126BCFC9C4A3529AD1046B1C1 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, String_t* ___0_startTag, String_t* ___1_endTag, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3492,7 +3462,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_AddTag_mEF9A3F4AB73CF3312
 	}
 	int32_t V_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:80>
 		bool L_0 = __this->___isModifiable;
 		if (L_0)
 		{
@@ -3500,20 +3469,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_AddTag_mEF9A3F4AB73CF3312
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:80>
 		return;
 	}
 
 IL_0009:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:82>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = __this->___endTags;
 		String_t* L_2 = ___1_endTag;
 		NullCheck(L_1);
 		int32_t L_3;
 		L_3 = List_1_IndexOf_m407F5E43ED8B2BD39036693B8F25F363362CE9D4(L_1, L_2, List_1_IndexOf_m407F5E43ED8B2BD39036693B8F25F363362CE9D4_RuntimeMethod_var);
 		V_0 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:83>
 		int32_t L_4 = V_0;
 		if ((!(((uint32_t)L_4) == ((uint32_t)(-1)))))
 		{
@@ -3521,12 +3487,10 @@ IL_0009:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:85>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_5 = __this->___startTags;
 		String_t* L_6 = ___0_startTag;
 		NullCheck(L_5);
 		List_1_Add_mF10DB1D3CBB0B14215F0E4F8AB4934A1955E5351_inline(L_5, L_6, List_1_Add_mF10DB1D3CBB0B14215F0E4F8AB4934A1955E5351_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:86>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_7 = __this->___endTags;
 		String_t* L_8 = ___1_endTag;
 		NullCheck(L_7);
@@ -3536,17 +3500,14 @@ IL_0009:
 
 IL_0033:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:90>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_9 = __this->___startTags;
 		int32_t L_10 = V_0;
 		String_t* L_11 = ___0_startTag;
 		NullCheck(L_9);
 		List_1_set_Item_m6A72B7648178616800F05C13DB492E4EDB866B7C(L_9, L_10, L_11, List_1_set_Item_m6A72B7648178616800F05C13DB492E4EDB866B7C_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:92>
 		return;
 	}
 }
-// Method Definition Index: 54847
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_CopyTags_m8DB91E6607EEF6631A641D78A51E2FF1FD6EFCED (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* ___0_otherRegion, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3557,7 +3518,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_CopyTags_m8DB91E6607EEF66
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:96>
 		bool L_0 = __this->___isModifiable;
 		if (L_0)
 		{
@@ -3565,39 +3525,32 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_CopyTags_m8DB91E6607EEF66
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:96>
 		return;
 	}
 
 IL_0009:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:98>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = __this->___startTags;
 		NullCheck(L_1);
 		List_1_Clear_mC6C7AEBB0F980A717A87C0D12377984A464F0934_inline(L_1, List_1_Clear_mC6C7AEBB0F980A717A87C0D12377984A464F0934_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:99>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_2 = __this->___startTags;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_3 = ___0_otherRegion;
 		NullCheck(L_3);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_4 = L_3->___startTags;
 		NullCheck(L_2);
 		List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E(L_2, L_4, List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:100>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_5 = __this->___endTags;
 		NullCheck(L_5);
 		List_1_Clear_mC6C7AEBB0F980A717A87C0D12377984A464F0934_inline(L_5, List_1_Clear_mC6C7AEBB0F980A717A87C0D12377984A464F0934_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:101>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_6 = __this->___endTags;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_7 = ___0_otherRegion;
 		NullCheck(L_7);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_8 = L_7->___endTags;
 		NullCheck(L_6);
 		List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E(L_6, L_8, List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:102>
 		return;
 	}
 }
-// Method Definition Index: 54848
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* RichTextRegion_Split_m332BECD1AEA1A297FA7D689BAF174F3FEC79409B (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3613,24 +3566,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RichTextRegionU5BU5D_tA47C01182CFD645D8AD7392
 	String_t* V_1 = NULL;
 	RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* V_2 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:106>
 		String_t* L_0 = __this->___text;
 		int32_t L_1 = ___0_index;
 		NullCheck(L_0);
 		String_t* L_2;
 		L_2 = String_Substring_mB1D94F47935D22E130FF2C01DBB6A4135FBB76CE(L_0, 0, L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:107>
 		String_t* L_3 = __this->___text;
 		int32_t L_4 = ___0_index;
 		NullCheck(L_3);
 		String_t* L_5;
 		L_5 = String_Substring_m6BA4A3FA3800FE92662D0847CC8E1EEF940DF472(L_3, L_4, NULL);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:109>
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_6 = (RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC*)(RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC*)SZArrayNew(RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC_il2cpp_TypeInfo_var, (uint32_t)2);
 		V_2 = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:110>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_7 = __this->___startTags;
 		if (!L_7)
 		{
@@ -3638,7 +3587,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RichTextRegionU5BU5D_tA47C01182CFD645D8AD7392
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:112>
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_8 = V_2;
 		String_t* L_9 = V_0;
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_10 = __this->___startTags;
@@ -3652,7 +3600,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RichTextRegionU5BU5D_tA47C01182CFD645D8AD7392
 		NullCheck(L_8);
 		ArrayElementTypeCheck (L_8, L_14);
 		(L_8)->SetAt(static_cast<il2cpp_array_size_t>(0), (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA*)L_14);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:113>
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_15 = V_2;
 		String_t* L_16 = V_1;
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_17 = __this->___startTags;
@@ -3671,7 +3618,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RichTextRegionU5BU5D_tA47C01182CFD645D8AD7392
 
 IL_006c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:117>
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_22 = V_2;
 		String_t* L_23 = V_0;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_24 = (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA*)il2cpp_codegen_object_new(RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA_il2cpp_TypeInfo_var);
@@ -3679,7 +3625,6 @@ IL_006c:
 		NullCheck(L_22);
 		ArrayElementTypeCheck (L_22, L_24);
 		(L_22)->SetAt(static_cast<il2cpp_array_size_t>(0), (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA*)L_24);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:118>
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_25 = V_2;
 		String_t* L_26 = V_1;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_27 = (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA*)il2cpp_codegen_object_new(RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA_il2cpp_TypeInfo_var);
@@ -3691,12 +3636,10 @@ IL_006c:
 
 IL_0084:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:121>
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_28 = V_2;
 		return L_28;
 	}
 }
-// Method Definition Index: 54849
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RichTextRegion_ToString_m2AE25BF962F42FCCA3B0090A0535FB9BBDCE1305 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3716,11 +3659,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RichTextRegion_ToString_m2AE25BF962
 	int32_t V_1 = 0;
 	int32_t V_2 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:126>
 		StringBuilder_t* L_0 = (StringBuilder_t*)il2cpp_codegen_object_new(StringBuilder_t_il2cpp_TypeInfo_var);
 		StringBuilder__ctor_m1D99713357DE05DAFA296633639DB55F8C30587D(L_0, NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:127>
 		StringBuilder_t* L_1 = V_0;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_2 = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)SZArrayNew(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var, (uint32_t)6);
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_3 = L_2;
@@ -3753,20 +3694,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RichTextRegion_ToString_m2AE25BF962
 		NullCheck(L_1);
 		StringBuilder_t* L_15;
 		L_15 = StringBuilder_AppendLine_mF75744CE941C63E33188E22E936B71A24D3CBF88(L_1, L_14, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:128>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_16 = __this->___startTags;
 		NullCheck(L_16);
 		int32_t L_17;
 		L_17 = List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_inline(L_16, List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_RuntimeMethod_var);
 		V_1 = L_17;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:129>
 		V_2 = 0;
 		goto IL_0086;
 	}
 
 IL_0065:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:131>
 		StringBuilder_t* L_18 = V_0;
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_19 = __this->___startTags;
 		int32_t L_20 = V_2;
@@ -3778,14 +3716,12 @@ IL_0065:
 		NullCheck(L_18);
 		StringBuilder_t* L_23;
 		L_23 = StringBuilder_AppendLine_mF75744CE941C63E33188E22E936B71A24D3CBF88(L_18, L_22, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:129>
 		int32_t L_24 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_24, 1));
 	}
 
 IL_0086:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:129>
 		int32_t L_25 = V_2;
 		int32_t L_26 = V_1;
 		if ((((int32_t)L_25) < ((int32_t)L_26)))
@@ -3794,7 +3730,6 @@ IL_0086:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:134>
 		StringBuilder_t* L_27 = V_0;
 		NullCheck(L_27);
 		String_t* L_28;
@@ -3802,7 +3737,6 @@ IL_0086:
 		return L_28;
 	}
 }
-// Method Definition Index: 54850
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_RebuildRichTextString_m17A849D7275ABE87CB2306E184747A6261FFEBE4 (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3821,53 +3755,44 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextRegion_RebuildRichTextString_m17
 	int32_t V_5 = 0;
 	String_t* V_6 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:139>
 		StringBuilder_t* L_0 = (StringBuilder_t*)il2cpp_codegen_object_new(StringBuilder_t_il2cpp_TypeInfo_var);
 		StringBuilder__ctor_m1D99713357DE05DAFA296633639DB55F8C30587D(L_0, NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:140>
 		V_1 = 0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:142>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = __this->___startTags;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_inline(L_1, List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_RuntimeMethod_var);
 		V_2 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:143>
 		V_3 = 0;
 		goto IL_003d;
 	}
 
 IL_0018:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:145>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_3 = __this->___startTags;
 		int32_t L_4 = V_3;
 		NullCheck(L_3);
 		String_t* L_5;
 		L_5 = List_1_get_Item_m21AEC50E791371101DC22ABCF96A2E46800811F8(L_3, L_4, List_1_get_Item_m21AEC50E791371101DC22ABCF96A2E46800811F8_RuntimeMethod_var);
 		V_4 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:146>
 		StringBuilder_t* L_6 = V_0;
 		String_t* L_7 = V_4;
 		NullCheck(L_6);
 		StringBuilder_t* L_8;
 		L_8 = StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D(L_6, L_7, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:147>
 		int32_t L_9 = V_1;
 		String_t* L_10 = V_4;
 		NullCheck(L_10);
 		int32_t L_11;
 		L_11 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_10, NULL);
 		V_1 = ((int32_t)il2cpp_codegen_add(L_9, L_11));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:143>
 		int32_t L_12 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_12, 1));
 	}
 
 IL_003d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:143>
 		int32_t L_13 = V_3;
 		int32_t L_14 = V_2;
 		if ((((int32_t)L_13) < ((int32_t)L_14)))
@@ -3876,10 +3801,8 @@ IL_003d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:150>
 		int32_t L_15 = V_1;
 		__this->___startRichTextContentPosition = L_15;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:151>
 		bool L_16 = __this->___isSymbol;
 		if (!L_16)
 		{
@@ -3887,13 +3810,11 @@ IL_003d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:153>
 		StringBuilder_t* L_17 = V_0;
 		String_t* L_18 = __this->___symbolText;
 		NullCheck(L_17);
 		StringBuilder_t* L_19;
 		L_19 = StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D(L_17, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:154>
 		int32_t L_20 = V_1;
 		String_t* L_21 = __this->___symbolText;
 		NullCheck(L_21);
@@ -3905,13 +3826,11 @@ IL_003d:
 
 IL_006d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:158>
 		StringBuilder_t* L_23 = V_0;
 		String_t* L_24 = __this->___text;
 		NullCheck(L_23);
 		StringBuilder_t* L_25;
 		L_25 = StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D(L_23, L_24, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:159>
 		int32_t L_26 = V_1;
 		String_t* L_27 = __this->___text;
 		NullCheck(L_27);
@@ -3922,49 +3841,41 @@ IL_006d:
 
 IL_0088:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:162>
 		int32_t L_29 = V_1;
 		__this->___endRichTextContentPosition = L_29;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:164>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_30 = __this->___endTags;
 		NullCheck(L_30);
 		int32_t L_31;
 		L_31 = List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_inline(L_30, List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:165>
 		V_5 = ((int32_t)il2cpp_codegen_subtract(L_31, 1));
 		goto IL_00c8;
 	}
 
 IL_00a0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:167>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_32 = __this->___endTags;
 		int32_t L_33 = V_5;
 		NullCheck(L_32);
 		String_t* L_34;
 		L_34 = List_1_get_Item_m21AEC50E791371101DC22ABCF96A2E46800811F8(L_32, L_33, List_1_get_Item_m21AEC50E791371101DC22ABCF96A2E46800811F8_RuntimeMethod_var);
 		V_6 = L_34;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:168>
 		StringBuilder_t* L_35 = V_0;
 		String_t* L_36 = V_6;
 		NullCheck(L_35);
 		StringBuilder_t* L_37;
 		L_37 = StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D(L_35, L_36, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:169>
 		int32_t L_38 = V_1;
 		String_t* L_39 = V_6;
 		NullCheck(L_39);
 		int32_t L_40;
 		L_40 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_39, NULL);
 		V_1 = ((int32_t)il2cpp_codegen_add(L_38, L_40));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:165>
 		int32_t L_41 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_subtract(L_41, 1));
 	}
 
 IL_00c8:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:165>
 		int32_t L_42 = V_5;
 		if ((((int32_t)L_42) >= ((int32_t)0)))
 		{
@@ -3972,14 +3883,12 @@ IL_00c8:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:172>
 		StringBuilder_t* L_43 = V_0;
 		NullCheck(L_43);
 		String_t* L_44;
 		L_44 = VirtualFuncInvoker0< String_t* >::Invoke(3, L_43);
 		__this->___richText = L_44;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richText), (void*)L_44);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:173>
 		return;
 	}
 }
@@ -3991,36 +3900,28 @@ IL_00c8:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54851
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TextRegion_get_Content_m5478C847F626DBAB641BDF83B611DD6DCD08CB86 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:22>
 		String_t* L_0 = __this->___content;
 		return L_0;
 	}
 }
-// Method Definition Index: 54852
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, String_t* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:25>
 		String_t* L_0 = ___0_value;
 		__this->___content = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___content), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:26>
 		__this->___startPosition = 0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:27>
 		String_t* L_1 = __this->___content;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_1, NULL);
 		__this->___endPosition = ((int32_t)il2cpp_codegen_subtract(L_2, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:28>
 		return;
 	}
 }
-// Method Definition Index: 54853
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_mF8956A4DBC309825DDD7DC141860D6B12B10C471 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, String_t* ___0_content, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4031,27 +3932,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_mF8956A4DBC309825DDD7DC
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:31>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:33>
 		String_t* L_0 = ___0_content;
 		TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC(__this, L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:34>
 		__this->___isSymbol = (bool)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:36>
 		String_t* L_1 = ___0_content;
 		__this->___richTextContent = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richTextContent), (void*)L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:37>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_2 = (List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0*)il2cpp_codegen_object_new(List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0_il2cpp_TypeInfo_var);
 		List_1__ctor_mD32DA572742ED79D9D44F7B8F398A520703BEB24(L_2, List_1__ctor_mD32DA572742ED79D9D44F7B8F398A520703BEB24_RuntimeMethod_var);
 		__this->___richTextRegions = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richTextRegions), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:38>
 		return;
 	}
 }
-// Method Definition Index: 54854
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_m0C64B535B998FD38391D866F4E89B4A79AD5F0B2 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, EmojiData_t9690AC0145DB07F9DAE1727BC1FC17AAB36CC59B* ___0_emojiData, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4062,31 +3956,24 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_m0C64B535B998FD38391D86
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:40>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:42>
 		EmojiData_t9690AC0145DB07F9DAE1727BC1FC17AAB36CC59B* L_0 = ___0_emojiData;
 		NullCheck(L_0);
 		String_t* L_1 = L_0->___text;
 		TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC(__this, L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:43>
 		__this->___isSymbol = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:45>
 		EmojiData_t9690AC0145DB07F9DAE1727BC1FC17AAB36CC59B* L_2 = ___0_emojiData;
 		NullCheck(L_2);
 		String_t* L_3 = L_2->___richText;
 		__this->___richTextContent = L_3;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richTextContent), (void*)L_3);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:46>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_4 = (List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0*)il2cpp_codegen_object_new(List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0_il2cpp_TypeInfo_var);
 		List_1__ctor_mD32DA572742ED79D9D44F7B8F398A520703BEB24(L_4, List_1__ctor_mD32DA572742ED79D9D44F7B8F398A520703BEB24_RuntimeMethod_var);
 		__this->___richTextRegions = L_4;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richTextRegions), (void*)L_4);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:47>
 		return;
 	}
 }
-// Method Definition Index: 54855
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_m7AB5C46A0BCBCDA38587B8ACFAD82953A8B60940 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, RichTextBindingData_t3DDF8FEEB2F50DB11AD4E4B6E94A65311FB7E086* ___0_tagData, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4097,9 +3984,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_m7AB5C46A0BCBCDA38587B8
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:49>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:51>
 		RichTextBindingData_t3DDF8FEEB2F50DB11AD4E4B6E94A65311FB7E086* L_0 = ___0_tagData;
 		NullCheck(L_0);
 		Il2CppChar* L_1 = (Il2CppChar*)(&L_0->___codePoint);
@@ -4107,24 +3992,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion__ctor_m7AB5C46A0BCBCDA38587B8
 		String_t* L_2;
 		L_2 = Char_ToString_m2A308731F9577C06AF3C0901234E2EAC8327410C(L_1, NULL);
 		TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC(__this, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:52>
 		__this->___isSymbol = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:54>
 		RichTextBindingData_t3DDF8FEEB2F50DB11AD4E4B6E94A65311FB7E086* L_3 = ___0_tagData;
 		NullCheck(L_3);
 		String_t* L_4 = L_3->___richText;
 		__this->___richTextContent = L_4;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richTextContent), (void*)L_4);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:55>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_5 = (List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0*)il2cpp_codegen_object_new(List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0_il2cpp_TypeInfo_var);
 		List_1__ctor_mD32DA572742ED79D9D44F7B8F398A520703BEB24(L_5, List_1__ctor_mD32DA572742ED79D9D44F7B8F398A520703BEB24_RuntimeMethod_var);
 		__this->___richTextRegions = L_5;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___richTextRegions), (void*)L_5);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:56>
 		return;
 	}
 }
-// Method Definition Index: 54856
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TextRegion_ToString_mE9BBC744ACC92516D7484C88BAB9D4C21E2972CE (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4135,8 +4015,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TextRegion_ToString_mE9BBC744ACC925
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:60>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:61>
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_0 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)5);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = L_0;
 		String_t* L_2 = __this->___content;
@@ -4179,7 +4057,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TextRegion_ToString_mE9BBC744ACC925
 		return L_20;
 	}
 }
-// Method Definition Index: 54857
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureRichTextRegion_mB7E07598F71B964DE879CA8CDA6664FA280DABF3 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* ___0_richTextRegion, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4196,9 +4073,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureRichTextRegion_mB7E0
 	List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* V_0 = NULL;
 	List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:66>
 		V_0 = (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)NULL;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:67>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_0 = ___0_richTextRegion;
 		NullCheck(L_0);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_1 = L_0->___startTags;
@@ -4208,7 +4083,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureRichTextRegion_mB7E0
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:69>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_2 = ___0_richTextRegion;
 		NullCheck(L_2);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_3 = L_2->___startTags;
@@ -4219,11 +4093,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureRichTextRegion_mB7E0
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:72>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_5 = (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)il2cpp_codegen_object_new(List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD_il2cpp_TypeInfo_var);
 		List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E(L_5, List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:73>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_6 = ___0_richTextRegion;
 		NullCheck(L_6);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_7 = L_6->___endTags;
@@ -4233,7 +4105,6 @@ IL_0016:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:75>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_8 = ___0_richTextRegion;
 		NullCheck(L_8);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_9 = L_8->___endTags;
@@ -4244,11 +4115,9 @@ IL_0016:
 
 IL_0030:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:78>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_11 = __this->___richTextRegions;
 		NullCheck(L_11);
 		List_1_Clear_m410425CE85CD57B6DA10C1867421CE07A2BBFEDF_inline(L_11, List_1_Clear_m410425CE85CD57B6DA10C1867421CE07A2BBFEDF_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:79>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_12 = __this->___richTextRegions;
 		String_t* L_13 = __this->___content;
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_14 = V_0;
@@ -4257,11 +4126,9 @@ IL_0030:
 		RichTextRegion__ctor_m17143FA66B888801D1F1CE341E0236836D0692A8(L_16, L_13, L_14, L_15, (bool)1, NULL);
 		NullCheck(L_12);
 		List_1_Add_m4CE229FC3A597411ACAD5B5B8687B9592408631C_inline(L_12, L_16, List_1_Add_m4CE229FC3A597411ACAD5B5B8687B9592408631C_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:80>
 		return;
 	}
 }
-// Method Definition Index: 54858
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureSymbol_mAF9F010588DBDE76F8D72D8535954C52C03501EC (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4273,7 +4140,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureSymbol_mAF9F010588DB
 	RichTextBindingData_t3DDF8FEEB2F50DB11AD4E4B6E94A65311FB7E086* V_0 = NULL;
 	EmojiData_t9690AC0145DB07F9DAE1727BC1FC17AAB36CC59B* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:84>
 		RichTextBindingEngine_t41292D856BE86CFC668DC042DD6E6CEEC6D9C3FF* L_0;
 		L_0 = NativeKeyboardManager_get_RichTextBindingEngine_mBAD435BD14A65CB19FE525AE5FC9EBD155708288(NULL);
 		String_t* L_1 = __this->___content;
@@ -4289,16 +4155,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureSymbol_mAF9F010588DB
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:86>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_4 = __this->___richTextRegions;
 		NullCheck(L_4);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_5;
 		L_5 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_4, 0, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:87>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_6 = L_5;
 		NullCheck(L_6);
 		L_6->___isSymbol = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:88>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_7 = L_6;
 		RichTextBindingData_t3DDF8FEEB2F50DB11AD4E4B6E94A65311FB7E086* L_8 = V_0;
 		NullCheck(L_8);
@@ -4306,7 +4169,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureSymbol_mAF9F010588DB
 		NullCheck(L_7);
 		L_7->___symbolText = L_9;
 		Il2CppCodeGenWriteBarrier((void**)(&L_7->___symbolText), (void*)L_9);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:89>
 		NullCheck(L_7);
 		L_7->___isModifiable = (bool)0;
 		return;
@@ -4314,7 +4176,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_ConfigureSymbol_mAF9F010588DB
 
 IL_0040:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:91>
 		EmojiEngine_t5774F3C4BF8ACEF352B15E4790C8537287C6706B* L_10;
 		L_10 = NativeKeyboardManager_get_EmojiEngine_m0EB9E82E63A1CF75DF09D8816211A17A69694224(NULL);
 		String_t* L_11 = __this->___content;
@@ -4327,16 +4188,13 @@ IL_0040:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:93>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_13 = __this->___richTextRegions;
 		NullCheck(L_13);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_14;
 		L_14 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_13, 0, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:94>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_15 = L_14;
 		NullCheck(L_15);
 		L_15->___isSymbol = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:95>
 		EmojiData_t9690AC0145DB07F9DAE1727BC1FC17AAB36CC59B* L_16 = V_1;
 		NullCheck(L_16);
 		String_t* L_17 = L_16->___richText;
@@ -4347,11 +4205,9 @@ IL_0040:
 
 IL_0072:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:97>
 		return;
 	}
 }
-// Method Definition Index: 54859
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_BuildRichTextString_m1C47DF7E1A871B3E4321CC1BAFA9C04F4588BE57 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, StringBuilder_t* ___0_stringBuilder, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4365,31 +4221,26 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRegion_BuildRichTextString_m1C47DF7E
 	int32_t V_1 = 0;
 	RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* V_2 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:101>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_0 = __this->___richTextRegions;
 		NullCheck(L_0);
 		int32_t L_1;
 		L_1 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_0, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:102>
 		V_1 = 0;
 		goto IL_0034;
 	}
 
 IL_0010:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:104>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_2 = __this->___richTextRegions;
 		int32_t L_3 = V_1;
 		NullCheck(L_2);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_4;
 		L_4 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_2, L_3, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_2 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:105>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_5 = V_2;
 		NullCheck(L_5);
 		RichTextRegion_RebuildRichTextString_m17A849D7275ABE87CB2306E184747A6261FFEBE4(L_5, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:106>
 		StringBuilder_t* L_6 = ___0_stringBuilder;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_7 = V_2;
 		NullCheck(L_7);
@@ -4398,14 +4249,12 @@ IL_0010:
 		NullCheck(L_6);
 		StringBuilder_t* L_9;
 		L_9 = StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D(L_6, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:102>
 		int32_t L_10 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_10, 1));
 	}
 
 IL_0034:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:102>
 		int32_t L_11 = V_1;
 		int32_t L_12 = V_0;
 		if ((((int32_t)L_11) < ((int32_t)L_12)))
@@ -4414,11 +4263,9 @@ IL_0034:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:108>
 		return;
 	}
 }
-// Method Definition Index: 54860
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryDeterminePositionInText_m7DA0B195F1A3EC93B1DEBA464F65C7CE3713584D (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t ___0_richTextPosition, int32_t* ___1_richTextOffset, int32_t* ___2_textOffset, int32_t* ___3_textPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4434,44 +4281,37 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryDeterminePositionInText_m7
 	int32_t V_3 = 0;
 	int32_t V_4 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:112>
 		int32_t* L_0 = ___3_textPosition;
 		*((int32_t*)L_0) = (int32_t)(-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:114>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_1 = __this->___richTextRegions;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_1, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:115>
 		V_1 = 0;
 		goto IL_0097;
 	}
 
 IL_0017:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:117>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_3 = __this->___richTextRegions;
 		int32_t L_4 = V_1;
 		NullCheck(L_3);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_5;
 		L_5 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_3, L_4, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_2 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:118>
 		int32_t* L_6 = ___1_richTextOffset;
 		int32_t L_7 = *((int32_t*)L_6);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_8 = V_2;
 		NullCheck(L_8);
 		int32_t L_9 = L_8->___startRichTextContentPosition;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_7, L_9));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:119>
 		int32_t* L_10 = ___1_richTextOffset;
 		int32_t L_11 = *((int32_t*)L_10);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_12 = V_2;
 		NullCheck(L_12);
 		int32_t L_13 = L_12->___endRichTextContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_11, L_13));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:121>
 		int32_t L_14 = ___0_richTextPosition;
 		int32_t L_15 = V_3;
 		if ((((int32_t)L_14) < ((int32_t)L_15)))
@@ -4488,7 +4328,6 @@ IL_0017:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:123>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_18 = V_2;
 		NullCheck(L_18);
 		bool L_19 = L_18->___isSymbol;
@@ -4498,7 +4337,6 @@ IL_0017:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:125>
 		int32_t L_20 = ___0_richTextPosition;
 		int32_t L_21 = V_3;
 		if ((!(((uint32_t)L_20) == ((uint32_t)L_21))))
@@ -4507,7 +4345,6 @@ IL_0017:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:127>
 		int32_t* L_22 = ___3_textPosition;
 		int32_t* L_23 = ___2_textOffset;
 		int32_t L_24 = *((int32_t*)L_23);
@@ -4517,7 +4354,6 @@ IL_0017:
 
 IL_0055:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:131>
 		int32_t* L_25 = ___3_textPosition;
 		int32_t* L_26 = ___2_textOffset;
 		int32_t L_27 = *((int32_t*)L_26);
@@ -4534,7 +4370,6 @@ IL_0055:
 
 IL_0068:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:136>
 		int32_t* L_31 = ___3_textPosition;
 		int32_t* L_32 = ___2_textOffset;
 		int32_t L_33 = *((int32_t*)L_32);
@@ -4545,13 +4380,11 @@ IL_0068:
 
 IL_0071:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:138>
 		return (bool)1;
 	}
 
 IL_0073:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:141>
 		int32_t* L_36 = ___1_richTextOffset;
 		int32_t* L_37 = ___1_richTextOffset;
 		int32_t L_38 = *((int32_t*)L_37);
@@ -4563,7 +4396,6 @@ IL_0073:
 		int32_t L_41;
 		L_41 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_40, NULL);
 		*((int32_t*)L_36) = (int32_t)((int32_t)il2cpp_codegen_add(L_38, L_41));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:142>
 		int32_t* L_42 = ___2_textOffset;
 		int32_t* L_43 = ___2_textOffset;
 		int32_t L_44 = *((int32_t*)L_43);
@@ -4575,14 +4407,12 @@ IL_0073:
 		int32_t L_47;
 		L_47 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_46, NULL);
 		*((int32_t*)L_42) = (int32_t)((int32_t)il2cpp_codegen_add(L_44, L_47));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:115>
 		int32_t L_48 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_48, 1));
 	}
 
 IL_0097:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:115>
 		int32_t L_49 = V_1;
 		int32_t L_50 = V_0;
 		if ((((int32_t)L_49) < ((int32_t)L_50)))
@@ -4591,11 +4421,9 @@ IL_0097:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:145>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54861
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryDeterminePositionInRichText_mC73906649B994290F61532C90754D477FA2AB856 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t ___0_textPosition, int32_t* ___1_richTextOffset, int32_t* ___2_textOffset, int32_t* ___3_richTextPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4611,44 +4439,37 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryDeterminePositionInRichTex
 	int32_t V_3 = 0;
 	int32_t V_4 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:150>
 		int32_t* L_0 = ___3_richTextPosition;
 		*((int32_t*)L_0) = (int32_t)(-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:152>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_1 = __this->___richTextRegions;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_1, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:153>
 		V_1 = 0;
 		goto IL_0075;
 	}
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:155>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_3 = __this->___richTextRegions;
 		int32_t L_4 = V_1;
 		NullCheck(L_3);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_5;
 		L_5 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_3, L_4, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_2 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:156>
 		int32_t* L_6 = ___2_textOffset;
 		int32_t L_7 = *((int32_t*)L_6);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_8 = V_2;
 		NullCheck(L_8);
 		int32_t L_9 = L_8->___startContentPosition;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_7, L_9));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:157>
 		int32_t* L_10 = ___2_textOffset;
 		int32_t L_11 = *((int32_t*)L_10);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_12 = V_2;
 		NullCheck(L_12);
 		int32_t L_13 = L_12->___endContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_11, L_13));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:159>
 		int32_t L_14 = ___0_textPosition;
 		int32_t L_15 = V_3;
 		if ((((int32_t)L_14) < ((int32_t)L_15)))
@@ -4665,7 +4486,6 @@ IL_0014:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:161>
 		int32_t* L_18 = ___3_richTextPosition;
 		int32_t* L_19 = ___1_richTextOffset;
 		int32_t L_20 = *((int32_t*)L_19);
@@ -4675,13 +4495,11 @@ IL_0014:
 		int32_t L_23 = ___0_textPosition;
 		int32_t L_24 = V_3;
 		*((int32_t*)L_18) = (int32_t)((int32_t)il2cpp_codegen_add(((int32_t)il2cpp_codegen_add(L_20, L_22)), ((int32_t)il2cpp_codegen_subtract(L_23, L_24))));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:162>
 		return (bool)1;
 	}
 
 IL_0051:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:165>
 		int32_t* L_25 = ___1_richTextOffset;
 		int32_t* L_26 = ___1_richTextOffset;
 		int32_t L_27 = *((int32_t*)L_26);
@@ -4693,7 +4511,6 @@ IL_0051:
 		int32_t L_30;
 		L_30 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_29, NULL);
 		*((int32_t*)L_25) = (int32_t)((int32_t)il2cpp_codegen_add(L_27, L_30));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:166>
 		int32_t* L_31 = ___2_textOffset;
 		int32_t* L_32 = ___2_textOffset;
 		int32_t L_33 = *((int32_t*)L_32);
@@ -4705,14 +4522,12 @@ IL_0051:
 		int32_t L_36;
 		L_36 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_35, NULL);
 		*((int32_t*)L_31) = (int32_t)((int32_t)il2cpp_codegen_add(L_33, L_36));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:153>
 		int32_t L_37 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_37, 1));
 	}
 
 IL_0075:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:153>
 		int32_t L_38 = V_1;
 		int32_t L_39 = V_0;
 		if ((((int32_t)L_38) < ((int32_t)L_39)))
@@ -4721,11 +4536,9 @@ IL_0075:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:169>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54862
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryInsertInText_mAFE36894BDA1632701F3EBB90228D7105E985B8E (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, String_t* ___0_textToInsert, int32_t ___1_textOffset, int32_t ___2_textPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4745,42 +4558,35 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryInsertInText_mAFE36894BDA1
 	int32_t V_4 = 0;
 	int32_t V_5 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:174>
 		int32_t L_0 = ___1_textOffset;
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:176>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_1 = __this->___richTextRegions;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_1, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:177>
 		V_2 = 0;
 		goto IL_00b0;
 	}
 
 IL_0015:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:179>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_3 = __this->___richTextRegions;
 		int32_t L_4 = V_2;
 		NullCheck(L_3);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_5;
 		L_5 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_3, L_4, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_3 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:180>
 		int32_t L_6 = ___1_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_7 = V_3;
 		NullCheck(L_7);
 		int32_t L_8 = L_7->___startContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_6, L_8));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:181>
 		int32_t L_9 = ___1_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_10 = V_3;
 		NullCheck(L_10);
 		int32_t L_11 = L_10->___endContentPosition;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_9, L_11));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:183>
 		int32_t L_12 = ___2_textPosition;
 		int32_t L_13 = V_5;
 		if ((!(((uint32_t)L_12) == ((uint32_t)((int32_t)il2cpp_codegen_add(L_13, 1))))))
@@ -4789,7 +4595,6 @@ IL_0015:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:185>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_14 = V_3;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_15 = L_14;
 		NullCheck(L_15);
@@ -4800,7 +4605,6 @@ IL_0015:
 		L_18 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(L_16, L_17, NULL);
 		NullCheck(L_15);
 		RichTextRegion_set_Text_m7BCDFE0B24FDF62F20C9AE1B75A18988A3C8B64F(L_15, L_18, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:186>
 		String_t* L_19 = __this->___content;
 		int32_t L_20 = ___2_textPosition;
 		int32_t L_21 = V_0;
@@ -4809,13 +4613,11 @@ IL_0015:
 		String_t* L_23;
 		L_23 = String_Insert_mA279E748F06514A6D0B9B680D651D6A6C6BB561A(L_19, ((int32_t)il2cpp_codegen_subtract(L_20, L_21)), L_22, NULL);
 		TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC(__this, L_23, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:187>
 		return (bool)1;
 	}
 
 IL_0066:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:189>
 		int32_t L_24 = ___2_textPosition;
 		int32_t L_25 = V_4;
 		if ((((int32_t)L_24) < ((int32_t)L_25)))
@@ -4832,7 +4634,6 @@ IL_0066:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:191>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_28 = V_3;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_29 = V_3;
 		NullCheck(L_29);
@@ -4846,7 +4647,6 @@ IL_0066:
 		L_34 = String_Insert_mA279E748F06514A6D0B9B680D651D6A6C6BB561A(L_30, ((int32_t)il2cpp_codegen_subtract(L_31, L_32)), L_33, NULL);
 		NullCheck(L_28);
 		RichTextRegion_set_Text_m7BCDFE0B24FDF62F20C9AE1B75A18988A3C8B64F(L_28, L_34, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:192>
 		String_t* L_35 = __this->___content;
 		int32_t L_36 = ___2_textPosition;
 		int32_t L_37 = V_0;
@@ -4855,13 +4655,11 @@ IL_0066:
 		String_t* L_39;
 		L_39 = String_Insert_mA279E748F06514A6D0B9B680D651D6A6C6BB561A(L_35, ((int32_t)il2cpp_codegen_subtract(L_36, L_37)), L_38, NULL);
 		TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC(__this, L_39, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:193>
 		return (bool)1;
 	}
 
 IL_009d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:196>
 		int32_t L_40 = ___1_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_41 = V_3;
 		NullCheck(L_41);
@@ -4871,14 +4669,12 @@ IL_009d:
 		int32_t L_43;
 		L_43 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_42, NULL);
 		___1_textOffset = ((int32_t)il2cpp_codegen_add(L_40, L_43));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:177>
 		int32_t L_44 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_44, 1));
 	}
 
 IL_00b0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:177>
 		int32_t L_45 = V_2;
 		int32_t L_46 = V_1;
 		if ((((int32_t)L_45) < ((int32_t)L_46)))
@@ -4887,7 +4683,6 @@ IL_00b0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:199>
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_47 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)1);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_48 = L_47;
 		String_t* L_49 = ___0_textToInsert;
@@ -4896,25 +4691,20 @@ IL_00b0:
 		(L_48)->SetAt(static_cast<il2cpp_array_size_t>(0), (RuntimeObject*)L_49);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_LogWarningFormat_mD8224DEBCB6050F4E2BF55151F0C6A29B87DEFBC(_stringLiteralAF1C367C54F3E6279EBE353226A01ACCF85462ED, L_48, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:200>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54863
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_PositionWithinRegion_mBFE337DCFCB6CACAFE7CEFF72096DAFBA698E0B5 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t ___0_textOffset, int32_t ___1_textPosition, bool* ___2_startOfRegion, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	int32_t V_1 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:205>
 		int32_t L_0 = ___0_textOffset;
 		int32_t L_1 = __this->___startPosition;
 		V_0 = ((int32_t)il2cpp_codegen_add(L_0, L_1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:206>
 		int32_t L_2 = ___0_textOffset;
 		int32_t L_3 = __this->___endPosition;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_2, L_3));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:208>
 		int32_t L_4 = ___1_textPosition;
 		int32_t L_5 = V_0;
 		if ((((int32_t)L_4) < ((int32_t)L_5)))
@@ -4931,25 +4721,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_PositionWithinRegion_mBFE337D
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:210>
 		bool* L_8 = ___2_startOfRegion;
 		int32_t L_9 = ___1_textPosition;
 		int32_t L_10 = V_0;
 		*((int8_t*)L_8) = (int8_t)((((int32_t)L_9) == ((int32_t)L_10))? 1 : 0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:211>
 		return (bool)1;
 	}
 
 IL_0022:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:214>
 		bool* L_11 = ___2_startOfRegion;
 		*((int8_t*)L_11) = (int8_t)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:215>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54864
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_ToggleTagPairInRichText_m6BEB396B9FC4855951DFD90861400ADB8E9AF982 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t ___0_start, int32_t ___1_end, int32_t ___2_textOffset, String_t* ___3_startTag, String_t* ___4_endTag, bool* ___5_foundStart, bool* ___6_toggleON, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4973,39 +4758,33 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_ToggleTagPairInRichText_m6BEB
 	RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* V_8 = NULL;
 	int32_t G_B4_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:220>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_0 = __this->___richTextRegions;
 		NullCheck(L_0);
 		int32_t L_1;
 		L_1 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_0, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:221>
 		V_1 = 0;
 		goto IL_01bd;
 	}
 
 IL_0013:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:223>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_2 = __this->___richTextRegions;
 		int32_t L_3 = V_1;
 		NullCheck(L_2);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_4;
 		L_4 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_2, L_3, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_2 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:224>
 		int32_t L_5 = ___2_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_6 = V_2;
 		NullCheck(L_6);
 		int32_t L_7 = L_6->___startContentPosition;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_5, L_7));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:225>
 		int32_t L_8 = ___2_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_9 = V_2;
 		NullCheck(L_9);
 		int32_t L_10 = L_9->___endContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_8, L_10));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:227>
 		int32_t L_11 = ___0_start;
 		int32_t L_12 = V_3;
 		if ((((int32_t)L_11) < ((int32_t)L_12)))
@@ -5035,7 +4814,6 @@ IL_0042:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:229>
 		bool* L_17 = ___5_foundStart;
 		int32_t L_18 = *((uint8_t*)L_17);
 		if (L_18)
@@ -5044,10 +4822,8 @@ IL_0042:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:231>
 		bool* L_19 = ___5_foundStart;
 		*((int8_t*)L_19) = (int8_t)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:232>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_20 = V_2;
 		NullCheck(L_20);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_21 = L_20->___endTags;
@@ -5061,7 +4837,6 @@ IL_0042:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:234>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_24 = V_2;
 		NullCheck(L_24);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_25 = L_24->___startTags;
@@ -5075,7 +4850,6 @@ IL_0042:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:236>
 		bool* L_28 = ___6_toggleON;
 		*((int8_t*)L_28) = (int8_t)0;
 		goto IL_0082;
@@ -5083,7 +4857,6 @@ IL_0042:
 
 IL_0078:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:240>
 		bool* L_29 = ___6_toggleON;
 		*((int8_t*)L_29) = (int8_t)1;
 		goto IL_0082;
@@ -5091,14 +4864,12 @@ IL_0078:
 
 IL_007e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:245>
 		bool* L_30 = ___6_toggleON;
 		*((int8_t*)L_30) = (int8_t)1;
 	}
 
 IL_0082:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:248>
 		int32_t L_31 = ___0_start;
 		int32_t L_32 = V_3;
 		if ((((int32_t)L_31) > ((int32_t)L_32)))
@@ -5107,7 +4878,6 @@ IL_0082:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:250>
 		int32_t L_33 = ___1_end;
 		int32_t L_34 = V_4;
 		if ((((int32_t)L_33) < ((int32_t)L_34)))
@@ -5116,7 +4886,6 @@ IL_0082:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:252>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_35 = V_2;
 		NullCheck(L_35);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_36 = L_35->___endTags;
@@ -5130,7 +4899,6 @@ IL_0082:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:254>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_39 = V_2;
 		NullCheck(L_39);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_40 = L_39->___startTags;
@@ -5144,7 +4912,6 @@ IL_0082:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:256>
 		bool* L_43 = ___6_toggleON;
 		int32_t L_44 = *((uint8_t*)L_43);
 		if (L_44)
@@ -5153,7 +4920,6 @@ IL_0082:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:262>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_45 = V_2;
 		String_t* L_46 = ___4_endTag;
 		NullCheck(L_45);
@@ -5163,7 +4929,6 @@ IL_0082:
 
 IL_00c1:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:267>
 		bool* L_47 = ___6_toggleON;
 		int32_t L_48 = *((uint8_t*)L_47);
 		if (!L_48)
@@ -5172,7 +4937,6 @@ IL_00c1:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:269>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_49 = V_2;
 		String_t* L_50 = ___3_startTag;
 		String_t* L_51 = ___4_endTag;
@@ -5183,7 +4947,6 @@ IL_00c1:
 
 IL_00d5:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:273>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_52 = V_2;
 		String_t* L_53 = ___4_endTag;
 		NullCheck(L_52);
@@ -5193,7 +4956,6 @@ IL_00d5:
 
 IL_00e2:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:279>
 		bool* L_54 = ___6_toggleON;
 		int32_t L_55 = *((uint8_t*)L_54);
 		if (!L_55)
@@ -5202,7 +4964,6 @@ IL_00e2:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:281>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_56 = V_2;
 		String_t* L_57 = ___3_startTag;
 		String_t* L_58 = ___4_endTag;
@@ -5213,7 +4974,6 @@ IL_00e2:
 
 IL_00f9:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:291>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_59 = V_2;
 		NullCheck(L_59);
 		bool L_60 = L_59->___isModifiable;
@@ -5223,23 +4983,19 @@ IL_00f9:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:293>
 		int32_t L_61 = ___1_end;
 		int32_t L_62 = V_3;
 		V_5 = ((int32_t)il2cpp_codegen_subtract(L_61, L_62));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:294>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_63 = V_2;
 		int32_t L_64 = V_5;
 		NullCheck(L_63);
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_65;
 		L_65 = RichTextRegion_Split_m332BECD1AEA1A297FA7D689BAF174F3FEC79409B(L_63, L_64, NULL);
 		V_6 = L_65;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:295>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_66 = __this->___richTextRegions;
 		int32_t L_67 = V_1;
 		NullCheck(L_66);
 		List_1_RemoveAt_m0B003A5550DB5A751B59D0FC4009EC6A68AB595E(L_66, L_67, List_1_RemoveAt_m0B003A5550DB5A751B59D0FC4009EC6A68AB595E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:296>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_68 = __this->___richTextRegions;
 		int32_t L_69 = V_1;
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_70 = V_6;
@@ -5248,7 +5004,6 @@ IL_00f9:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_72 = (L_70)->GetAt(static_cast<il2cpp_array_size_t>(L_71));
 		NullCheck(L_68);
 		List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34(L_68, L_69, L_72, List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:297>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_73 = __this->___richTextRegions;
 		int32_t L_74 = V_1;
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_75 = V_6;
@@ -5257,19 +5012,15 @@ IL_00f9:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_77 = (L_75)->GetAt(static_cast<il2cpp_array_size_t>(L_76));
 		NullCheck(L_73);
 		List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34(L_73, ((int32_t)il2cpp_codegen_add(L_74, 1)), L_77, List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:298>
 		int32_t L_78 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_subtract(L_78, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:299>
 		int32_t L_79 = V_0;
 		V_0 = ((int32_t)il2cpp_codegen_add(L_79, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:300>
 		goto IL_01b9;
 	}
 
 IL_014b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:306>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_80 = V_2;
 		NullCheck(L_80);
 		bool L_81 = L_80->___isModifiable;
@@ -5279,23 +5030,19 @@ IL_014b:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:308>
 		int32_t L_82 = ___0_start;
 		int32_t L_83 = V_3;
 		V_7 = ((int32_t)il2cpp_codegen_subtract(L_82, L_83));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:309>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_84 = V_2;
 		int32_t L_85 = V_7;
 		NullCheck(L_84);
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_86;
 		L_86 = RichTextRegion_Split_m332BECD1AEA1A297FA7D689BAF174F3FEC79409B(L_84, L_85, NULL);
 		V_8 = L_86;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:310>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_87 = __this->___richTextRegions;
 		int32_t L_88 = V_1;
 		NullCheck(L_87);
 		List_1_RemoveAt_m0B003A5550DB5A751B59D0FC4009EC6A68AB595E(L_87, L_88, List_1_RemoveAt_m0B003A5550DB5A751B59D0FC4009EC6A68AB595E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:311>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_89 = __this->___richTextRegions;
 		int32_t L_90 = V_1;
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_91 = V_8;
@@ -5304,7 +5051,6 @@ IL_014b:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_93 = (L_91)->GetAt(static_cast<il2cpp_array_size_t>(L_92));
 		NullCheck(L_89);
 		List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34(L_89, L_90, L_93, List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:312>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_94 = __this->___richTextRegions;
 		int32_t L_95 = V_1;
 		RichTextRegionU5BU5D_tA47C01182CFD645D8AD73920CE3BA554C43529AC* L_96 = V_8;
@@ -5313,20 +5059,16 @@ IL_014b:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_98 = (L_96)->GetAt(static_cast<il2cpp_array_size_t>(L_97));
 		NullCheck(L_94);
 		List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34(L_94, ((int32_t)il2cpp_codegen_add(L_95, 1)), L_98, List_1_Insert_m85381B075BB0B06E275D57659AF29EBA59823B34_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:313>
 		int32_t L_99 = ___2_textOffset;
 		int32_t L_100 = V_7;
 		___2_textOffset = ((int32_t)il2cpp_codegen_add(L_99, L_100));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:314>
 		int32_t L_101 = V_0;
 		V_0 = ((int32_t)il2cpp_codegen_add(L_101, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:315>
 		goto IL_01b9;
 	}
 
 IL_019c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:320>
 		bool* L_102 = ___5_foundStart;
 		int32_t L_103 = *((uint8_t*)L_102);
 		if (!L_103)
@@ -5343,13 +5085,11 @@ IL_019c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:322>
 		return (bool)1;
 	}
 
 IL_01aa:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:325>
 		int32_t L_106 = ___2_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_107 = V_2;
 		NullCheck(L_107);
@@ -5363,14 +5103,12 @@ IL_01aa:
 
 IL_01b9:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:221>
 		int32_t L_110 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_110, 1));
 	}
 
 IL_01bd:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:221>
 		int32_t L_111 = V_1;
 		int32_t L_112 = V_0;
 		if ((((int32_t)L_111) < ((int32_t)L_112)))
@@ -5379,11 +5117,9 @@ IL_01bd:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:327>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54865
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryDeleteInText_m75A244BCC69A278F250CB4A5EB52AD75CBED3FAA (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t* ___0_amount, int32_t* ___1_richTextOffset, int32_t* ___2_textOffset, int32_t ___3_textPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5402,45 +5138,38 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRegion_TryDeleteInText_m75A244BCC69A
 	int32_t V_5 = 0;
 	int32_t V_6 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:332>
 		int32_t* L_0 = ___2_textOffset;
 		int32_t L_1 = *((int32_t*)L_0);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:334>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_2 = __this->___richTextRegions;
 		NullCheck(L_2);
 		int32_t L_3;
 		L_3 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_2, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_1 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:335>
 		V_2 = 0;
 		goto IL_00ca;
 	}
 
 IL_0016:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:337>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_4 = __this->___richTextRegions;
 		int32_t L_5 = V_2;
 		NullCheck(L_4);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_6;
 		L_6 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_4, L_5, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_3 = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:338>
 		int32_t* L_7 = ___2_textOffset;
 		int32_t L_8 = *((int32_t*)L_7);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_9 = V_3;
 		NullCheck(L_9);
 		int32_t L_10 = L_9->___startContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_8, L_10));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:339>
 		int32_t* L_11 = ___2_textOffset;
 		int32_t L_12 = *((int32_t*)L_11);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_13 = V_3;
 		NullCheck(L_13);
 		int32_t L_14 = L_13->___endContentPosition;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_12, L_14));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:341>
 		int32_t L_15 = ___3_textPosition;
 		int32_t L_16 = V_4;
 		if ((((int32_t)L_15) < ((int32_t)L_16)))
@@ -5457,7 +5186,6 @@ IL_0016:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:343>
 		int32_t L_19 = V_5;
 		int32_t L_20 = ___3_textPosition;
 		int32_t* L_21 = ___0_amount;
@@ -5465,7 +5193,6 @@ IL_0016:
 		int32_t L_23;
 		L_23 = Mathf_Min_m888083F74FF5655778F0403BB5E9608BEFDEA8CB_inline(((int32_t)il2cpp_codegen_add(((int32_t)il2cpp_codegen_subtract(L_19, L_20)), 1)), L_22, NULL);
 		V_6 = L_23;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:344>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_24 = V_3;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_25 = V_3;
 		NullCheck(L_25);
@@ -5479,7 +5206,6 @@ IL_0016:
 		L_30 = String_Remove_m4D7A58E2124F8D0D8AE3EEDE74B6AD6A863ABA68(L_26, ((int32_t)il2cpp_codegen_subtract(L_27, L_28)), L_29, NULL);
 		NullCheck(L_24);
 		RichTextRegion_set_Text_m7BCDFE0B24FDF62F20C9AE1B75A18988A3C8B64F(L_24, L_30, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:345>
 		String_t* L_31 = __this->___content;
 		int32_t L_32 = ___3_textPosition;
 		int32_t L_33 = V_0;
@@ -5488,7 +5214,6 @@ IL_0016:
 		String_t* L_35;
 		L_35 = String_Remove_m4D7A58E2124F8D0D8AE3EEDE74B6AD6A863ABA68(L_31, ((int32_t)il2cpp_codegen_subtract(L_32, L_33)), L_34, NULL);
 		TextRegion_set_Content_m2C20B54707ABDD8882A878FB7148528284BF6DDC(__this, L_35, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:347>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_36 = V_3;
 		NullCheck(L_36);
 		String_t* L_37;
@@ -5502,7 +5227,6 @@ IL_0016:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:349>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_39 = __this->___richTextRegions;
 		int32_t L_40 = V_2;
 		NullCheck(L_39);
@@ -5511,19 +5235,16 @@ IL_0016:
 
 IL_009d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:352>
 		int32_t* L_41 = ___0_amount;
 		int32_t* L_42 = ___0_amount;
 		int32_t L_43 = *((int32_t*)L_42);
 		int32_t L_44 = V_6;
 		*((int32_t*)L_41) = (int32_t)((int32_t)il2cpp_codegen_subtract(L_43, L_44));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:353>
 		return (bool)1;
 	}
 
 IL_00a6:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:356>
 		int32_t* L_45 = ___1_richTextOffset;
 		int32_t* L_46 = ___1_richTextOffset;
 		int32_t L_47 = *((int32_t*)L_46);
@@ -5535,7 +5256,6 @@ IL_00a6:
 		int32_t L_50;
 		L_50 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_49, NULL);
 		*((int32_t*)L_45) = (int32_t)((int32_t)il2cpp_codegen_add(L_47, L_50));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:357>
 		int32_t* L_51 = ___2_textOffset;
 		int32_t* L_52 = ___2_textOffset;
 		int32_t L_53 = *((int32_t*)L_52);
@@ -5547,14 +5267,12 @@ IL_00a6:
 		int32_t L_56;
 		L_56 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_55, NULL);
 		*((int32_t*)L_51) = (int32_t)((int32_t)il2cpp_codegen_add(L_53, L_56));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:335>
 		int32_t L_57 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_57, 1));
 	}
 
 IL_00ca:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:335>
 		int32_t L_58 = V_2;
 		int32_t L_59 = V_1;
 		if ((((int32_t)L_58) < ((int32_t)L_59)))
@@ -5563,11 +5281,9 @@ IL_00ca:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:360>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54866
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* TextRegion_SplitRegion_mC85FFEA0D9B922C7C214704C4DDD4237271CEE44 (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t ___0_textOffset, int32_t ___1_textPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5588,42 +5304,35 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TextRegionU5BU5D_tD7569388C022CB34C56079A9C8F
 	int32_t V_5 = 0;
 	int32_t V_6 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:365>
 		int32_t L_0 = ___0_textOffset;
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:367>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_1 = __this->___richTextRegions;
 		NullCheck(L_1);
 		int32_t L_2;
 		L_2 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_1, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:368>
 		V_2 = 0;
 		goto IL_0060;
 	}
 
 IL_0012:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:370>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_3 = __this->___richTextRegions;
 		int32_t L_4 = V_2;
 		NullCheck(L_3);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_5;
 		L_5 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_3, L_4, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_3 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:371>
 		int32_t L_6 = ___0_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_7 = V_3;
 		NullCheck(L_7);
 		int32_t L_8 = L_7->___startContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_6, L_8));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:372>
 		int32_t L_9 = ___0_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_10 = V_3;
 		NullCheck(L_10);
 		int32_t L_11 = L_10->___endContentPosition;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_9, L_11));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:374>
 		int32_t L_12 = ___1_textPosition;
 		int32_t L_13 = V_4;
 		if ((((int32_t)L_12) < ((int32_t)L_13)))
@@ -5640,23 +5349,19 @@ IL_0012:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:376>
 		int32_t L_16 = ___1_textPosition;
 		int32_t L_17 = V_0;
 		V_6 = ((int32_t)il2cpp_codegen_subtract(L_16, L_17));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:377>
 		int32_t L_18 = V_0;
 		int32_t L_19 = ___1_textPosition;
 		int32_t L_20 = V_6;
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_21;
 		L_21 = TextRegion_Split_m927791D3DB984BA29FFF7472527ACF82B173ED7A(__this, L_18, L_19, L_20, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:379>
 		return L_21;
 	}
 
 IL_004d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:382>
 		int32_t L_22 = ___0_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_23 = V_3;
 		NullCheck(L_23);
@@ -5666,14 +5371,12 @@ IL_004d:
 		int32_t L_25;
 		L_25 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_24, NULL);
 		___0_textOffset = ((int32_t)il2cpp_codegen_add(L_22, L_25));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:368>
 		int32_t L_26 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_26, 1));
 	}
 
 IL_0060:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:368>
 		int32_t L_27 = V_2;
 		int32_t L_28 = V_1;
 		if ((((int32_t)L_27) < ((int32_t)L_28)))
@@ -5682,7 +5385,6 @@ IL_0060:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:385>
 		String_t* L_29;
 		L_29 = Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5((&___1_textPosition), NULL);
 		String_t* L_30;
@@ -5691,11 +5393,9 @@ IL_0060:
 		L_31 = Array_Empty_TisRuntimeObject_mFB8A63D602BB6974D31E20300D9EB89C6FE7C278_inline(Array_Empty_TisRuntimeObject_mFB8A63D602BB6974D31E20300D9EB89C6FE7C278_RuntimeMethod_var);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_LogWarningFormat_mD8224DEBCB6050F4E2BF55151F0C6A29B87DEFBC(L_30, L_31, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:386>
 		return (TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584*)NULL;
 	}
 }
-// Method Definition Index: 54867
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* TextRegion_Split_m927791D3DB984BA29FFF7472527ACF82B173ED7A (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7* __this, int32_t ___0_textOffset, int32_t ___1_textPosition, int32_t ___2_splitIndex, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5720,10 +5420,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TextRegionU5BU5D_tD7569388C022CB34C56079A9C8F
 	RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* V_7 = NULL;
 	RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* V_8 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:391>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_0 = (TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584*)(TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584*)SZArrayNew(TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584_il2cpp_TypeInfo_var, (uint32_t)2);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:392>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_1 = V_0;
 		String_t* L_2 = __this->___content;
 		int32_t L_3 = ___2_splitIndex;
@@ -5735,7 +5433,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TextRegionU5BU5D_tD7569388C022CB34C56079A9C8F
 		NullCheck(L_1);
 		ArrayElementTypeCheck (L_1, L_5);
 		(L_1)->SetAt(static_cast<il2cpp_array_size_t>(0), (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7*)L_5);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:393>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_6 = V_0;
 		String_t* L_7 = __this->___content;
 		int32_t L_8 = ___2_splitIndex;
@@ -5747,39 +5444,33 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR TextRegionU5BU5D_tD7569388C022CB34C56079A9C8F
 		NullCheck(L_6);
 		ArrayElementTypeCheck (L_6, L_10);
 		(L_6)->SetAt(static_cast<il2cpp_array_size_t>(1), (TextRegion_tCACA3487E9D477AB3C8DBCACBBE46E0DF85263A7*)L_10);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:395>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_11 = __this->___richTextRegions;
 		NullCheck(L_11);
 		int32_t L_12;
 		L_12 = List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_inline(L_11, List_1_get_Count_m134AA73DE9AEB45C256C854A55C93FC60BC0C8B4_RuntimeMethod_var);
 		V_1 = L_12;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:396>
 		V_2 = 0;
 		goto IL_0145;
 	}
 
 IL_0043:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:398>
 		List_1_tFD48307AAD06F821F9DB0D659F1E50509A4453A0* L_13 = __this->___richTextRegions;
 		int32_t L_14 = V_2;
 		NullCheck(L_13);
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_15;
 		L_15 = List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F(L_13, L_14, List_1_get_Item_m9DB51E702D3EBFD83937F742BB9F5B494033EE6F_RuntimeMethod_var);
 		V_3 = L_15;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:399>
 		int32_t L_16 = ___0_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_17 = V_3;
 		NullCheck(L_17);
 		int32_t L_18 = L_17->___startContentPosition;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_16, L_18));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:400>
 		int32_t L_19 = ___0_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_20 = V_3;
 		NullCheck(L_20);
 		int32_t L_21 = L_20->___endContentPosition;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_19, L_21));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:402>
 		int32_t L_22 = ___1_textPosition;
 		int32_t L_23 = V_5;
 		if ((((int32_t)L_22) <= ((int32_t)L_23)))
@@ -5788,7 +5479,6 @@ IL_0043:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:404>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_24 = V_0;
 		NullCheck(L_24);
 		int32_t L_25 = 0;
@@ -5803,7 +5493,6 @@ IL_0043:
 
 IL_007c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:408>
 		int32_t L_29 = ___1_textPosition;
 		int32_t L_30 = V_4;
 		if ((((int32_t)L_29) <= ((int32_t)L_30)))
@@ -5820,16 +5509,13 @@ IL_007c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:410>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_33 = V_3;
 		NullCheck(L_33);
 		String_t* L_34;
 		L_34 = RichTextRegion_get_Text_m875601F54979EDBF869653BCB3A6F504BBD32057_inline(L_33, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:411>
 		int32_t L_35 = ___1_textPosition;
 		int32_t L_36 = V_4;
 		V_6 = ((int32_t)il2cpp_codegen_subtract(L_35, L_36));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:413>
 		String_t* L_37 = L_34;
 		int32_t L_38 = V_6;
 		NullCheck(L_37);
@@ -5838,7 +5524,6 @@ IL_007c:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_40 = (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA*)il2cpp_codegen_object_new(RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA_il2cpp_TypeInfo_var);
 		RichTextRegion__ctor_m17143FA66B888801D1F1CE341E0236836D0692A8(L_40, L_39, (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)NULL, (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)NULL, (bool)1, NULL);
 		V_7 = L_40;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:414>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_41 = V_7;
 		NullCheck(L_41);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_42 = L_41->___startTags;
@@ -5847,7 +5532,6 @@ IL_007c:
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_44 = L_43->___startTags;
 		NullCheck(L_42);
 		List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E(L_42, L_44, List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:415>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_45 = V_7;
 		NullCheck(L_45);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_46 = L_45->___endTags;
@@ -5856,7 +5540,6 @@ IL_007c:
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_48 = L_47->___endTags;
 		NullCheck(L_46);
 		List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E(L_46, L_48, List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:417>
 		int32_t L_49 = V_6;
 		NullCheck(L_37);
 		String_t* L_50;
@@ -5864,7 +5547,6 @@ IL_007c:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_51 = (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA*)il2cpp_codegen_object_new(RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA_il2cpp_TypeInfo_var);
 		RichTextRegion__ctor_m17143FA66B888801D1F1CE341E0236836D0692A8(L_51, L_50, (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)NULL, (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)NULL, (bool)1, NULL);
 		V_8 = L_51;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:418>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_52 = V_8;
 		NullCheck(L_52);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_53 = L_52->___startTags;
@@ -5873,7 +5555,6 @@ IL_007c:
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_55 = L_54->___startTags;
 		NullCheck(L_53);
 		List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E(L_53, L_55, List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:419>
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_56 = V_8;
 		NullCheck(L_56);
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_57 = L_56->___endTags;
@@ -5882,7 +5563,6 @@ IL_007c:
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_59 = L_58->___endTags;
 		NullCheck(L_57);
 		List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E(L_57, L_59, List_1_AddRange_m157DD7AD4D25423F82A21E533BC4686C83770D5E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:421>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_60 = V_0;
 		NullCheck(L_60);
 		int32_t L_61 = 0;
@@ -5892,7 +5572,6 @@ IL_007c:
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_64 = V_7;
 		NullCheck(L_63);
 		List_1_Add_m4CE229FC3A597411ACAD5B5B8687B9592408631C_inline(L_63, L_64, List_1_Add_m4CE229FC3A597411ACAD5B5B8687B9592408631C_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:422>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_65 = V_0;
 		NullCheck(L_65);
 		int32_t L_66 = 1;
@@ -5907,7 +5586,6 @@ IL_007c:
 
 IL_0124:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:426>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_70 = V_0;
 		NullCheck(L_70);
 		int32_t L_71 = 1;
@@ -5921,7 +5599,6 @@ IL_0124:
 
 IL_0132:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:430>
 		int32_t L_75 = ___0_textOffset;
 		RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* L_76 = V_3;
 		NullCheck(L_76);
@@ -5931,14 +5608,12 @@ IL_0132:
 		int32_t L_78;
 		L_78 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_77, NULL);
 		___0_textOffset = ((int32_t)il2cpp_codegen_add(L_75, L_78));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:396>
 		int32_t L_79 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_79, 1));
 	}
 
 IL_0145:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:396>
 		int32_t L_80 = V_2;
 		int32_t L_81 = V_1;
 		if ((((int32_t)L_80) < ((int32_t)L_81)))
@@ -5947,7 +5622,6 @@ IL_0145:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/TextRegion.cs:433>
 		TextRegionU5BU5D_tD7569388C022CB34C56079A9C8FE8279C5520584* L_82 = V_0;
 		return L_82;
 	}
@@ -5968,7 +5642,6 @@ IL_0145:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54868
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool CharacterCondition_IsConditionMet_m90EAE5D24D3340C8FEF04363DAC27344F010A171 (CharacterCondition_t7C32AD9A3415DE55AD06E2EB6540415B408A3D75* __this, Il2CppChar ___0_ch, CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* ___1_text, int32_t ___2_textLength, int32_t ___3_pos, int32_t ___4_selectionStartPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5979,7 +5652,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool CharacterCondition_IsConditionMet_m90EAE
 	}
 	int32_t V_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:42>
 		int32_t L_0 = __this->___conditionOperator;
 		V_0 = L_0;
 		int32_t L_1 = V_0;
@@ -6069,7 +5741,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool CharacterCondition_IsConditionMet_m90EAE
 
 IL_005e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:45>
 		Il2CppChar L_2 = ___0_ch;
 		int32_t L_3 = __this->___conditionIntValue1;
 		if ((!(((uint32_t)L_2) == ((uint32_t)L_3))))
@@ -6078,13 +5749,11 @@ IL_005e:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:45>
 		return (bool)1;
 	}
 
 IL_006c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:48>
 		Il2CppChar L_4 = ___0_ch;
 		int32_t L_5 = __this->___conditionIntValue1;
 		if ((((int32_t)L_4) >= ((int32_t)L_5)))
@@ -6093,13 +5762,11 @@ IL_006c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:48>
 		return (bool)1;
 	}
 
 IL_007a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:51>
 		Il2CppChar L_6 = ___0_ch;
 		int32_t L_7 = __this->___conditionIntValue1;
 		if ((((int32_t)L_6) > ((int32_t)L_7)))
@@ -6108,13 +5775,11 @@ IL_007a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:51>
 		return (bool)1;
 	}
 
 IL_0088:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:54>
 		Il2CppChar L_8 = ___0_ch;
 		int32_t L_9 = __this->___conditionIntValue1;
 		if ((((int32_t)L_8) <= ((int32_t)L_9)))
@@ -6123,13 +5788,11 @@ IL_0088:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:54>
 		return (bool)1;
 	}
 
 IL_0096:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:57>
 		Il2CppChar L_10 = ___0_ch;
 		int32_t L_11 = __this->___conditionIntValue1;
 		if ((((int32_t)L_10) < ((int32_t)L_11)))
@@ -6138,13 +5801,11 @@ IL_0096:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:57>
 		return (bool)1;
 	}
 
 IL_00a4:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:60>
 		Il2CppChar L_12 = ___0_ch;
 		int32_t L_13 = __this->___conditionIntValue1;
 		if ((((int32_t)L_12) <= ((int32_t)L_13)))
@@ -6161,13 +5822,11 @@ IL_00a4:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:60>
 		return (bool)1;
 	}
 
 IL_00be:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:63>
 		Il2CppChar L_16 = ___0_ch;
 		int32_t L_17 = __this->___conditionIntValue1;
 		if ((((int32_t)L_16) < ((int32_t)L_17)))
@@ -6184,13 +5843,11 @@ IL_00be:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:63>
 		return (bool)1;
 	}
 
 IL_00d8:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:66>
 		String_t* L_20 = __this->___conditionStringValue;
 		Il2CppChar L_21 = ___0_ch;
 		NullCheck(L_20);
@@ -6202,13 +5859,11 @@ IL_00d8:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:66>
 		return (bool)1;
 	}
 
 IL_00eb:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:69>
 		int32_t L_23 = ___3_pos;
 		int32_t L_24 = __this->___conditionIntValue1;
 		if ((!(((uint32_t)L_23) == ((uint32_t)L_24))))
@@ -6217,13 +5872,11 @@ IL_00eb:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:69>
 		return (bool)1;
 	}
 
 IL_00fa:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:72>
 		int32_t L_25 = ___3_pos;
 		int32_t L_26 = __this->___conditionIntValue1;
 		if ((((int32_t)L_25) >= ((int32_t)L_26)))
@@ -6232,13 +5885,11 @@ IL_00fa:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:72>
 		return (bool)1;
 	}
 
 IL_0109:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:75>
 		int32_t L_27 = ___3_pos;
 		int32_t L_28 = __this->___conditionIntValue1;
 		if ((((int32_t)L_27) > ((int32_t)L_28)))
@@ -6247,13 +5898,11 @@ IL_0109:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:75>
 		return (bool)1;
 	}
 
 IL_0118:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:78>
 		int32_t L_29 = ___3_pos;
 		int32_t L_30 = __this->___conditionIntValue1;
 		if ((((int32_t)L_29) <= ((int32_t)L_30)))
@@ -6262,13 +5911,11 @@ IL_0118:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:78>
 		return (bool)1;
 	}
 
 IL_0127:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:81>
 		int32_t L_31 = ___3_pos;
 		int32_t L_32 = __this->___conditionIntValue1;
 		if ((((int32_t)L_31) < ((int32_t)L_32)))
@@ -6277,13 +5924,11 @@ IL_0127:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:81>
 		return (bool)1;
 	}
 
 IL_0133:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:84>
 		int32_t L_33 = ___3_pos;
 		int32_t L_34 = __this->___conditionIntValue1;
 		if ((((int32_t)L_33) <= ((int32_t)L_34)))
@@ -6300,13 +5945,11 @@ IL_0133:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:84>
 		return (bool)1;
 	}
 
 IL_0149:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:87>
 		int32_t L_37 = ___3_pos;
 		int32_t L_38 = __this->___conditionIntValue1;
 		if ((((int32_t)L_37) < ((int32_t)L_38)))
@@ -6323,13 +5966,11 @@ IL_0149:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:87>
 		return (bool)1;
 	}
 
 IL_015f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:90>
 		Il2CppChar L_41 = ___0_ch;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_42 = ___1_text;
 		int32_t L_43 = ___2_textLength;
@@ -6343,13 +5984,11 @@ IL_015f:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:90>
 		return (bool)1;
 	}
 
 IL_0171:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:93>
 		Il2CppChar L_46 = ___0_ch;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_47 = ___1_text;
 		int32_t L_48 = ___2_textLength;
@@ -6363,13 +6002,11 @@ IL_0171:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:93>
 		return (bool)1;
 	}
 
 IL_0183:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:96>
 		Il2CppChar L_51 = ___0_ch;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_52 = ___1_text;
 		int32_t L_53 = ___2_textLength;
@@ -6383,13 +6020,11 @@ IL_0183:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:96>
 		return (bool)1;
 	}
 
 IL_0195:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:99>
 		Il2CppChar L_56 = ___0_ch;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_57 = ___1_text;
 		int32_t L_58 = ___2_textLength;
@@ -6403,17 +6038,14 @@ IL_0195:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:99>
 		return (bool)1;
 	}
 
 IL_01a7:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterCondition.cs:103>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54869
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void CharacterCondition__ctor_m770D04C927E96ADB78871EA309E0858B9CD11C1C (CharacterCondition_t7C32AD9A3415DE55AD06E2EB6540415B408A3D75* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6437,24 +6069,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void CharacterCondition__ctor_m770D04C927E96A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54870
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool CharacterRule_AreConditionsMet_m9F9AC300D8710013FC09101BB5C38A08AC5D7FE4 (CharacterRule_tD80634B6F828A86CA5A1B8390CEF3C77453EE5EE* __this, Il2CppChar ___0_ch, CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* ___1_text, int32_t ___2_textLength, int32_t ___3_pos, int32_t ___4_selectionStartPosition, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	int32_t V_1 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:26>
 		CharacterConditionU5BU5D_tC753A09655B1900CD2527BEAE8630A2AE61DDA9F* L_0 = __this->___conditions;
 		NullCheck(L_0);
 		V_0 = ((int32_t)(((RuntimeArray*)L_0)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:27>
 		V_1 = 0;
 		goto IL_0029;
 	}
 
 IL_000d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:29>
 		CharacterConditionU5BU5D_tC753A09655B1900CD2527BEAE8630A2AE61DDA9F* L_1 = __this->___conditions;
 		int32_t L_2 = V_1;
 		NullCheck(L_1);
@@ -6474,20 +6102,17 @@ IL_000d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:29>
 		return (bool)0;
 	}
 
 IL_0025:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:27>
 		int32_t L_11 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_11, 1));
 	}
 
 IL_0029:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:27>
 		int32_t L_12 = V_1;
 		int32_t L_13 = V_0;
 		if ((((int32_t)L_12) < ((int32_t)L_13)))
@@ -6496,12 +6121,10 @@ IL_0029:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterRule.cs:32>
 		int32_t L_14 = V_0;
 		return (bool)((((int32_t)L_14) > ((int32_t)0))? 1 : 0);
 	}
 }
-// Method Definition Index: 54871
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void CharacterRule__ctor_mF6335EC550800B5DAF2C9EED4F1EF21ACBFC7B1A (CharacterRule_tD80634B6F828A86CA5A1B8390CEF3C77453EE5EE* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6517,32 +6140,27 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void CharacterRule__ctor_mF6335EC550800B5DAF2
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54872
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar CharacterValidator_Validate_m1B88B1A9C40742C07014D10E0C85DBD157351F01 (CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* __this, Il2CppChar ___0_ch, CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* ___1_text, int32_t ___2_textLength, int32_t ___3_pos, int32_t ___4_selectionStartPosition, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	int32_t V_1 = 0;
 	CharacterRule_tD80634B6F828A86CA5A1B8390CEF3C77453EE5EE* V_2 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:18>
 		CharacterRuleU5BU5D_tD8FE76E71802D94F4967D6DB97D6B69D431D5870* L_0 = __this->___rules;
 		NullCheck(L_0);
 		V_0 = ((int32_t)(((RuntimeArray*)L_0)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:19>
 		V_1 = 0;
 		goto IL_003d;
 	}
 
 IL_000d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:21>
 		CharacterRuleU5BU5D_tD8FE76E71802D94F4967D6DB97D6B69D431D5870* L_1 = __this->___rules;
 		int32_t L_2 = V_1;
 		NullCheck(L_1);
 		int32_t L_3 = L_2;
 		CharacterRule_tD80634B6F828A86CA5A1B8390CEF3C77453EE5EE* L_4 = (L_1)->GetAt(static_cast<il2cpp_array_size_t>(L_3));
 		V_2 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:22>
 		CharacterRule_tD80634B6F828A86CA5A1B8390CEF3C77453EE5EE* L_5 = V_2;
 		Il2CppChar L_6 = ___0_ch;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_7 = ___1_text;
@@ -6558,7 +6176,6 @@ IL_000d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:24>
 		Il2CppChar L_12 = ___0_ch;
 		CharacterRule_tD80634B6F828A86CA5A1B8390CEF3C77453EE5EE* L_13 = V_2;
 		NullCheck(L_13);
@@ -6573,14 +6190,12 @@ IL_000d:
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:19>
 		int32_t L_18 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_18, 1));
 	}
 
 IL_003d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:19>
 		int32_t L_19 = V_1;
 		int32_t L_20 = V_0;
 		if ((((int32_t)L_19) < ((int32_t)L_20)))
@@ -6589,7 +6204,6 @@ IL_003d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:28>
 		Il2CppChar L_21 = ___0_ch;
 		int32_t L_22 = __this->___otherCharacterAction;
 		int32_t L_23 = __this->___otherCharacterActionIntValue;
@@ -6598,7 +6212,6 @@ IL_003d:
 		return L_24;
 	}
 }
-// Method Definition Index: 54873
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar CharacterValidator_ExecuteAction_mAB99A052DA313E7302459B300E151974F39B76B7 (CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* __this, Il2CppChar ___0_ch, int32_t ___1_action, int32_t ___2_actionValue, const RuntimeMethod* method) 
 {
 	{
@@ -6633,20 +6246,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar CharacterValidator_ExecuteAction_m
 
 IL_001c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:35>
 		Il2CppChar L_1 = ___0_ch;
 		return L_1;
 	}
 
 IL_001e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:36>
 		return 0;
 	}
 
 IL_0020:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:38>
 		Il2CppChar L_2 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_3;
@@ -6657,14 +6267,12 @@ IL_0020:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:38>
 		Il2CppChar L_4 = ___0_ch;
 		return L_4;
 	}
 
 IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:39>
 		Il2CppChar L_5 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		Il2CppChar L_6;
@@ -6674,7 +6282,6 @@ IL_002a:
 
 IL_0031:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:41>
 		Il2CppChar L_7 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_8;
@@ -6685,14 +6292,12 @@ IL_0031:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:41>
 		Il2CppChar L_9 = ___0_ch;
 		return L_9;
 	}
 
 IL_003b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:42>
 		Il2CppChar L_10 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		Il2CppChar L_11;
@@ -6702,19 +6307,16 @@ IL_003b:
 
 IL_0042:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:43>
 		int32_t L_12 = ___2_actionValue;
 		return ((int32_t)(uint16_t)L_12);
 	}
 
 IL_0045:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/CharacterValidator.cs:46>
 		Il2CppChar L_13 = ___0_ch;
 		return L_13;
 	}
 }
-// Method Definition Index: 54874
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void CharacterValidator__ctor_m4462B89E051630836611536A5C671496E07E8632 (CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6730,133 +6332,103 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void CharacterValidator__ctor_m4462B89E051630
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54875
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:13>
 		int32_t L_0 = __this->___U3CValidationU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54876
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_set_Validation_mE14F4AE8C28AF8C0B8ABC2EF94605BFEC2806BB8 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:13>
 		int32_t L_0 = ___0_value;
 		__this->___U3CValidationU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54877
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextValidator_get_LineType_mC8647101416996FA0D369DCEC3F15CE18FCEC9F6 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:14>
 		int32_t L_0 = __this->___U3CLineTypeU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54878
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_set_LineType_m5FFB0CEDA8DCDF116680ECF36ED00F40B5C5BAE2 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:14>
 		int32_t L_0 = ___0_value;
 		__this->___U3CLineTypeU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54879
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* TextValidator_get_Validator_m1E7DF52AFCC6B381234A57624716164CC4958C5D (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:15>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_0 = __this->___U3CValidatorU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54880
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_set_Validator_m9A8002579DEA30A4446B8D280F7ED604870BDDC0 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:15>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_0 = ___0_value;
 		__this->___U3CValidatorU3Ek__BackingField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CValidatorU3Ek__BackingField), (void*)L_0);
 		return;
 	}
 }
-// Method Definition Index: 54881
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TextValidator_get_ResultText_m42E3FF7F3498847A05C87C713732A3C54DFAC870 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:16>
 		String_t* L_0 = __this->___U3CResultTextU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54882
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_set_ResultText_m544CAADE95AE5A6B672341A404F32456644DBD39 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, String_t* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:16>
 		String_t* L_0 = ___0_value;
 		__this->___U3CResultTextU3Ek__BackingField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CResultTextU3Ek__BackingField), (void*)L_0);
 		return;
 	}
 }
-// Method Definition Index: 54883
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextValidator_get_ResultCaretPosition_mD7CD93DD907A15DD806D752EB70FE75F2237410F (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:17>
 		int32_t L_0 = __this->___U3CResultCaretPositionU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54884
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_set_ResultCaretPosition_m74D9FB15573F1AAE0651D52524869B371AC8F39E (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:17>
 		int32_t L_0 = ___0_value;
 		__this->___U3CResultCaretPositionU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54885
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator__ctor_m070E5104C71F1747C31AA65A346CCB4CD73CF4EB (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:19>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:21>
 		return;
 	}
 }
-// Method Definition Index: 54886
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator__ctor_m44F3FE5D38A4709A9B50BB244A1F97FF605D1AC1 (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_validation, int32_t ___1_lineType, CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* ___2_validator, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:23>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:25>
 		int32_t L_0 = ___0_validation;
 		TextValidator_set_Validation_mE14F4AE8C28AF8C0B8ABC2EF94605BFEC2806BB8_inline(__this, L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:26>
 		int32_t L_1 = ___1_lineType;
 		TextValidator_set_LineType_m5FFB0CEDA8DCDF116680ECF36ED00F40B5C5BAE2_inline(__this, L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:27>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_2 = ___2_validator;
 		TextValidator_set_Validator_m9A8002579DEA30A4446B8D280F7ED604870BDDC0_inline(__this, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:28>
 		return;
 	}
 }
-// Method Definition Index: 54887
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_Validate_mC4765072B3E0EB75636E1050F7554D5B32EBD6AE (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, String_t* ___0_text, String_t* ___1_textToAppend, int32_t ___2_caretPosition, int32_t ___3_selectionStartPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6878,48 +6450,39 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextValidator_Validate_mC4765072B3E0EB75
 	Il2CppChar V_9 = 0x0;
 	Il2CppChar V_10 = 0x0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:37>
 		String_t* L_0 = ___0_text;
 		NullCheck(L_0);
 		int32_t L_1;
 		L_1 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:38>
 		String_t* L_2 = ___1_textToAppend;
 		NullCheck(L_2);
 		int32_t L_3;
 		L_3 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_2, NULL);
 		V_1 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:40>
 		int32_t L_4 = ___2_caretPosition;
 		V_2 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:41>
 		int32_t L_5 = V_0;
 		int32_t L_6 = V_1;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_7 = (CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB*)(CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB*)SZArrayNew(CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB_il2cpp_TypeInfo_var, (uint32_t)((int32_t)il2cpp_codegen_add(L_5, L_6)));
 		V_3 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:42>
 		String_t* L_8 = ___0_text;
 		il2cpp_codegen_runtime_class_init_inline(Util_t1E884596740EC51EEF3A88EE4FB5C6A7BA47DAB4_il2cpp_TypeInfo_var);
 		Util_StringCopy_m1468337BA07AD48D3A9B0DE33C00B08A9501B4D7((&V_3), L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:44>
 		int32_t L_9 = ___2_caretPosition;
 		V_4 = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:45>
 		V_5 = 0;
 		goto IL_0060;
 	}
 
 IL_0029:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:47>
 		String_t* L_10 = ___1_textToAppend;
 		int32_t L_11 = V_5;
 		NullCheck(L_10);
 		Il2CppChar L_12;
 		L_12 = String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3(L_10, L_11, NULL);
 		V_6 = L_12;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:48>
 		Il2CppChar L_13 = V_6;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_14 = V_3;
 		int32_t L_15 = V_4;
@@ -6929,7 +6492,6 @@ IL_0029:
 		Il2CppChar L_19;
 		L_19 = TextValidator_ValidateChar_m8010FEDDE79AE76BCD98A286BD455AC49A4D97DD(__this, L_13, L_14, L_15, L_16, L_17, L_18, NULL);
 		V_7 = L_19;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:49>
 		Il2CppChar L_20 = V_7;
 		if (!L_20)
 		{
@@ -6937,30 +6499,25 @@ IL_0029:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:51>
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_21 = V_3;
 		int32_t L_22 = V_4;
 		Il2CppChar L_23 = V_7;
 		NullCheck(L_21);
 		(L_21)->SetAt(static_cast<il2cpp_array_size_t>(L_22), (Il2CppChar)L_23);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:52>
 		int32_t L_24 = V_4;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_24, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:53>
 		int32_t L_25 = ___2_caretPosition;
 		___2_caretPosition = ((int32_t)il2cpp_codegen_add(L_25, 1));
 	}
 
 IL_005a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:45>
 		int32_t L_26 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_26, 1));
 	}
 
 IL_0060:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:45>
 		int32_t L_27 = V_5;
 		int32_t L_28 = V_1;
 		if ((((int32_t)L_27) < ((int32_t)L_28)))
@@ -6969,7 +6526,6 @@ IL_0060:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:57>
 		int32_t L_29 = V_2;
 		int32_t L_30 = V_0;
 		if ((((int32_t)L_29) >= ((int32_t)L_30)))
@@ -6978,7 +6534,6 @@ IL_0060:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:59>
 		int32_t L_31 = V_2;
 		V_8 = L_31;
 		goto IL_00a0;
@@ -6986,14 +6541,12 @@ IL_0060:
 
 IL_006e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:61>
 		String_t* L_32 = ___0_text;
 		int32_t L_33 = V_8;
 		NullCheck(L_32);
 		Il2CppChar L_34;
 		L_34 = String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3(L_32, L_33, NULL);
 		V_9 = L_34;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:62>
 		Il2CppChar L_35 = V_9;
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_36 = V_3;
 		int32_t L_37 = V_4;
@@ -7003,7 +6556,6 @@ IL_006e:
 		Il2CppChar L_41;
 		L_41 = TextValidator_ValidateChar_m8010FEDDE79AE76BCD98A286BD455AC49A4D97DD(__this, L_35, L_36, L_37, L_38, L_39, L_40, NULL);
 		V_10 = L_41;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:63>
 		Il2CppChar L_42 = V_10;
 		if (!L_42)
 		{
@@ -7011,27 +6563,23 @@ IL_006e:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:65>
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_43 = V_3;
 		int32_t L_44 = V_4;
 		Il2CppChar L_45 = V_10;
 		NullCheck(L_43);
 		(L_43)->SetAt(static_cast<il2cpp_array_size_t>(L_44), (Il2CppChar)L_45);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:66>
 		int32_t L_46 = V_4;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_46, 1));
 	}
 
 IL_009a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:59>
 		int32_t L_47 = V_8;
 		V_8 = ((int32_t)il2cpp_codegen_add(L_47, 1));
 	}
 
 IL_00a0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:59>
 		int32_t L_48 = V_8;
 		int32_t L_49 = V_0;
 		if ((((int32_t)L_48) < ((int32_t)L_49)))
@@ -7042,23 +6590,18 @@ IL_00a0:
 
 IL_00a5:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:71>
 		int32_t L_50 = V_4;
 		V_0 = L_50;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:73>
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_51 = V_3;
 		int32_t L_52 = V_0;
 		String_t* L_53;
 		L_53 = String_CreateString_mB7B3AC2AF28010538650051A9000369B1CD6BAB6(NULL, L_51, 0, L_52, NULL);
 		TextValidator_set_ResultText_m544CAADE95AE5A6B672341A404F32456644DBD39_inline(__this, L_53, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:74>
 		int32_t L_54 = ___2_caretPosition;
 		TextValidator_set_ResultCaretPosition_m74D9FB15573F1AAE0651D52524869B371AC8F39E_inline(__this, L_54, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:75>
 		return;
 	}
 }
-// Method Definition Index: 54888
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar TextValidator_ValidateChar_m8010FEDDE79AE76BCD98A286BD455AC49A4D97DD (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, Il2CppChar ___0_ch, CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* ___1_text, int32_t ___2_textLength, int32_t ___3_pos, int32_t ___4_caretPosition, int32_t ___5_selectionStartPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7094,7 +6637,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar TextValidator_ValidateChar_m8010FE
 	int32_t G_B103_0 = 0;
 	int32_t G_B103_1 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:79>
 		int32_t L_0;
 		L_0 = TextValidator_get_LineType_mC8647101416996FA0D369DCEC3F15CE18FCEC9F6_inline(__this, NULL);
 		if ((((int32_t)L_0) == ((int32_t)2)))
@@ -7119,13 +6661,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Il2CppChar TextValidator_ValidateChar_m8010FE
 
 IL_0013:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:81>
 		return 0;
 	}
 
 IL_0015:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:85>
 		int32_t L_3;
 		L_3 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if (L_3)
@@ -7134,14 +6674,12 @@ IL_0015:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:87>
 		Il2CppChar L_4 = ___0_ch;
 		return L_4;
 	}
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:90>
 		int32_t L_5;
 		L_5 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_5) == ((uint32_t)8))))
@@ -7150,7 +6688,6 @@ IL_001f:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:92>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_6;
 		L_6 = TextValidator_get_Validator_m1E7DF52AFCC6B381234A57624716164CC4958C5D_inline(__this, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
@@ -7162,14 +6699,12 @@ IL_001f:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:92>
 		Il2CppChar L_8 = ___0_ch;
 		return L_8;
 	}
 
 IL_0038:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:95>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_9;
 		L_9 = TextValidator_get_Validator_m1E7DF52AFCC6B381234A57624716164CC4958C5D_inline(__this, NULL);
 		Il2CppChar L_10 = ___0_ch;
@@ -7185,7 +6720,6 @@ IL_0038:
 
 IL_004b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:99>
 		int32_t L_16;
 		L_16 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((((int32_t)L_16) == ((int32_t)1)))
@@ -7212,7 +6746,6 @@ IL_004b:
 
 IL_006a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:102>
 		int32_t L_19 = ___3_pos;
 		if (L_19)
 		{
@@ -7242,7 +6775,6 @@ IL_007b:
 
 IL_007c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:103>
 		int32_t L_24 = ___2_textLength;
 		if ((((int32_t)L_24) <= ((int32_t)0)))
 		{
@@ -7322,7 +6854,6 @@ IL_00a1:
 IL_00a2:
 	{
 		V_0 = (bool)G_B26_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:104>
 		int32_t L_32 = ___4_caretPosition;
 		if (!L_32)
 		{
@@ -7347,7 +6878,6 @@ IL_00ae:
 IL_00af:
 	{
 		V_1 = (bool)G_B29_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:105>
 		bool L_34 = V_0;
 		if (!((int32_t)(((((int32_t)G_B29_1) == ((int32_t)0))? 1 : 0)|(int32_t)L_34)))
 		{
@@ -7355,7 +6885,6 @@ IL_00af:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:107>
 		Il2CppChar L_35 = ___0_ch;
 		if ((((int32_t)L_35) < ((int32_t)((int32_t)48))))
 		{
@@ -7370,14 +6899,12 @@ IL_00af:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:107>
 		Il2CppChar L_37 = ___0_ch;
 		return L_37;
 	}
 
 IL_00c6:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:108>
 		Il2CppChar L_38 = ___0_ch;
 		if ((!(((uint32_t)L_38) == ((uint32_t)((int32_t)45)))))
 		{
@@ -7393,14 +6920,12 @@ IL_00c6:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:108>
 		Il2CppChar L_41 = ___0_ch;
 		return L_41;
 	}
 
 IL_00d6:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:109>
 		int32_t L_42;
 		L_42 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_42) == ((uint32_t)2))))
@@ -7409,7 +6934,6 @@ IL_00d6:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:111>
 		Il2CppChar L_43 = ___0_ch;
 		if ((((int32_t)L_43) == ((int32_t)((int32_t)46))))
 		{
@@ -7426,7 +6950,6 @@ IL_00d6:
 
 IL_00ec:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:113>
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_45 = ___1_text;
 		int32_t L_46 = ___2_textLength;
 		il2cpp_codegen_runtime_class_init_inline(Util_t1E884596740EC51EEF3A88EE4FB5C6A7BA47DAB4_il2cpp_TypeInfo_var);
@@ -7449,14 +6972,12 @@ IL_00ec:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:113>
 		Il2CppChar L_51 = ___0_ch;
 		return L_51;
 	}
 
 IL_010a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:116>
 		int32_t L_52;
 		L_52 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_52) == ((uint32_t)((int32_t)9)))))
@@ -7465,7 +6986,6 @@ IL_010a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:118>
 		Il2CppChar L_53 = ___0_ch;
 		if ((!(((uint32_t)L_53) == ((uint32_t)((int32_t)46)))))
 		{
@@ -7484,14 +7004,12 @@ IL_010a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:118>
 		Il2CppChar L_57 = ___0_ch;
 		return L_57;
 	}
 
 IL_0129:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:119>
 		Il2CppChar L_58 = ___0_ch;
 		if ((!(((uint32_t)L_58) == ((uint32_t)((int32_t)44)))))
 		{
@@ -7510,13 +7028,11 @@ IL_0129:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:119>
 		return ((int32_t)46);
 	}
 
 IL_0142:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:123>
 		int32_t L_62;
 		L_62 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_62) == ((uint32_t)3))))
@@ -7525,7 +7041,6 @@ IL_0142:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:126>
 		Il2CppChar L_63 = ___0_ch;
 		if ((((int32_t)L_63) < ((int32_t)((int32_t)65))))
 		{
@@ -7540,14 +7055,12 @@ IL_0142:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:126>
 		Il2CppChar L_65 = ___0_ch;
 		return L_65;
 	}
 
 IL_0157:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:127>
 		Il2CppChar L_66 = ___0_ch;
 		if ((((int32_t)L_66) < ((int32_t)((int32_t)97))))
 		{
@@ -7562,14 +7075,12 @@ IL_0157:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:127>
 		Il2CppChar L_68 = ___0_ch;
 		return L_68;
 	}
 
 IL_0163:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:128>
 		Il2CppChar L_69 = ___0_ch;
 		if ((((int32_t)L_69) < ((int32_t)((int32_t)48))))
 		{
@@ -7584,14 +7095,12 @@ IL_0163:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:128>
 		Il2CppChar L_71 = ___0_ch;
 		return L_71;
 	}
 
 IL_0175:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:130>
 		int32_t L_72;
 		L_72 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_72) == ((uint32_t)4))))
@@ -7600,7 +7109,6 @@ IL_0175:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:145>
 		Il2CppChar L_73 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_74;
@@ -7611,7 +7119,6 @@ IL_0175:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:148>
 		Il2CppChar L_75 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_76;
@@ -7642,7 +7149,6 @@ IL_0175:
 
 IL_019f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:150>
 		Il2CppChar L_82 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		Il2CppChar L_83;
@@ -7652,7 +7158,6 @@ IL_019f:
 
 IL_01a6:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:154>
 		Il2CppChar L_84 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_85;
@@ -7692,7 +7197,6 @@ IL_01a6:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:156>
 		Il2CppChar L_95 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		Il2CppChar L_96;
@@ -7702,14 +7206,12 @@ IL_01a6:
 
 IL_01ce:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:159>
 		Il2CppChar L_97 = ___0_ch;
 		return L_97;
 	}
 
 IL_01d0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:162>
 		Il2CppChar L_98 = ___0_ch;
 		if ((!(((uint32_t)L_98) == ((uint32_t)((int32_t)39)))))
 		{
@@ -7717,7 +7219,6 @@ IL_01d0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:165>
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_99 = ___1_text;
 		int32_t L_100 = ___2_textLength;
 		il2cpp_codegen_runtime_class_init_inline(Util_t1E884596740EC51EEF3A88EE4FB5C6A7BA47DAB4_il2cpp_TypeInfo_var);
@@ -7729,8 +7230,6 @@ IL_01d0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:168>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:169>
 		int32_t L_102 = ___3_pos;
 		if ((((int32_t)L_102) <= ((int32_t)0)))
 		{
@@ -7794,14 +7293,12 @@ IL_01f9:
 
 IL_020e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:171>
 		Il2CppChar L_121 = ___0_ch;
 		return L_121;
 	}
 
 IL_0210:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:176>
 		Il2CppChar L_122 = ___0_ch;
 		if ((!(((uint32_t)L_122) == ((uint32_t)((int32_t)32)))))
 		{
@@ -7809,8 +7306,6 @@ IL_0210:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:179>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:180>
 		int32_t L_123 = ___3_pos;
 		if ((((int32_t)L_123) <= ((int32_t)0)))
 		{
@@ -7874,14 +7369,12 @@ IL_0237:
 
 IL_0252:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:182>
 		Il2CppChar L_142 = ___0_ch;
 		return L_142;
 	}
 
 IL_0254:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:186>
 		int32_t L_143;
 		L_143 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_143) == ((uint32_t)5))))
@@ -7890,7 +7383,6 @@ IL_0254:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:195>
 		Il2CppChar L_144 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_145;
@@ -7901,14 +7393,12 @@ IL_0254:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:195>
 		Il2CppChar L_146 = ___0_ch;
 		return L_146;
 	}
 
 IL_0267:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:196>
 		Il2CppChar L_147 = ___0_ch;
 		if ((!(((uint32_t)L_147) == ((uint32_t)((int32_t)64)))))
 		{
@@ -7927,14 +7417,12 @@ IL_0267:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:196>
 		Il2CppChar L_151 = ___0_ch;
 		return L_151;
 	}
 
 IL_027a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:197>
 		Il2CppChar L_152 = ___0_ch;
 		NullCheck(_stringLiteralE6B64CE518F361B6EA86E4CD975D0780802C6790);
 		int32_t L_153;
@@ -7945,14 +7433,12 @@ IL_027a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:197>
 		Il2CppChar L_154 = ___0_ch;
 		return L_154;
 	}
 
 IL_028a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:198>
 		Il2CppChar L_155 = ___0_ch;
 		if ((!(((uint32_t)L_155) == ((uint32_t)((int32_t)46)))))
 		{
@@ -7960,7 +7446,6 @@ IL_028a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:200>
 		int32_t L_156 = ___2_textLength;
 		if ((((int32_t)L_156) > ((int32_t)0)))
 		{
@@ -7987,7 +7472,6 @@ IL_029a:
 
 IL_02a7:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:201>
 		int32_t L_163 = ___2_textLength;
 		if ((((int32_t)L_163) > ((int32_t)0)))
 		{
@@ -8019,7 +7503,6 @@ IL_02af:
 IL_02be:
 	{
 		V_2 = G_B103_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:202>
 		if ((((int32_t)G_B103_1) == ((int32_t)((int32_t)46))))
 		{
 			goto IL_0382;
@@ -8033,14 +7516,12 @@ IL_02be:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:204>
 		Il2CppChar L_171 = ___0_ch;
 		return L_171;
 	}
 
 IL_02d0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:208>
 		int32_t L_172;
 		L_172 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_172) == ((uint32_t)6))))
@@ -8049,14 +7530,12 @@ IL_02d0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:210>
 		CharU5BU5D_t799905CF001DD5F13F7DBB310181FC4D8B7D0AAB* L_173 = ___1_text;
 		int32_t L_174 = ___2_textLength;
 		il2cpp_codegen_runtime_class_init_inline(Util_t1E884596740EC51EEF3A88EE4FB5C6A7BA47DAB4_il2cpp_TypeInfo_var);
 		int32_t L_175;
 		L_175 = Util_LastIndexOf_mC86548A2BAAA87843FA71FB6BFFA2BFD7F8063ED(((int32_t)46), L_173, L_174, NULL);
 		V_3 = L_175;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:211>
 		int32_t L_176 = V_3;
 		if ((!(((uint32_t)L_176) == ((uint32_t)(-1)))))
 		{
@@ -8064,9 +7543,7 @@ IL_02d0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:213>
 		int32_t L_177 = ___2_textLength;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:214>
 		if ((((int32_t)L_177) >= ((int32_t)3)))
 		{
 			goto IL_02f7;
@@ -8087,14 +7564,12 @@ IL_02d0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:214>
 		Il2CppChar L_180 = ___0_ch;
 		return L_180;
 	}
 
 IL_02f7:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:215>
 		Il2CppChar L_181 = ___0_ch;
 		if ((!(((uint32_t)L_181) == ((uint32_t)((int32_t)46)))))
 		{
@@ -8109,14 +7584,12 @@ IL_02f7:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:215>
 		Il2CppChar L_183 = ___0_ch;
 		return L_183;
 	}
 
 IL_0305:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:219>
 		Il2CppChar L_184 = ___0_ch;
 		if ((((int32_t)L_184) < ((int32_t)((int32_t)48))))
 		{
@@ -8131,10 +7604,8 @@ IL_0305:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:221>
 		int32_t L_186 = ___2_textLength;
 		int32_t L_187 = V_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:222>
 		if ((((int32_t)((int32_t)il2cpp_codegen_subtract(((int32_t)il2cpp_codegen_subtract(L_186, 1)), L_187))) >= ((int32_t)3)))
 		{
 			goto IL_0323;
@@ -8155,14 +7626,12 @@ IL_0305:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:222>
 		Il2CppChar L_190 = ___0_ch;
 		return L_190;
 	}
 
 IL_0323:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:224>
 		Il2CppChar L_191 = ___0_ch;
 		if ((!(((uint32_t)L_191) == ((uint32_t)((int32_t)46)))))
 		{
@@ -8189,14 +7658,12 @@ IL_0323:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:224>
 		Il2CppChar L_197 = ___0_ch;
 		return L_197;
 	}
 
 IL_033c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:227>
 		int32_t L_198;
 		L_198 = TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline(__this, NULL);
 		if ((!(((uint32_t)L_198) == ((uint32_t)7))))
@@ -8205,7 +7672,6 @@ IL_033c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:229>
 		Il2CppChar L_199 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_200;
@@ -8226,7 +7692,6 @@ IL_033c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:231>
 		int32_t L_203 = ___3_pos;
 		if (L_203)
 		{
@@ -8234,7 +7699,6 @@ IL_033c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:231>
 		Il2CppChar L_204 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		Il2CppChar L_205;
@@ -8244,7 +7708,6 @@ IL_033c:
 
 IL_0360:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:233>
 		int32_t L_206 = ___3_pos;
 		if ((((int32_t)L_206) <= ((int32_t)1)))
 		{
@@ -8274,7 +7737,6 @@ IL_0360:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:235>
 		Il2CppChar L_215 = ___0_ch;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		Il2CppChar L_216;
@@ -8284,14 +7746,12 @@ IL_0360:
 
 IL_0380:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:239>
 		Il2CppChar L_217 = ___0_ch;
 		return L_217;
 	}
 
 IL_0382:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:241>
 		return 0;
 	}
 }
@@ -8375,7 +7835,6 @@ IL2CPP_EXTERN_C void RichTextTagInfo_tB20D3DBFB2BF7B52EC137AA413FF3514872BD3CD_m
 	il2cpp_codegen_marshal_free_bstring(marshaled.___startTagStart);
 	marshaled.___startTagStart = NULL;
 }
-// Method Definition Index: 54889
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextTagInfo__ctor_mDFFDB87E536A1D191FACCDE9D2FE405183997037 (RichTextTagInfo_tB20D3DBFB2BF7B52EC137AA413FF3514872BD3CD* __this, int32_t ___0_type, String_t* ___1_startTag, String_t* ___2_endTag, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8385,18 +7844,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextTagInfo__ctor_mDFFDB87E536A1D191
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:32>
 		int32_t L_0 = ___0_type;
 		__this->___type = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:33>
 		String_t* L_1 = ___1_startTag;
 		__this->___startTag = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___startTag), (void*)L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:34>
 		String_t* L_2 = ___2_endTag;
 		__this->___endTag = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___endTag), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:36>
 		int32_t L_3 = ___0_type;
 		if ((((int32_t)L_3) == ((int32_t)1)))
 		{
@@ -8413,7 +7868,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextTagInfo__ctor_mDFFDB87E536A1D191
 
 IL_001d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:38>
 		String_t* L_5 = ___1_startTag;
 		String_t* L_6 = ___1_startTag;
 		NullCheck(L_6);
@@ -8429,10 +7883,8 @@ IL_001d:
 
 IL_0036:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:42>
 		__this->___startTagStart = (String_t*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___startTagStart), (void*)(String_t*)NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:44>
 		return;
 	}
 }
@@ -8467,7 +7919,6 @@ IL2CPP_EXTERN_C  void RichTextTagInfo__ctor_mDFFDB87E536A1D191FACCDE9D2FE4051839
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54890
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* TextRenderer_get_RectTransform_mE0295B67A75B974029F3ACB37631875F147D8F89 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8478,7 +7929,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E5896
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:71>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___rectTransform;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -8489,7 +7939,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E5896
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:73>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_2;
 		L_2 = Component_GetComponent_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m0640480E7E38BB88B0D1F6AD59E697C8EE6AAFA4(__this, Component_GetComponent_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m0640480E7E38BB88B0D1F6AD59E697C8EE6AAFA4_RuntimeMethod_var);
 		__this->___rectTransform = L_2;
@@ -8498,130 +7947,104 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E5896
 
 IL_001a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:76>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_3 = __this->___rectTransform;
 		return L_3;
 	}
 }
-// Method Definition Index: 54891
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_get_Visible_m91064BC1A427E4418CC7C16750E7A86F07CED05C (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:80>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_Visible_m91064BC1A427E4418CC7C16750E7A86F07CED05C_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54892
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float TextRenderer_get_CaretWidth_m5D7F464B0C78CE39798B83A98C73776C1E369DA5 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:81>
 		float L_0 = __this->___U3CCaretWidthU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54893
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_CaretWidth_mB4DF435FFA7BDAD460FC3D4FDB9BCF2C37561A54 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, float ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:81>
 		float L_0 = ___0_value;
 		__this->___U3CCaretWidthU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54894
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_get_Multiline_m0597B7584E465564C5C641871EB236AC6BFCEE30 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:82>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_Multiline_m0597B7584E465564C5C641871EB236AC6BFCEE30_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54895
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_Multiline_mAADC7235B7C98F04E37B731EDBDF557439B7BCEF (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, bool ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:82>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_set_Multiline_mAADC7235B7C98F04E37B731EDBDF557439B7BCEF_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54896
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float TextRenderer_get_MultilineMaxWidth_mF4A8F45A0FA801FCC46D58395A71B4986BE10051 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:83>
 		float L_0 = __this->___U3CMultilineMaxWidthU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54897
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_MultilineMaxWidth_m2AE431508FFBA1A2307DACE705966742A0CBAE54 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, float ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:83>
 		float L_0 = ___0_value;
 		__this->___U3CMultilineMaxWidthU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54898
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_get_RichTextEnabled_mEBD22EC350D8C02096B16810C37E57D39DDF6656 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:84>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_RichTextEnabled_mEBD22EC350D8C02096B16810C37E57D39DDF6656_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54899
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_RichTextEnabled_m90392F9EAC5822B4FA15F4F3870607C2A021B6B6 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, bool ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:84>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_set_RichTextEnabled_m90392F9EAC5822B4FA15F4F3870607C2A021B6B6_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54900
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_get_TextAlignment_mC5158D99C2F517A50B39336DBA8951815068E02F (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:85>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_TextAlignment_mC5158D99C2F517A50B39336DBA8951815068E02F_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54901
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* TextRenderer_get_Text_mC256D45E74A809C057B264C84BFA8800CF8FA07A (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:87>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_Text_mC256D45E74A809C057B264C84BFA8800CF8FA07A_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54902
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_Text_mC5D1E0A36C620BA5C300A0DD40EF87A909AE88E1 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, String_t* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:87>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_set_Text_mC5D1E0A36C620BA5C300A0DD40EF87A909AE88E1_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54903
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 TextRenderer_get_PreferredSize_mBDEF32B0BD5C60D088680522349126058DEE03DA (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8629,13 +8052,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 	{
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Component_GetComponentInParent_TisScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352_m04E663C37007DD7EB8516C83A00849CAB090C705_RuntimeMethod_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
 	ScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352* V_0 = NULL;
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_1;
 	memset((&V_1), 0, sizeof(V_1));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:93>
 		bool L_0;
 		L_0 = VirtualFuncInvoker0< bool >::Invoke(19, __this);
 		if (!L_0)
@@ -8644,11 +8067,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:95>
 		ScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352* L_1;
 		L_1 = Component_GetComponentInParent_TisScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352_m04E663C37007DD7EB8516C83A00849CAB090C705(__this, Component_GetComponentInParent_TisScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352_m04E663C37007DD7EB8516C83A00849CAB090C705_RuntimeMethod_var);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:96>
 		ScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -8659,7 +8080,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:98>
 		ScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352* L_4 = V_0;
 		NullCheck(L_4);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_5;
@@ -8668,6 +8088,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_6;
 		L_6 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_5, NULL);
 		V_1 = L_6;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_7;
 		L_7 = Rect_get_size_mFB990FFC0FE0152179C8C74A59E4AC258CB44267_inline((&V_1), NULL);
 		return L_7;
@@ -8675,123 +8096,98 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D
 
 IL_002c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:102>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8 = __this->___preferredSize;
 		return L_8;
 	}
 }
-// Method Definition Index: 54904
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* TextRenderer_get_ViewportTransform_mDADC92F8D5CC561D9E518A67F1653735F9534C8F (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:108>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___viewportTransform;
 		return L_0;
 	}
 }
-// Method Definition Index: 54905
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_ViewportTransform_mA0C6FFF53ED3FEB9C3668FF75E3E56BC96C706E6 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:109>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = ___0_value;
 		__this->___viewportTransform = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___viewportTransform), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:109>
 		return;
 	}
 }
-// Method Definition Index: 54906
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_get_LineCount_m8C102FE284A9957DE038333F63EAC402A074C35D (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:112>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_LineCount_m8C102FE284A9957DE038333F63EAC402A074C35D_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54907
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_get_CharacterCount_mB665E1067D33E17434ADB3098BC9E722342432EB (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:113>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_CharacterCount_mB665E1067D33E17434ADB3098BC9E722342432EB_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54908
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_get_CharacterCountVisible_m869B94612A8932F62167B1A8780B3C9A4968F6C1 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:114>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_CharacterCountVisible_m869B94612A8932F62167B1A8780B3C9A4968F6C1_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54909
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F TextRenderer_get_Color_m08F3F3230AE75B0929C1FA558876D6C1AD0EB6C1 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:115>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_Color_m08F3F3230AE75B0929C1FA558876D6C1AD0EB6C1_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54910
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_Color_mBA15A11750943FECCCAB9266892AFAF8D0820409 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:115>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_set_Color_mBA15A11750943FECCCAB9266892AFAF8D0820409_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54911
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float TextRenderer_get_FontSize_m7A876C836445AE29061435489083A82156A85A5F (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:116>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_FontSize_m7A876C836445AE29061435489083A82156A85A5F_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54912
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_set_FontSize_m6D5E19E2883C9F94BAE1E4B36618EA91439F0EDA (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, float ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:116>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_set_FontSize_m6D5E19E2883C9F94BAE1E4B36618EA91439F0EDA_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54913
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_get_ResizeTextForBestFit_mF87EC775EC3FEF1B168912BCE0E7E43B6327E604 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:117>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_ResizeTextForBestFit_mF87EC775EC3FEF1B168912BCE0E7E43B6327E604_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54914
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float TextRenderer_get_FontSizeUsedForBestFit_m267611635B6C277D1238DF56F4B509AB65BA8704 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:118>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_get_FontSizeUsedForBestFit_m267611635B6C277D1238DF56F4B509AB65BA8704_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54915
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_Awake_m68EA1F82029654D46A92E97AE6F6F116AE8045C6 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -8801,20 +8197,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_Awake_m68EA1F82029654D46A92
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:122>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0;
 		L_0 = Component_GetComponent_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m0640480E7E38BB88B0D1F6AD59E697C8EE6AAFA4(__this, Component_GetComponent_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m0640480E7E38BB88B0D1F6AD59E697C8EE6AAFA4_RuntimeMethod_var);
 		__this->___rectTransform = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___rectTransform), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:123>
 		return;
 	}
 }
-// Method Definition Index: 54916
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_OnEnable_m832D9424E487EF1E596984206A16E810C7F73FBF (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:127>
 		bool L_0 = __this->___autoAnchor;
 		if (!L_0)
 		{
@@ -8822,54 +8214,46 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_OnEnable_m832D9424E487EF1E5
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:129>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = __this->___rectTransform;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
 		memset((&L_2), 0, sizeof(L_2));
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_2), (0.0f), (0.0f), NULL);
 		NullCheck(L_1);
 		RectTransform_set_anchorMin_m931442ABE3368D6D4309F43DF1D64AB64B0F52E3(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:130>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_3 = __this->___rectTransform;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4;
 		memset((&L_4), 0, sizeof(L_4));
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_4), (1.0f), (1.0f), NULL);
 		NullCheck(L_3);
 		RectTransform_set_anchorMax_m52829ABEDD229ABD3DA20BCA676FA1DCA4A39B7D(L_3, L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:131>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_5 = __this->___rectTransform;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_6;
 		memset((&L_6), 0, sizeof(L_6));
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_6), (0.5f), (0.5f), NULL);
 		NullCheck(L_5);
 		RectTransform_set_pivot_m79D0177D383D432A93C2615F1932B739B1C6E146(L_5, L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:132>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_7 = __this->___rectTransform;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8;
 		memset((&L_8), 0, sizeof(L_8));
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_8), (0.0f), (0.0f), NULL);
 		NullCheck(L_7);
 		RectTransform_set_offsetMin_m07F38B4105C7CA9CC9FBDC9ED0DB008602880AB9(L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:133>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_9 = __this->___rectTransform;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_10;
 		memset((&L_10), 0, sizeof(L_10));
 		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_10), (0.0f), (0.0f), NULL);
 		NullCheck(L_9);
 		RectTransform_set_offsetMax_m5514D09D86516F2C0E25FA6D11A3A4274D3D002D(L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:134>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_11 = __this->___rectTransform;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_12;
 		L_12 = Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline(NULL);
 		NullCheck(L_11);
 		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_11, L_12, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:135>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_13 = __this->___rectTransform;
 		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_14;
 		L_14 = Quaternion_get_identity_m7E701AE095ED10FD5EA0B50ABCFDE2EEFF2173A5_inline(NULL);
 		NullCheck(L_13);
 		Transform_set_localRotation_mAB4A011D134BA58AB780BECC0025CA65F16185FA(L_13, L_14, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:137>
 		DrivenRectTransformTracker_tFB0706C933E3C68E4F377C204FCEEF091F1EE0B1* L_15 = (DrivenRectTransformTracker_tFB0706C933E3C68E4F377C204FCEEF091F1EE0B1*)(&__this->___transformTracker);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_16 = __this->___rectTransform;
 		DrivenRectTransformTracker_Add_mC0CE417831BF58E6DA81770CE5E2A99B142EEFEC(L_15, __this, L_16, (-1), NULL);
@@ -8877,34 +8261,27 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_OnEnable_m832D9424E487EF1E5
 
 IL_00c0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:139>
 		return;
 	}
 }
-// Method Definition Index: 54917
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_OnDisable_mF30E4093980B494442AA43B9FD8E558650246757 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:143>
 		DrivenRectTransformTracker_tFB0706C933E3C68E4F377C204FCEEF091F1EE0B1* L_0 = (DrivenRectTransformTracker_tFB0706C933E3C68E4F377C204FCEEF091F1EE0B1*)(&__this->___transformTracker);
 		DrivenRectTransformTracker_Clear_m9A7F5130E4007F70B14AB1FF13A2997C073A64EE(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:144>
 		return;
 	}
 }
-// Method Definition Index: 54918
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_DetermineCharacterLine_m6E5EF0920CF6DD5D67A971AABA211295045047A6 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_charPosition, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:152>
 		V_0 = 0;
 		goto IL_001b;
 	}
 
 IL_0004:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:154>
 		int32_t L_0 = V_0;
 		LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B L_1;
 		L_1 = VirtualFuncInvoker1< LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B, int32_t >::Invoke(32, __this, ((int32_t)il2cpp_codegen_add(L_0, 1)));
@@ -8916,21 +8293,18 @@ IL_0004:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:156>
 		int32_t L_4 = V_0;
 		return L_4;
 	}
 
 IL_0017:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:152>
 		int32_t L_5 = V_0;
 		V_0 = ((int32_t)il2cpp_codegen_add(L_5, 1));
 	}
 
 IL_001b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:152>
 		int32_t L_6 = V_0;
 		int32_t L_7;
 		L_7 = VirtualFuncInvoker0< int32_t >::Invoke(12, __this);
@@ -8940,13 +8314,11 @@ IL_001b:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:160>
 		int32_t L_8;
 		L_8 = VirtualFuncInvoker0< int32_t >::Invoke(12, __this);
 		return ((int32_t)il2cpp_codegen_subtract(L_8, 1));
 	}
 }
-// Method Definition Index: 54919
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineDownPosition_mB7A54B486A6DEEA284DD641B7358507DE8D0C0F9 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_position, bool ___1_multiline, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -8958,10 +8330,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineDownPosition_mB7A54B
 	int32_t V_5 = 0;
 	float V_6 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:168>
 		int32_t L_0 = ___0_position;
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:169>
 		bool L_1 = ___1_multiline;
 		if (L_1)
 		{
@@ -8969,7 +8339,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineDownPosition_mB7A54B
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:171>
 		String_t* L_2;
 		L_2 = VirtualFuncInvoker0< String_t* >::Invoke(10, __this);
 		NullCheck(L_2);
@@ -8980,17 +8349,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineDownPosition_mB7A54B
 
 IL_0011:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:174>
 		int32_t L_4 = V_0;
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_5;
 		L_5 = VirtualFuncInvoker1< CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721, int32_t >::Invoke(31, __this, L_4);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:175>
 		int32_t L_6 = V_0;
 		int32_t L_7;
 		L_7 = TextRenderer_DetermineCharacterLine_m6E5EF0920CF6DD5D67A971AABA211295045047A6(__this, L_6, NULL);
 		V_2 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:177>
 		int32_t L_8 = V_2;
 		int32_t L_9;
 		L_9 = VirtualFuncInvoker0< int32_t >::Invoke(12, __this);
@@ -9000,7 +8366,6 @@ IL_0011:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:179>
 		int32_t L_10;
 		L_10 = VirtualFuncInvoker0< int32_t >::Invoke(13, __this);
 		return ((int32_t)il2cpp_codegen_subtract(L_10, 1));
@@ -9008,14 +8373,11 @@ IL_0011:
 
 IL_0035:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:182>
 		int32_t L_11 = V_2;
 		int32_t L_12;
 		L_12 = VirtualFuncInvoker1< int32_t, int32_t >::Invoke(33, __this, ((int32_t)il2cpp_codegen_add(L_11, 1)));
 		V_3 = L_12;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:184>
 		V_4 = ((std::numeric_limits<float>::max)());
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:185>
 		int32_t L_13 = V_2;
 		LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B L_14;
 		L_14 = VirtualFuncInvoker1< LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B, int32_t >::Invoke(32, __this, ((int32_t)il2cpp_codegen_add(L_13, 1)));
@@ -9026,11 +8388,9 @@ IL_0035:
 
 IL_0058:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:187>
 		int32_t L_16 = V_5;
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_17;
 		L_17 = VirtualFuncInvoker1< CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721, int32_t >::Invoke(31, __this, L_16);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:188>
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_18 = L_17;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_19 = L_18.___position;
 		float L_20 = L_19.___x;
@@ -9040,7 +8400,6 @@ IL_0058:
 		float L_24;
 		L_24 = fabsf(((float)il2cpp_codegen_subtract(L_20, L_23)));
 		V_6 = L_24;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:189>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_25 = L_18.___position;
 		float L_26 = L_25.___x;
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_27 = V_1;
@@ -9052,7 +8411,6 @@ IL_0058:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:191>
 		float L_30 = V_6;
 		float L_31 = V_4;
 		if ((!(((float)L_30) < ((float)L_31))))
@@ -9061,31 +8419,26 @@ IL_0058:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:193>
 		int32_t L_32 = V_5;
 		return L_32;
 	}
 
 IL_009e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:197>
 		int32_t L_33 = V_5;
 		return ((int32_t)il2cpp_codegen_subtract(L_33, 1));
 	}
 
 IL_00a3:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:201>
 		float L_34 = V_6;
 		V_4 = L_34;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:185>
 		int32_t L_35 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_35, 1));
 	}
 
 IL_00ad:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:185>
 		int32_t L_36 = V_5;
 		int32_t L_37 = V_3;
 		if ((((int32_t)L_36) < ((int32_t)L_37)))
@@ -9094,12 +8447,10 @@ IL_00ad:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:203>
 		int32_t L_38 = V_3;
 		return L_38;
 	}
 }
-// Method Definition Index: 54920
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineUpPosition_m92DA7B628700974BB516B6C5330855A08332EB50 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_position, bool ___1_multiline, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -9111,10 +8462,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineUpPosition_m92DA7B62
 	int32_t V_5 = 0;
 	float V_6 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:211>
 		int32_t L_0 = ___0_position;
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:212>
 		bool L_1 = ___1_multiline;
 		if (L_1)
 		{
@@ -9122,23 +8471,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_LineUpPosition_m92DA7B62
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:214>
 		return 0;
 	}
 
 IL_0007:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:217>
 		int32_t L_2 = V_0;
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_3;
 		L_3 = VirtualFuncInvoker1< CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721, int32_t >::Invoke(31, __this, L_2);
 		V_1 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:218>
 		int32_t L_4 = V_0;
 		int32_t L_5;
 		L_5 = TextRenderer_DetermineCharacterLine_m6E5EF0920CF6DD5D67A971AABA211295045047A6(__this, L_4, NULL);
 		V_2 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:220>
 		int32_t L_6 = V_2;
 		if ((((int32_t)L_6) > ((int32_t)0)))
 		{
@@ -9146,21 +8491,17 @@ IL_0007:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:222>
 		return 0;
 	}
 
 IL_001d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:225>
 		int32_t L_7 = V_2;
 		LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B L_8;
 		L_8 = VirtualFuncInvoker1< LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B, int32_t >::Invoke(32, __this, L_7);
 		int32_t L_9 = L_8.___startCharIdx;
 		V_3 = ((int32_t)il2cpp_codegen_subtract(L_9, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:227>
 		V_4 = ((std::numeric_limits<float>::max)());
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:228>
 		int32_t L_10 = V_2;
 		LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B L_11;
 		L_11 = VirtualFuncInvoker1< LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B, int32_t >::Invoke(32, __this, ((int32_t)il2cpp_codegen_subtract(L_10, 1)));
@@ -9171,11 +8512,9 @@ IL_001d:
 
 IL_0045:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:230>
 		int32_t L_13 = V_5;
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_14;
 		L_14 = VirtualFuncInvoker1< CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721, int32_t >::Invoke(31, __this, L_13);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:231>
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_15 = L_14;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_16 = L_15.___position;
 		float L_17 = L_16.___x;
@@ -9185,7 +8524,6 @@ IL_0045:
 		float L_21;
 		L_21 = fabsf(((float)il2cpp_codegen_subtract(L_17, L_20)));
 		V_6 = L_21;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:232>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_22 = L_15.___position;
 		float L_23 = L_22.___x;
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_24 = V_1;
@@ -9197,7 +8535,6 @@ IL_0045:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:234>
 		float L_27 = V_6;
 		float L_28 = V_4;
 		if ((!(((float)L_27) < ((float)L_28))))
@@ -9206,31 +8543,26 @@ IL_0045:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:236>
 		int32_t L_29 = V_5;
 		return L_29;
 	}
 
 IL_008b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:240>
 		int32_t L_30 = V_5;
 		return ((int32_t)il2cpp_codegen_subtract(L_30, 1));
 	}
 
 IL_0090:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:244>
 		float L_31 = V_6;
 		V_4 = L_31;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:228>
 		int32_t L_32 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_32, 1));
 	}
 
 IL_009a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:228>
 		int32_t L_33 = V_5;
 		int32_t L_34 = V_3;
 		if ((((int32_t)L_33) < ((int32_t)L_34)))
@@ -9239,116 +8571,93 @@ IL_009a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:246>
 		int32_t L_35 = V_3;
 		return L_35;
 	}
 }
-// Method Definition Index: 54921
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_Show_mECF1C8C02D2218E1B602EFA42304B3CEA1CD3FEF (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:249>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_Show_mECF1C8C02D2218E1B602EFA42304B3CEA1CD3FEF_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54922
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer_Hide_mAA06493BF75F2D5C3C6B8B7EBDDE6DB92FDFD07F (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:250>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_Hide_mAA06493BF75F2D5C3C6B8B7EBDDE6DB92FDFD07F_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54923
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_UpdateImmediately_mDC3729F179E112A2A20DBFFD01586E6FF04FD6B9 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:252>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_UpdateImmediately_mDC3729F179E112A2A20DBFFD01586E6FF04FD6B9_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54924
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float TextRenderer_DeterminePreferredWidth_mCF76BE1E570CA1A4CDBD9BBE814C5AE4E936DE98 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_fontSize, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:253>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_DeterminePreferredWidth_mCF76BE1E570CA1A4CDBD9BBE814C5AE4E936DE98_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54925
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float TextRenderer_DeterminePreferredHeight_m5458781BB89CC14DF8DCE15FA3ACC853575F928D (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_fontSize, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:254>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_DeterminePreferredHeight_m5458781BB89CC14DF8DCE15FA3ACC853575F928D_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54926
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_FontHasCharacter_m7436148532217C0C7D5604F4EE7034A3DFECCA8E (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, Il2CppChar ___0_c, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:255>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_FontHasCharacter_m7436148532217C0C7D5604F4EE7034A3DFECCA8E_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54927
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool TextRenderer_IsReady_m984646832EC86DDE04E78BE8D28ADD7D8FD5F708 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:256>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_IsReady_m984646832EC86DDE04E78BE8D28ADD7D8FD5F708_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54928
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 TextRenderer_GetCharacterInfo_m43E60E0D62604D5D9429B42BB9607A17028C5ED8 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:257>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_GetCharacterInfo_m43E60E0D62604D5D9429B42BB9607A17028C5ED8_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54929
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B TextRenderer_GetLineInfo_m022F8085AE0E6D3A642E2CA06EA835F151E7311B (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:258>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_GetLineInfo_m022F8085AE0E6D3A642E2CA06EA835F151E7311B_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54930
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t TextRenderer_GetLineEndCharIndex_m4E3E2068A0041015EC88E805FAF3F94DE6745354 (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, int32_t ___0_line, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:262>
 		NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8* L_0 = (NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NotImplementedException_t6366FE4DCF15094C51F4833B91A2AE68D4DA90E8_il2cpp_TypeInfo_var)));
 		NotImplementedException__ctor_m8339D1A685E8D77CAC9D3260C06B38B5C7CA7742(L_0, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral0AF262B75027B742D33DBEB409F6ACCE36CBD702)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&TextRenderer_GetLineEndCharIndex_m4E3E2068A0041015EC88E805FAF3F94DE6745354_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54931
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer__ctor_m78A2C33236FDC07045A53C7B6825A54A616405AE (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:58>
 		__this->___autoAnchor = (bool)1;
 		MonoBehaviour__ctor_m592DB0105CA0BC97AA1C5F4AD27B12D68A3B7C1E(__this, NULL);
 		return;
@@ -9362,7 +8671,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TextRenderer__ctor_m78A2C33236FDC07045A5
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54932
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMProTextRenderer__ctor_mF38D76DB898720FC00395CAA4516E291D49FC844 (TMProTextRenderer_t915636B2EA21F0BD630B1FCB0B1F41513710E4DA* __this, const RuntimeMethod* method) 
 {
 	{
@@ -9378,7 +8686,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMProTextRenderer__ctor_mF38D76DB898720F
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54933
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9389,7 +8696,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E6
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:23>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -9400,7 +8706,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E6
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:25>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_2;
 		L_2 = Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888(__this, Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888_RuntimeMethod_var);
 		__this->___renderer = L_2;
@@ -9409,16 +8714,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E6
 
 IL_001a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:28>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_3 = __this->___renderer;
 		return L_3;
 	}
 }
-// Method Definition Index: 54934
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* UnityTextRenderer_get_Text_m92A030EB1B79D9FEC5624DDBE16223DD924D69F8 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:36>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9427,25 +8729,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* UnityTextRenderer_get_Text_m92A030E
 		return L_1;
 	}
 }
-// Method Definition Index: 54935
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_set_Text_m73EBA6D1AEA95CE1E8D32FAF3B947D0E53FFB5DB (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, String_t* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:40>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		String_t* L_1 = ___0_value;
 		NullCheck(L_0);
 		VirtualActionInvoker1< String_t* >::Invoke(75, L_0, L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:41>
 		return;
 	}
 }
-// Method Definition Index: 54936
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_get_Visible_mF828FF412A48BFDC2DC34DEA4433129F3F66C4E0 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:44>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9454,7 +8751,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_get_Visible_mF828FF412
 		return L_1;
 	}
 }
-// Method Definition Index: 54937
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* UnityTextRenderer_get_Canvas_m38E7A018322AEF68C5ABC4BB0A603AEA28FE8FA7 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9465,7 +8761,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:50>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_0 = __this->___canvas;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -9476,7 +8771,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:52>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_2;
 		L_2 = Component_GetComponentInParent_TisCanvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26_m5FB554DD7C0F662DAB84C0F292B221CAE3F0A5B3(__this, Component_GetComponentInParent_TisCanvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26_m5FB554DD7C0F662DAB84C0F292B221CAE3F0A5B3_RuntimeMethod_var);
 		__this->___canvas = L_2;
@@ -9485,12 +8779,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 
 IL_001a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:55>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_3 = __this->___canvas;
 		return L_3;
 	}
 }
-// Method Definition Index: 54938
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_CanvasScaleFactor_m8D6817AFD8338520704C2FF23B120B53B4525032 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9500,7 +8792,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_CanvasScaleFactor
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:63>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_0;
 		L_0 = UnityTextRenderer_get_Canvas_m38E7A018322AEF68C5ABC4BB0A603AEA28FE8FA7(__this, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
@@ -9512,7 +8803,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_CanvasScaleFactor
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:65>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_2;
 		L_2 = UnityTextRenderer_get_Canvas_m38E7A018322AEF68C5ABC4BB0A603AEA28FE8FA7(__this, NULL);
 		NullCheck(L_2);
@@ -9523,62 +8813,48 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_CanvasScaleFactor
 
 IL_001a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:68>
 		return (1.0f);
 	}
 }
-// Method Definition Index: 54939
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_get_Multiline_m905010691497084E3A52CB16604307FCC1D36EA3 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:74>
 		bool L_0 = ((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___multiline;
 		return L_0;
 	}
 }
-// Method Definition Index: 54940
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_set_Multiline_mB5E72FBE04AFE38D812828008D63E124F555D3D5 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, bool ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:77>
 		bool L_0 = ___0_value;
 		((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___multiline = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:78>
 		return;
 	}
 }
-// Method Definition Index: 54941
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_get_RichTextEnabled_m515DC333C5ED68FF761E08955350CBA3B56F38C7 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:83>
 		bool L_0 = ((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___richTextEditingEnabled;
 		return L_0;
 	}
 }
-// Method Definition Index: 54942
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_set_RichTextEnabled_mB8841E234C17EE9C9652327E9B95F8DA8308E0D8 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, bool ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:86>
 		bool L_0 = ___0_value;
 		((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___richTextEditingEnabled = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:87>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_1;
 		L_1 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		bool L_2 = ___0_value;
 		NullCheck(L_1);
 		Text_set_supportRichText_mB4DB141150AEBCCADEFFF4EC7A799F85FD075265(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:88>
 		return;
 	}
 }
-// Method Definition Index: 54943
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_TextAlignment_mC498F2613671CD5A7471A4B16584CFD1D90C8A2F (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:95>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		NullCheck(L_0);
 		int32_t L_1;
@@ -9631,69 +8907,57 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_TextAlignment_m
 
 IL_0038:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:97>
 		return (int32_t)(0);
 	}
 
 IL_003a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:98>
 		return (int32_t)(1);
 	}
 
 IL_003c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:99>
 		return (int32_t)(2);
 	}
 
 IL_003e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:100>
 		return (int32_t)(3);
 	}
 
 IL_0040:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:101>
 		return (int32_t)(4);
 	}
 
 IL_0042:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:102>
 		return (int32_t)(5);
 	}
 
 IL_0044:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:103>
 		return (int32_t)(6);
 	}
 
 IL_0046:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:104>
 		return (int32_t)(7);
 	}
 
 IL_0048:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:105>
 		return (int32_t)(8);
 	}
 
 IL_004a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:106>
 		return (int32_t)(0);
 	}
 }
-// Method Definition Index: 54944
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_LineCount_mA1FA2E8DAA9221101C97428E5EEDD011F4501C60 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:115>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9705,11 +8969,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_LineCount_mA1FA
 		return L_2;
 	}
 }
-// Method Definition Index: 54945
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_CharacterCount_mF4716F740DD3DEF03AF8C4FC49D4FA217D24DEAD (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:123>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9723,11 +8985,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_CharacterCount_
 		return L_3;
 	}
 }
-// Method Definition Index: 54946
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_CharacterCountVisible_mD9F5D8D707B29D103FE2CFA5CA5FE48B9F17CA77 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:131>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9739,11 +8999,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_get_CharacterCountV
 		return L_2;
 	}
 }
-// Method Definition Index: 54947
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C1F UnityTextRenderer_get_Color_mBC8E15511F922B2984F4003653073A8CAB6DEC65 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:139>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9752,25 +9010,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Color_tD001788D726C3A7F1379BEED0260B9591F440C
 		return L_1;
 	}
 }
-// Method Definition Index: 54948
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_set_Color_m1646D9BDF5CEB6F0BECD771B41A55E648D442E20 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:143>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		Color_tD001788D726C3A7F1379BEED0260B9591F440C1F L_1 = ___0_value;
 		NullCheck(L_0);
 		VirtualActionInvoker1< Color_tD001788D726C3A7F1379BEED0260B9591F440C1F >::Invoke(23, L_0, L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:144>
 		return;
 	}
 }
-// Method Definition Index: 54949
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_FontSize_mCE5C2233DF3F3BECC600B4FD6FA70DBF68BE4B17 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:151>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9779,11 +9032,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_FontSize_mCE5C223
 		return ((float)L_1);
 	}
 }
-// Method Definition Index: 54950
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_set_FontSize_mE5090D55935B1BFB858E0068F0C9C97DEDD0D6E7 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, float ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:155>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		float L_1 = ___0_value;
@@ -9791,15 +9042,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_set_FontSize_mE5090D55
 		L_2 = Mathf_RoundToInt_m60F8B66CF27F1FA75AA219342BD184B75771EB4B_inline(L_1, NULL);
 		NullCheck(L_0);
 		Text_set_fontSize_m426338B0A2CDA58609028FFD471EF5F2C9F364D4(L_0, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:156>
 		return;
 	}
 }
-// Method Definition Index: 54951
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_get_ResizeTextForBestFit_m714D8802096CC1906D359E36E00DB85F9FD95A41 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:163>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9808,11 +9056,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_get_ResizeTextForBestF
 		return L_1;
 	}
 }
-// Method Definition Index: 54952
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_FontSizeUsedForBestFit_mC018CCF32F83ADEDBE5ADAAF29F3278C4DC1F9A8 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:171>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
@@ -9824,7 +9070,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_get_FontSizeUsedForBe
 		return ((float)L_2);
 	}
 }
-// Method Definition Index: 54953
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_Awake_m556281D9B8CB5F89E2BE2A7186326FB88DE0741C (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9834,48 +9079,37 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_Awake_m556281D9B8CB5F8
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:177>
 		TextRenderer_Awake_m68EA1F82029654D46A92E97AE6F6F116AE8045C6(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:179>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888(__this, Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888_RuntimeMethod_var);
 		__this->___renderer = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___renderer), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:180>
 		return;
 	}
 }
-// Method Definition Index: 54954
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_Show_mE237293ABD8DA212A2B0E7CD661D18E4D4E4E774 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:184>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
 		Behaviour_set_enabled_mF1DCFE60EB09E0529FE9476CA804A3AA2D72B16A(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:185>
 		return;
 	}
 }
-// Method Definition Index: 54955
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_Hide_m24F69DC2585551C14459CB009A696265A9F92976 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:189>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0;
 		L_0 = UnityTextRenderer_get_Renderer_mBFEC336482C1E9DC90323307893A4CFFE13BB16F(__this, NULL);
 		NullCheck(L_0);
 		Behaviour_set_enabled_mF1DCFE60EB09E0529FE9476CA804A3AA2D72B16A(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:190>
 		return;
 	}
 }
-// Method Definition Index: 54956
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_UpdateImmediately_m45F888C02349BEC3504C81B12E7E89C169800C73 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:194>
 		String_t* L_0;
 		L_0 = VirtualFuncInvoker0< String_t* >::Invoke(10, __this);
 		bool L_1;
@@ -9886,18 +9120,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_UpdateImmediately_m45F
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:196>
 		return (bool)0;
 	}
 
 IL_000f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:200>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_2 = __this->___renderer;
 		TextExtensions_UpdateImmediately_m3F7BD20A4B91541B5B9BFCB0F1C19A4477762DD7(L_2, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:201>
 		UnityTextRenderer_RefreshCharacterData_m8F64348E559BDBF1E1D0ECB1B50BF534D52644E5(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:204>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_3 = __this->___renderer;
 		NullCheck(L_3);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_4;
@@ -9908,19 +9138,15 @@ IL_000f:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:206>
 		UnityTextRenderer_RefreshCharacterData_m8F64348E559BDBF1E1D0ECB1B50BF534D52644E5(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:207>
 		return (bool)1;
 	}
 
 IL_0036:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:210>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54957
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_RefreshCharacterData_m8F64348E559BDBF1E1D0ECB1B50BF534D52644E5 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -9929,6 +9155,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_RefreshCharacterData_m
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&ICollection_1_t69729189F3D47D27F939926609B63BADA6E41444_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&IList_1_t7C94015474540F0009E4F2C369960F5CBFF622E9_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
 	RuntimeObject* V_0 = NULL;
@@ -9942,43 +9169,34 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer_RefreshCharacterData_m
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_7;
 	memset((&V_7), 0, sizeof(V_7));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:215>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		NullCheck(L_0);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_1;
 		L_1 = Text_get_cachedTextGenerator_mFC242539F7380F54696D431B126B69DC4EFC821E(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:216>
 		NullCheck(L_1);
 		RuntimeObject* L_2;
 		L_2 = TextGenerator_get_characters_mDA07F7108C6EF6F5DF61C478FDF3EB18DCE6B34A(L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:217>
 		V_1 = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:218>
 		V_2 = ((std::numeric_limits<float>::max)());
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:219>
 		V_3 = (-(std::numeric_limits<float>::max)());
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:221>
 		RuntimeObject* L_3 = V_0;
 		NullCheck(L_3);
 		int32_t L_4;
 		L_4 = InterfaceFuncInvoker0< int32_t >::Invoke(0, ICollection_1_t69729189F3D47D27F939926609B63BADA6E41444_il2cpp_TypeInfo_var, L_3);
 		V_4 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:222>
 		V_5 = 0;
 		goto IL_0095;
 	}
 
 IL_0030:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:224>
 		RuntimeObject* L_5 = V_0;
 		int32_t L_6 = V_5;
 		NullCheck(L_5);
 		UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD L_7;
 		L_7 = InterfaceFuncInvoker1< UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD, int32_t >::Invoke(0, IList_1_t7C94015474540F0009E4F2C369960F5CBFF622E9_il2cpp_TypeInfo_var, L_5, L_6);
 		V_6 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:226>
 		bool L_8;
 		L_8 = VirtualFuncInvoker0< bool >::Invoke(5, __this);
 		if (!L_8)
@@ -9999,7 +9217,6 @@ IL_0030:
 
 IL_0050:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:228>
 		float L_11 = V_1;
 		UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD L_12 = V_6;
 		float L_13 = L_12.___charWidth;
@@ -10010,7 +9227,6 @@ IL_0050:
 
 IL_0061:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:231>
 		UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD L_15 = V_6;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_16 = L_15.___cursorPos;
 		float L_17 = L_16.___x;
@@ -10018,7 +9234,6 @@ IL_0061:
 		float L_19;
 		L_19 = Mathf_Min_m747CA71A9483CDB394B13BD0AD048EE17E48FFE4_inline(L_17, L_18, NULL);
 		V_2 = L_19;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:232>
 		UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD L_20 = V_6;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_21 = L_20.___cursorPos;
 		float L_22 = L_21.___x;
@@ -10028,14 +9243,12 @@ IL_0061:
 		float L_26;
 		L_26 = Mathf_Max_mF5379E63D2BBAC76D090748695D833934F8AD051_inline(((float)il2cpp_codegen_add(L_22, L_24)), L_25, NULL);
 		V_3 = L_26;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:222>
 		int32_t L_27 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_27, 1));
 	}
 
 IL_0095:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:222>
 		int32_t L_28 = V_5;
 		int32_t L_29 = V_4;
 		if ((((int32_t)L_28) < ((int32_t)L_29)))
@@ -10044,7 +9257,6 @@ IL_0095:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:235>
 		bool L_30;
 		L_30 = VirtualFuncInvoker0< bool >::Invoke(5, __this);
 		if (!L_30)
@@ -10065,7 +9277,6 @@ IL_0095:
 
 IL_00b1:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:237>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* L_33 = (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7*)(&((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___preferredSize);
 		float L_34 = V_1;
 		float L_35;
@@ -10076,17 +9287,16 @@ IL_00b1:
 
 IL_00c6:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:241>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* L_36 = (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7*)(&((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___preferredSize);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_37 = ((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___viewportTransform;
 		NullCheck(L_37);
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_38;
 		L_38 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_37, NULL);
 		V_7 = L_38;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_39;
 		L_39 = Rect_get_width_m620D67551372073C9C32C4C4624C2A5713F7F9A9_inline((&V_7), NULL);
 		L_36->___x = L_39;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:242>
 		float L_40 = V_3;
 		float L_41 = V_2;
 		if ((!(((float)L_40) > ((float)L_41))))
@@ -10095,7 +9305,6 @@ IL_00c6:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:244>
 		float L_42 = V_3;
 		float L_43 = V_2;
 		float L_44;
@@ -10106,13 +9315,11 @@ IL_00c6:
 
 IL_00fb:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:248>
 		TextRenderer_set_MultilineMaxWidth_m2AE431508FFBA1A2307DACE705966742A0CBAE54_inline(__this, (0.0f), NULL);
 	}
 
 IL_0106:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:252>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* L_45 = (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7*)(&((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___preferredSize);
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_46 = __this->___renderer;
 		NullCheck(L_46);
@@ -10123,15 +9330,12 @@ IL_0106:
 		float L_49;
 		L_49 = Text_get_lineSpacing_m124405CE023E0E23D9040BAA84318408248DF9CF(L_48, NULL);
 		L_45->___y = ((float)il2cpp_codegen_add(L_47, ((float)il2cpp_codegen_multiply((3.0f), L_49))));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:253>
 		return;
 	}
 }
-// Method Definition Index: 54958
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_FontHasCharacter_mCB0869169DA308B53933E499B91213045B253FA8 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, Il2CppChar ___0_c, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:257>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		NullCheck(L_0);
 		Font_tC95270EA3198038970422D78B74A7F2E218A96B6* L_1;
@@ -10143,24 +9347,22 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_FontHasCharacter_mCB08
 		return L_3;
 	}
 }
-// Method Definition Index: 54959
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool UnityTextRenderer_IsReady_m66B5836FEEC45706CD0967BA269EDA1FEDE80971 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:262>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		bool L_1;
 		L_1 = TextExtensions_IsReady_m2EAB4EE183FB46DE1E7C032C675B9105DCDBCDCB(L_0, NULL);
 		return L_1;
 	}
 }
-// Method Definition Index: 54960
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 UnityTextRenderer_GetCharacterInfo_m582F0B49E5B4B23B0749C6E919893C79E4079614 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&IList_1_t7C94015474540F0009E4F2C369960F5CBFF622E9_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral2386E77CF610F786B06A91AF2C1B3FD2282D2745);
 		s_Il2CppMethodInitialized = true;
 	}
@@ -10177,12 +9379,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CharacterInfo_t3EE823E26F14A995C2793A79409EA7
 	TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* G_B2_0 = NULL;
 	TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* G_B1_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:268>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		NullCheck(L_0);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_1;
 		L_1 = Text_get_cachedTextGenerator_mFC242539F7380F54696D431B126B69DC4EFC821E(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:269>
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_2 = L_1;
 		NullCheck(L_2);
 		int32_t L_3;
@@ -10195,19 +9395,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CharacterInfo_t3EE823E26F14A995C2793A79409EA7
 		G_B1_0 = L_2;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:271>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_4 = __this->___renderer;
 		NullCheck(L_4);
 		VirtualActionInvoker1< String_t* >::Invoke(75, L_4, _stringLiteral2386E77CF610F786B06A91AF2C1B3FD2282D2745);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:272>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_5 = __this->___renderer;
 		TextExtensions_UpdateImmediately_m3F7BD20A4B91541B5B9BFCB0F1C19A4477762DD7(L_5, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:273>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_6 = __this->___renderer;
 		String_t* L_7 = ((String_t_StaticFields*)il2cpp_codegen_static_fields_for(il2cpp_defaults.string_class))->___Empty;
 		NullCheck(L_6);
 		VirtualActionInvoker1< String_t* >::Invoke(75, L_6, L_7);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:274>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_8 = __this->___renderer;
 		TextExtensions_UpdateImmediately_m3F7BD20A4B91541B5B9BFCB0F1C19A4477762DD7(L_8, (bool)1, NULL);
 		G_B2_0 = G_B1_0;
@@ -10215,7 +9411,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR CharacterInfo_t3EE823E26F14A995C2793A79409EA7
 
 IL_004b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:277>
 		NullCheck(G_B2_0);
 		RuntimeObject* L_9;
 		L_9 = TextGenerator_get_characters_mDA07F7108C6EF6F5DF61C478FDF3EB18DCE6B34A(G_B2_0, NULL);
@@ -10224,7 +9419,6 @@ IL_004b:
 		UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD L_11;
 		L_11 = InterfaceFuncInvoker1< UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD, int32_t >::Invoke(0, IList_1_t7C94015474540F0009E4F2C369960F5CBFF622E9_il2cpp_TypeInfo_var, L_9, L_10);
 		V_0 = L_11;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:278>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_12 = __this->___renderer;
 		NullCheck(L_12);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_13;
@@ -10233,14 +9427,10 @@ IL_004b:
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_14;
 		L_14 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_13, NULL);
 		V_3 = L_14;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_15;
 		L_15 = Rect_get_size_mFB990FFC0FE0152179C8C74A59E4AC258CB44267_inline((&V_3), NULL);
 		V_1 = L_15;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:279>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:280>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:281>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:282>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:283>
 		il2cpp_codegen_initobj((&V_4), sizeof(CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721));
 		UICharInfo_t24C2EA0F2F3A938100C271891D9DEB015ABA5FBD L_16 = V_0;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_17 = L_16.___cursorPos;
@@ -10256,7 +9446,6 @@ IL_004b:
 		(&V_4)->___width = ((float)(L_21/L_22));
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_23 = V_4;
 		V_2 = L_23;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:284>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* L_24 = (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7*)(&(&V_2)->___position);
 		float* L_25 = (float*)(&L_24->___x);
 		float* L_26 = L_25;
@@ -10264,7 +9453,6 @@ IL_004b:
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_28 = V_1;
 		float L_29 = L_28.___x;
 		*((float*)L_26) = (float)((float)il2cpp_codegen_add(L_27, ((float)il2cpp_codegen_multiply(L_29, (0.5f)))));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:285>
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* L_30 = (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7*)(&(&V_2)->___position);
 		float* L_31 = (float*)(&L_30->___y);
 		float* L_32 = L_31;
@@ -10272,18 +9460,17 @@ IL_004b:
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_34 = V_1;
 		float L_35 = L_34.___y;
 		*((float*)L_32) = (float)((float)il2cpp_codegen_subtract(L_33, ((float)il2cpp_codegen_multiply(L_35, (0.5f)))));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:287>
 		CharacterInfo_t3EE823E26F14A995C2793A79409EA7B7058C9721 L_36 = V_2;
 		return L_36;
 	}
 }
-// Method Definition Index: 54961
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B UnityTextRenderer_GetLineInfo_m2466280CF520D71CA5DACC2AD5CA51A825C6CB2B (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&IList_1_tD01F121A6E09A7FB2463237A05A02D8736665FDB_il2cpp_TypeInfo_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
 	UILineInfo_tC6FF4F85BD2316FADA2148A1789B3FF0B05A6CAC V_0;
@@ -10295,12 +9482,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR LineInfo_t107AF1E63DB2CF18ACBC51438EC3A510292
 	LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B V_3;
 	memset((&V_3), 0, sizeof(V_3));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:292>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		NullCheck(L_0);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_1;
 		L_1 = Text_get_cachedTextGenerator_mFC242539F7380F54696D431B126B69DC4EFC821E(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:293>
 		NullCheck(L_1);
 		RuntimeObject* L_2;
 		L_2 = TextGenerator_get_lines_m52DAB15921DC96120CA6C21A3FEB2406D4A76064(L_1, NULL);
@@ -10309,7 +9494,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR LineInfo_t107AF1E63DB2CF18ACBC51438EC3A510292
 		UILineInfo_tC6FF4F85BD2316FADA2148A1789B3FF0B05A6CAC L_4;
 		L_4 = InterfaceFuncInvoker1< UILineInfo_tC6FF4F85BD2316FADA2148A1789B3FF0B05A6CAC, int32_t >::Invoke(0, IList_1_tD01F121A6E09A7FB2463237A05A02D8736665FDB_il2cpp_TypeInfo_var, L_2, L_3);
 		V_0 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:294>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_5 = __this->___renderer;
 		NullCheck(L_5);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_6;
@@ -10318,15 +9502,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR LineInfo_t107AF1E63DB2CF18ACBC51438EC3A510292
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_7;
 		L_7 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_6, NULL);
 		V_2 = L_7;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8;
 		L_8 = Rect_get_size_mFB990FFC0FE0152179C8C74A59E4AC258CB44267_inline((&V_2), NULL);
 		V_1 = L_8;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:295>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:296>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:297>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:298>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:299>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:300>
 		il2cpp_codegen_initobj((&V_3), sizeof(LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B));
 		UILineInfo_tC6FF4F85BD2316FADA2148A1789B3FF0B05A6CAC L_9 = V_0;
 		float L_10 = L_9.___topY;
@@ -10344,11 +9523,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR LineInfo_t107AF1E63DB2CF18ACBC51438EC3A510292
 		int32_t L_18 = L_17.___startCharIdx;
 		(&V_3)->___startCharIdx = L_18;
 		LineInfo_t107AF1E63DB2CF18ACBC51438EC3A5102926EB9B L_19 = V_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:302>
 		return L_19;
 	}
 }
-// Method Definition Index: 54962
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_GetLineEndCharIndex_mE81880E0CADB4049EAC85EF58FBD992A5559E974 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, int32_t ___0_line, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10359,18 +9536,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_GetLineEndCharIndex
 	}
 	TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:307>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		NullCheck(L_0);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_1;
 		L_1 = Text_get_cachedTextGenerator_mFC242539F7380F54696D431B126B69DC4EFC821E(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:308>
 		int32_t L_2 = ___0_line;
 		int32_t L_3;
 		L_3 = Mathf_Max_m7FA442918DE37E3A00106D1F2E789D65829792B8_inline(L_2, 0, NULL);
 		___0_line = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:309>
 		int32_t L_4 = ___0_line;
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_5 = V_0;
 		NullCheck(L_5);
@@ -10382,7 +9556,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_GetLineEndCharIndex
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:311>
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_7 = V_0;
 		NullCheck(L_7);
 		RuntimeObject* L_8;
@@ -10397,7 +9570,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t UnityTextRenderer_GetLineEndCharIndex
 
 IL_0036:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:314>
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_12 = V_0;
 		NullCheck(L_12);
 		int32_t L_13;
@@ -10405,39 +9577,38 @@ IL_0036:
 		return L_13;
 	}
 }
-// Method Definition Index: 54963
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_DeterminePreferredWidth_m9B0E604BC49515BB583E81A6ADE1660F93421058 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, int32_t ___0_fontSize, const RuntimeMethod* method) 
 {
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
 	TextGenerationSettings_tBB6E86AC0B348D19158D6721BE790865B04993F3 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_1;
 	memset((&V_1), 0, sizeof(V_1));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:319>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = ((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___rectTransform;
 		NullCheck(L_1);
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_2;
 		L_2 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_1, NULL);
 		V_1 = L_2;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_3;
 		L_3 = Rect_get_size_mFB990FFC0FE0152179C8C74A59E4AC258CB44267_inline((&V_1), NULL);
 		NullCheck(L_0);
 		TextGenerationSettings_tBB6E86AC0B348D19158D6721BE790865B04993F3 L_4;
 		L_4 = Text_GetGenerationSettings_m620E0E5AFB30E3331A0371EB2361F587BB0A1E0F(L_0, L_3, NULL);
 		V_0 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:320>
 		int32_t L_5 = ___0_fontSize;
 		(&V_0)->___fontSize = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:321>
 		(&V_0)->___generateOutOfBounds = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:322>
 		(&V_0)->___horizontalOverflow = 1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:323>
 		(&V_0)->___verticalOverflow = 1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:324>
 		(&V_0)->___scaleFactor = (1.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:326>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_6 = __this->___renderer;
 		NullCheck(L_6);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_7;
@@ -10451,39 +9622,38 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_DeterminePreferredWid
 		return L_10;
 	}
 }
-// Method Definition Index: 54964
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_DeterminePreferredHeight_mB6B4DBAB8FB9D2DF8D58ABD97755F26E718043E2 (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, int32_t ___0_fontSize, const RuntimeMethod* method) 
 {
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
+		s_Il2CppMethodInitialized = true;
+	}
 	TextGenerationSettings_tBB6E86AC0B348D19158D6721BE790865B04993F3 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_1;
 	memset((&V_1), 0, sizeof(V_1));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:331>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___renderer;
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = ((TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1*)__this)->___rectTransform;
 		NullCheck(L_1);
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_2;
 		L_2 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_1, NULL);
 		V_1 = L_2;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_3;
 		L_3 = Rect_get_size_mFB990FFC0FE0152179C8C74A59E4AC258CB44267_inline((&V_1), NULL);
 		NullCheck(L_0);
 		TextGenerationSettings_tBB6E86AC0B348D19158D6721BE790865B04993F3 L_4;
 		L_4 = Text_GetGenerationSettings_m620E0E5AFB30E3331A0371EB2361F587BB0A1E0F(L_0, L_3, NULL);
 		V_0 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:332>
 		int32_t L_5 = ___0_fontSize;
 		(&V_0)->___fontSize = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:333>
 		(&V_0)->___generateOutOfBounds = (bool)1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:334>
 		(&V_0)->___horizontalOverflow = 1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:335>
 		(&V_0)->___verticalOverflow = 1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:336>
 		(&V_0)->___scaleFactor = (1.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/UnityTextRenderer.cs:338>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_6 = __this->___renderer;
 		NullCheck(L_6);
 		TextGenerator_t85D00417640A53953556C01F9D4E7DDE1ABD8FEC* L_7;
@@ -10497,7 +9667,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float UnityTextRenderer_DeterminePreferredHei
 		return L_10;
 	}
 }
-// Method Definition Index: 54965
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer__ctor_mF6E44659C58127FCB9988A47E12FA55170831B7E (UnityTextRenderer_t6B48B64C580FB8DA31BFFFF999449A7C1E6D5D7C* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10513,7 +9682,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnityTextRenderer__ctor_mF6E44659C58127F
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54966
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_Awake_m3AD1B4C8DE5B276775AF6775AB3B52C7D1A8F066 (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10525,46 +9693,37 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_Awake_m3AD1B4C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:23>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0;
 		L_0 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(__this, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___inputField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___inputField), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:24>
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_1 = (List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76*)il2cpp_codegen_object_new(List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76_il2cpp_TypeInfo_var);
 		List_1__ctor_m2E23499A8E7EFA74D6EF3D34FDDFF0CFD1D3E291(L_1, List_1__ctor_m2E23499A8E7EFA74D6EF3D34FDDFF0CFD1D3E291_RuntimeMethod_var);
 		__this->___textSelectionRegions = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___textSelectionRegions), (void*)L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:26>
 		MultiTextSelectionRenderer_t54FDC29775A526E9E958F91686DB120D5D8DE09C* L_2 = __this->___selectionRenderer;
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___inputField;
 		NullCheck(L_2);
 		MultiTextSelectionRenderer_Initialize_m2A3E8DF639BEE297D35287FE7187BD3997E1CDBA(L_2, L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:27>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_4 = __this->___inputField;
 		NullCheck(L_4);
 		String_t* L_5;
 		L_5 = AdvancedInputField_get_Text_m4102E05ACD0CE54CB27956F56DEB9864C53C8ADA(L_4, NULL);
 		__this->___fullHighlightedText = L_5;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___fullHighlightedText), (void*)L_5);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:28>
 		return;
 	}
 }
-// Method Definition Index: 54967
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_OnTextChanged_m94EDD94F8C073187C40CA720E4CC091266FD199A (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, String_t* ___0_text, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:32>
 		RuntimeObject* L_0;
 		L_0 = MultiTextSelectionHandler_DelayedClearHighlight_m0D0CC9B8908DCC69FE8B9E673BBA7DD13C6E16A4(__this, NULL);
 		Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B* L_1;
 		L_1 = MonoBehaviour_StartCoroutine_m4CAFF732AA28CD3BDC5363B44A863575530EC812(__this, L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:33>
 		return;
 	}
 }
-// Method Definition Index: 54968
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* MultiTextSelectionHandler_DelayedClearHighlight_m0D0CC9B8908DCC69FE8B9E673BBA7DD13C6E16A4 (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10583,11 +9742,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* MultiTextSelectionHandler_Dela
 		return L_1;
 	}
 }
-// Method Definition Index: 54969
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_OnSpecialKeyPressed_m92C6964AEB9EF5440073E9D389DA7B94AC14DD42 (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, int32_t ___0_keyCode, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:49>
 		int32_t L_0 = ___0_keyCode;
 		if ((!(((uint32_t)L_0) == ((uint32_t)1))))
 		{
@@ -10595,23 +9752,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_OnSpecialKeyPr
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:51>
 		MultiTextSelectionHandler_RemoveHighlightedWords_mC2E5E73FE7A67407FECFB5409EBDC1CAC8E04D7B(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:52>
 		__this->___backspacePressed = (bool)1;
 	}
 
 IL_0011:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:54>
 		return;
 	}
 }
-// Method Definition Index: 54970
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_OnTextTap_mB2CD1B605266EF916DD9979988B056F25AB9EC61 (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, int32_t ___0_tapCount, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___1_position, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:58>
 		int32_t L_0 = ___0_tapCount;
 		if ((!(((uint32_t)L_0) == ((uint32_t)1))))
 		{
@@ -10619,14 +9771,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_OnTextTap_mB2C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:60>
 		MultiTextSelectionHandler_ClearHighlight_m26E3BC09CE4887DD39273302F72D6E0C7A665F1D(__this, NULL);
 		return;
 	}
 
 IL_000b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:62>
 		int32_t L_1 = ___0_tapCount;
 		if ((!(((uint32_t)L_1) == ((uint32_t)3))))
 		{
@@ -10634,7 +9784,6 @@ IL_000b:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:64>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___inputField;
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___inputField;
 		NullCheck(L_3);
@@ -10642,17 +9791,14 @@ IL_000b:
 		L_4 = AdvancedInputField_get_TextSelectionStartPosition_m648D48C5894E7A9BCF7EE23DFFF4302C618F416D(L_3, NULL);
 		NullCheck(L_2);
 		AdvancedInputField_set_CaretPosition_m271CA356E53AAAC22C470F33D1491E99B9D62BEE(L_2, L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:65>
 		MultiTextSelectionHandler_HighlightAllWords_m87AAD4A0621AA8A8860300B273031960362CD022(__this, NULL);
 	}
 
 IL_002b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:67>
 		return;
 	}
 }
-// Method Definition Index: 54971
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_RemoveHighlightedWords_mC2E5E73FE7A67407FECFB5409EBDC1CAC8E04D7B (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10662,7 +9808,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_RemoveHighligh
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:71>
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_0 = __this->___textSelectionRegions;
 		NullCheck(L_0);
 		int32_t L_1;
@@ -10673,24 +9818,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_RemoveHighligh
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:73>
 		return;
 	}
 
 IL_000e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:76>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___inputField;
 		String_t* L_3 = ((String_t_StaticFields*)il2cpp_codegen_static_fields_for(il2cpp_defaults.string_class))->___Empty;
 		NullCheck(L_2);
 		AdvancedInputField_set_Text_m2444B40941C9E42372B05AA41DDC437E3C467EDC(L_2, L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:77>
 		MultiTextSelectionHandler_ClearHighlight_m26E3BC09CE4887DD39273302F72D6E0C7A665F1D(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:78>
 		return;
 	}
 }
-// Method Definition Index: 54972
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_ClearHighlight_m26E3BC09CE4887DD39273302F72D6E0C7A665F1D (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10700,20 +9840,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_ClearHighlight
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:82>
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_0 = __this->___textSelectionRegions;
 		NullCheck(L_0);
 		List_1_Clear_m692F2C15A4A958B5F0354F35E97EE977EE549819_inline(L_0, List_1_Clear_m692F2C15A4A958B5F0354F35E97EE977EE549819_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:83>
 		MultiTextSelectionRenderer_t54FDC29775A526E9E958F91686DB120D5D8DE09C* L_1 = __this->___selectionRenderer;
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_2 = __this->___textSelectionRegions;
 		NullCheck(L_1);
 		MultiTextSelectionRenderer_UpdateSelectionRegions_mA7BC11488BE2447567787EE543E04CFCF42AA2C6(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:84>
 		return;
 	}
 }
-// Method Definition Index: 54973
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_HighlightAllWords_m87AAD4A0621AA8A8860300B273031960362CD022 (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10728,45 +9864,37 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler_HighlightAllWo
 	int32_t V_2 = 0;
 	int32_t V_3 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:88>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___inputField;
 		NullCheck(L_0);
 		String_t* L_1;
 		L_1 = AdvancedInputField_get_Text_m4102E05ACD0CE54CB27956F56DEB9864C53C8ADA(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:89>
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_2 = __this->___textSelectionRegions;
 		NullCheck(L_2);
 		List_1_Clear_m692F2C15A4A958B5F0354F35E97EE977EE549819_inline(L_2, List_1_Clear_m692F2C15A4A958B5F0354F35E97EE977EE549819_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:90>
 		V_1 = (-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:92>
 		String_t* L_3 = V_0;
 		NullCheck(L_3);
 		int32_t L_4;
 		L_4 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_3, NULL);
 		V_2 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:93>
 		V_3 = 0;
 		goto IL_0057;
 	}
 
 IL_0024:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:95>
 		String_t* L_5 = V_0;
 		int32_t L_6 = V_3;
 		NullCheck(L_5);
 		Il2CppChar L_7;
 		L_7 = String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3(L_5, L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:96>
 		if ((!(((uint32_t)L_7) == ((uint32_t)((int32_t)32)))))
 		{
 			goto IL_004d;
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:98>
 		int32_t L_8 = V_1;
 		if ((((int32_t)L_8) == ((int32_t)(-1))))
 		{
@@ -10782,7 +9910,6 @@ IL_0024:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:100>
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_11 = __this->___textSelectionRegions;
 		int32_t L_12 = V_1;
 		int32_t L_13 = V_3;
@@ -10791,14 +9918,12 @@ IL_0024:
 		TextSelectionRegion__ctor_m308335874F8D228219AFF6F02B87CC5759948495((&L_14), L_12, L_13, NULL);
 		NullCheck(L_11);
 		List_1_Add_m4959F2684C1E6DCB5B8ACB44ED6ECD7BCE95A0EC_inline(L_11, L_14, List_1_Add_m4959F2684C1E6DCB5B8ACB44ED6ECD7BCE95A0EC_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:101>
 		V_1 = (-1);
 		goto IL_0053;
 	}
 
 IL_004d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:104>
 		int32_t L_15 = V_1;
 		if ((!(((uint32_t)L_15) == ((uint32_t)(-1)))))
 		{
@@ -10806,21 +9931,18 @@ IL_004d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:106>
 		int32_t L_16 = V_3;
 		V_1 = L_16;
 	}
 
 IL_0053:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:93>
 		int32_t L_17 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_17, 1));
 	}
 
 IL_0057:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:93>
 		int32_t L_18 = V_3;
 		int32_t L_19 = V_2;
 		if ((((int32_t)L_18) < ((int32_t)L_19)))
@@ -10829,7 +9951,6 @@ IL_0057:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:110>
 		int32_t L_20 = V_1;
 		if ((((int32_t)L_20) == ((int32_t)(-1))))
 		{
@@ -10845,7 +9966,6 @@ IL_0057:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:112>
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_23 = __this->___textSelectionRegions;
 		int32_t L_24 = V_1;
 		int32_t L_25 = V_2;
@@ -10858,20 +9978,16 @@ IL_0057:
 
 IL_0075:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:115>
 		MultiTextSelectionRenderer_t54FDC29775A526E9E958F91686DB120D5D8DE09C* L_27 = __this->___selectionRenderer;
 		List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* L_28 = __this->___textSelectionRegions;
 		NullCheck(L_27);
 		MultiTextSelectionRenderer_UpdateSelectionRegions_mA7BC11488BE2447567787EE543E04CFCF42AA2C6(L_27, L_28, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:116>
 		String_t* L_29 = V_0;
 		__this->___fullHighlightedText = L_29;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___fullHighlightedText), (void*)L_29);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:117>
 		return;
 	}
 }
-// Method Definition Index: 54974
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler__ctor_m5670ABA5044921453607362690A4843B5F64555E (MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10887,7 +10003,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultiTextSelectionHandler__ctor_m5670ABA
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54975
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CDelayedClearHighlightU3Ed__7__ctor_m1E73E9C92B893180A3CA43F5AA0ECE8BD2450404 (U3CDelayedClearHighlightU3Ed__7_t020FF7585D972734356FDC98B20009001AF76B32* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
 {
 	{
@@ -10897,14 +10012,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CDelayedClearHighlightU3Ed__7__ctor_m1
 		return;
 	}
 }
-// Method Definition Index: 54976
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CDelayedClearHighlightU3Ed__7_System_IDisposable_Dispose_m25DCA2AE12FF2E8627AECBA0663AF588B3FA5E8D (U3CDelayedClearHighlightU3Ed__7_t020FF7585D972734356FDC98B20009001AF76B32* __this, const RuntimeMethod* method) 
 {
 	{
 		return;
 	}
 }
-// Method Definition Index: 54977
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CDelayedClearHighlightU3Ed__7_MoveNext_m1D0035D97BFDED821DD581433D6371063990A7A0 (U3CDelayedClearHighlightU3Ed__7_t020FF7585D972734356FDC98B20009001AF76B32* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -10940,7 +10053,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CDelayedClearHighlightU3Ed__7_MoveNext
 IL_0017:
 	{
 		__this->___U3CU3E1__state = (-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:38>
 		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_4 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
 		WaitForSeconds__ctor_m579F95BADEDBAB4B3A7E302C6EE3995926EF2EFC(L_4, (0.100000001f), NULL);
 		__this->___U3CU3E2__current = L_4;
@@ -10952,7 +10064,6 @@ IL_0017:
 IL_0037:
 	{
 		__this->___U3CU3E1__state = (-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:39>
 		MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* L_5 = V_1;
 		NullCheck(L_5);
 		bool L_6 = L_5->___backspacePressed;
@@ -10962,7 +10073,6 @@ IL_0037:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:41>
 		MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* L_7 = V_1;
 		NullCheck(L_7);
 		MultiTextSelectionHandler_ClearHighlight_m26E3BC09CE4887DD39273302F72D6E0C7A665F1D(L_7, NULL);
@@ -10970,15 +10080,12 @@ IL_0037:
 
 IL_004c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:44>
 		MultiTextSelectionHandler_t0F156E10A02BF9BA59F7D1A2CFB90DBDDFABA70A* L_8 = V_1;
 		NullCheck(L_8);
 		L_8->___backspacePressed = (bool)0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultiTextSelectionHandler.cs:45>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54978
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CDelayedClearHighlightU3Ed__7_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_mB9101BB2EB0AE4310D4D6A1B43E84F4E6DE30E4C (U3CDelayedClearHighlightU3Ed__7_t020FF7585D972734356FDC98B20009001AF76B32* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10986,7 +10093,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CDelayedClearHighlightU3Ed__
 		return L_0;
 	}
 }
-// Method Definition Index: 54979
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CDelayedClearHighlightU3Ed__7_System_Collections_IEnumerator_Reset_m209F8170CC4EDFC4BE6632AB7AF8C9E941FE9BD6 (U3CDelayedClearHighlightU3Ed__7_t020FF7585D972734356FDC98B20009001AF76B32* __this, const RuntimeMethod* method) 
 {
 	{
@@ -10995,7 +10101,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CDelayedClearHighlightU3Ed__7_System_C
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CDelayedClearHighlightU3Ed__7_System_Collections_IEnumerator_Reset_m209F8170CC4EDFC4BE6632AB7AF8C9E941FE9BD6_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54980
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CDelayedClearHighlightU3Ed__7_System_Collections_IEnumerator_get_Current_mC3218617C61CB6FA1709B0BB161406845C81E5DE (U3CDelayedClearHighlightU3Ed__7_t020FF7585D972734356FDC98B20009001AF76B32* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11011,22 +10116,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CDelayedClearHighlightU3Ed__
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54981
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* ChatBot_GetResponse_mD63204A9AB63F917432748EAF9925DB8DA0008CE (ChatBot_tB46C7E99C7D7F6F198FA560232C407D20801C3C9* __this, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	int32_t V_1 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:21>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_0 = __this->___RESPONSES;
 		NullCheck(L_0);
 		V_0 = ((int32_t)(((RuntimeArray*)L_0)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:22>
 		int32_t L_1 = V_0;
 		int32_t L_2;
 		L_2 = Random_Range_m6763D9767F033357F88B6637F048F4ACA4123B68(0, L_1, NULL);
 		V_1 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:24>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_3 = __this->___RESPONSES;
 		int32_t L_4 = V_1;
 		NullCheck(L_3);
@@ -11035,7 +10136,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* ChatBot_GetResponse_mD63204A9AB63F9
 		return L_6;
 	}
 }
-// Method Definition Index: 54982
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot__ctor_mE30A9D253CFD537BCF6674E7C4B1416370DA5359 (ChatBot_tB46C7E99C7D7F6F198FA560232C407D20801C3C9* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11075,14 +10175,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot__ctor_mE30A9D253CFD537BCF6674E7C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:10>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:11>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:12>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:13>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:14>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:15>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:16>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatBot.cs:17>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_0 = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)SZArrayNew(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var, (uint32_t)((int32_t)30));
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_1 = L_0;
 		NullCheck(L_1);
@@ -11188,7 +10280,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatBot__ctor_mE30A9D253CFD537BCF6674E7C
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54983
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_Awake_m1671FA4ED99DB9565AD33B083B37A5F7504683E9 (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11198,16 +10289,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_Awake_m1671FA4ED99DB9565A
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:19>
 		ChatBot_tB46C7E99C7D7F6F198FA560232C407D20801C3C9* L_0 = (ChatBot_tB46C7E99C7D7F6F198FA560232C407D20801C3C9*)il2cpp_codegen_object_new(ChatBot_tB46C7E99C7D7F6F198FA560232C407D20801C3C9_il2cpp_TypeInfo_var);
 		ChatBot__ctor_mE30A9D253CFD537BCF6674E7C4B1416370DA5359(L_0, NULL);
 		__this->___chatBot = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___chatBot), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:20>
 		return;
 	}
 }
-// Method Definition Index: 54984
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_Start_m182E932CCF69EDFDBB04F9149CAFD8560D494FE4 (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11224,15 +10312,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_Start_m182E932CCF69EDFDBB
 	EmojiKeyboard_t582B0F5958675507AE67E2DFC54DBEC4BC43AAA5* G_B1_0 = NULL;
 	EmojiKeyboard_t582B0F5958675507AE67E2DFC54DBEC4BC43AAA5* G_B3_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:24>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_0 = __this->___view;
 		NullCheck(L_0);
 		ChatView_AddMessageLeft_mA8267456C7B3EDF2A4BE16B435D449993CBAC9C5(L_0, _stringLiteralD2EFCBBA102ED3339947E85F4141EB08926E40E9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:25>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_1 = __this->___view;
 		NullCheck(L_1);
 		ChatView_UpdateChatHistorySize_mDED4DDB1DF6873EAF4E0E9285F2A69C850FF372C(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:27>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_2 = __this->___view;
 		NullCheck(L_2);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3;
@@ -11240,7 +10325,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_Start_m182E932CCF69EDFDBB
 		NullCheck(L_3);
 		EmojiKeyboard_t582B0F5958675507AE67E2DFC54DBEC4BC43AAA5* L_4;
 		L_4 = Component_GetComponentInChildren_TisEmojiKeyboard_t582B0F5958675507AE67E2DFC54DBEC4BC43AAA5_m88E6C92D3056556017AEACB23F48A3C4FA53DBF0(L_3, Component_GetComponentInChildren_TisEmojiKeyboard_t582B0F5958675507AE67E2DFC54DBEC4BC43AAA5_m88E6C92D3056556017AEACB23F48A3C4FA53DBF0_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:30>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		bool L_5;
 		L_5 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
@@ -11264,7 +10348,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_Start_m182E932CCF69EDFDBB
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:32>
 		OnKeyboardHeightChangedHandler_tE766EBA926C5765E1BCB549961B6A829F23E2C93* L_7 = (OnKeyboardHeightChangedHandler_tE766EBA926C5765E1BCB549961B6A829F23E2C93*)il2cpp_codegen_object_new(OnKeyboardHeightChangedHandler_tE766EBA926C5765E1BCB549961B6A829F23E2C93_il2cpp_TypeInfo_var);
 		OnKeyboardHeightChangedHandler__ctor_m6B3CA43274E63DBA7CC8C65C9631ADDA43FF8112(L_7, __this, (intptr_t)((void*)ChatController_OnKeyboardHeightChanged_mBB087548E505520E096BC447062D6E8BA4B356C8_RuntimeMethod_var), NULL);
 		NativeKeyboardManager_AddKeyboardHeightChangedListener_m506F56E243B3E454C091263D4A2D1576BB6A0732(L_7, NULL);
@@ -11273,17 +10356,14 @@ IL_0039:
 
 IL_004a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:38>
 		NullCheck(G_B3_0);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_8;
 		L_8 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(G_B3_0, NULL);
 		NullCheck(L_8);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_8, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:42>
 		return;
 	}
 }
-// Method Definition Index: 54985
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputBeginEdit_m340CE49EC618BE62BA6E38CDFAF1F07CDED821FF (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, int32_t ___0_reason, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11295,14 +10375,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputBeginEdit_m
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:46>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral664F3E65D9E74CAF4444C249DEE1E5335667B39E, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:47>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_0 = __this->___view;
 		NullCheck(L_0);
 		ChatView_UpdateOriginalMessageInputPosition_m78111D152002FA15D03B1E0C6C22746184D755C0(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:50>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		bool L_1;
 		L_1 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
@@ -11322,7 +10399,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputBeginEdit_m
 
 IL_0023:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:52>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_3 = __this->___view;
 		NullCheck(L_3);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_4;
@@ -11335,11 +10411,9 @@ IL_0023:
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:55>
 		return;
 	}
 }
-// Method Definition Index: 54986
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputEndEdit_m254426D27F08C89A18360C6250CDE2D88EF13C2D (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, String_t* ___0_result, int32_t ___1_reason, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11350,18 +10424,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputEndEdit_m25
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:59>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral1A6A4B2A2BA22019FB39AFFC2D3A96CBDF813274, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:60>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_0 = __this->___view;
 		NullCheck(L_0);
 		ChatView_RestoreOriginalMessageInputPosition_mDE163A5E3AEA0D10D93D70A8302464A0D2ACFD52(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:61>
 		return;
 	}
 }
-// Method Definition Index: 54987
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputSizeChanged_m4968832D19ECDF72302FBF23E16CC5E4EC29D43D (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_size, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11371,31 +10441,22 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageInputSizeChanged
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteralB056D028739F9993E98B6FAFD4CAA754116219B1);
 		s_Il2CppMethodInitialized = true;
 	}
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
-	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:65>
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_size;
-		V_0 = L_0;
+		String_t* L_0;
+		L_0 = Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline((&___0_size), NULL);
 		String_t* L_1;
-		L_1 = Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline((&V_0), NULL);
-		String_t* L_2;
-		L_2 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteralB056D028739F9993E98B6FAFD4CAA754116219B1, L_1, NULL);
+		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteralB056D028739F9993E98B6FAFD4CAA754116219B1, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
-		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:66>
+		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
+		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_2 = __this->___view;
+		NullCheck(L_2);
+		ChatView_UpdateMessageInputPosition_m23E4BA50DD3F0ACCB5193C21AD1F3E1AF7B59BF1(L_2, NULL);
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_3 = __this->___view;
 		NullCheck(L_3);
-		ChatView_UpdateMessageInputPosition_m23E4BA50DD3F0ACCB5193C21AD1F3E1AF7B59BF1(L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:67>
-		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_4 = __this->___view;
-		NullCheck(L_4);
-		ChatView_UpdateChatHistorySize_mDED4DDB1DF6873EAF4E0E9285F2A69C850FF372C(L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:68>
+		ChatView_UpdateChatHistorySize_mDED4DDB1DF6873EAF4E0E9285F2A69C850FF372C(L_3, NULL);
 		return;
 	}
 }
-// Method Definition Index: 54988
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageSendClick_mEBB59E737D4B3A43E53CA727E6DD3A95AE22D385 (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11407,10 +10468,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageSendClick_mEBB59
 	}
 	String_t* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:72>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral1357A9F0B2848EE1919C3B565DA0F6AD394EFE08, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:73>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_0 = __this->___view;
 		NullCheck(L_0);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_1;
@@ -11419,7 +10478,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageSendClick_mEBB59
 		String_t* L_2;
 		L_2 = AdvancedInputField_get_RichText_mE74B44834E4D52F695E915AF3CF27C57BD3EE520(L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:74>
 		String_t* L_3 = V_0;
 		bool L_4;
 		L_4 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_3, NULL);
@@ -11429,19 +10487,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageSendClick_mEBB59
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:76>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_5 = __this->___view;
 		String_t* L_6 = V_0;
 		NullCheck(L_5);
 		ChatView_AddMessageRight_m7CE644831652A97823970EB33EE151CD3B1466C5(L_5, L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:77>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_7 = __this->___view;
 		NullCheck(L_7);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8;
 		L_8 = ChatView_get_MessageInput_mE237A38F5010F0BF5C354A7070C6F6F1C0E7C496_inline(L_7, NULL);
 		NullCheck(L_8);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:78>
 		RuntimeObject* L_9;
 		L_9 = ChatController_ResponseRoutine_m43BF482EC12C4D0DF922785868C626A403DD913B(__this, NULL);
 		Coroutine_t85EA685566A254C23F3FD77AB5BDFFFF8799596B* L_10;
@@ -11450,11 +10505,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnMessageSendClick_mEBB59
 
 IL_004c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:80>
 		return;
 	}
 }
-// Method Definition Index: 54989
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* ChatController_ResponseRoutine_m43BF482EC12C4D0DF922785868C626A403DD913B (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11473,7 +10526,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* ChatController_ResponseRoutine
 		return L_1;
 	}
 }
-// Method Definition Index: 54990
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnKeyboardHeightChanged_mBB087548E505520E096BC447062D6E8BA4B356C8 (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, int32_t ___0_keyboardHeight, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11484,27 +10536,22 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController_OnKeyboardHeightChanged_m
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:92>
 		String_t* L_0;
 		L_0 = Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5((&___0_keyboardHeight), NULL);
 		String_t* L_1;
 		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral70099FD4F8061E8244C4134B1426C9DCF97E4A35, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:93>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_2 = __this->___view;
 		int32_t L_3 = ___0_keyboardHeight;
 		NullCheck(L_2);
 		ChatView_UpdateKeyboardHeight_mED639A653F4E1F04A26C67E35963332F09038025(L_2, L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:94>
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_4 = __this->___view;
 		NullCheck(L_4);
 		ChatView_UpdateChatHistorySize_mDED4DDB1DF6873EAF4E0E9285F2A69C850FF372C(L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:95>
 		return;
 	}
 }
-// Method Definition Index: 54991
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController__ctor_mE2C4417E4A64754AA602132AF15BD5D122FC84DE (ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11520,7 +10567,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatController__ctor_mE2C4417E4A64754AA6
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54992
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CResponseRoutineU3Ed__8__ctor_mBA5CC443134530CCDF16D408E0F9F80B80E37AC1 (U3CResponseRoutineU3Ed__8_t205E8AF8EFB7D9DB3F8E855D61CD459B844407BE* __this, int32_t ___0_U3CU3E1__state, const RuntimeMethod* method) 
 {
 	{
@@ -11530,14 +10576,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CResponseRoutineU3Ed__8__ctor_mBA5CC44
 		return;
 	}
 }
-// Method Definition Index: 54993
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CResponseRoutineU3Ed__8_System_IDisposable_Dispose_m737E17F9E9E49BF866A12757CD4403D3B82D9CE2 (U3CResponseRoutineU3Ed__8_t205E8AF8EFB7D9DB3F8E855D61CD459B844407BE* __this, const RuntimeMethod* method) 
 {
 	{
 		return;
 	}
 }
-// Method Definition Index: 54994
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CResponseRoutineU3Ed__8_MoveNext_m82DE40849246FF20DDE4E964C18F0669337726BC (U3CResponseRoutineU3Ed__8_t205E8AF8EFB7D9DB3F8E855D61CD459B844407BE* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11574,7 +10618,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CResponseRoutineU3Ed__8_MoveNext_m82DE
 IL_0017:
 	{
 		__this->___U3CU3E1__state = (-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:84>
 		int32_t L_4;
 		L_4 = Random_Range_m6763D9767F033357F88B6637F048F4ACA4123B68(1, 5, NULL);
 		WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3* L_5 = (WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3*)il2cpp_codegen_object_new(WaitForSeconds_tF179DF251655B8DF044952E70A60DF4B358A3DD3_il2cpp_TypeInfo_var);
@@ -11588,7 +10631,6 @@ IL_0017:
 IL_003a:
 	{
 		__this->___U3CU3E1__state = (-1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:86>
 		ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* L_6 = V_1;
 		NullCheck(L_6);
 		ChatBot_tB46C7E99C7D7F6F198FA560232C407D20801C3C9* L_7 = L_6->___chatBot;
@@ -11596,18 +10638,15 @@ IL_003a:
 		String_t* L_8;
 		L_8 = ChatBot_GetResponse_mD63204A9AB63F917432748EAF9925DB8DA0008CE(L_7, NULL);
 		V_2 = L_8;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:87>
 		ChatController_t12405402707F4C36B99B7CC347F279D3C5ABB85E* L_9 = V_1;
 		NullCheck(L_9);
 		ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* L_10 = L_9->___view;
 		String_t* L_11 = V_2;
 		NullCheck(L_10);
 		ChatView_AddMessageLeft_mA8267456C7B3EDF2A4BE16B435D449993CBAC9C5(L_10, L_11, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatController.cs:88>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 54995
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CResponseRoutineU3Ed__8_System_Collections_Generic_IEnumeratorU3CSystem_ObjectU3E_get_Current_mD58B9D15776449A7C76845C080CE15BD43FDE524 (U3CResponseRoutineU3Ed__8_t205E8AF8EFB7D9DB3F8E855D61CD459B844407BE* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11615,7 +10654,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CResponseRoutineU3Ed__8_Syst
 		return L_0;
 	}
 }
-// Method Definition Index: 54996
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CResponseRoutineU3Ed__8_System_Collections_IEnumerator_Reset_m79204A99D85E69CEB64B2F19095E3784C47DE190 (U3CResponseRoutineU3Ed__8_t205E8AF8EFB7D9DB3F8E855D61CD459B844407BE* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11624,7 +10662,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CResponseRoutineU3Ed__8_System_Collect
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_0, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CResponseRoutineU3Ed__8_System_Collections_IEnumerator_Reset_m79204A99D85E69CEB64B2F19095E3784C47DE190_RuntimeMethod_var)));
 	}
 }
-// Method Definition Index: 54997
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CResponseRoutineU3Ed__8_System_Collections_IEnumerator_get_Current_m3CE73F450901F4C7E88CD68C1904548829E9BCF1 (U3CResponseRoutineU3Ed__8_t205E8AF8EFB7D9DB3F8E855D61CD459B844407BE* __this, const RuntimeMethod* method) 
 {
 	{
@@ -11640,25 +10677,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* U3CResponseRoutineU3Ed__8_Syst
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 54998
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* ChatView_get_ScrollRect_m26A43DC5D289DD2037A2221912D9192DA9966307 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:34>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		return L_0;
 	}
 }
-// Method Definition Index: 54999
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* ChatView_get_MessageInput_mE237A38F5010F0BF5C354A7070C6F6F1C0E7C496 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:35>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___messageInput;
 		return L_0;
 	}
 }
-// Method Definition Index: 55000
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11669,7 +10701,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:41>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_0 = __this->___canvas;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -11680,7 +10711,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:43>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_2;
 		L_2 = Component_GetComponentInParent_TisCanvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26_m5FB554DD7C0F662DAB84C0F292B221CAE3F0A5B3(__this, Component_GetComponentInParent_TisCanvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26_m5FB554DD7C0F662DAB84C0F292B221CAE3F0A5B3_RuntimeMethod_var);
 		__this->___canvas = L_2;
@@ -11689,12 +10719,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 
 IL_001a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:46>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_3 = __this->___canvas;
 		return L_3;
 	}
 }
-// Method Definition Index: 55001
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_Awake_mC09F603A4CA5A088C297011C746B8D6340324E4A (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11708,17 +10736,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_Awake_mC09F603A4CA5A088C297011C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:52>
 		List_1_t5ED555E220A2C0CA4F1CC393401AF0D7BA5B456B* L_0 = (List_1_t5ED555E220A2C0CA4F1CC393401AF0D7BA5B456B*)il2cpp_codegen_object_new(List_1_t5ED555E220A2C0CA4F1CC393401AF0D7BA5B456B_il2cpp_TypeInfo_var);
 		List_1__ctor_m7EA27CAC733DD95AC0AFB56293AECABB0EA34475(L_0, List_1__ctor_m7EA27CAC733DD95AC0AFB56293AECABB0EA34475_RuntimeMethod_var);
 		__this->___messageBoxes = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___messageBoxes), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:53>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_1;
 		L_1 = Component_GetComponentInChildren_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m95140C4F2B2F1379BA960CA9DDF7E4BBF867EEA0(__this, Component_GetComponentInChildren_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m95140C4F2B2F1379BA960CA9DDF7E4BBF867EEA0_RuntimeMethod_var);
 		__this->___scrollRect = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___scrollRect), (void*)L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:54>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_2;
 		L_2 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
 		NullCheck(L_2);
@@ -11729,22 +10754,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_Awake_mC09F603A4CA5A088C297011C
 		L_4 = Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888(L_3, Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888_RuntimeMethod_var);
 		__this->___errorLabel = L_4;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___errorLabel), (void*)L_4);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:58>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_5 = __this->___errorLabel;
 		NullCheck(L_5);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_6;
 		L_6 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_5, NULL);
 		NullCheck(L_6);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_6, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:60>
 		return;
 	}
 }
-// Method Definition Index: 55002
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateOriginalMessageInputPosition_m78111D152002FA15D03B1E0C6C22746184D755C0 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:64>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___messageInput;
 		NullCheck(L_0);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1;
@@ -11753,15 +10774,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateOriginalMessageInputPosit
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
 		L_2 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_1, NULL);
 		__this->___originalMessageInputPosition = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:65>
 		return;
 	}
 }
-// Method Definition Index: 55003
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_RestoreOriginalMessageInputPosition_mDE163A5E3AEA0D10D93D70A8302464A0D2ACFD52 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:69>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___messageInput;
 		NullCheck(L_0);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1;
@@ -11769,18 +10787,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_RestoreOriginalMessageInputPosi
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = __this->___originalMessageInputPosition;
 		NullCheck(L_1);
 		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:70>
 		return;
 	}
 }
-// Method Definition Index: 55004
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateKeyboardHeight_mED639A653F4E1F04A26C67E35963332F09038025 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, int32_t ___0_keyboardHeight, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:74>
 		int32_t L_0 = ___0_keyboardHeight;
 		__this->___keyboardHeight = ((float)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:75>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_1 = __this->___messageInput;
 		NullCheck(L_1);
 		bool L_2;
@@ -11791,17 +10805,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateKeyboardHeight_mED639A653
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:77>
 		ChatView_UpdateMessageInputPosition_m23E4BA50DD3F0ACCB5193C21AD1F3E1AF7B59BF1(__this, NULL);
 	}
 
 IL_001b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:79>
 		return;
 	}
 }
-// Method Definition Index: 55005
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateMessageInputPosition_m23E4BA50DD3F0ACCB5193C21AD1F3E1AF7B59BF1 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11813,7 +10824,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateMessageInputPosition_m23E
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:84>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		bool L_0;
 		L_0 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
@@ -11833,7 +10843,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateMessageInputPosition_m23E
 
 IL_000e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:86>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___messageInput;
 		NullCheck(L_2);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_3;
@@ -11842,7 +10851,6 @@ IL_000e:
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_4;
 		L_4 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_3, NULL);
 		V_0 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:87>
 		float L_5 = __this->___keyboardHeight;
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_6;
 		L_6 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
@@ -11850,7 +10858,6 @@ IL_000e:
 		float L_7;
 		L_7 = Canvas_get_scaleFactor_m6B8D694A68376EE5E13D9B0B0F037E2E90C99921(L_6, NULL);
 		(&V_0)->___y = ((float)(L_5/L_7));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:88>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = __this->___messageInput;
 		NullCheck(L_8);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_9;
@@ -11862,11 +10869,9 @@ IL_000e:
 
 IL_0049:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:91>
 		return;
 	}
 }
-// Method Definition Index: 55006
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateChatHistorySize_mDED4DDB1DF6873EAF4E0E9285F2A69C850FF372C (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -11882,59 +10887,50 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_UpdateChatHistorySize_mDED4DDB1
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_4;
 	memset((&V_4), 0, sizeof(V_4));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:95>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0;
 		L_0 = ChatView_get_MessageInput_mE237A38F5010F0BF5C354A7070C6F6F1C0E7C496_inline(__this, NULL);
 		NullCheck(L_0);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1;
 		L_1 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:96>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_2;
 		L_2 = ChatView_get_ScrollRect_m26A43DC5D289DD2037A2221912D9192DA9966307_inline(__this, NULL);
 		NullCheck(L_2);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_3;
 		L_3 = Component_GetComponent_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m0640480E7E38BB88B0D1F6AD59E697C8EE6AAFA4(L_2, Component_GetComponent_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m0640480E7E38BB88B0D1F6AD59E697C8EE6AAFA4_RuntimeMethod_var);
 		V_1 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:97>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_4 = V_0;
 		float L_5;
 		L_5 = ChatView_GetAbsoluteTopY_m226CE3F1E0D3F3D7BBFA0907797817D9F65D9863(__this, L_4, NULL);
 		V_2 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:103>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_6 = V_1;
 		float L_7;
 		L_7 = ChatView_GetAbsoluteBottomY_mA52F16C33E355AF85ADB13F492FB69A86E8C94FA(__this, L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:104>
 		float L_8 = V_2;
 		V_3 = ((float)il2cpp_codegen_subtract(L_7, L_8));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:106>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_9 = V_1;
 		NullCheck(L_9);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_10;
 		L_10 = RectTransform_get_sizeDelta_m822A8493F2035677384F1540A2E9E5ACE63010BB(L_9, NULL);
 		V_4 = L_10;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:107>
 		float* L_11 = (float*)(&(&V_4)->___y);
 		float* L_12 = L_11;
 		float L_13 = *((float*)L_12);
 		float L_14 = V_3;
 		*((float*)L_12) = (float)((float)il2cpp_codegen_add(L_13, L_14));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:108>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_15 = V_1;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_16 = V_4;
 		NullCheck(L_15);
 		RectTransform_set_sizeDelta_mC9A980EA6036E6725EF24CEDF3EE80A9B2B50EE5(L_15, L_16, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:109>
 		return;
 	}
 }
-// Method Definition Index: 55007
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteTopY_m226CE3F1E0D3F3D7BBFA0907797817D9F65D9863 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_rectTransform, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
@@ -11945,22 +10941,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteTopY_m226CE3F1E0D3F
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_4;
 	memset((&V_4), 0, sizeof(V_4));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:113>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_0 = (Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)SZArrayNew(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var, (uint32_t)4);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:114>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = ___0_rectTransform;
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_2 = V_0;
 		NullCheck(L_1);
 		RectTransform_GetWorldCorners_m6E15303C3B065B2F65E0A7F0E0217695564C2E09(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:116>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_3 = V_0;
 		NullCheck(L_3);
 		float L_4 = ((L_3)->GetAddressAt(static_cast<il2cpp_array_size_t>(1)))->___y;
 		V_1 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:117>
 		V_2 = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:118>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_5;
 		L_5 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
 		NullCheck(L_5);
@@ -11972,7 +10963,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteTopY_m226CE3F1E0D3F
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:120>
 		float L_7 = V_1;
 		int32_t L_8;
 		L_8 = Screen_get_height_m01A3102DE71EE1FBEA51D09D6B0261CF864FE8F9(NULL);
@@ -11982,14 +10972,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteTopY_m226CE3F1E0D3F
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:124>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_9;
 		L_9 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
 		NullCheck(L_9);
 		Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184* L_10;
 		L_10 = Canvas_get_worldCamera_mD2FDE13B61A5213F4E64B40008EB0A8D2D07B853(L_9, NULL);
 		V_3 = L_10;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:125>
 		float L_11 = V_1;
 		Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184* L_12 = V_3;
 		NullCheck(L_12);
@@ -12004,7 +10992,6 @@ IL_0039:
 
 IL_005b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:128>
 		float L_16 = V_2;
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_17;
 		L_17 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
@@ -12012,6 +10999,7 @@ IL_005b:
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_18;
 		L_18 = Canvas_get_pixelRect_m6093115759D4B39B4076AFE44F7ECC886B1F6C9F(L_17, NULL);
 		V_4 = L_18;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_19;
 		L_19 = Rect_get_height_mE1AA6C6C725CCD2D317BD2157396D3CF7D47C9D8_inline((&V_4), NULL);
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_20;
@@ -12022,12 +11010,12 @@ IL_005b:
 		return ((float)(((float)il2cpp_codegen_multiply(L_16, L_19))/L_21));
 	}
 }
-// Method Definition Index: 55008
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteBottomY_mA52F16C33E355AF85ADB13F492FB69A86E8C94FA (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_rectTransform, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
@@ -12038,22 +11026,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteBottomY_mA52F16C33E
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_4;
 	memset((&V_4), 0, sizeof(V_4));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:133>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_0 = (Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)SZArrayNew(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var, (uint32_t)4);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:134>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = ___0_rectTransform;
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_2 = V_0;
 		NullCheck(L_1);
 		RectTransform_GetWorldCorners_m6E15303C3B065B2F65E0A7F0E0217695564C2E09(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:136>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_3 = V_0;
 		NullCheck(L_3);
 		float L_4 = ((L_3)->GetAddressAt(static_cast<il2cpp_array_size_t>(0)))->___y;
 		V_1 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:137>
 		V_2 = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:138>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_5;
 		L_5 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
 		NullCheck(L_5);
@@ -12065,7 +11048,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteBottomY_mA52F16C33E
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:140>
 		float L_7 = V_1;
 		int32_t L_8;
 		L_8 = Screen_get_height_m01A3102DE71EE1FBEA51D09D6B0261CF864FE8F9(NULL);
@@ -12075,14 +11057,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ChatView_GetAbsoluteBottomY_mA52F16C33E
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:144>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_9;
 		L_9 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
 		NullCheck(L_9);
 		Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184* L_10;
 		L_10 = Canvas_get_worldCamera_mD2FDE13B61A5213F4E64B40008EB0A8D2D07B853(L_9, NULL);
 		V_3 = L_10;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:145>
 		float L_11 = V_1;
 		Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184* L_12 = V_3;
 		NullCheck(L_12);
@@ -12097,7 +11077,6 @@ IL_0039:
 
 IL_005b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:148>
 		float L_16 = V_2;
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_17;
 		L_17 = ChatView_get_Canvas_mDD7F5E0FD5F4ECEED840C91B73A4C396E98D108F(__this, NULL);
@@ -12105,6 +11084,7 @@ IL_005b:
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_18;
 		L_18 = Canvas_get_pixelRect_m6093115759D4B39B4076AFE44F7ECC886B1F6C9F(L_17, NULL);
 		V_4 = L_18;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_19;
 		L_19 = Rect_get_height_mE1AA6C6C725CCD2D317BD2157396D3CF7D47C9D8_inline((&V_4), NULL);
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_20;
@@ -12115,31 +11095,24 @@ IL_005b:
 		return ((float)(((float)il2cpp_codegen_multiply(L_16, L_19))/L_21));
 	}
 }
-// Method Definition Index: 55009
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessageLeft_mA8267456C7B3EDF2A4BE16B435D449993CBAC9C5 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, String_t* ___0_message, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:153>
 		String_t* L_0 = ___0_message;
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = __this->___messageBoxLeftPrefab;
 		ChatView_AddMessage_mBC6D1062211EEB4EECC8EA33AF49F321C7ABEE9C(__this, L_0, L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:154>
 		return;
 	}
 }
-// Method Definition Index: 55010
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessageRight_m7CE644831652A97823970EB33EE151CD3B1466C5 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, String_t* ___0_message, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:158>
 		String_t* L_0 = ___0_message;
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = __this->___messageBoxRightPrefab;
 		ChatView_AddMessage_mBC6D1062211EEB4EECC8EA33AF49F321C7ABEE9C(__this, L_0, L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:159>
 		return;
 	}
 }
-// Method Definition Index: 55011
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessage_mBC6D1062211EEB4EECC8EA33AF49F321C7ABEE9C (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, String_t* ___0_message, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___1_prefab, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12147,13 +11120,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessage_mBC6D1062211EEB4EECC
 	{
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_get_Count_m2F707E98BABA1F4794BF2B315168A109B80B2921_RuntimeMethod_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&List_1_get_Item_mE11D272997FCFEA3932C7EF10D990376C973CFEB_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
 	RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* V_0 = NULL;
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_1;
 	memset((&V_1), 0, sizeof(V_1));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:167>
 		List_1_t5ED555E220A2C0CA4F1CC393401AF0D7BA5B456B* L_0 = __this->___messageBoxes;
 		NullCheck(L_0);
 		int32_t L_1;
@@ -12164,7 +11137,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessage_mBC6D1062211EEB4EECC
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:169>
 		List_1_t5ED555E220A2C0CA4F1CC393401AF0D7BA5B456B* L_2 = __this->___messageBoxes;
 		List_1_t5ED555E220A2C0CA4F1CC393401AF0D7BA5B456B* L_3 = __this->___messageBoxes;
 		NullCheck(L_3);
@@ -12174,7 +11146,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessage_mBC6D1062211EEB4EECC
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_5;
 		L_5 = List_1_get_Item_mE11D272997FCFEA3932C7EF10D990376C973CFEB(L_2, ((int32_t)il2cpp_codegen_subtract(L_4, 1)), List_1_get_Item_mE11D272997FCFEA3932C7EF10D990376C973CFEB_RuntimeMethod_var);
 		V_0 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:170>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_6 = V_0;
 		NullCheck(L_6);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_7;
@@ -12185,14 +11156,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView_AddMessage_mBC6D1062211EEB4EECC
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_10;
 		L_10 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_9, NULL);
 		V_1 = L_10;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_11;
 		L_11 = Rect_get_height_mE1AA6C6C725CCD2D317BD2157396D3CF7D47C9D8_inline((&V_1), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:171>
 	}
 
 IL_0042:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:174>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_12 = __this->___scrollRect;
 		NullCheck(L_12);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_13;
@@ -12201,13 +11171,12 @@ IL_0042:
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_14;
 		L_14 = RectTransform_get_rect_mC82A60F8C3805ED9833508CCC233689641207488(L_13, NULL);
 		V_1 = L_14;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_15;
 		L_15 = Rect_get_width_m620D67551372073C9C32C4C4624C2A5713F7F9A9_inline((&V_1), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:207>
 		return;
 	}
 }
-// Method Definition Index: 55012
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ChatView_CreateMessageBox_m91C9A54C15969BB7915541BF5CBA8522737EFB64 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_messageBoxPrefab, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12220,18 +11189,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E5896
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:211>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = ___0_messageBoxPrefab;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1;
 		L_1 = Object_Instantiate_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m2EBBFED3BA1B67B30F8503C5BD918B4C1745903E(L_0, Object_Instantiate_TisRectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5_m2EBBFED3BA1B67B30F8503C5BD918B4C1745903E_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:212>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_2 = L_1;
 		NullCheck(L_2);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_3;
 		L_3 = RectTransform_get_sizeDelta_m822A8493F2035677384F1540A2E9E5ACE63010BB(L_2, NULL);
 		V_0 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:213>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_4 = L_2;
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_5 = __this->___scrollRect;
 		NullCheck(L_5);
@@ -12239,34 +11205,28 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E5896
 		L_6 = ScrollRect_get_content_m7878BCA28A96B7FBA02DC466A1ED2C9E191C6996_inline(L_5, NULL);
 		NullCheck(L_4);
 		Transform_SetParent_m6677538B60246D958DD91F931C50F969CCBB5250(L_4, L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:214>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_7 = L_4;
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_8;
 		L_8 = Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline(NULL);
 		NullCheck(L_7);
 		Transform_set_localScale_mBA79E811BAF6C47B80FF76414C12B47B3CD03633(L_7, L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:215>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_9 = L_7;
 		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_10;
 		L_10 = Quaternion_get_identity_m7E701AE095ED10FD5EA0B50ABCFDE2EEFF2173A5_inline(NULL);
 		NullCheck(L_9);
 		Transform_set_localRotation_mAB4A011D134BA58AB780BECC0025CA65F16185FA(L_9, L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:216>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_11 = L_9;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_12;
 		L_12 = Vector2_get_zero_m32506C40EC2EE7D5D4410BF40D3EE683A3D5F32C_inline(NULL);
 		NullCheck(L_11);
 		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_11, L_12, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:217>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_13 = L_11;
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_14 = V_0;
 		NullCheck(L_13);
 		RectTransform_set_sizeDelta_mC9A980EA6036E6725EF24CEDF3EE80A9B2B50EE5(L_13, L_14, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:219>
 		return L_13;
 	}
 }
-// Method Definition Index: 55013
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView__ctor_m6D70BE1504B5E6BAF235E84DB95214886759E070 (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
@@ -12282,11 +11242,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ChatView__ctor_m6D70BE1504B5E6BAF235E84D
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55014
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void EmojiKeyboard__ctor_m1B133A56D109C8E4D5CDCA7334A5A161A3DE89A8 (EmojiKeyboard_t582B0F5958675507AE67E2DFC54DBEC4BC43AAA5* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/EmojiKeyboard.cs:23>
 		__this->___amount = ((int32_t)24);
 		MonoBehaviour__ctor_m592DB0105CA0BC97AA1C5F4AD27B12D68A3B7C1E(__this, NULL);
 		return;
@@ -12300,7 +11258,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void EmojiKeyboard__ctor_m1B133A56D109C8E4D5C
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55015
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnEnable_m12F090F50280D2FB61722E9B916B23DFE0CCBE50 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12310,7 +11267,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnEnable_m12F090F50280D2F
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:23>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -12321,7 +11277,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnEnable_m12F090F50280D2F
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:25>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -12332,11 +11287,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnEnable_m12F090F50280D2F
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:27>
 		return;
 	}
 }
-// Method Definition Index: 55016
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_Start_m1EF8790C7217487590A989D9502F87B75CA738D6 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12352,15 +11305,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_Start_m1EF8790C7217487590
 	TextAsset_t2C64E93DA366D9DE5A8209E1802FA4884AC1BD69* V_0 = NULL;
 	StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:31>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		NullCheck(L_0);
 		ScrollRect_set_verticalNormalizedPosition_m4AF461113925E6710BF04F46A49CF1F856F7738C(L_0, (1.0f), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:33>
 		TextAsset_t2C64E93DA366D9DE5A8209E1802FA4884AC1BD69* L_1;
 		L_1 = Resources_Load_TisTextAsset_t2C64E93DA366D9DE5A8209E1802FA4884AC1BD69_m55E770DF81AB6D40763121667DA5E743EF1036B2(_stringLiteral4ACC47DB0EEAC2B938B9CE462083FB103FB6FFCF, Resources_Load_TisTextAsset_t2C64E93DA366D9DE5A8209E1802FA4884AC1BD69_m55E770DF81AB6D40763121667DA5E743EF1036B2_RuntimeMethod_var);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:34>
 		TextAsset_t2C64E93DA366D9DE5A8209E1802FA4884AC1BD69* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -12371,7 +11321,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_Start_m1EF8790C7217487590
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:36>
 		TextAsset_t2C64E93DA366D9DE5A8209E1802FA4884AC1BD69* L_4 = V_0;
 		NullCheck(L_4);
 		String_t* L_5;
@@ -12380,7 +11329,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_Start_m1EF8790C7217487590
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_6;
 		L_6 = String_Split_m9530B73D02054692283BF35C3A27C8F2230946F4(L_5, ((int32_t)10), 0, NULL);
 		V_1 = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:37>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_7 = __this->___view;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_8 = V_1;
 		NullCheck(L_7);
@@ -12390,14 +11338,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_Start_m1EF8790C7217487590
 
 IL_0040:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:41>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_LogWarning_m33EF1B897E0C7C6FF538989610BFAFFEF4628CA9(_stringLiteralC145F91AF10EB833EFCDC4FCA6D09B589B87E68B, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:43>
 		return;
 	}
 }
-// Method Definition Index: 55017
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnDisable_mB136AA45CF491C83DFDE9D1115B80AFC09AAF9DD (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12407,7 +11352,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnDisable_mB136AA45CF491C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:47>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -12418,7 +11362,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnDisable_mB136AA45CF491C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:49>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -12429,24 +11372,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnDisable_mB136AA45CF491C
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:51>
 		return;
 	}
 }
-// Method Definition Index: 55018
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnCountryInputChanged_m39DEDEAB464D7F0CD94C377AF79198DA1D6CCE73 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, String_t* ___0_text, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:55>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_0 = __this->___view;
 		String_t* L_1 = ___0_text;
 		NullCheck(L_0);
 		FormView_UpdateCountryOptions_mC5BD9C59B2E475ABEE55C76AFBB54A809902916E(L_0, L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:56>
 		return;
 	}
 }
-// Method Definition Index: 55019
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnCountryDropdownChanged_m7D92657E914304C2756723305BB215F57FDCB29C (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12457,27 +11395,22 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnCountryDropdownChanged_
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:60>
 		String_t* L_0;
 		L_0 = Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5((&___0_index), NULL);
 		String_t* L_1;
 		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteralA9519F1F711E2898FB686EAA302CCFD7EE7D340B, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:61>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_2 = __this->___view;
 		int32_t L_3 = ___0_index;
 		NullCheck(L_2);
 		FormView_ApplyCountryOption_mAC099692FBA3364BAF12D5AB7C778BF20BE29D89(L_2, L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:62>
 		return;
 	}
 }
-// Method Definition Index: 55020
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnInputEnd_m30B7E921FBA45792FECE655A7AB00DCB861B2DE9 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, String_t* ___0_result, int32_t ___1_reason, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:66>
 		bool L_0;
 		L_0 = FormController_AreAllFieldsFilledIn_m1D35706220D05858093DCAFEAC2A549BF6FAEA51(__this, NULL);
 		if (!L_0)
@@ -12486,7 +11419,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnInputEnd_m30B7E921FBA45
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:68>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_1 = __this->___view;
 		NullCheck(L_1);
 		FormView_EnableSubmitButton_m3ED3EE744B192F57C70EA50195A21A3F239CDEED(L_1, NULL);
@@ -12495,19 +11427,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnInputEnd_m30B7E921FBA45
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:72>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_2 = __this->___view;
 		NullCheck(L_2);
 		FormView_DisableSubmitButton_m07A5C920F5E525086BBF669C823BEDCBCEB28883(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:74>
 		return;
 	}
 }
-// Method Definition Index: 55021
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnPasswordVisibilityToggle_m1A56B0A2A72BFE5851954D489D2D8E941F46FC8D (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, bool ___0_isON, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:78>
 		bool L_0 = ___0_isON;
 		if (!L_0)
 		{
@@ -12515,7 +11443,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnPasswordVisibilityToggl
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:80>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_1 = __this->___view;
 		NullCheck(L_1);
 		FormView_ShowPassword_mF1BC0A83AB59BF588ACCF63CAF3C543E1D829ECB(L_1, NULL);
@@ -12524,19 +11451,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnPasswordVisibilityToggl
 
 IL_000f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:84>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_2 = __this->___view;
 		NullCheck(L_2);
 		FormView_HidePassword_m304C24A822CD534D31B9EDCF909B31B42540EB71(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:86>
 		return;
 	}
 }
-// Method Definition Index: 55022
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool FormController_AreAllFieldsFilledIn_m1D35706220D05858093DCAFEAC2A549BF6FAEA51 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:90>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_0 = __this->___view;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -12549,13 +11472,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool FormController_AreAllFieldsFilledIn_m1D3
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:90>
 		return (bool)0;
 	}
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:91>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_3 = __this->___view;
 		NullCheck(L_3);
 		String_t* L_4;
@@ -12568,13 +11489,11 @@ IL_0014:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:91>
 		return (bool)0;
 	}
 
 IL_0028:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:92>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_6 = __this->___view;
 		NullCheck(L_6);
 		String_t* L_7;
@@ -12587,13 +11506,11 @@ IL_0028:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:92>
 		return (bool)0;
 	}
 
 IL_003c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:93>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_9 = __this->___view;
 		NullCheck(L_9);
 		String_t* L_10;
@@ -12606,13 +11523,11 @@ IL_003c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:93>
 		return (bool)0;
 	}
 
 IL_0050:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:94>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_12 = __this->___view;
 		NullCheck(L_12);
 		String_t* L_13;
@@ -12625,13 +11540,11 @@ IL_0050:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:94>
 		return (bool)0;
 	}
 
 IL_0064:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:95>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_15 = __this->___view;
 		NullCheck(L_15);
 		String_t* L_16;
@@ -12644,13 +11557,11 @@ IL_0064:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:95>
 		return (bool)0;
 	}
 
 IL_0078:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:96>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_18 = __this->___view;
 		NullCheck(L_18);
 		String_t* L_19;
@@ -12663,13 +11574,11 @@ IL_0078:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:96>
 		return (bool)0;
 	}
 
 IL_008c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:97>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_21 = __this->___view;
 		NullCheck(L_21);
 		String_t* L_22;
@@ -12682,13 +11591,11 @@ IL_008c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:97>
 		return (bool)0;
 	}
 
 IL_00a0:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:98>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_24 = __this->___view;
 		NullCheck(L_24);
 		String_t* L_25;
@@ -12701,13 +11608,11 @@ IL_00a0:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:98>
 		return (bool)0;
 	}
 
 IL_00b4:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:99>
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_27 = __this->___view;
 		NullCheck(L_27);
 		String_t* L_28;
@@ -12720,17 +11625,14 @@ IL_00b4:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:99>
 		return (bool)0;
 	}
 
 IL_00c8:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:101>
 		return (bool)1;
 	}
 }
-// Method Definition Index: 55023
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A65BF22469A9437159F46F7BD45239D4 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12741,11 +11643,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 	}
 	FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:106>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_0 = (FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47*)il2cpp_codegen_object_new(FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47_il2cpp_TypeInfo_var);
 		FormData__ctor_mA6A295861FE4B1B721081B3A9570F992663EC5FF(L_0, NULL);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:107>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_1 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_2 = __this->___view;
 		NullCheck(L_2);
@@ -12754,7 +11654,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_1);
 		L_1->___username = L_3;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___username), (void*)L_3);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:108>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_4 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_5 = __this->___view;
 		NullCheck(L_5);
@@ -12763,7 +11662,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_4);
 		L_4->___password = L_6;
 		Il2CppCodeGenWriteBarrier((void**)(&L_4->___password), (void*)L_6);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:109>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_7 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_8 = __this->___view;
 		NullCheck(L_8);
@@ -12772,7 +11670,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_7);
 		L_7->___email = L_9;
 		Il2CppCodeGenWriteBarrier((void**)(&L_7->___email), (void*)L_9);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:110>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_10 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_11 = __this->___view;
 		NullCheck(L_11);
@@ -12781,7 +11678,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_10);
 		L_10->___telephone = L_12;
 		Il2CppCodeGenWriteBarrier((void**)(&L_10->___telephone), (void*)L_12);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:111>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_13 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_14 = __this->___view;
 		NullCheck(L_14);
@@ -12790,7 +11686,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_13);
 		L_13->___firstName = L_15;
 		Il2CppCodeGenWriteBarrier((void**)(&L_13->___firstName), (void*)L_15);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:112>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_16 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_17 = __this->___view;
 		NullCheck(L_17);
@@ -12799,7 +11694,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_16);
 		L_16->___lastName = L_18;
 		Il2CppCodeGenWriteBarrier((void**)(&L_16->___lastName), (void*)L_18);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:113>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_19 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_20 = __this->___view;
 		NullCheck(L_20);
@@ -12808,7 +11702,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_19);
 		L_19->___country = L_21;
 		Il2CppCodeGenWriteBarrier((void**)(&L_19->___country), (void*)L_21);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:114>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_22 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_23 = __this->___view;
 		NullCheck(L_23);
@@ -12817,7 +11710,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_22);
 		L_22->___city = L_24;
 		Il2CppCodeGenWriteBarrier((void**)(&L_22->___city), (void*)L_24);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:115>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_25 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_26 = __this->___view;
 		NullCheck(L_26);
@@ -12827,7 +11719,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		L_28 = Int32_Parse_m273CA1A9C7717C99641291A95C543711C0202AF0(L_27, NULL);
 		NullCheck(L_25);
 		L_25->___yearlyIncome = L_28;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:116>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_29 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_30 = __this->___view;
 		NullCheck(L_30);
@@ -12837,7 +11728,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		L_32 = Double_Parse_mEBC644CE0C86A405283EC4839F872EF9E556670A(L_31, NULL);
 		NullCheck(L_29);
 		L_29->___hourlyWage = L_32;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:117>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_33 = V_0;
 		FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* L_34 = __this->___view;
 		NullCheck(L_34);
@@ -12846,28 +11736,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController_OnSubmitClick_m27135983A6
 		NullCheck(L_33);
 		L_33->___comments = L_35;
 		Il2CppCodeGenWriteBarrier((void**)(&L_33->___comments), (void*)L_35);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:119>
 		ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* L_36 = __this->___resultsControl;
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_37 = V_0;
 		NullCheck(L_36);
 		ResultsController_set_FormData_mB300B6EE974D7DBE1CD9B9DB7551FEFF947A9722_inline(L_36, L_37, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:120>
 		ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* L_38 = __this->___resultsControl;
 		NullCheck(L_38);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_39;
 		L_39 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_38, NULL);
 		NullCheck(L_39);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_39, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:121>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_40;
 		L_40 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_40);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_40, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormController.cs:122>
 		return;
 	}
 }
-// Method Definition Index: 55024
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController__ctor_m6B94E7D22A8FE048BDF8B756D43F3C07BA625FF0 (FormController_t8D6255EB47735552783AC6AB7026849B69587293* __this, const RuntimeMethod* method) 
 {
 	{
@@ -12883,7 +11768,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormController__ctor_m6B94E7D22A8FE048BD
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55025
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormData_ToString_m1A1B79CEFF15943B5CEEC00C0F051D44F51A99D7 (FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -12894,8 +11778,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormData_ToString_m1A1B79CEFF15943B
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormData.cs:25>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormData.cs:26>
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_0 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)((int32_t)11));
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = L_0;
 		String_t* L_2 = __this->___username;
@@ -12961,7 +11843,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormData_ToString_m1A1B79CEFF15943B
 		return L_27;
 	}
 }
-// Method Definition Index: 55026
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormData__ctor_mA6A295861FE4B1B721081B3A9570F992663EC5FF (FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* __this, const RuntimeMethod* method) 
 {
 	{
@@ -12977,11 +11858,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormData__ctor_mA6A295861FE4B1B721081B3A
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55027
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Username_m9E5B80BD743963A0F81FF384C163BC8FB6DA9B65 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:29>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___usernameInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -12989,11 +11868,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Username_m9E5B80BD7439
 		return L_1;
 	}
 }
-// Method Definition Index: 55028
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Password_m05F8641C34B596A342D6CE3DADD87D1C0C2445B7 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:30>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13001,11 +11878,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Password_m05F8641C34B5
 		return L_1;
 	}
 }
-// Method Definition Index: 55029
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Email_mDB598B64027CFF71DA2A08F6F4F03E5D6D1B47EB (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:31>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___emailInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13013,11 +11888,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Email_mDB598B64027CFF7
 		return L_1;
 	}
 }
-// Method Definition Index: 55030
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Telephone_m69DA4DB77759479EA19AB00846CC6A3212C86198 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:32>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___telephoneInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13025,11 +11898,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Telephone_m69DA4DB7775
 		return L_1;
 	}
 }
-// Method Definition Index: 55031
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_FirstName_m3341AE6FB97D6661D17224346EE6082D68AB8BB9 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:33>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___firstNameInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13037,11 +11908,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_FirstName_m3341AE6FB97
 		return L_1;
 	}
 }
-// Method Definition Index: 55032
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_LastName_mE523E9DBA2A487725DC82E5151BD864B996B22E6 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:34>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___lastNameInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13049,11 +11918,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_LastName_mE523E9DBA2A4
 		return L_1;
 	}
 }
-// Method Definition Index: 55033
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Country_mAAB438E50816027AB9B704AE25A8C05706091B7C (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:35>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___countryInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13061,11 +11928,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Country_mAAB438E508160
 		return L_1;
 	}
 }
-// Method Definition Index: 55034
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_City_mB3B2E60D506FAAC4A9FF77C09767F1FFA9B8BE4F (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:36>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___cityInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13073,11 +11938,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_City_mB3B2E60D506FAAC4
 		return L_1;
 	}
 }
-// Method Definition Index: 55035
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_YearlyIncome_m874446252F466C6EE4533227BB70828545E813B8 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:37>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___yearlyIncomeInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13085,11 +11948,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_YearlyIncome_m87444625
 		return L_1;
 	}
 }
-// Method Definition Index: 55036
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_HourlyWage_m33291CF41A8C4D55D582AFBE3F2D85AD2DB2070A (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:38>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___hourlyWageInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13097,11 +11958,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_HourlyWage_m33291CF41A
 		return L_1;
 	}
 }
-// Method Definition Index: 55037
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Comments_m8118B6E727BC6127DD849E213682B74633D2AA08 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:39>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___commentsInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13109,7 +11968,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* FormView_get_Comments_m8118B6E727BC
 		return L_1;
 	}
 }
-// Method Definition Index: 55038
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA5EEC9A8C1698513C (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13139,7 +11997,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 	}
 	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:43>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0;
 		L_0 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
 		NullCheck(L_0);
@@ -13148,7 +12005,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		NullCheck(L_1);
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_2;
 		L_2 = Component_GetComponent_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m807654BF9CCD1E13E3FB8498D557BDDF13006518(L_1, Component_GetComponent_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m807654BF9CCD1E13E3FB8498D557BDDF13006518_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:44>
 		NullCheck(L_2);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_3;
 		L_3 = ScrollRect_get_content_m7878BCA28A96B7FBA02DC466A1ED2C9E191C6996_inline(L_2, NULL);
@@ -13156,7 +12012,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_4;
 		L_4 = Transform_Find_m3087032B0E1C5B96A2D2C27020BAEAE2DA08F932(L_3, _stringLiteral07DFDBC45D9713EA661D00DE425D97F208EDA0A3, NULL);
 		V_0 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:45>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_5 = V_0;
 		NullCheck(L_5);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_6;
@@ -13166,7 +12021,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_7 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_6, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___usernameInput = L_7;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___usernameInput), (void*)L_7);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:46>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_8 = V_0;
 		NullCheck(L_8);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_9;
@@ -13176,7 +12030,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_10 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_9, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___passwordInput = L_10;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___passwordInput), (void*)L_10);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:47>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_11 = V_0;
 		NullCheck(L_11);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_12;
@@ -13186,7 +12039,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_13 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_12, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___emailInput = L_13;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___emailInput), (void*)L_13);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:48>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_14 = V_0;
 		NullCheck(L_14);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_15;
@@ -13196,7 +12048,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_16 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_15, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___telephoneInput = L_16;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___telephoneInput), (void*)L_16);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:49>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_17 = V_0;
 		NullCheck(L_17);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_18;
@@ -13206,7 +12057,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_19 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_18, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___firstNameInput = L_19;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___firstNameInput), (void*)L_19);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:50>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_20 = V_0;
 		NullCheck(L_20);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_21;
@@ -13216,7 +12066,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_22 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_21, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___lastNameInput = L_22;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___lastNameInput), (void*)L_22);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:51>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_23 = V_0;
 		NullCheck(L_23);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_24;
@@ -13226,7 +12075,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_25 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_24, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___countryInput = L_25;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___countryInput), (void*)L_25);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:52>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_26 = V_0;
 		NullCheck(L_26);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_27;
@@ -13236,7 +12084,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_28 = Component_GetComponentInChildren_TisInputFieldDropdown_t181EE902CA4B0C21FA693B8AE7760AB0ECBEB197_m0666B74BF5F90626010E6198ABA8E1B2A3CAD6F2(L_27, Component_GetComponentInChildren_TisInputFieldDropdown_t181EE902CA4B0C21FA693B8AE7760AB0ECBEB197_m0666B74BF5F90626010E6198ABA8E1B2A3CAD6F2_RuntimeMethod_var);
 		__this->___countryDropdown = L_28;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___countryDropdown), (void*)L_28);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:53>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_29 = V_0;
 		NullCheck(L_29);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_30;
@@ -13246,7 +12093,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_31 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_30, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___cityInput = L_31;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___cityInput), (void*)L_31);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:54>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_32 = V_0;
 		NullCheck(L_32);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_33;
@@ -13256,7 +12102,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_34 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_33, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___yearlyIncomeInput = L_34;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___yearlyIncomeInput), (void*)L_34);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:55>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_35 = V_0;
 		NullCheck(L_35);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_36;
@@ -13266,7 +12111,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_37 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_36, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___hourlyWageInput = L_37;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___hourlyWageInput), (void*)L_37);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:56>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_38 = V_0;
 		NullCheck(L_38);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_39;
@@ -13276,7 +12120,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_40 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_39, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___commentsInput = L_40;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___commentsInput), (void*)L_40);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:57>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_41 = V_0;
 		NullCheck(L_41);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_42;
@@ -13286,16 +12129,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_Awake_m0CC049A2842DA9334DBF1DEA
 		L_43 = Component_GetComponent_TisButton_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098_mFF8BA4CA5D7158D1D6249559A3289E7A6DF0A2BB(L_42, Component_GetComponent_TisButton_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098_mFF8BA4CA5D7158D1D6249559A3289E7A6DF0A2BB_RuntimeMethod_var);
 		__this->___submitButton = L_43;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___submitButton), (void*)L_43);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:59>
 		List_1_tD2ACCA0C34DB8D9A981045873E4ED33F14EF2947* L_44 = (List_1_tD2ACCA0C34DB8D9A981045873E4ED33F14EF2947*)il2cpp_codegen_object_new(List_1_tD2ACCA0C34DB8D9A981045873E4ED33F14EF2947_il2cpp_TypeInfo_var);
 		List_1__ctor_m11BFC9D2684854C96AAF902B9E8E88B9B37AF333(L_44, List_1__ctor_m11BFC9D2684854C96AAF902B9E8E88B9B37AF333_RuntimeMethod_var);
 		__this->___countryDropdownOptions = L_44;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___countryDropdownOptions), (void*)L_44);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:60>
 		return;
 	}
 }
-// Method Definition Index: 55039
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_CreateCountryDropdownOptions_mAC35CE39B90E54464D34B94D376DD68E9AB81F9D (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* ___0_countries, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13310,29 +12150,24 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_CreateCountryDropdownOptions_mA
 	int32_t V_1 = 0;
 	String_t* V_2 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:64>
 		List_1_tD2ACCA0C34DB8D9A981045873E4ED33F14EF2947* L_0 = __this->___countryDropdownOptions;
 		NullCheck(L_0);
 		List_1_Clear_m5CAF1F855E685F420548AEF4BA3B509BDBC65AC2_inline(L_0, List_1_Clear_m5CAF1F855E685F420548AEF4BA3B509BDBC65AC2_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:66>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_1 = ___0_countries;
 		NullCheck(L_1);
 		V_0 = ((int32_t)(((RuntimeArray*)L_1)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:67>
 		V_1 = 0;
 		goto IL_0034;
 	}
 
 IL_0013:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:69>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_2 = ___0_countries;
 		int32_t L_3 = V_1;
 		NullCheck(L_2);
 		int32_t L_4 = L_3;
 		String_t* L_5 = (L_2)->GetAt(static_cast<il2cpp_array_size_t>(L_4));
 		V_2 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:70>
 		String_t* L_6 = V_2;
 		bool L_7;
 		L_7 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_6, NULL);
@@ -13342,7 +12177,6 @@ IL_0013:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:72>
 		List_1_tD2ACCA0C34DB8D9A981045873E4ED33F14EF2947* L_8 = __this->___countryDropdownOptions;
 		String_t* L_9 = V_2;
 		OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04* L_10 = (OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04*)il2cpp_codegen_object_new(OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04_il2cpp_TypeInfo_var);
@@ -13353,14 +12187,12 @@ IL_0013:
 
 IL_0030:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:67>
 		int32_t L_11 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_11, 1));
 	}
 
 IL_0034:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:67>
 		int32_t L_12 = V_1;
 		int32_t L_13 = V_0;
 		if ((((int32_t)L_12) < ((int32_t)L_13)))
@@ -13369,115 +12201,87 @@ IL_0034:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:74>
 		return;
 	}
 }
-// Method Definition Index: 55040
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_OnEnable_mD32C2C8F8F50B27B9656C43743F3BBA2ED1325DB (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:78>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___usernameInput;
 		NullCheck(L_0);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:79>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_1 = __this->___passwordInput;
 		NullCheck(L_1);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:80>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___emailInput;
 		NullCheck(L_2);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:81>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___telephoneInput;
 		NullCheck(L_3);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:82>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_4 = __this->___firstNameInput;
 		NullCheck(L_4);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:83>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5 = __this->___lastNameInput;
 		NullCheck(L_5);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_5, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:84>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = __this->___countryInput;
 		NullCheck(L_6);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_6, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:85>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_7 = __this->___cityInput;
 		NullCheck(L_7);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_7, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:86>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = __this->___yearlyIncomeInput;
 		NullCheck(L_8);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_8, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:87>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_9 = __this->___hourlyWageInput;
 		NullCheck(L_9);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:88>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_10 = __this->___commentsInput;
 		NullCheck(L_10);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_10, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:89>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_11 = __this->___submitButton;
 		NullCheck(L_11);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_11, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:90>
 		return;
 	}
 }
-// Method Definition Index: 55041
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_EnableSubmitButton_m3ED3EE744B192F57C70EA50195A21A3F239CDEED (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:94>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_0 = __this->___submitButton;
 		NullCheck(L_0);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:95>
 		return;
 	}
 }
-// Method Definition Index: 55042
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_DisableSubmitButton_m07A5C920F5E525086BBF669C823BEDCBCEB28883 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:99>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_0 = __this->___submitButton;
 		NullCheck(L_0);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:100>
 		return;
 	}
 }
-// Method Definition Index: 55043
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_ShowPassword_mF1BC0A83AB59BF588ACCF63CAF3C543E1D829ECB (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:104>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:105>
 		return;
 	}
 }
-// Method Definition Index: 55044
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_HidePassword_m304C24A822CD534D31B9EDCF909B31B42540EB71 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:109>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:110>
 		return;
 	}
 }
-// Method Definition Index: 55045
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_UpdateCountryOptions_mC5BD9C59B2E475ABEE55C76AFBB54A809902916E (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, String_t* ___0_countryText, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13500,7 +12304,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_UpdateCountryOptions_mC5BD9C59B
 		NullCheck(L_1);
 		L_1->___countryText = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___countryText), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:114>
 		U3CU3Ec__DisplayClass43_0_t97C74D4E01B03E52A1FB9E653A7BE418CED8220B* L_3 = V_0;
 		NullCheck(L_3);
 		String_t* L_4 = L_3->___countryText;
@@ -13512,7 +12315,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_UpdateCountryOptions_mC5BD9C59B
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:116>
 		InputFieldDropdown_t181EE902CA4B0C21FA693B8AE7760AB0ECBEB197* L_6 = __this->___countryDropdown;
 		NullCheck(L_6);
 		InputFieldDropdown_Hide_m38929181436054E68225DA9B9D80E1673B8D0E5A(L_6, NULL);
@@ -13521,12 +12323,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_UpdateCountryOptions_mC5BD9C59B
 
 IL_0026:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:120>
 		U3CU3Ec__DisplayClass43_0_t97C74D4E01B03E52A1FB9E653A7BE418CED8220B* L_7 = V_0;
 		Predicate_1_t0886AB194A3FD11EA78E6A2F70230FBC7CADA29D* L_8 = (Predicate_1_t0886AB194A3FD11EA78E6A2F70230FBC7CADA29D*)il2cpp_codegen_object_new(Predicate_1_t0886AB194A3FD11EA78E6A2F70230FBC7CADA29D_il2cpp_TypeInfo_var);
 		Predicate_1__ctor_m7383DAA263BBDF8C338D81F9126F8E7A8DE70A5D(L_8, L_7, (intptr_t)((void*)U3CU3Ec__DisplayClass43_0_U3CUpdateCountryOptionsU3Eb__0_mEF3AA9F0324C7E333E5D20263C06AA3FC57A73B0_RuntimeMethod_var), NULL);
 		V_1 = L_8;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:121>
 		InputFieldDropdown_t181EE902CA4B0C21FA693B8AE7760AB0ECBEB197* L_9 = __this->___countryDropdown;
 		List_1_tD2ACCA0C34DB8D9A981045873E4ED33F14EF2947* L_10 = __this->___countryDropdownOptions;
 		Predicate_1_t0886AB194A3FD11EA78E6A2F70230FBC7CADA29D* L_11 = V_1;
@@ -13535,15 +12335,12 @@ IL_0026:
 		L_12 = List_1_FindAll_m1F30189577A9EF73FE3F3F18E742FC54D7D7C530(L_10, L_11, List_1_FindAll_m1F30189577A9EF73FE3F3F18E742FC54D7D7C530_RuntimeMethod_var);
 		NullCheck(L_9);
 		InputFieldDropdown_set_options_m7825646B575F1FCF7958E443094FDC1B542E57CA(L_9, L_12, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:122>
 		InputFieldDropdown_t181EE902CA4B0C21FA693B8AE7760AB0ECBEB197* L_13 = __this->___countryDropdown;
 		NullCheck(L_13);
 		InputFieldDropdown_Show_mAB1766B0A2BE6F6AE02945A921AE6BDA63709E7E(L_13, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:124>
 		return;
 	}
 }
-// Method Definition Index: 55046
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_ApplyCountryOption_mAC099692FBA3364BAF12D5AB7C778BF20BE29D89 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, int32_t ___0_index, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13553,7 +12350,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_ApplyCountryOption_mAC099692FBA
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:128>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___countryInput;
 		InputFieldDropdown_t181EE902CA4B0C21FA693B8AE7760AB0ECBEB197* L_1 = __this->___countryDropdown;
 		NullCheck(L_1);
@@ -13568,15 +12364,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView_ApplyCountryOption_mAC099692FBA
 		L_5 = OptionData_get_text_mD833EF01161E67F037E87C909D39486090CDA135_inline(L_4, NULL);
 		NullCheck(L_0);
 		AdvancedInputField_set_Text_m2444B40941C9E42372B05AA41DDC437E3C467EDC(L_0, L_5, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:129>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = __this->___countryInput;
 		NullCheck(L_6);
 		AdvancedInputField_SetCaretToTextEnd_m08B1CC166880E6014A77D676C488A64D7DAE0407(L_6, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:130>
 		return;
 	}
 }
-// Method Definition Index: 55047
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView__ctor_mACEA7CB1612E6D85AF70BB578382DAF64B5EEB33 (FormView_t7EA6B6588B2ABF1BA7128DE73F7C48D4A9F8DD76* __this, const RuntimeMethod* method) 
 {
 	{
@@ -13592,7 +12385,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void FormView__ctor_mACEA7CB1612E6D85AF70BB57
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55048
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass43_0__ctor_mD790E80E3A901442839EA5A0B0E09781CDD4B369 (U3CU3Ec__DisplayClass43_0_t97C74D4E01B03E52A1FB9E653A7BE418CED8220B* __this, const RuntimeMethod* method) 
 {
 	{
@@ -13600,11 +12392,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass43_0__ctor_mD790E80
 		return;
 	}
 }
-// Method Definition Index: 55049
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CU3Ec__DisplayClass43_0_U3CUpdateCountryOptionsU3Eb__0_mEF3AA9F0324C7E333E5D20263C06AA3FC57A73B0 (U3CU3Ec__DisplayClass43_0_t97C74D4E01B03E52A1FB9E653A7BE418CED8220B* __this, OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04* ___0_option, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/FormView.cs:120>
 		OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04* L_0 = ___0_option;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13624,7 +12414,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool U3CU3Ec__DisplayClass43_0_U3CUpdateCount
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55050
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnEnable_m12B6CF8EE6FDC540BB6DF3399BCB6E985A412E24 (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13636,7 +12425,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnEnable_m12B6CF8EE6FDC5
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:22>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -13647,7 +12435,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnEnable_m12B6CF8EE6FDC5
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:24>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -13658,16 +12445,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnEnable_m12B6CF8EE6FDC5
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:27>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral9106FDA9DCBF413D0A9DB91493DB0C703BD3F431, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:28>
 		NativeKeyboardManager_ResetAutofill_mCF73F03A66B4D5193E70D78D9082D62E937D0EB4(NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:29>
 		return;
 	}
 }
-// Method Definition Index: 55051
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnDisable_mAD5B2709112CEB204689D84427B09C88905BC2FB (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13677,7 +12460,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnDisable_mAD5B2709112CE
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:33>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -13688,7 +12470,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnDisable_mAD5B2709112CE
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:35>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -13699,15 +12480,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnDisable_mAD5B2709112CE
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:37>
 		return;
 	}
 }
-// Method Definition Index: 55052
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnInputEnd_m0011D427512F5E98FD77666500AE2C9B58D7B3F7 (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, String_t* ___0_result, int32_t ___1_reason, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:41>
 		bool L_0;
 		L_0 = LoginController_AreAllFieldsFilledIn_mB00A38B1C9E51A8C89640DBF63E2157A4F5BBA34(__this, NULL);
 		if (!L_0)
@@ -13716,7 +12494,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnInputEnd_m0011D427512F
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:43>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_1 = __this->___view;
 		NullCheck(L_1);
 		LoginView_EnableLoginButton_m06E164D405A4815003DE60965E5774B03FA09895(L_1, NULL);
@@ -13725,19 +12502,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnInputEnd_m0011D427512F
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:47>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_2 = __this->___view;
 		NullCheck(L_2);
 		LoginView_DisableLoginButton_m0766441E9CDBA1DA3D3AEF531147C08C81A3739E(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:49>
 		return;
 	}
 }
-// Method Definition Index: 55053
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnPasswordVisibilityToggle_m261E5564167517DC6E11F2C63FDFE717E779E80C (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, bool ___0_isON, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:53>
 		bool L_0 = ___0_isON;
 		if (!L_0)
 		{
@@ -13745,7 +12518,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnPasswordVisibilityTogg
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:55>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_1 = __this->___view;
 		NullCheck(L_1);
 		LoginView_ShowPassword_m747D3B49DB751756A452F10369B6D7E6566E3EB6(L_1, NULL);
@@ -13754,19 +12526,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnPasswordVisibilityTogg
 
 IL_000f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:59>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_2 = __this->___view;
 		NullCheck(L_2);
 		LoginView_HidePassword_m91E7D7A203A7DFF4B2B687691F356C4A62226626(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:61>
 		return;
 	}
 }
-// Method Definition Index: 55054
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool LoginController_AreAllFieldsFilledIn_mB00A38B1C9E51A8C89640DBF63E2157A4F5BBA34 (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:65>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_0 = __this->___view;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13779,13 +12547,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool LoginController_AreAllFieldsFilledIn_mB0
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:65>
 		return (bool)0;
 	}
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:66>
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_3 = __this->___view;
 		NullCheck(L_3);
 		String_t* L_4;
@@ -13798,17 +12564,14 @@ IL_0014:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:66>
 		return (bool)0;
 	}
 
 IL_0028:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:68>
 		return (bool)1;
 	}
 }
-// Method Definition Index: 55055
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnLoginClick_m674FB664559146A95DBFC1D0AB2CCC340D63CDCE (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13819,9 +12582,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnLoginClick_m674FB66455
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:73>
 		NativeKeyboardManager_SaveCredentials_m4EA61B0B58DE62E7C9CFCA9424404FED6DC16A6C(_stringLiteralA3BE8AD46EEC19ACD2A4720CD22778A4861352D9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:74>
 		MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* L_0 = __this->___messageView;
 		LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* L_1 = __this->___view;
 		NullCheck(L_1);
@@ -13831,31 +12592,25 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnLoginClick_m674FB66455
 		L_3 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral1C8E1EDD8AFA6F9CB6A98C2C35AE94063F4A558A, L_2, NULL);
 		NullCheck(L_0);
 		MessageView_ShowMessage_m8BACE7837B6A452E76856D3211E19E4501A8352C(L_0, L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:75>
 		return;
 	}
 }
-// Method Definition Index: 55056
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController_OnRegisterClick_m8CD4AD145036AFA8A85BDB551521303D27A837A2 (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:79>
 		RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* L_0 = __this->___registerController;
 		NullCheck(L_0);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_0, NULL);
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:80>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2;
 		L_2 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_2);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginController.cs:81>
 		return;
 	}
 }
-// Method Definition Index: 55057
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController__ctor_mDCA8732FE3C1E7B97BE99398153295B6021A0C61 (LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* __this, const RuntimeMethod* method) 
 {
 	{
@@ -13871,11 +12626,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginController__ctor_mDCA8732FE3C1E7B97
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55058
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LoginView_get_Email_m4E56C24A01723F2592447B98173C538BE9037EA0 (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:17>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___emailInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13883,11 +12636,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LoginView_get_Email_m4E56C24A01723F
 		return L_1;
 	}
 }
-// Method Definition Index: 55059
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LoginView_get_Password_m2D5B63495974B9183956A5706425D061FF555639 (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:18>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -13895,7 +12646,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* LoginView_get_Password_m2D5B6349597
 		return L_1;
 	}
 }
-// Method Definition Index: 55060
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2097351F2FEEF4209E (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -13913,7 +12663,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2
 	}
 	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:22>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0;
 		L_0 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
 		NullCheck(L_0);
@@ -13924,7 +12673,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2
 		L_2 = Component_GetComponent_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m807654BF9CCD1E13E3FB8498D557BDDF13006518(L_1, Component_GetComponent_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m807654BF9CCD1E13E3FB8498D557BDDF13006518_RuntimeMethod_var);
 		__this->___scrollRect = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___scrollRect), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:23>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_3 = __this->___scrollRect;
 		NullCheck(L_3);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_4;
@@ -13933,7 +12681,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_5;
 		L_5 = Transform_Find_m3087032B0E1C5B96A2D2C27020BAEAE2DA08F932(L_4, _stringLiteral07DFDBC45D9713EA661D00DE425D97F208EDA0A3, NULL);
 		V_0 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:24>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_6 = V_0;
 		NullCheck(L_6);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_7;
@@ -13943,7 +12690,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2
 		L_8 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_7, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___emailInput = L_8;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___emailInput), (void*)L_8);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:25>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_9 = V_0;
 		NullCheck(L_9);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_10;
@@ -13953,7 +12699,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2
 		L_11 = Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3(L_10, Component_GetComponentInChildren_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mDD611873D12B43F237E12CA1B89D6005A13D3CF3_RuntimeMethod_var);
 		__this->___passwordInput = L_11;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___passwordInput), (void*)L_11);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:26>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_12 = V_0;
 		NullCheck(L_12);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_13;
@@ -13963,83 +12708,63 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_Awake_mD6F807673F5506F2115D9A2
 		L_14 = Component_GetComponentInChildren_TisButton_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098_m16CFA6B8AD1C67BA8A7BCB3465E5C20064DEE5DB(L_13, Component_GetComponentInChildren_TisButton_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098_m16CFA6B8AD1C67BA8A7BCB3465E5C20064DEE5DB_RuntimeMethod_var);
 		__this->___loginButton = L_14;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___loginButton), (void*)L_14);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:27>
 		return;
 	}
 }
-// Method Definition Index: 55061
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_OnEnable_m2143F0A15067D5D696CF8C666366CEFECA936694 (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:31>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		NullCheck(L_0);
 		ScrollRect_set_verticalNormalizedPosition_m4AF461113925E6710BF04F46A49CF1F856F7738C(L_0, (1.0f), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:32>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_1 = __this->___emailInput;
 		NullCheck(L_1);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:33>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___passwordInput;
 		NullCheck(L_2);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:34>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_3 = __this->___loginButton;
 		NullCheck(L_3);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_3, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:35>
 		return;
 	}
 }
-// Method Definition Index: 55062
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_EnableLoginButton_m06E164D405A4815003DE60965E5774B03FA09895 (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:39>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_0 = __this->___loginButton;
 		NullCheck(L_0);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:40>
 		return;
 	}
 }
-// Method Definition Index: 55063
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_DisableLoginButton_m0766441E9CDBA1DA3D3AEF531147C08C81A3739E (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:44>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_0 = __this->___loginButton;
 		NullCheck(L_0);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:45>
 		return;
 	}
 }
-// Method Definition Index: 55064
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_ShowPassword_m747D3B49DB751756A452F10369B6D7E6566E3EB6 (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:49>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:50>
 		return;
 	}
 }
-// Method Definition Index: 55065
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView_HidePassword_m91E7D7A203A7DFF4B2B687691F356C4A62226626 (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:54>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/LoginView.cs:55>
 		return;
 	}
 }
-// Method Definition Index: 55066
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView__ctor_mED0263FFD565F55E05149DD41DAAFF3CE77BE0CE (LoginView_t28C8137D3CED9A861ACFEF78CA29451B3C7721D6* __this, const RuntimeMethod* method) 
 {
 	{
@@ -14055,7 +12780,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LoginView__ctor_mED0263FFD565F55E05149DD
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55067
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView_Awake_m579920337CF4CB16A1A6021B4EB8394EF5B16EF4 (MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14066,7 +12790,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView_Awake_m579920337CF4CB16A1A60
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:15>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0;
 		L_0 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
 		NullCheck(L_0);
@@ -14077,42 +12800,33 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView_Awake_m579920337CF4CB16A1A60
 		L_2 = Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888(L_1, Component_GetComponent_TisText_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62_mB85C5C0EEF6535E3FC0DBFC14E39FA5A51B6F888_RuntimeMethod_var);
 		__this->___messageLabel = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___messageLabel), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:16>
 		return;
 	}
 }
-// Method Definition Index: 55068
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView_ShowMessage_m8BACE7837B6A452E76856D3211E19E4501A8352C (MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* __this, String_t* ___0_message, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:20>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0;
 		L_0 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_0);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:21>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_1 = __this->___messageLabel;
 		String_t* L_2 = ___0_message;
 		NullCheck(L_1);
 		VirtualActionInvoker1< String_t* >::Invoke(75, L_1, L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:22>
 		return;
 	}
 }
-// Method Definition Index: 55069
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView_OnHideMessageClick_m2104B6973905F59A51471D069C7464309F72E246 (MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:26>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0;
 		L_0 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_0);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MessageView.cs:27>
 		return;
 	}
 }
-// Method Definition Index: 55070
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView__ctor_m857C77DF4FA3DFF1751A41404C2A6DA2D8909A9D (MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* __this, const RuntimeMethod* method) 
 {
 	{
@@ -14128,7 +12842,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MessageView__ctor_m857C77DF4FA3DFF1751A4
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55071
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14139,7 +12852,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:22>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_0 = __this->___canvas;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -14150,7 +12862,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:24>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___resizeVerticalInputField;
 		NullCheck(L_2);
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_3;
@@ -14161,12 +12872,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FF
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:27>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_4 = __this->___canvas;
 		return L_4;
 	}
 }
-// Method Definition Index: 55072
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_Start_m61DB3BBDC011A00DD305F0BC8C62EF1BBB8A67C1 (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14178,7 +12887,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_Start_m61DB3BBDC011A00DD
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:34>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		bool L_0;
 		L_0 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
@@ -14198,7 +12906,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_Start_m61DB3BBDC011A00DD
 
 IL_000e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:36>
 		OnKeyboardHeightChangedHandler_tE766EBA926C5765E1BCB549961B6A829F23E2C93* L_2 = (OnKeyboardHeightChangedHandler_tE766EBA926C5765E1BCB549961B6A829F23E2C93*)il2cpp_codegen_object_new(OnKeyboardHeightChangedHandler_tE766EBA926C5765E1BCB549961B6A829F23E2C93_il2cpp_TypeInfo_var);
 		OnKeyboardHeightChangedHandler__ctor_m6B3CA43274E63DBA7CC8C65C9631ADDA43FF8112(L_2, __this, (intptr_t)((void*)ModesController_OnKeyboardHeightChanged_m77E23115E42DDD977584C6FF4D414349FF040A03_RuntimeMethod_var), NULL);
 		NativeKeyboardManager_AddKeyboardHeightChangedListener_m506F56E243B3E454C091263D4A2D1576BB6A0732(L_2, NULL);
@@ -14206,11 +12913,9 @@ IL_000e:
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:39>
 		return;
 	}
 }
-// Method Definition Index: 55073
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeHorizontalSizeChanged_mB657BE60D246A1A0A74D88D3C9BEAEB5DCAD9A40 (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_size, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14220,23 +12925,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeHorizontalSizeCh
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral123A303465785767C60888F2E647B8B0F1BE82C7);
 		s_Il2CppMethodInitialized = true;
 	}
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
-	memset((&V_0), 0, sizeof(V_0));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:43>
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_size;
-		V_0 = L_0;
+		String_t* L_0;
+		L_0 = Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline((&___0_size), NULL);
 		String_t* L_1;
-		L_1 = Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline((&V_0), NULL);
-		String_t* L_2;
-		L_2 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral123A303465785767C60888F2E647B8B0F1BE82C7, L_1, NULL);
+		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral123A303465785767C60888F2E647B8B0F1BE82C7, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
-		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:44>
+		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
 		return;
 	}
 }
-// Method Definition Index: 55074
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalBeginEdit_mF16FF84623FBF448D533F3C094140A01AF75AF3C (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, int32_t ___0_reason, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14248,10 +12946,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalBeginEdi
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:48>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteralBA3564D9D0C96B1EE4DA8DC5065FC02989F05427, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:49>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___resizeVerticalInputField;
 		NullCheck(L_0);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1;
@@ -14260,7 +12956,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalBeginEdi
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
 		L_2 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_1, NULL);
 		__this->___originalResizeVerticalPosition = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:52>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		bool L_3;
 		L_3 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
@@ -14280,7 +12975,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalBeginEdi
 
 IL_002e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:54>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5 = __this->___resizeVerticalInputField;
 		NullCheck(L_5);
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_6;
@@ -14290,11 +12984,9 @@ IL_002e:
 
 IL_003f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:57>
 		return;
 	}
 }
-// Method Definition Index: 55075
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalEndEdit_m1B20D55871562E76B3A7839DCA68CA3CC114D2B6 (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, String_t* ___0_result, int32_t ___1_reason, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14305,10 +12997,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalEndEdit_
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:61>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral7EE76C6CCDABEE6D952FE91A9F686D26FF791D94, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:62>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___resizeVerticalInputField;
 		NullCheck(L_0);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1;
@@ -14316,11 +13006,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalEndEdit_
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = __this->___originalResizeVerticalPosition;
 		NullCheck(L_1);
 		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:63>
 		return;
 	}
 }
-// Method Definition Index: 55076
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalSizeChanged_mAACC0ABD74ED12424409DAEFD696ACB6EEACB57A (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_size, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14333,111 +13021,97 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnResizeVerticalSizeChan
 	}
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_1;
-	memset((&V_1), 0, sizeof(V_1));
+	float V_1 = 0.0f;
 	float V_2 = 0.0f;
-	float V_3 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:67>
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_size;
-		V_0 = L_0;
+		String_t* L_0;
+		L_0 = Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline((&___0_size), NULL);
 		String_t* L_1;
-		L_1 = Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline((&V_0), NULL);
-		String_t* L_2;
-		L_2 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral875439636A7BC33C628C90E57C47CDA5895A5E45, L_1, NULL);
+		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral875439636A7BC33C628C90E57C47CDA5895A5E45, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
-		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:68>
-		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___resizeVerticalInputField;
-		NullCheck(L_3);
-		bool L_4;
-		L_4 = AdvancedInputField_get_Selected_mE486B7158DF685728D748F8D3FBAB38A505584A4(L_3, NULL);
-		if (L_4)
+		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
+		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___resizeVerticalInputField;
+		NullCheck(L_2);
+		bool L_3;
+		L_3 = AdvancedInputField_get_Selected_mE486B7158DF685728D748F8D3FBAB38A505584A4(L_2, NULL);
+		if (L_3)
 		{
-			goto IL_002c;
+			goto IL_002a;
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:68>
 		return;
 	}
 
-IL_002c:
+IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:71>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
+		bool L_4;
+		L_4 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
+		if (!L_4)
+		{
+			goto IL_0038;
+		}
+	}
+	{
 		bool L_5;
-		L_5 = Application_get_isEditor_mEAC51E3ACE6DCE438087FB14BD75A3C219D354D0(NULL);
+		L_5 = Settings_get_SimulateMobileBehaviourInEditor_m07F51F75DE57FD073816C20C5A7BD5F9F8412A41(NULL);
 		if (!L_5)
 		{
-			goto IL_003a;
-		}
-	}
-	{
-		bool L_6;
-		L_6 = Settings_get_SimulateMobileBehaviourInEditor_m07F51F75DE57FD073816C20C5A7BD5F9F8412A41(NULL);
-		if (!L_6)
-		{
-			goto IL_008f;
+			goto IL_008d;
 		}
 	}
 
-IL_003a:
+IL_0038:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:73>
-		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_7 = __this->___resizeVerticalInputField;
+		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = __this->___resizeVerticalInputField;
+		NullCheck(L_6);
+		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_7;
+		L_7 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_6, NULL);
 		NullCheck(L_7);
-		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_8;
-		L_8 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_7, NULL);
-		NullCheck(L_8);
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_9;
-		L_9 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_8, NULL);
-		V_1 = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:74>
-		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_10 = __this->___resizeVerticalInputField;
-		NullCheck(L_10);
-		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_11;
-		L_11 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_10, NULL);
-		float L_12;
-		L_12 = ModesController_GetAbsoluteBottomY_m8218389C397DD2EAAD0E2FE2BFFBEA6D3B535893(__this, L_11, NULL);
-		V_2 = L_12;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:75>
-		float L_13 = __this->___keyboardHeight;
-		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_14;
-		L_14 = ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C(__this, NULL);
-		NullCheck(L_14);
-		float L_15;
-		L_15 = Canvas_get_scaleFactor_m6B8D694A68376EE5E13D9B0B0F037E2E90C99921(L_14, NULL);
-		V_3 = ((float)(L_13/L_15));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:76>
-		float* L_16 = (float*)(&(&V_1)->___y);
-		float* L_17 = L_16;
-		float L_18 = *((float*)L_17);
-		float L_19 = V_3;
-		float L_20 = V_2;
-		*((float*)L_17) = (float)((float)il2cpp_codegen_add(L_18, ((float)il2cpp_codegen_subtract(L_19, L_20))));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:77>
-		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_21 = __this->___resizeVerticalInputField;
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_8;
+		L_8 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_7, NULL);
+		V_0 = L_8;
+		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_9 = __this->___resizeVerticalInputField;
+		NullCheck(L_9);
+		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_10;
+		L_10 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_9, NULL);
+		float L_11;
+		L_11 = ModesController_GetAbsoluteBottomY_m8218389C397DD2EAAD0E2FE2BFFBEA6D3B535893(__this, L_10, NULL);
+		V_1 = L_11;
+		float L_12 = __this->___keyboardHeight;
+		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_13;
+		L_13 = ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C(__this, NULL);
+		NullCheck(L_13);
+		float L_14;
+		L_14 = Canvas_get_scaleFactor_m6B8D694A68376EE5E13D9B0B0F037E2E90C99921(L_13, NULL);
+		V_2 = ((float)(L_12/L_14));
+		float* L_15 = (float*)(&(&V_0)->___y);
+		float* L_16 = L_15;
+		float L_17 = *((float*)L_16);
+		float L_18 = V_2;
+		float L_19 = V_1;
+		*((float*)L_16) = (float)((float)il2cpp_codegen_add(L_17, ((float)il2cpp_codegen_subtract(L_18, L_19))));
+		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_20 = __this->___resizeVerticalInputField;
+		NullCheck(L_20);
+		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_21;
+		L_21 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_20, NULL);
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_22 = V_0;
 		NullCheck(L_21);
-		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_22;
-		L_22 = AdvancedInputField_get_RectTransform_m47787B273679C2A79F8397D81247F1674D9240B2(L_21, NULL);
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_23 = V_1;
-		NullCheck(L_22);
-		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_22, L_23, NULL);
+		RectTransform_set_anchoredPosition_mF903ACE04F6959B1CD67E2B94FABC0263068F965(L_21, L_22, NULL);
 	}
 
-IL_008f:
+IL_008d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:80>
 		return;
 	}
 }
-// Method Definition Index: 55077
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ModesController_GetAbsoluteBottomY_m8218389C397DD2EAAD0E2FE2BFFBEA6D3B535893 (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ___0_rectTransform, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
@@ -14448,22 +13122,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ModesController_GetAbsoluteBottomY_m821
 	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D V_4;
 	memset((&V_4), 0, sizeof(V_4));
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:84>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_0 = (Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C*)SZArrayNew(Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C_il2cpp_TypeInfo_var, (uint32_t)4);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:85>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_1 = ___0_rectTransform;
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_2 = V_0;
 		NullCheck(L_1);
 		RectTransform_GetWorldCorners_m6E15303C3B065B2F65E0A7F0E0217695564C2E09(L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:87>
 		Vector3U5BU5D_tFF1859CCE176131B909E2044F76443064254679C* L_3 = V_0;
 		NullCheck(L_3);
 		float L_4 = ((L_3)->GetAddressAt(static_cast<il2cpp_array_size_t>(0)))->___y;
 		V_1 = L_4;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:88>
 		V_2 = (0.0f);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:89>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_5;
 		L_5 = ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C(__this, NULL);
 		NullCheck(L_5);
@@ -14475,7 +13144,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ModesController_GetAbsoluteBottomY_m821
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:91>
 		float L_7 = V_1;
 		int32_t L_8;
 		L_8 = Screen_get_height_m01A3102DE71EE1FBEA51D09D6B0261CF864FE8F9(NULL);
@@ -14485,14 +13153,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR float ModesController_GetAbsoluteBottomY_m821
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:95>
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_9;
 		L_9 = ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C(__this, NULL);
 		NullCheck(L_9);
 		Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184* L_10;
 		L_10 = Canvas_get_worldCamera_mD2FDE13B61A5213F4E64B40008EB0A8D2D07B853(L_9, NULL);
 		V_3 = L_10;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:96>
 		float L_11 = V_1;
 		Camera_tA92CC927D7439999BC82DBEDC0AA45B470F9E184* L_12 = V_3;
 		NullCheck(L_12);
@@ -14507,7 +13173,6 @@ IL_0039:
 
 IL_005b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:99>
 		float L_16 = V_2;
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_17;
 		L_17 = ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C(__this, NULL);
@@ -14515,6 +13180,7 @@ IL_005b:
 		Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D L_18;
 		L_18 = Canvas_get_pixelRect_m6093115759D4B39B4076AFE44F7ECC886B1F6C9F(L_17, NULL);
 		V_4 = L_18;
+		il2cpp_codegen_runtime_class_init_inline(Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_il2cpp_TypeInfo_var);
 		float L_19;
 		L_19 = Rect_get_height_mE1AA6C6C725CCD2D317BD2157396D3CF7D47C9D8_inline((&V_4), NULL);
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_20;
@@ -14525,7 +13191,6 @@ IL_005b:
 		return ((float)(((float)il2cpp_codegen_multiply(L_16, L_19))/L_21));
 	}
 }
-// Method Definition Index: 55078
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_m77E23115E42DDD977584C6FF4D414349FF040A03 (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, int32_t ___0_keyboardHeight, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14540,17 +13205,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_
 	float V_1 = 0.0f;
 	float V_2 = 0.0f;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:104>
 		String_t* L_0;
 		L_0 = Int32_ToString_m030E01C24E294D6762FB0B6F37CB541581F55CA5((&___0_keyboardHeight), NULL);
 		String_t* L_1;
 		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral70099FD4F8061E8244C4134B1426C9DCF97E4A35, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:105>
 		int32_t L_2 = ___0_keyboardHeight;
 		__this->___keyboardHeight = ((float)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:107>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___resizeVerticalInputField;
 		NullCheck(L_3);
 		bool L_4;
@@ -14561,7 +13223,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:109>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5 = __this->___resizeVerticalInputField;
 		NullCheck(L_5);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_6;
@@ -14570,7 +13231,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_7;
 		L_7 = RectTransform_get_anchoredPosition_m38F25A4253B0905BB058BE73DBF43C7172CE0680(L_6, NULL);
 		V_0 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:110>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = __this->___resizeVerticalInputField;
 		NullCheck(L_8);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_9;
@@ -14578,7 +13238,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_
 		float L_10;
 		L_10 = ModesController_GetAbsoluteBottomY_m8218389C397DD2EAAD0E2FE2BFFBEA6D3B535893(__this, L_9, NULL);
 		V_1 = L_10;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:111>
 		int32_t L_11 = ___0_keyboardHeight;
 		Canvas_t2DB4CEFDFF732884866C83F11ABF75F5AE8FFB26* L_12;
 		L_12 = ModesController_get_Canvas_m0FE545A169F1826DB5D24DA6289A6D318105D16C(__this, NULL);
@@ -14586,14 +13245,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_
 		float L_13;
 		L_13 = Canvas_get_scaleFactor_m6B8D694A68376EE5E13D9B0B0F037E2E90C99921(L_12, NULL);
 		V_2 = ((float)(((float)L_11)/L_13));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:112>
 		float* L_14 = (float*)(&(&V_0)->___y);
 		float* L_15 = L_14;
 		float L_16 = *((float*)L_15);
 		float L_17 = V_2;
 		float L_18 = V_1;
 		*((float*)L_15) = (float)((float)il2cpp_codegen_add(L_16, ((float)il2cpp_codegen_subtract(L_17, L_18))));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:113>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_19 = __this->___resizeVerticalInputField;
 		NullCheck(L_19);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_20;
@@ -14605,11 +13262,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController_OnKeyboardHeightChanged_
 
 IL_007c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ModesController.cs:115>
 		return;
 	}
 }
-// Method Definition Index: 55079
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController__ctor_mA658B3656B7058801EA928A3461A2BBFF40D2DAE (ModesController_t88C58B1FA0FF1691B495DF86EE22D2411484180D* __this, const RuntimeMethod* method) 
 {
 	{
@@ -14625,19 +13280,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ModesController__ctor_mA658B3656B7058801
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55080
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultilineController_OnEnable_m2051EEB8B26171558AB8D12FADAF84103CC26F56 (MultilineController_t4EF6A4610AF998AE97119F5C1872E11E5CAFFD64* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultilineController.cs:16>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		NullCheck(L_0);
 		ScrollRect_set_verticalNormalizedPosition_m4AF461113925E6710BF04F46A49CF1F856F7738C(L_0, (1.0f), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/MultilineController.cs:17>
 		return;
 	}
 }
-// Method Definition Index: 55081
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultilineController__ctor_mEF9D649F2906BA68069391C1D3D0EF788C7AA160 (MultilineController_t4EF6A4610AF998AE97119F5C1872E11E5CAFFD64* __this, const RuntimeMethod* method) 
 {
 	{
@@ -14653,39 +13304,31 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MultilineController__ctor_mEF9D649F2906B
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55082
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void OneTimeCodeController_Awake_m18AEB29BFA23A1F904167F682F2D215B746B61F0 (OneTimeCodeController_t4A12541EEF156195D29DB79F3D27214358FC540E* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/OneTimeCodeController.cs:16>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___instructionLabel;
 		NullCheck(L_0);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_0, NULL);
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/OneTimeCodeController.cs:17>
 		return;
 	}
 }
-// Method Definition Index: 55083
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void OneTimeCodeController_OnRequestCodeClick_m8E0F1FB7663B3DBE044E6435B481F1CC9AF9058F (OneTimeCodeController_t4A12541EEF156195D29DB79F3D27214358FC540E* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/OneTimeCodeController.cs:22>
 		NativeKeyboardManager_StartListeningForOneTimeCodes_m718EE821BE63276C372465B5FE4BCE49BB613016(NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/OneTimeCodeController.cs:24>
 		Text_tD60B2346DAA6666BF0D822FF607F0B220C2B9E62* L_0 = __this->___instructionLabel;
 		NullCheck(L_0);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_0, NULL);
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/OneTimeCodeController.cs:25>
 		return;
 	}
 }
-// Method Definition Index: 55084
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void OneTimeCodeController__ctor_m81DF2D9CECD2374FD8B0CDCCE72F248EE152ADDF (OneTimeCodeController_t4A12541EEF156195D29DB79F3D27214358FC540E* __this, const RuntimeMethod* method) 
 {
 	{
@@ -14701,7 +13344,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void OneTimeCodeController__ctor_m81DF2D9CECD
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55085
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnEnable_mE5AEA09D46C05DA78E02612E13F66955249FA910 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14711,7 +13353,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnEnable_mE5AEA09D46C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:22>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -14722,7 +13363,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnEnable_mE5AEA09D46C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:24>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -14733,11 +13373,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnEnable_mE5AEA09D46C
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:26>
 		return;
 	}
 }
-// Method Definition Index: 55086
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnDisable_m6AC01EF62AD0374A710FC78D10D7191210B4EF93 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14747,7 +13385,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnDisable_m6AC01EF62A
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:30>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -14758,7 +13395,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnDisable_m6AC01EF62A
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:32>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -14769,15 +13405,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnDisable_m6AC01EF62A
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:34>
 		return;
 	}
 }
-// Method Definition Index: 55087
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnInputEnd_m49FDCF0F6525D1CC93F7FBE712923279DE635D45 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, String_t* ___0_result, int32_t ___1_reason, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:38>
 		bool L_0;
 		L_0 = RegisterController_AreAllFieldsFilledIn_m51A566FDD43D3271C6576E1709212F23E78FB1EE(__this, NULL);
 		if (!L_0)
@@ -14786,7 +13419,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnInputEnd_m49FDCF0F6
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:40>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_1 = __this->___view;
 		NullCheck(L_1);
 		RegisterView_EnableRegisterButton_m905A704E5D1AA8DC69312060EF34247B38C0B349(L_1, NULL);
@@ -14795,19 +13427,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnInputEnd_m49FDCF0F6
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:44>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_2 = __this->___view;
 		NullCheck(L_2);
 		RegisterView_DisableRegisterButton_m5CD1DB78A4D9312BFAC4DE53124D13617043B5E7(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:46>
 		return;
 	}
 }
-// Method Definition Index: 55088
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnPasswordVisibilityToggle_mC66A1E2CCA5B143E4D516EC35F1779DF6E1D1E87 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, bool ___0_isON, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:50>
 		bool L_0 = ___0_isON;
 		if (!L_0)
 		{
@@ -14815,7 +13443,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnPasswordVisibilityT
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:52>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_1 = __this->___view;
 		NullCheck(L_1);
 		RegisterView_ShowPassword_m661A84F016B497F96A4AA0E85197514028A7E58A(L_1, NULL);
@@ -14824,19 +13451,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnPasswordVisibilityT
 
 IL_000f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:56>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_2 = __this->___view;
 		NullCheck(L_2);
 		RegisterView_HidePassword_mE8C7B4C1A9BCCBFC52191CB33490DE5CBAFBCDA3(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:58>
 		return;
 	}
 }
-// Method Definition Index: 55089
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnConfirmPasswordVisibilityToggle_mBA7B2A8E974E43D2590F2A1E40C16201DDFB1E63 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, bool ___0_isON, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:62>
 		bool L_0 = ___0_isON;
 		if (!L_0)
 		{
@@ -14844,7 +13467,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnConfirmPasswordVisi
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:64>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_1 = __this->___view;
 		NullCheck(L_1);
 		RegisterView_ShowConfirmPassword_m87992197ECE7DEFF4735161968575155B51D4C38(L_1, NULL);
@@ -14853,19 +13475,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnConfirmPasswordVisi
 
 IL_000f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:68>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_2 = __this->___view;
 		NullCheck(L_2);
 		RegisterView_HideConfirmPassword_mD477ED3D9DBE0AB437DEE419A3151DE967EB0CA4(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:70>
 		return;
 	}
 }
-// Method Definition Index: 55090
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool RegisterController_AreAllFieldsFilledIn_m51A566FDD43D3271C6576E1709212F23E78FB1EE (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:74>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_0 = __this->___view;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -14878,13 +13496,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool RegisterController_AreAllFieldsFilledIn_
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:74>
 		return (bool)0;
 	}
 
 IL_0014:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:75>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_3 = __this->___view;
 		NullCheck(L_3);
 		String_t* L_4;
@@ -14897,17 +13513,14 @@ IL_0014:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:75>
 		return (bool)0;
 	}
 
 IL_0028:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:77>
 		return (bool)1;
 	}
 }
-// Method Definition Index: 55091
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnRegisterClick_m73524E93197DC777553DF019D18362A5E5A6670D (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -14919,7 +13532,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnRegisterClick_m7352
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:82>
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_0 = __this->___view;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -14936,7 +13548,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnRegisterClick_m7352
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:84>
 		MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* L_5 = __this->___messageView;
 		NullCheck(L_5);
 		MessageView_ShowMessage_m8BACE7837B6A452E76856D3211E19E4501A8352C(L_5, _stringLiteralC92004E0D67AD92E5D33095F19E56866897978E8, NULL);
@@ -14945,16 +13556,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnRegisterClick_m7352
 
 IL_002e:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:88>
 		NativeKeyboardManager_SaveCredentials_m4EA61B0B58DE62E7C9CFCA9424404FED6DC16A6C(_stringLiteralA3BE8AD46EEC19ACD2A4720CD22778A4861352D9, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:89>
 		LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* L_6 = __this->___loginController;
 		NullCheck(L_6);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_7;
 		L_7 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_6, NULL);
 		NullCheck(L_7);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_7, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:90>
 		MessageView_t080D8A3240F00C5E80BDA049D66976FA99061092* L_8 = __this->___messageView;
 		RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* L_9 = __this->___view;
 		NullCheck(L_9);
@@ -14964,36 +13572,29 @@ IL_002e:
 		L_11 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral8F64C6B801AEE5511DC1C03E37682FC0F1348F3A, L_10, NULL);
 		NullCheck(L_8);
 		MessageView_ShowMessage_m8BACE7837B6A452E76856D3211E19E4501A8352C(L_8, L_11, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:91>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_12;
 		L_12 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_12);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_12, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:93>
 		return;
 	}
 }
-// Method Definition Index: 55092
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController_OnBackClick_m01F01EA6D0A7A87B4A0FE36CEA511C212F18BBA8 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:97>
 		LoginController_t506890C7D09CE4B2CBC5D646E30BADA4CDF110D9* L_0 = __this->___loginController;
 		NullCheck(L_0);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_0, NULL);
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:98>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2;
 		L_2 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_2);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterController.cs:99>
 		return;
 	}
 }
-// Method Definition Index: 55093
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController__ctor_mFEC7D42965244928073A23911D231008BED0A8B2 (RegisterController_tF89AD4395B4BDDB28CA6515FED2C4E85A7D2FEFB* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15009,11 +13610,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterController__ctor_mFEC7D429652449
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55094
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_Email_m0EE7286F499EE67CD43F8134B0B10254C5F80093 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:20>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___emailInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -15021,11 +13620,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_Email_m0EE7286F499
 		return L_1;
 	}
 }
-// Method Definition Index: 55095
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_Password_m5EFE8882552E42D0DA1460E1BCA3AD43D2A20B8E (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:21>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -15033,11 +13630,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_Password_m5EFE8882
 		return L_1;
 	}
 }
-// Method Definition Index: 55096
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_ConfirmPassword_mBE85ED32D078C51430AAFBE387AC2851FE905B80 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:22>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___confirmPasswordInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -15045,11 +13640,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_ConfirmPassword_mB
 		return L_1;
 	}
 }
-// Method Definition Index: 55097
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_FirstName_m52CE50A2687B3EED64B190D739F5D5F90B5F84F1 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:23>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___firstNameInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -15057,11 +13650,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_FirstName_m52CE50A
 		return L_1;
 	}
 }
-// Method Definition Index: 55098
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_LastName_m36A055842C0F77C5414E9A11E1AFC3E785B3BE04 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:24>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___lastNameInput;
 		NullCheck(L_0);
 		String_t* L_1;
@@ -15069,7 +13660,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* RegisterView_get_LastName_m36A05584
 		return L_1;
 	}
 }
-// Method Definition Index: 55099
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD613BB7164F4D46EEB0A00 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15090,7 +13680,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 	}
 	Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:28>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0;
 		L_0 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
 		NullCheck(L_0);
@@ -15101,7 +13690,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_2 = Component_GetComponent_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m807654BF9CCD1E13E3FB8498D557BDDF13006518(L_1, Component_GetComponent_TisScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E_m807654BF9CCD1E13E3FB8498D557BDDF13006518_RuntimeMethod_var);
 		__this->___scrollRect = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___scrollRect), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:29>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_3 = __this->___scrollRect;
 		NullCheck(L_3);
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_4;
@@ -15110,7 +13698,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_5;
 		L_5 = Transform_Find_m3087032B0E1C5B96A2D2C27020BAEAE2DA08F932(L_4, _stringLiteral07DFDBC45D9713EA661D00DE425D97F208EDA0A3, NULL);
 		V_0 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:30>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_6 = V_0;
 		NullCheck(L_6);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_7;
@@ -15120,7 +13707,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_8 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(L_7, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___emailInput = L_8;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___emailInput), (void*)L_8);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:31>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_9 = V_0;
 		NullCheck(L_9);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_10;
@@ -15130,7 +13716,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_11 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(L_10, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___passwordInput = L_11;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___passwordInput), (void*)L_11);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:32>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_12 = V_0;
 		NullCheck(L_12);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_13;
@@ -15140,7 +13725,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_14 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(L_13, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___confirmPasswordInput = L_14;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___confirmPasswordInput), (void*)L_14);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:33>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_15 = V_0;
 		NullCheck(L_15);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_16;
@@ -15150,7 +13734,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_17 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(L_16, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___firstNameInput = L_17;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___firstNameInput), (void*)L_17);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:34>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_18 = V_0;
 		NullCheck(L_18);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_19;
@@ -15160,7 +13743,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_20 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(L_19, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___lastNameInput = L_20;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___lastNameInput), (void*)L_20);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:35>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_21 = V_0;
 		NullCheck(L_21);
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_22;
@@ -15170,119 +13752,90 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_Awake_mED40C4530BE6F7E5DDD6
 		L_23 = Component_GetComponent_TisButton_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098_mFF8BA4CA5D7158D1D6249559A3289E7A6DF0A2BB(L_22, Component_GetComponent_TisButton_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098_mFF8BA4CA5D7158D1D6249559A3289E7A6DF0A2BB_RuntimeMethod_var);
 		__this->___registerButton = L_23;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___registerButton), (void*)L_23);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:36>
 		return;
 	}
 }
-// Method Definition Index: 55100
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_OnEnable_m367D77B18919601998B119FA042A6773DE9C07C2 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:40>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		NullCheck(L_0);
 		ScrollRect_set_verticalNormalizedPosition_m4AF461113925E6710BF04F46A49CF1F856F7738C(L_0, (1.0f), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:41>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_1 = __this->___emailInput;
 		NullCheck(L_1);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:42>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_2 = __this->___passwordInput;
 		NullCheck(L_2);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:43>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___confirmPasswordInput;
 		NullCheck(L_3);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:44>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_4 = __this->___firstNameInput;
 		NullCheck(L_4);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:45>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5 = __this->___lastNameInput;
 		NullCheck(L_5);
 		AdvancedInputField_Clear_m340DB845314517D8CDA18D420F17415E77B38B3A(L_5, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:46>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_6 = __this->___registerButton;
 		NullCheck(L_6);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_6, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:47>
 		return;
 	}
 }
-// Method Definition Index: 55101
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_EnableRegisterButton_m905A704E5D1AA8DC69312060EF34247B38C0B349 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:51>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_0 = __this->___registerButton;
 		NullCheck(L_0);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:52>
 		return;
 	}
 }
-// Method Definition Index: 55102
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_DisableRegisterButton_m5CD1DB78A4D9312BFAC4DE53124D13617043B5E7 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:56>
 		Button_t6786514A57F7AFDEE5431112FEA0CAB24F5AE098* L_0 = __this->___registerButton;
 		NullCheck(L_0);
 		Selectable_set_interactable_m8DD581C1AD99B2EFA8B3EE9AF69EDDF26688B492(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:57>
 		return;
 	}
 }
-// Method Definition Index: 55103
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_ShowPassword_m661A84F016B497F96A4AA0E85197514028A7E58A (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:61>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:62>
 		return;
 	}
 }
-// Method Definition Index: 55104
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_HidePassword_mE8C7B4C1A9BCCBFC52191CB33490DE5CBAFBCDA3 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:66>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___passwordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:67>
 		return;
 	}
 }
-// Method Definition Index: 55105
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_ShowConfirmPassword_m87992197ECE7DEFF4735161968575155B51D4C38 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:71>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___confirmPasswordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:72>
 		return;
 	}
 }
-// Method Definition Index: 55106
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView_HideConfirmPassword_mD477ED3D9DBE0AB437DEE419A3151DE967EB0CA4 (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:76>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___confirmPasswordInput;
 		NullCheck(L_0);
 		AdvancedInputField_set_VisiblePassword_m244739CC14D7FCE451EF066A5B76AF64D86B1174(L_0, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RegisterView.cs:77>
 		return;
 	}
 }
-// Method Definition Index: 55107
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView__ctor_m94AEC33D32D1E4F016B8031ED8FC08F2AC28B60B (RegisterView_t2CFB77D25B2D6D64F8BDEC2ACF6545DEA015BCDD* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15298,27 +13851,22 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RegisterView__ctor_m94AEC33D32D1E4F016B8
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55108
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* ResultsController_get_FormData_mE942F56DCED7FE1C3BD900BFF769C8E4EBD4FC39 (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:16>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_0 = __this->___U3CFormDataU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 55109
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_set_FormData_mB300B6EE974D7DBE1CD9B9DB7551FEFF947A9722 (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:16>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_0 = ___0_value;
 		__this->___U3CFormDataU3Ek__BackingField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CFormDataU3Ek__BackingField), (void*)L_0);
 		return;
 	}
 }
-// Method Definition Index: 55110
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnEnable_m0545884F763E3A6540B47E63F53A8B75FE72052A (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15328,7 +13876,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnEnable_m0545884F763E
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:20>
 		ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -15339,14 +13886,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnEnable_m0545884F763E
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:22>
 		ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
 		L_3 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_2, NULL);
 		NullCheck(L_3);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_3, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:23>
 		ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* L_4 = __this->___view;
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_5;
 		L_5 = ResultsController_get_FormData_mE942F56DCED7FE1C3BD900BFF769C8E4EBD4FC39_inline(__this, NULL);
@@ -15356,11 +13901,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnEnable_m0545884F763E
 
 IL_0030:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:25>
 		return;
 	}
 }
-// Method Definition Index: 55111
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnDisable_m91E0B75D4C44219BCA76CAEC59E20DC44B35243A (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15370,7 +13913,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnDisable_m91E0B75D4C4
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:29>
 		ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* L_0 = __this->___view;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -15381,7 +13923,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnDisable_m91E0B75D4C4
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:31>
 		ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* L_2 = __this->___view;
 		NullCheck(L_2);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_3;
@@ -15392,31 +13933,25 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnDisable_m91E0B75D4C4
 
 IL_001f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:33>
 		return;
 	}
 }
-// Method Definition Index: 55112
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController_OnBackClick_m07A6D4C6F246614EE9EC6760C48C2EB6E42CF37C (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:37>
 		FormController_t8D6255EB47735552783AC6AB7026849B69587293* L_0 = __this->___formControl;
 		NullCheck(L_0);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_0, NULL);
 		NullCheck(L_1);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_1, (bool)1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:38>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2;
 		L_2 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 		NullCheck(L_2);
 		GameObject_SetActive_m638E92E1E75E519E5B24CF150B08CA8E0CDFAB92(L_2, (bool)0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:39>
 		return;
 	}
 }
-// Method Definition Index: 55113
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController__ctor_mC4CB6881248FD889A1A829605F915A57103D3E40 (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15432,7 +13967,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsController__ctor_mC4CB6881248FD88
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55114
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView_Awake_mD0904CDCE54AFC829D078AEFE757186E107FB0BD (ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15443,7 +13977,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView_Awake_mD0904CDCE54AFC829D078
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsView.cs:15>
 		Transform_tB27202C6F4E36D225EE28A13E4D662BF99785DB1* L_0;
 		L_0 = Component_get_transform_m2919A1D81931E6932C7F06D4C2F0AB8DDA9A5371(__this, NULL);
 		NullCheck(L_0);
@@ -15454,15 +13987,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView_Awake_mD0904CDCE54AFC829D078
 		L_2 = Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3(L_1, Component_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_mD2F995A93AE3C7C4F728261A9F3A3422280845D3_RuntimeMethod_var);
 		__this->___textField = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___textField), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsView.cs:16>
 		return;
 	}
 }
-// Method Definition Index: 55115
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView_UpdateUI_mBA45124A5C7226E55FA83FA9DF5819A7459BA6B6 (ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* __this, FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* ___0_formData, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsView.cs:20>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___textField;
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_1 = ___0_formData;
 		NullCheck(L_1);
@@ -15470,11 +14000,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView_UpdateUI_mBA45124A5C7226E55F
 		L_2 = VirtualFuncInvoker0< String_t* >::Invoke(3, L_1);
 		NullCheck(L_0);
 		AdvancedInputField_set_Text_m2444B40941C9E42372B05AA41DDC437E3C467EDC(L_0, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsView.cs:21>
 		return;
 	}
 }
-// Method Definition Index: 55116
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView__ctor_mA4BA7083363DEA1724966486891311BF8A98D16D (ResultsView_tDCB072E0F518B3042E1A60FE522DA7CC1A1B4EFA* __this, const RuntimeMethod* method) 
 {
 	{
@@ -15490,19 +14018,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResultsView__ctor_mA4BA7083363DEA1724966
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55117
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnEnable_mC7ABBDB5D3257EBD7636D9641EB16144401CA777 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:18>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		NullCheck(L_0);
 		ScrollRect_set_verticalNormalizedPosition_m4AF461113925E6710BF04F46A49CF1F856F7738C(L_0, (1.0f), NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:19>
 		return;
 	}
 }
-// Method Definition Index: 55118
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBoldClick_mCBC47A1244C9CE4A48F184429303B35097456222 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15516,7 +14040,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBoldClick_mCBC47A12
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:23>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15524,7 +14047,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBoldClick_mCBC47A12
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:24>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15535,13 +14057,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBoldClick_mCBC47A12
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:26>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:27>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15552,7 +14072,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBoldClick_mCBC47A12
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:29>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleBold_mAF528084B58D43C9FD4B83E22EBFCFF62E0CF33E(L_8, NULL);
@@ -15560,11 +14079,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBoldClick_mCBC47A12
 
 IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:32>
 		return;
 	}
 }
-// Method Definition Index: 55119
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnItalicClick_m814B0CD42B45842F09FA3BBCC937B5E2F0D3A264 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15578,7 +14095,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnItalicClick_m814B0C
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:36>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15586,7 +14102,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnItalicClick_m814B0C
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:37>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15597,13 +14112,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnItalicClick_m814B0C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:39>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:40>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15614,7 +14127,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnItalicClick_m814B0C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:42>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleItalic_mFCE4C994E82516E694CF50CD6501B9EC42D7BFF3(L_8, NULL);
@@ -15622,11 +14134,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnItalicClick_m814B0C
 
 IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:45>
 		return;
 	}
 }
-// Method Definition Index: 55120
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnUnderlineClick_m58C0788CC5874645A9A530153CA3995140435013 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15640,7 +14150,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnUnderlineClick_m58C
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:49>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15648,7 +14157,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnUnderlineClick_m58C
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:50>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15659,13 +14167,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnUnderlineClick_m58C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:52>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:53>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15676,7 +14182,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnUnderlineClick_m58C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:55>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleUnderline_m06E5F2E866E860D256CB01D84198FC6A3DE2BA95(L_8, NULL);
@@ -15684,11 +14189,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnUnderlineClick_m58C
 
 IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:58>
 		return;
 	}
 }
-// Method Definition Index: 55121
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnStrikethroughClick_mF90F6396EF105FBA71B859E6B0B33654E4FA3B13 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15702,7 +14205,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnStrikethroughClick_
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:62>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15710,7 +14212,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnStrikethroughClick_
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:63>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15721,13 +14222,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnStrikethroughClick_
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:65>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:66>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15738,7 +14237,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnStrikethroughClick_
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:68>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleStrikethrough_m6AF34FA7DA7961BB6F650E30CAC51662D351BCE8(L_8, NULL);
@@ -15746,11 +14244,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnStrikethroughClick_
 
 IL_002a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:71>
 		return;
 	}
 }
-// Method Definition Index: 55122
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnRedClick_m0D2F3534205BDC38B36A3BE40D3A024FEF3C6A1F (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15767,10 +14263,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnRedClick_m0D2F35342
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:75>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(_stringLiteral28AE507E8D04E7D1B1682ADF8A58D727C5C85D8C, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:76>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15778,7 +14272,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnRedClick_m0D2F35342
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:77>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15789,13 +14282,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnRedClick_m0D2F35342
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:79>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:80>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15806,7 +14297,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnRedClick_m0D2F35342
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:82>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleColor_mEB660450A6B315ED628C375607B00F82D75296E1(L_8, _stringLiteral31A0D7054359216EFE7213AEA1E910EEFC934B74, NULL);
@@ -15814,11 +14304,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnRedClick_m0D2F35342
 
 IL_0039:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:85>
 		return;
 	}
 }
-// Method Definition Index: 55123
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnGreenClick_mB2A3F2CE955DC6BF93DCBECC55D82966918F8FAC (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15833,7 +14321,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnGreenClick_mB2A3F2C
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:89>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15841,7 +14328,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnGreenClick_mB2A3F2C
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:90>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15852,13 +14338,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnGreenClick_mB2A3F2C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:92>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:93>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15869,7 +14353,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnGreenClick_mB2A3F2C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:95>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleColor_mEB660450A6B315ED628C375607B00F82D75296E1(L_8, _stringLiteral2375165D26BB55F57D2F81F646CDE703E7803615, NULL);
@@ -15877,11 +14360,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnGreenClick_mB2A3F2C
 
 IL_002f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:98>
 		return;
 	}
 }
-// Method Definition Index: 55124
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBlueClick_m04C7040C080251430952E9801C538A115B044778 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15896,7 +14377,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBlueClick_m04C7040C
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:102>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15904,7 +14384,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBlueClick_m04C7040C
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:103>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15915,13 +14394,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBlueClick_m04C7040C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:105>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:106>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15932,7 +14409,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBlueClick_m04C7040C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:108>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleColor_mEB660450A6B315ED628C375607B00F82D75296E1(L_8, _stringLiteral9B736A9739934A4ACD0D222F5EDAB3AB0209F008, NULL);
@@ -15940,11 +14416,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnBlueClick_m04C7040C
 
 IL_002f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:111>
 		return;
 	}
 }
-// Method Definition Index: 55125
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnCustomFontClick_m9C757E8E4DB0A0C075AD457D88F665DE64FFB157 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -15959,7 +14433,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnCustomFontClick_m9C
 	GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* V_0 = NULL;
 	AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:115>
 		il2cpp_codegen_runtime_class_init_inline(EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707_il2cpp_TypeInfo_var);
 		EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* L_0;
 		L_0 = EventSystem_get_current_mC87C69FB418563DC2A571A10E2F9DB59A6785016(NULL);
@@ -15967,7 +14440,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnCustomFontClick_m9C
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_1;
 		L_1 = EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:116>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -15978,13 +14450,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnCustomFontClick_m9C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:118>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_4 = V_0;
 		NullCheck(L_4);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_5;
 		L_5 = GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4(L_4, GameObject_GetComponent_TisAdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100_m260B239EAB03134F1BF6D11D1EFFAD25C8A09FF4_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:119>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_6 = V_1;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_7;
@@ -15995,7 +14465,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnCustomFontClick_m9C
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:121>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		AdvancedInputField_ToggleFont_m1CE46C3726FA14F10059792B252DB6266DB61E39(L_8, _stringLiteral427B410176001DC4F574943E21DDCFF5EBF764A3, NULL);
@@ -16003,11 +14472,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController_OnCustomFontClick_m9C
 
 IL_002f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/RichTextController.cs:124>
 		return;
 	}
 }
-// Method Definition Index: 55126
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController__ctor_m0145AD61A00202AE71FD2F788C0F2FC522D00232 (RichTextController_tD166D023D202AD0C0B7DE215B9B593AD8CB64AC7* __this, const RuntimeMethod* method) 
 {
 	{
@@ -16023,7 +14490,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RichTextController__ctor_m0145AD61A00202
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55127
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellChecker__ctor_m192AA725CC37E9CC3A1B9879E7174BF4FB96F465 (SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* __this, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* ___0_wordDictionary, int32_t ___1_suggestionThreshold, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -16033,25 +14499,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellChecker__ctor_m192AA725CC37E9CC3A1B
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:21>
 		Object__ctor_mE837C6B9FA8C6D5D109F4B2EC885D79919AC0EA2(__this, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:23>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_0 = ___0_wordDictionary;
 		__this->___wordDictionary = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___wordDictionary), (void*)L_0);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:24>
 		int32_t L_1 = ___1_suggestionThreshold;
 		__this->___suggestionThreshold = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:25>
 		StringBuilder_t* L_2 = (StringBuilder_t*)il2cpp_codegen_object_new(StringBuilder_t_il2cpp_TypeInfo_var);
 		StringBuilder__ctor_m1D99713357DE05DAFA296633639DB55F8C30587D(L_2, NULL);
 		__this->___stringBuilder = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___stringBuilder), (void*)L_2);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:26>
 		return;
 	}
 }
-// Method Definition Index: 55128
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* SpellChecker_CheckText_m3621CF1512BD9B012795536F14BAF0B89A6017B2 (SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* __this, String_t* ___0_text, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -16071,39 +14531,31 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D1
 	String_t* V_6 = NULL;
 	String_t* V_7 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:30>
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_0 = (List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA*)il2cpp_codegen_object_new(List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA_il2cpp_TypeInfo_var);
 		List_1__ctor_m305B0E93244ACD1D36EE872353BE4BB85353FF21(L_0, List_1__ctor_m305B0E93244ACD1D36EE872353BE4BB85353FF21_RuntimeMethod_var);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:31>
 		StringBuilder_t* L_1 = __this->___stringBuilder;
 		NullCheck(L_1);
 		StringBuilder_set_Length_mE2427BDAEF91C4E4A6C80F3BDF1F6E01DBCC2414(L_1, 0, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:32>
 		V_1 = 0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:33>
 		V_2 = 0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:35>
 		String_t* L_2 = ___0_text;
 		NullCheck(L_2);
 		int32_t L_3;
 		L_3 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_2, NULL);
 		V_3 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:36>
 		V_4 = 0;
 		goto IL_009c;
 	}
 
 IL_0022:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:38>
 		String_t* L_4 = ___0_text;
 		int32_t L_5 = V_4;
 		NullCheck(L_4);
 		Il2CppChar L_6;
 		L_6 = String_get_Chars_mC49DF0CD2D3BE7BE97B3AD9C995BE3094F8E36D3(L_4, L_5, NULL);
 		V_5 = L_6;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:39>
 		Il2CppChar L_7 = V_5;
 		il2cpp_codegen_runtime_class_init_inline(il2cpp_defaults.char_class);
 		bool L_8;
@@ -16114,7 +14566,6 @@ IL_0022:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:41>
 		StringBuilder_t* L_9 = __this->___stringBuilder;
 		NullCheck(L_9);
 		int32_t L_10;
@@ -16125,17 +14576,14 @@ IL_0022:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:43>
 		int32_t L_11 = V_4;
 		V_1 = L_11;
 	}
 
 IL_0045:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:46>
 		int32_t L_12 = V_4;
 		V_2 = L_12;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:47>
 		StringBuilder_t* L_13 = __this->___stringBuilder;
 		Il2CppChar L_14 = V_5;
 		NullCheck(L_13);
@@ -16146,7 +14594,6 @@ IL_0045:
 
 IL_0058:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:51>
 		StringBuilder_t* L_16 = __this->___stringBuilder;
 		NullCheck(L_16);
 		int32_t L_17;
@@ -16157,13 +14604,11 @@ IL_0058:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:53>
 		StringBuilder_t* L_18 = __this->___stringBuilder;
 		NullCheck(L_18);
 		String_t* L_19;
 		L_19 = VirtualFuncInvoker0< String_t* >::Invoke(3, L_18);
 		V_6 = L_19;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:54>
 		String_t* L_20 = V_6;
 		bool L_21;
 		L_21 = SpellChecker_IsValidWord_m1B64EC6F2FB0EF0C6C9688B69F226B9CDEB8DDB9(__this, L_20, NULL);
@@ -16173,7 +14618,6 @@ IL_0058:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:56>
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_22 = V_0;
 		int32_t L_23 = V_1;
 		int32_t L_24 = V_2;
@@ -16186,7 +14630,6 @@ IL_0058:
 
 IL_008a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:59>
 		StringBuilder_t* L_26 = __this->___stringBuilder;
 		NullCheck(L_26);
 		StringBuilder_set_Length_mE2427BDAEF91C4E4A6C80F3BDF1F6E01DBCC2414(L_26, 0, NULL);
@@ -16194,14 +14637,12 @@ IL_008a:
 
 IL_0096:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:36>
 		int32_t L_27 = V_4;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_27, 1));
 	}
 
 IL_009c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:36>
 		int32_t L_28 = V_4;
 		int32_t L_29 = V_3;
 		if ((((int32_t)L_28) < ((int32_t)L_29)))
@@ -16210,7 +14651,6 @@ IL_009c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:64>
 		StringBuilder_t* L_30 = __this->___stringBuilder;
 		NullCheck(L_30);
 		int32_t L_31;
@@ -16221,13 +14661,11 @@ IL_009c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:66>
 		StringBuilder_t* L_32 = __this->___stringBuilder;
 		NullCheck(L_32);
 		String_t* L_33;
 		L_33 = VirtualFuncInvoker0< String_t* >::Invoke(3, L_32);
 		V_7 = L_33;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:67>
 		String_t* L_34 = V_7;
 		bool L_35;
 		L_35 = SpellChecker_IsValidWord_m1B64EC6F2FB0EF0C6C9688B69F226B9CDEB8DDB9(__this, L_34, NULL);
@@ -16237,7 +14675,6 @@ IL_009c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:69>
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_36 = V_0;
 		int32_t L_37 = V_1;
 		int32_t L_38 = V_2;
@@ -16250,29 +14687,24 @@ IL_009c:
 
 IL_00d3:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:73>
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_40 = V_0;
 		return L_40;
 	}
 }
-// Method Definition Index: 55129
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool SpellChecker_IsValidWord_m1B64EC6F2FB0EF0C6C9688B69F226B9CDEB8DDB9 (SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* __this, String_t* ___0_word, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
 	int32_t V_1 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:78>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_0 = __this->___wordDictionary;
 		NullCheck(L_0);
 		V_0 = ((int32_t)(((RuntimeArray*)L_0)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:79>
 		V_1 = 0;
 		goto IL_0024;
 	}
 
 IL_000d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:81>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_1 = __this->___wordDictionary;
 		int32_t L_2 = V_1;
 		NullCheck(L_1);
@@ -16287,20 +14719,17 @@ IL_000d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:83>
 		return (bool)1;
 	}
 
 IL_0020:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:79>
 		int32_t L_7 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_7, 1));
 	}
 
 IL_0024:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:79>
 		int32_t L_8 = V_1;
 		int32_t L_9 = V_0;
 		if ((((int32_t)L_8) < ((int32_t)L_9)))
@@ -16309,11 +14738,9 @@ IL_0024:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:87>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 55130
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* SpellChecker_GetSuggestions_m8CD99044042A841857D4DA831BAFA0AAD14C4FEF (SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* __this, String_t* ___0_invalidWord, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -16330,35 +14757,29 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD
 	String_t* V_3 = NULL;
 	int32_t V_4 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:92>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_0 = (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)il2cpp_codegen_object_new(List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD_il2cpp_TypeInfo_var);
 		List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E(L_0, List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E_RuntimeMethod_var);
 		V_0 = L_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:94>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_1 = __this->___wordDictionary;
 		NullCheck(L_1);
 		V_1 = ((int32_t)(((RuntimeArray*)L_1)->max_length));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:95>
 		V_2 = 0;
 		goto IL_003f;
 	}
 
 IL_0013:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:97>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_2 = __this->___wordDictionary;
 		int32_t L_3 = V_2;
 		NullCheck(L_2);
 		int32_t L_4 = L_3;
 		String_t* L_5 = (L_2)->GetAt(static_cast<il2cpp_array_size_t>(L_4));
 		V_3 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:98>
 		String_t* L_6 = V_3;
 		String_t* L_7 = ___0_invalidWord;
 		int32_t L_8;
 		L_8 = SpellChecker_LevenshteinDistance_m96BDF193FC7F149557C28270B46FCCAA73DE5DA2(L_6, L_7, NULL);
 		V_4 = L_8;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:99>
 		int32_t L_9 = V_4;
 		if ((((int32_t)L_9) <= ((int32_t)0)))
 		{
@@ -16374,7 +14795,6 @@ IL_0013:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:101>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_12 = V_0;
 		String_t* L_13 = V_3;
 		NullCheck(L_12);
@@ -16383,14 +14803,12 @@ IL_0013:
 
 IL_003b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:95>
 		int32_t L_14 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_14, 1));
 	}
 
 IL_003f:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:95>
 		int32_t L_15 = V_2;
 		int32_t L_16 = V_1;
 		if ((((int32_t)L_15) < ((int32_t)L_16)))
@@ -16399,12 +14817,10 @@ IL_003f:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:105>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_17 = V_0;
 		return L_17;
 	}
 }
-// Method Definition Index: 55131
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t SpellChecker_LevenshteinDistance_m96BDF193FC7F149557C28270B46FCCAA73DE5DA2 (String_t* ___0_string1, String_t* ___1_string2, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -16427,7 +14843,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t SpellChecker_LevenshteinDistance_m96B
 	int32_t V_10 = 0;
 	int32_t G_B17_0 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:111>
 		String_t* L_0 = ___0_string1;
 		bool L_1;
 		L_1 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_0, NULL);
@@ -16437,7 +14852,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t SpellChecker_LevenshteinDistance_m96B
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:113>
 		String_t* L_2 = ___1_string2;
 		bool L_3;
 		L_3 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_2, NULL);
@@ -16447,13 +14861,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t SpellChecker_LevenshteinDistance_m96B
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:115>
 		return 0;
 	}
 
 IL_0012:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:117>
 		String_t* L_4 = ___1_string2;
 		NullCheck(L_4);
 		int32_t L_5;
@@ -16463,7 +14875,6 @@ IL_0012:
 
 IL_0019:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:120>
 		String_t* L_6 = ___1_string2;
 		bool L_7;
 		L_7 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_6, NULL);
@@ -16473,7 +14884,6 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:122>
 		String_t* L_8 = ___0_string1;
 		NullCheck(L_8);
 		int32_t L_9;
@@ -16483,32 +14893,27 @@ IL_0019:
 
 IL_0028:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:125>
 		String_t* L_10 = ___0_string1;
 		NullCheck(L_10);
 		int32_t L_11;
 		L_11 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_10, NULL);
 		V_0 = L_11;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:126>
 		String_t* L_12 = ___1_string2;
 		NullCheck(L_12);
 		int32_t L_13;
 		L_13 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_12, NULL);
 		V_1 = L_13;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:127>
 		int32_t L_14 = V_0;
 		int32_t L_15 = V_1;
 		il2cpp_array_size_t L_17[] = { (il2cpp_array_size_t)((int32_t)il2cpp_codegen_add(L_14, 1)), (il2cpp_array_size_t)((int32_t)il2cpp_codegen_add(L_15, 1)) };
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_16 = (Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F*)GenArrayNew(Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F_il2cpp_TypeInfo_var, L_17);
 		V_2 = L_16;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:130>
 		V_3 = 0;
 		goto IL_0053;
 	}
 
 IL_0046:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:130>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_18 = V_2;
 		int32_t L_19 = V_3;
 		int32_t L_20 = V_3;
@@ -16520,7 +14925,6 @@ IL_0046:
 
 IL_0053:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:130>
 		int32_t L_22 = V_3;
 		int32_t L_23 = V_0;
 		if ((((int32_t)L_22) <= ((int32_t)L_23)))
@@ -16529,14 +14933,12 @@ IL_0053:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:131>
 		V_4 = 1;
 		goto IL_006c;
 	}
 
 IL_005c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:131>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_24 = V_2;
 		int32_t L_25 = V_4;
 		int32_t L_26 = V_4;
@@ -16548,7 +14950,6 @@ IL_005c:
 
 IL_006c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:131>
 		int32_t L_28 = V_4;
 		int32_t L_29 = V_1;
 		if ((((int32_t)L_28) <= ((int32_t)L_29)))
@@ -16557,21 +14958,18 @@ IL_006c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:133>
 		V_5 = 1;
 		goto IL_00f5;
 	}
 
 IL_0076:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:135>
 		V_6 = 1;
 		goto IL_00ea;
 	}
 
 IL_007b:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:137>
 		String_t* L_30 = ___1_string2;
 		int32_t L_31 = V_6;
 		NullCheck(L_30);
@@ -16600,7 +14998,6 @@ IL_0094:
 IL_0095:
 	{
 		V_7 = G_B17_0;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:138>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_36 = V_2;
 		int32_t L_37 = V_5;
 		int32_t L_38 = V_6;
@@ -16608,7 +15005,6 @@ IL_0095:
 		int32_t L_39;
 		L_39 = (L_36)->GetAt(((int32_t)il2cpp_codegen_subtract(L_37, 1)), L_38);
 		V_8 = ((int32_t)il2cpp_codegen_add(L_39, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:139>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_40 = V_2;
 		int32_t L_41 = V_5;
 		int32_t L_42 = V_6;
@@ -16616,7 +15012,6 @@ IL_0095:
 		int32_t L_43;
 		L_43 = (L_40)->GetAt(L_41, ((int32_t)il2cpp_codegen_subtract(L_42, 1)));
 		V_9 = ((int32_t)il2cpp_codegen_add(L_43, 1));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:140>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_44 = V_2;
 		int32_t L_45 = V_5;
 		int32_t L_46 = V_6;
@@ -16625,7 +15020,6 @@ IL_0095:
 		L_47 = (L_44)->GetAt(((int32_t)il2cpp_codegen_subtract(L_45, 1)), ((int32_t)il2cpp_codegen_subtract(L_46, 1)));
 		int32_t L_48 = V_7;
 		V_10 = ((int32_t)il2cpp_codegen_add(L_47, L_48));
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:141>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_49 = V_2;
 		int32_t L_50 = V_5;
 		int32_t L_51 = V_6;
@@ -16639,14 +15033,12 @@ IL_0095:
 		L_56 = Math_Min_m53C488772A34D53917BCA2A491E79A0A5356ED52(L_54, L_55, NULL);
 		NullCheck(L_49);
 		(L_49)->SetAt(L_50, L_51, L_56);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:135>
 		int32_t L_57 = V_6;
 		V_6 = ((int32_t)il2cpp_codegen_add(L_57, 1));
 	}
 
 IL_00ea:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:135>
 		int32_t L_58 = V_6;
 		int32_t L_59 = V_1;
 		if ((((int32_t)L_58) <= ((int32_t)L_59)))
@@ -16655,14 +15047,12 @@ IL_00ea:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:133>
 		int32_t L_60 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_60, 1));
 	}
 
 IL_00f5:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:133>
 		int32_t L_61 = V_5;
 		int32_t L_62 = V_0;
 		if ((((int32_t)L_61) <= ((int32_t)L_62)))
@@ -16671,7 +15061,6 @@ IL_00f5:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellChecker.cs:144>
 		Int32U5BU2CU5D_t46F2694E7DAD7B2B05C940EC5B9DE04E40D0516F* L_63 = V_2;
 		int32_t L_64 = V_0;
 		int32_t L_65 = V_1;
@@ -16689,7 +15078,6 @@ IL_00f5:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55132
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_Awake_mBF25435A9494EE229460AFE4422B34E3F8BFD805 (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -16699,23 +15087,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_Awake_mBF25435A94
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:36>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_0 = __this->___WORD_DICTIONARY;
 		SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* L_1 = (SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3*)il2cpp_codegen_object_new(SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3_il2cpp_TypeInfo_var);
 		SpellChecker__ctor_m192AA725CC37E9CC3A1B9879E7174BF4FB96F465(L_1, L_0, 1, NULL);
 		__this->___spellChecker = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___spellChecker), (void*)L_1);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:37>
 		return;
 	}
 }
-// Method Definition Index: 55133
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_Start_mB1A6AE92CC9A9FFE2BDDE49BDE8274447CD19F42 (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, const RuntimeMethod* method) 
 {
 	String_t* V_0 = NULL;
 	List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* V_1 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:41>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_0 = __this->___view;
 		NullCheck(L_0);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_1;
@@ -16724,44 +15108,36 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_Start_mB1A6AE92CC
 		String_t* L_2;
 		L_2 = AdvancedInputField_get_Text_m4102E05ACD0CE54CB27956F56DEB9864C53C8ADA(L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:42>
 		SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* L_3 = __this->___spellChecker;
 		String_t* L_4 = V_0;
 		NullCheck(L_3);
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_5;
 		L_5 = SpellChecker_CheckText_m3621CF1512BD9B012795536F14BAF0B89A6017B2(L_3, L_4, NULL);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:43>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_6 = __this->___view;
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_7 = V_1;
 		NullCheck(L_6);
 		SpellCheckerView_UpdateUnderlinedWords_m4395DC13A1A540F37EE0E1B749707EFF54366469(L_6, L_7, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:44>
 		return;
 	}
 }
-// Method Definition Index: 55134
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnTextChanged_m18DFB54ED80D2FE209674E5BED68999CBA69369F (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, String_t* ___0_text, const RuntimeMethod* method) 
 {
 	List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:48>
 		SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* L_0 = __this->___spellChecker;
 		String_t* L_1 = ___0_text;
 		NullCheck(L_0);
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_2;
 		L_2 = SpellChecker_CheckText_m3621CF1512BD9B012795536F14BAF0B89A6017B2(L_0, L_1, NULL);
 		V_0 = L_2;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:49>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_3 = __this->___view;
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_4 = V_0;
 		NullCheck(L_3);
 		SpellCheckerView_UpdateUnderlinedWords_m4395DC13A1A540F37EE0E1B749707EFF54366469(L_3, L_4, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:50>
 		return;
 	}
 }
-// Method Definition Index: 55135
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnCaretChanged_m174EB186148336E7330FB5E04A9F5F16E2537CF8 (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, int32_t ___0_caretPosition, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -16788,28 +15164,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnCaretChanged_m1
 		NullCheck(L_1);
 		L_1->___U3CU3E4__this = __this;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___U3CU3E4__this), (void*)__this);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:54>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_2 = __this->___view;
 		NullCheck(L_2);
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3;
 		L_3 = SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C_inline(L_2, NULL);
 		V_1 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:55>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_4 = V_1;
 		NullCheck(L_4);
 		String_t* L_5;
 		L_5 = AdvancedInputField_get_Text_m4102E05ACD0CE54CB27956F56DEB9864C53C8ADA(L_4, NULL);
 		V_2 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:56>
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_6 = V_0;
 		NullCheck(L_6);
 		L_6->___word = (String_t*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&L_6->___word), (void*)(String_t*)NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:57>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_7 = (List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD*)il2cpp_codegen_object_new(List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD_il2cpp_TypeInfo_var);
 		List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E(L_7, List_1__ctor_mCA8DD57EAC70C2B5923DBB9D5A77CEAC22E7068E_RuntimeMethod_var);
 		V_3 = L_7;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:59>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_8 = V_1;
 		NullCheck(L_8);
 		bool L_9;
@@ -16820,7 +15191,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnCaretChanged_m1
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:61>
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_10 = V_0;
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_11 = V_1;
 		NullCheck(L_11);
@@ -16829,7 +15199,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnCaretChanged_m1
 		NullCheck(L_10);
 		L_10->___word = L_12;
 		Il2CppCodeGenWriteBarrier((void**)(&L_10->___word), (void*)L_12);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:62>
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_13 = V_0;
 		NullCheck(L_13);
 		String_t* L_14 = L_13->___word;
@@ -16837,7 +15206,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnCaretChanged_m1
 		L_15 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral988A94AB986CEEB5E2483B57560A51A63F1E68AD, L_14, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_15, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:63>
 		SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* L_16 = __this->___spellChecker;
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_17 = V_0;
 		NullCheck(L_17);
@@ -16851,7 +15219,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnCaretChanged_m1
 
 IL_006a:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:65>
 		String_t* L_20 = V_2;
 		int32_t L_21 = ___0_caretPosition;
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_22 = V_0;
@@ -16865,7 +15232,6 @@ IL_006a:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:67>
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_25 = V_0;
 		NullCheck(L_25);
 		String_t* L_26 = L_25->___word;
@@ -16873,7 +15239,6 @@ IL_006a:
 		L_27 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral988A94AB986CEEB5E2483B57560A51A63F1E68AD, L_26, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_27, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:68>
 		SpellChecker_tE7B63055630B9776C7B9ECFE0F152BF8F60646E3* L_28 = __this->___spellChecker;
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_29 = V_0;
 		NullCheck(L_29);
@@ -16886,12 +15251,10 @@ IL_006a:
 
 IL_00a1:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:71>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_32 = __this->___view;
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_33 = V_3;
 		NullCheck(L_32);
 		SpellCheckerView_UpdateSuggestions_m3F7A69834603F83C116D4EBFE5D1E35A8BDB5A5F(L_32, L_33, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:72>
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_34 = V_0;
 		NullCheck(L_34);
 		String_t* L_35 = L_34->___word;
@@ -16903,12 +15266,6 @@ IL_00a1:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:74>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:75>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:76>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:77>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:78>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:79>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_37 = __this->___view;
 		U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* L_38 = V_0;
 		Action_1_t2E05CF7FE3D12458E2B9574D34BE6EB79FCC75C1* L_39 = (Action_1_t2E05CF7FE3D12458E2B9574D34BE6EB79FCC75C1*)il2cpp_codegen_object_new(Action_1_t2E05CF7FE3D12458E2B9574D34BE6EB79FCC75C1_il2cpp_TypeInfo_var);
@@ -16920,15 +15277,12 @@ IL_00a1:
 
 IL_00d2:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:83>
 		SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* L_40 = __this->___view;
 		NullCheck(L_40);
 		SpellCheckerView_ClearCustomActions_mF46E16ACCF80BF5161352DA78245F48875C37126(L_40, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:85>
 		return;
 	}
 }
-// Method Definition Index: 55136
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool SpellCheckerController_TryGetWord_m7898848C903C676BD2A8867E0173CA33BCA96AD2 (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, String_t* ___0_text, int32_t ___1_position, String_t** ___2_word, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -16937,7 +15291,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool SpellCheckerController_TryGetWord_m78988
 	int32_t V_3 = 0;
 	int32_t V_4 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:89>
 		int32_t L_0 = ___1_position;
 		String_t* L_1 = ___0_text;
 		NullCheck(L_1);
@@ -16965,29 +15318,23 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool SpellCheckerController_TryGetWord_m78988
 
 IL_0017:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:91>
 		String_t** L_7 = ___2_word;
 		*((RuntimeObject**)L_7) = (RuntimeObject*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(RuntimeObject**)L_7, (void*)(RuntimeObject*)NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:92>
 		return (bool)0;
 	}
 
 IL_001c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:95>
 		int32_t L_8 = ___1_position;
 		V_0 = L_8;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:96>
 		int32_t L_9 = ___1_position;
 		V_1 = L_9;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:98>
 		String_t* L_10 = ___0_text;
 		NullCheck(L_10);
 		int32_t L_11;
 		L_11 = String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline(L_10, NULL);
 		V_2 = L_11;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:99>
 		int32_t L_12 = ___1_position;
 		V_3 = ((int32_t)il2cpp_codegen_subtract(L_12, 1));
 		goto IL_0041;
@@ -16995,7 +15342,6 @@ IL_001c:
 
 IL_002d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:101>
 		String_t* L_13 = ___0_text;
 		int32_t L_14 = V_3;
 		NullCheck(L_13);
@@ -17010,17 +15356,14 @@ IL_002d:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:106>
 		int32_t L_17 = V_3;
 		V_0 = L_17;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:99>
 		int32_t L_18 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_subtract(L_18, 1));
 	}
 
 IL_0041:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:99>
 		int32_t L_19 = V_3;
 		if ((((int32_t)L_19) >= ((int32_t)0)))
 		{
@@ -17030,7 +15373,6 @@ IL_0041:
 
 IL_0045:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:108>
 		int32_t L_20 = ___1_position;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_20, 1));
 		goto IL_0064;
@@ -17038,7 +15380,6 @@ IL_0045:
 
 IL_004c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:110>
 		String_t* L_21 = ___0_text;
 		int32_t L_22 = V_4;
 		NullCheck(L_21);
@@ -17053,17 +15394,14 @@ IL_004c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:115>
 		int32_t L_25 = V_4;
 		V_1 = L_25;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:108>
 		int32_t L_26 = V_4;
 		V_4 = ((int32_t)il2cpp_codegen_add(L_26, 1));
 	}
 
 IL_0064:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:108>
 		int32_t L_27 = V_4;
 		int32_t L_28 = V_2;
 		if ((((int32_t)L_27) < ((int32_t)L_28)))
@@ -17074,7 +15412,6 @@ IL_0064:
 
 IL_0069:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:118>
 		int32_t L_29 = V_1;
 		int32_t L_30 = V_0;
 		if ((((int32_t)L_29) <= ((int32_t)L_30)))
@@ -17083,7 +15420,6 @@ IL_0069:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:120>
 		String_t** L_31 = ___2_word;
 		String_t* L_32 = ___0_text;
 		int32_t L_33 = V_0;
@@ -17094,21 +15430,17 @@ IL_0069:
 		L_36 = String_Substring_mB1D94F47935D22E130FF2C01DBB6A4135FBB76CE(L_32, L_33, ((int32_t)il2cpp_codegen_add(((int32_t)il2cpp_codegen_subtract(L_34, L_35)), 1)), NULL);
 		*((RuntimeObject**)L_31) = (RuntimeObject*)L_36;
 		Il2CppCodeGenWriteBarrier((void**)(RuntimeObject**)L_31, (void*)(RuntimeObject*)L_36);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:121>
 		return (bool)1;
 	}
 
 IL_007d:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:125>
 		String_t** L_37 = ___2_word;
 		*((RuntimeObject**)L_37) = (RuntimeObject*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(RuntimeObject**)L_37, (void*)(RuntimeObject*)NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:126>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 55137
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnGoogleSearchActionClick_m3540ACF83063D904C13EB7FDDFEEC3C712D9F3F8 (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, ActionBarAction_t7B9822AC2405AD3C3A99843AB8C229E702526B64 ___0_action, String_t* ___1_word, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17121,23 +15453,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController_OnGoogleSearchAct
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:132>
 		String_t* L_0 = ___1_word;
 		String_t* L_1;
 		L_1 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteralA6A52D2625E2C8C98035C0F9177FFFC726A5C519, L_0, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_Log_m87A9A3C761FF5C43ED8A53B16190A53D08F818BB(L_1, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:133>
 		String_t* L_2 = ___1_word;
 		String_t* L_3;
 		L_3 = String_Format_mA8DBB4C2516B9723C5A41E6CB1E2FAF4BBE96DD8(_stringLiteralA8B75034212BC4C5B2ADAF2E21B08447B9244F3B, L_2, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		Application_OpenURL_mE748FA4D503715DEE12BCA4BDD8A5305AE41DB89(L_3, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:134>
 		return;
 	}
 }
-// Method Definition Index: 55138
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController__ctor_mE02835C108A25D94B9A16AC5D6AF9BD31628506E (SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17179,16 +15507,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController__ctor_mE02835C108
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:16>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:17>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:18>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:19>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:20>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:21>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:22>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:23>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:24>
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:25>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_0 = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)SZArrayNew(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var, (uint32_t)((int32_t)32));
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_1 = L_0;
 		NullCheck(L_1);
@@ -17300,7 +15618,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerController__ctor_mE02835C108
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55139
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mA99CC461D95B59E9EAD3AE1B367A9B6B92E85DC0 (U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* __this, const RuntimeMethod* method) 
 {
 	{
@@ -17308,17 +15625,14 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0__ctor_mA99CC461
 		return;
 	}
 }
-// Method Definition Index: 55140
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3COnCaretChangedU3Eb__0_m5E4B005BDCBF7E041C086D8C23843E090CC48AAF (U3CU3Ec__DisplayClass8_0_tC7EE0DF17AD795E8A8201D85D1BC827A9FBD2B2E* __this, ActionBarAction_t7B9822AC2405AD3C3A99843AB8C229E702526B64 ___0_action, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:77>
 		SpellCheckerController_tBE9E941BA6CE11CA32080DB9C902397AA691E367* L_0 = __this->___U3CU3E4__this;
 		ActionBarAction_t7B9822AC2405AD3C3A99843AB8C229E702526B64 L_1 = ___0_action;
 		String_t* L_2 = __this->___word;
 		NullCheck(L_0);
 		SpellCheckerController_OnGoogleSearchActionClick_m3540ACF83063D904C13EB7FDDFEEC3C712D9F3F8(L_0, L_1, L_2, NULL);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerController.cs:78>
 		return;
 	}
 }
@@ -17330,16 +15644,13 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass8_0_U3COnCaretChang
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 55141
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:17>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___inputField;
 		return L_0;
 	}
 }
-// Method Definition Index: 55142
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateUnderlinedWords_m4395DC13A1A540F37EE0E1B749707EFF54366469 (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* ___0_invalidRanges, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17351,14 +15662,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateUnderlinedWords_m
 	}
 	TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:21>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0;
 		L_0 = SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C_inline(__this, NULL);
 		NullCheck(L_0);
 		TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* L_1;
 		L_1 = AdvancedInputField_get_TextRenderer_m7B4F48108003D11B343165E7860D82B18C0B97CC(L_0, NULL);
 		V_0 = L_1;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:22>
 		TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* L_2 = V_0;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_3;
@@ -17369,12 +15678,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateUnderlinedWords_m
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:24>
 		TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* L_4 = V_0;
 		NullCheck(L_4);
 		TMProTextUnderlineRenderer_t63369ABE8909984376517196D35B3B787AE7E1F3* L_5;
 		L_5 = Component_GetComponentInChildren_TisTMProTextUnderlineRenderer_t63369ABE8909984376517196D35B3B787AE7E1F3_mE7F5DCCC00AFD9567E12479E2CE369C901FDFF5C(L_4, Component_GetComponentInChildren_TisTMProTextUnderlineRenderer_t63369ABE8909984376517196D35B3B787AE7E1F3_mE7F5DCCC00AFD9567E12479E2CE369C901FDFF5C_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:25>
 		List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* L_6 = ___0_invalidRanges;
 		NullCheck(L_5);
 		TMProTextUnderlineRenderer_UpdateTextRanges_m2B63403BFB0AF9032431DFE7E987E4C0F2D07D5E(L_5, L_6, NULL);
@@ -17382,11 +15689,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateUnderlinedWords_m
 
 IL_0021:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:27>
 		return;
 	}
 }
-// Method Definition Index: 55143
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateSuggestions_m3F7A69834603F83C116D4EBFE5D1E35A8BDB5A5F (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* ___0_suggestions, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17404,7 +15709,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateSuggestions_m3F7A
 	int32_t V_1 = 0;
 	int32_t V_2 = 0;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:31>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0;
 		L_0 = SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C_inline(__this, NULL);
 		NullCheck(L_0);
@@ -17419,24 +15723,20 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_UpdateSuggestions_m3F7A
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:33>
 		List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484* L_3 = (List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484*)il2cpp_codegen_object_new(List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484_il2cpp_TypeInfo_var);
 		List_1__ctor_m31CA4BF4D118AD6A7778FC83F0FE2C0FC9362845(L_3, List_1__ctor_m31CA4BF4D118AD6A7778FC83F0FE2C0FC9362845_RuntimeMethod_var);
 		V_0 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:34>
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_4 = ___0_suggestions;
 		NullCheck(L_4);
 		int32_t L_5;
 		L_5 = List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_inline(L_4, List_1_get_Count_mB63183A9151F4345A9DD444A7CBE0D6E03F77C7C_RuntimeMethod_var);
 		V_1 = L_5;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:35>
 		V_2 = 0;
 		goto IL_003c;
 	}
 
 IL_0024:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:37>
 		List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484* L_6 = V_0;
 		List_1_tF470A3BE5C1B5B68E1325EF3F109D172E60BD7CD* L_7 = ___0_suggestions;
 		int32_t L_8 = V_2;
@@ -17448,14 +15748,12 @@ IL_0024:
 		ActionBarAction__ctor_mD0015FF9FC932B902064C18006C46B04C7E023A9((&L_10), 5, L_9, (Action_1_t2E05CF7FE3D12458E2B9574D34BE6EB79FCC75C1*)NULL, NULL);
 		NullCheck(L_6);
 		List_1_Add_m914A99BCCE0BE36AAF4C060ECF78B96C6EAF8480_inline(L_6, L_10, List_1_Add_m914A99BCCE0BE36AAF4C060ECF78B96C6EAF8480_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:35>
 		int32_t L_11 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_11, 1));
 	}
 
 IL_003c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:35>
 		int32_t L_12 = V_2;
 		int32_t L_13 = V_1;
 		if ((((int32_t)L_12) < ((int32_t)L_13)))
@@ -17464,7 +15762,6 @@ IL_003c:
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:39>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_14 = __this->___inputField;
 		NullCheck(L_14);
 		ActionBar_t5D1D8B26163910CE6118C8925EE9CDDEED83F001* L_15;
@@ -17476,11 +15773,9 @@ IL_003c:
 
 IL_0051:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:41>
 		return;
 	}
 }
-// Method Definition Index: 55144
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_AddGoogleSearchAction_mDBE712AB0C1F7CD40D969D6B9042C6C59818A4FC (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, Action_1_t2E05CF7FE3D12458E2B9574D34BE6EB79FCC75C1* ___0_clickListener, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17495,7 +15790,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_AddGoogleSearchAction_m
 	}
 	List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484* V_0 = NULL;
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:45>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0;
 		L_0 = SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C_inline(__this, NULL);
 		NullCheck(L_0);
@@ -17510,11 +15804,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_AddGoogleSearchAction_m
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:47>
 		List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484* L_3 = (List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484*)il2cpp_codegen_object_new(List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484_il2cpp_TypeInfo_var);
 		List_1__ctor_m31CA4BF4D118AD6A7778FC83F0FE2C0FC9362845(L_3, List_1__ctor_m31CA4BF4D118AD6A7778FC83F0FE2C0FC9362845_RuntimeMethod_var);
 		V_0 = L_3;
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:48>
 		List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484* L_4 = V_0;
 		Action_1_t2E05CF7FE3D12458E2B9574D34BE6EB79FCC75C1* L_5 = ___0_clickListener;
 		ActionBarAction_t7B9822AC2405AD3C3A99843AB8C229E702526B64 L_6;
@@ -17522,7 +15814,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_AddGoogleSearchAction_m
 		ActionBarAction__ctor_mD0015FF9FC932B902064C18006C46B04C7E023A9((&L_6), 6, _stringLiteralD005D19277FC2AE1D51583839AB4411488E00D79, L_5, NULL);
 		NullCheck(L_4);
 		List_1_Add_m914A99BCCE0BE36AAF4C060ECF78B96C6EAF8480_inline(L_4, L_6, List_1_Add_m914A99BCCE0BE36AAF4C060ECF78B96C6EAF8480_RuntimeMethod_var);
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:49>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_7 = __this->___inputField;
 		NullCheck(L_7);
 		ActionBar_t5D1D8B26163910CE6118C8925EE9CDDEED83F001* L_8;
@@ -17534,11 +15825,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_AddGoogleSearchAction_m
 
 IL_003c:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:51>
 		return;
 	}
 }
-// Method Definition Index: 55145
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_ClearCustomActions_mF46E16ACCF80BF5161352DA78245F48875C37126 (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17550,7 +15839,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_ClearCustomActions_mF46
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:55>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0;
 		L_0 = SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C_inline(__this, NULL);
 		NullCheck(L_0);
@@ -17565,7 +15853,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_ClearCustomActions_mF46
 		}
 	}
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:57>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_3 = __this->___inputField;
 		NullCheck(L_3);
 		ActionBar_t5D1D8B26163910CE6118C8925EE9CDDEED83F001* L_4;
@@ -17578,11 +15865,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView_ClearCustomActions_mF46
 
 IL_0028:
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:59>
 		return;
 	}
 }
-// Method Definition Index: 55146
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView__ctor_m9A92F20F6B3B621775B62ADCAED556A9696A4B61 (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, const RuntimeMethod* method) 
 {
 	{
@@ -17625,7 +15910,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void SpellCheckerView__ctor_m9A92F20F6B3B6217
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-// Method Definition Index: 697
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline (String_t* __this, const RuntimeMethod* method) 
 {
 	{
@@ -17633,25 +15917,20 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t String_get_Length_m42625D
 		return L_0;
 	}
 }
-// Method Definition Index: 54842
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR String_t* RichTextRegion_get_RichText_m3A79EE2E75FE103DA3C1210B9C7ADD390B5BEE85_inline (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:36>
 		String_t* L_0 = __this->___richText;
 		return L_0;
 	}
 }
-// Method Definition Index: 54840
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR String_t* RichTextRegion_get_Text_m875601F54979EDBF869653BCB3A6F504BBD32057_inline (RichTextRegion_tF76BCC2BB495BD39C6C826FBCB6A5C86ED80E2BA* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/RichText/RichTextRegion.cs:27>
 		String_t* L_0 = __this->___text;
 		return L_0;
 	}
 }
-// Method Definition Index: 45798
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t Mathf_Min_m888083F74FF5655778F0403BB5E9608BEFDEA8CB_inline (int32_t ___0_a, int32_t ___1_b, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -17688,86 +15967,69 @@ IL_000c:
 		return L_4;
 	}
 }
-// Method Definition Index: 54876
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void TextValidator_set_Validation_mE14F4AE8C28AF8C0B8ABC2EF94605BFEC2806BB8_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:13>
 		int32_t L_0 = ___0_value;
 		__this->___U3CValidationU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54878
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void TextValidator_set_LineType_m5FFB0CEDA8DCDF116680ECF36ED00F40B5C5BAE2_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:14>
 		int32_t L_0 = ___0_value;
 		__this->___U3CLineTypeU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54880
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void TextValidator_set_Validator_m9A8002579DEA30A4446B8D280F7ED604870BDDC0_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:15>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_0 = ___0_value;
 		__this->___U3CValidatorU3Ek__BackingField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CValidatorU3Ek__BackingField), (void*)L_0);
 		return;
 	}
 }
-// Method Definition Index: 54882
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void TextValidator_set_ResultText_m544CAADE95AE5A6B672341A404F32456644DBD39_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, String_t* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:16>
 		String_t* L_0 = ___0_value;
 		__this->___U3CResultTextU3Ek__BackingField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CResultTextU3Ek__BackingField), (void*)L_0);
 		return;
 	}
 }
-// Method Definition Index: 54884
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void TextValidator_set_ResultCaretPosition_m74D9FB15573F1AAE0651D52524869B371AC8F39E_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, int32_t ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:17>
 		int32_t L_0 = ___0_value;
 		__this->___U3CResultCaretPositionU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 54877
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t TextValidator_get_LineType_mC8647101416996FA0D369DCEC3F15CE18FCEC9F6_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:14>
 		int32_t L_0 = __this->___U3CLineTypeU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54875
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t TextValidator_get_Validation_mCE9C79263EB5B726BB21CCFB3622657A556A99CB_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:13>
 		int32_t L_0 = __this->___U3CValidationU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 54879
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* TextValidator_get_Validator_m1E7DF52AFCC6B381234A57624716164CC4958C5D_inline (TextValidator_t5CA79912B6E826DB001223C7ADFCCB1ADF2FBAEF* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextManipulation/TextValidator/TextValidator.cs:15>
 		CharacterValidator_tAFF9B871383BAB0242C24AE0E4BCD26F3DB7DC0B* L_0 = __this->___U3CValidatorU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 45812
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t Mathf_Clamp_m4DC36EEFDBE5F07C16249DA568023C5ECCFF0E7B_inline (int32_t ___0_value, int32_t ___1_min, int32_t ___2_max, const RuntimeMethod* method) 
 {
 	bool V_0 = false;
@@ -17818,37 +16080,27 @@ IL_001d:
 		return L_9;
 	}
 }
-// Method Definition Index: 53441
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ScrollArea_get_Viewport_m527F6D3DB36AD81183D2702CB90C7F6CBC6EAEBF_inline (ScrollArea_t815CE71634382970ADFBF7C5DE8213F0821E5352* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/Helper/ScrollArea.cs:70>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___viewport;
 		return L_0;
 	}
 }
-// Method Definition Index: 44887
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Rect_get_size_mFB990FFC0FE0152179C8C74A59E4AC258CB44267_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7));
 		float L_0 = __this->___m_Width;
+		(&V_0)->___x = L_0;
 		float L_1 = __this->___m_Height;
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2;
-		memset((&L_2), 0, sizeof(L_2));
-		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_2), L_0, L_1, NULL);
-		V_0 = L_2;
-		goto IL_0015;
-	}
-
-IL_0015:
-	{
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_3 = V_0;
-		return L_3;
+		(&V_0)->___y = L_1;
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_2 = V_0;
+		return L_2;
 	}
 }
-// Method Definition Index: 45833
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* __this, float ___0_x, float ___1_y, const RuntimeMethod* method) 
 {
 	{
@@ -17859,7 +16111,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Vector2__ctor_m9525B79969AFF
 		return;
 	}
 }
-// Method Definition Index: 45733
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 Vector3_get_one_mC9B289F1E15C42C597180C9FE6FB492495B51D02_inline (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17868,21 +16119,11 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector3_t24C512C7B96BBABAD472002D
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
-	Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 V_0;
-	memset((&V_0), 0, sizeof(V_0));
 	{
 		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_0 = ((Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_StaticFields*)il2cpp_codegen_static_fields_for(Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2_il2cpp_TypeInfo_var))->___oneVector;
-		V_0 = L_0;
-		goto IL_0009;
-	}
-
-IL_0009:
-	{
-		Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 45760
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 Quaternion_get_identity_m7E701AE095ED10FD5EA0B50ABCFDE2EEFF2173A5_inline (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17891,21 +16132,11 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Quaternion_tDA59F214EF07D7700B26E
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
-	Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 V_0;
-	memset((&V_0), 0, sizeof(V_0));
 	{
 		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_0 = ((Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_StaticFields*)il2cpp_codegen_static_fields_for(Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974_il2cpp_TypeInfo_var))->___identityQuaternion;
-		V_0 = L_0;
-		goto IL_0009;
-	}
-
-IL_0009:
-	{
-		Quaternion_tDA59F214EF07D7700B26E40E562F267AF7306974 L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 45800
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t Mathf_Max_m7FA442918DE37E3A00106D1F2E789D65829792B8_inline (int32_t ___0_a, int32_t ___1_b, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -17942,7 +16173,6 @@ IL_000c:
 		return L_4;
 	}
 }
-// Method Definition Index: 45809
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t Mathf_RoundToInt_m60F8B66CF27F1FA75AA219342BD184B75771EB4B_inline (float ___0_f, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -17967,7 +16197,6 @@ IL_000c:
 		return L_2;
 	}
 }
-// Method Definition Index: 45797
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Mathf_Min_m747CA71A9483CDB394B13BD0AD048EE17E48FFE4_inline (float ___0_a, float ___1_b, const RuntimeMethod* method) 
 {
 	float V_0 = 0.0f;
@@ -18004,7 +16233,6 @@ IL_000c:
 		return L_4;
 	}
 }
-// Method Definition Index: 45799
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Mathf_Max_mF5379E63D2BBAC76D090748695D833934F8AD051_inline (float ___0_a, float ___1_b, const RuntimeMethod* method) 
 {
 	float V_0 = 0.0f;
@@ -18041,127 +16269,82 @@ IL_000c:
 		return L_4;
 	}
 }
-// Method Definition Index: 54892
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float TextRenderer_get_CaretWidth_m5D7F464B0C78CE39798B83A98C73776C1E369DA5_inline (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:81>
 		float L_0 = __this->___U3CCaretWidthU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 44883
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Rect_get_width_m620D67551372073C9C32C4C4624C2A5713F7F9A9_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
-	float V_0 = 0.0f;
 	{
 		float L_0 = __this->___m_Width;
-		V_0 = L_0;
-		goto IL_000a;
-	}
-
-IL_000a:
-	{
-		float L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 54897
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void TextRenderer_set_MultilineMaxWidth_m2AE431508FFBA1A2307DACE705966742A0CBAE54_inline (TextRenderer_t4A9E2A47F83E4621146CAF10D3E750C150A7E0F1* __this, float ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/TextRenderer/TextRenderer.cs:83>
 		float L_0 = ___0_value;
 		__this->___U3CMultilineMaxWidthU3Ek__BackingField = L_0;
 		return;
 	}
 }
-// Method Definition Index: 45856
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Vector2_op_Division_m57A2DCD71E0CE7420851D705D1951F9238902AAB_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 ___0_a, float ___1_d, const RuntimeMethod* method) 
 {
 	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
 	memset((&V_0), 0, sizeof(V_0));
 	{
+		il2cpp_codegen_initobj((&V_0), sizeof(Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ___0_a;
 		float L_1 = L_0.___x;
 		float L_2 = ___1_d;
+		(&V_0)->___x = ((float)(L_1/L_2));
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_3 = ___0_a;
 		float L_4 = L_3.___y;
 		float L_5 = ___1_d;
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_6;
-		memset((&L_6), 0, sizeof(L_6));
-		Vector2__ctor_m9525B79969AFFE3254B303A40997A56DEEB6F548_inline((&L_6), ((float)(L_1/L_2)), ((float)(L_4/L_5)), NULL);
-		V_0 = L_6;
-		goto IL_0019;
-	}
-
-IL_0019:
-	{
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_7 = V_0;
-		return L_7;
+		(&V_0)->___y = ((float)(L_4/L_5));
+		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_6 = V_0;
+		return L_6;
 	}
 }
-// Method Definition Index: 54999
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* ChatView_get_MessageInput_mE237A38F5010F0BF5C354A7070C6F6F1C0E7C496_inline (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:35>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___messageInput;
 		return L_0;
 	}
 }
-// Method Definition Index: 45837
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR String_t* Vector2_ToString_mB47B29ECB21FA3A4ACEABEFA18077A5A6BBCCB27_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* __this, const RuntimeMethod* method) 
 {
-	String_t* V_0 = NULL;
 	{
 		String_t* L_0;
 		L_0 = Vector2_ToString_mC10F098442E56919947154402A77EDE28DC9B7BE_inline(__this, (String_t*)NULL, (RuntimeObject*)NULL, NULL);
-		V_0 = L_0;
-		goto IL_000c;
-	}
-
-IL_000c:
-	{
-		String_t* L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 54998
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* ChatView_get_ScrollRect_m26A43DC5D289DD2037A2221912D9192DA9966307_inline (ChatView_t5B649B9DA18C64ACEE1A1E7BB3AD64DF448B8BBC* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ChatView.cs:34>
 		ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* L_0 = __this->___scrollRect;
 		return L_0;
 	}
 }
-// Method Definition Index: 44885
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR float Rect_get_height_mE1AA6C6C725CCD2D317BD2157396D3CF7D47C9D8_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, const RuntimeMethod* method) 
 {
-	float V_0 = 0.0f;
 	{
 		float L_0 = __this->___m_Height;
-		V_0 = L_0;
-		goto IL_000a;
-	}
-
-IL_000a:
-	{
-		float L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 51485
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* ScrollRect_get_content_m7878BCA28A96B7FBA02DC466A1ED2C9E191C6996_inline (ScrollRect_t17D2F2939CA8953110180DF53164CFC3DC88D70E* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/UGUI/UI/Core/ScrollRect.cs:131>
 		RectTransform_t6C5DA5E41A89E0F488B001E45E58963480E543A5* L_0 = __this->___m_Content;
 		return L_0;
 	}
 }
-// Method Definition Index: 45861
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 Vector2_get_zero_m32506C40EC2EE7D5D4410BF40D3EE683A3D5F32C_inline (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -18170,68 +16353,48 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Vector2_t1FD6F485C871E832B347AB2D
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_il2cpp_TypeInfo_var);
 		s_Il2CppMethodInitialized = true;
 	}
-	Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 V_0;
-	memset((&V_0), 0, sizeof(V_0));
 	{
 		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_0 = ((Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_StaticFields*)il2cpp_codegen_static_fields_for(Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7_il2cpp_TypeInfo_var))->___zeroVector;
-		V_0 = L_0;
-		goto IL_0009;
-	}
-
-IL_0009:
-	{
-		Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7 L_1 = V_0;
-		return L_1;
+		return L_0;
 	}
 }
-// Method Definition Index: 55109
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void ResultsController_set_FormData_mB300B6EE974D7DBE1CD9B9DB7551FEFF947A9722_inline (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* ___0_value, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:16>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_0 = ___0_value;
 		__this->___U3CFormDataU3Ek__BackingField = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CFormDataU3Ek__BackingField), (void*)L_0);
 		return;
 	}
 }
-// Method Definition Index: 53705
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR String_t* OptionData_get_text_mD833EF01161E67F037E87C909D39486090CDA135_inline (OptionData_tEFADBD3A5B1F0D6FB274C8FB309AFFB6BB30CA04* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Scripts/InputField/Add-ons/InputFieldDropdown.cs:57>
 		String_t* L_0 = __this->___m_Text;
 		return L_0;
 	}
 }
-// Method Definition Index: 55108
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* ResultsController_get_FormData_mE942F56DCED7FE1C3BD900BFF769C8E4EBD4FC39_inline (ResultsController_t1327A25C2CA1FA56C406835BB365C71721B1DBC6* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/ResultsController.cs:16>
 		FormData_t4B789B7C4DC4A51F717D48AA5BCA2445FEA60E47* L_0 = __this->___U3CFormDataU3Ek__BackingField;
 		return L_0;
 	}
 }
-// Method Definition Index: 52204
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* EventSystem_get_currentSelectedGameObject_mD606FFACF3E72755298A523CBB709535CF08C98A_inline (EventSystem_t61C51380B105BE9D2C39C4F15B7E655659957707* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/UGUI/EventSystem/EventSystem.cs:102>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = __this->___m_CurrentSelected;
 		return L_0;
 	}
 }
-// Method Definition Index: 55141
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* SpellCheckerView_get_InputField_m8D621185DB8B61C29201807A816432A32D542F4C_inline (SpellCheckerView_tB961517BFB077E7AF6CEFDCFEE50254AB859D877* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:C:/Unity Projects/DiceGame Android/Assets/AdvancedInputField/Samples/Scripts/SpellCheckerView.cs:17>
 		AdvancedInputField_t39B008960B23E9053214A42831446C95E57C8100* L_0 = __this->___inputField;
 		return L_0;
 	}
 }
-// Method Definition Index: 11187
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Add_mEBCF994CC3814631017F46A387B1A192ED6C85C7_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, RuntimeObject* ___0_item, const RuntimeMethod* method) 
 {
 	ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* V_0 = NULL;
@@ -18269,7 +16432,6 @@ IL_0034:
 		return;
 	}
 }
-// Method Definition Index: 11194
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Clear_m16C1F2C61FED5955F10EB36BC1CB2DF34B128994_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -18299,7 +16461,6 @@ IL_003c:
 		return;
 	}
 }
-// Method Definition Index: 11176
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t List_1_get_Count_m4407E4C389F22B8CEC282C15D56516658746C383_gshared_inline (List_1_tA239CB83DE5615F348BB0507E45F490F4F7C9A8D* __this, const RuntimeMethod* method) 
 {
 	{
@@ -18307,7 +16468,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t List_1_get_Count_m4407E4C
 		return L_0;
 	}
 }
-// Method Definition Index: 3228
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* Array_Empty_TisRuntimeObject_mFB8A63D602BB6974D31E20300D9EB89C6FE7C278_gshared_inline (const RuntimeMethod* method) 
 {
 	il2cpp_rgctx_method_init(method);
@@ -18317,7 +16477,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR ObjectU5BU5D_t8061030B0A12A55D5AD
 		return L_0;
 	}
 }
-// Method Definition Index: 11176
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t List_1_get_Count_m0B3ECC8ED372F29C1AF75BD3E49D8855D89F6346_gshared_inline (List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* __this, const RuntimeMethod* method) 
 {
 	{
@@ -18325,7 +16484,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t List_1_get_Count_m0B3ECC8
 		return L_0;
 	}
 }
-// Method Definition Index: 11194
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Clear_m692F2C15A4A958B5F0354F35E97EE977EE549819_gshared_inline (List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* __this, const RuntimeMethod* method) 
 {
 	int32_t V_0 = 0;
@@ -18345,7 +16503,6 @@ IL_003c:
 		return;
 	}
 }
-// Method Definition Index: 11187
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Add_m4959F2684C1E6DCB5B8ACB44ED6ECD7BCE95A0EC_gshared_inline (List_1_t59616E28A4DEC7DC3B3C9A25BC54BC20747FAA76* __this, TextSelectionRegion_tDE9C2BE7F939A13BB47A83A63411F62FA9576E79 ___0_item, const RuntimeMethod* method) 
 {
 	TextSelectionRegionU5BU5D_t53908C41EE7319A59A3CF125803BC4D441A68C36* V_0 = NULL;
@@ -18383,7 +16540,6 @@ IL_0034:
 		return;
 	}
 }
-// Method Definition Index: 11187
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Add_m51408C2B676999F613E262DC6CDA8BDD1E6F1DCF_gshared_inline (List_1_t9CACB1FB3887BDA27BA55C2439922FA3DD9D14AA* __this, TextRange_t2C81136FB68B12CCDD7459F689C0C856511AD088 ___0_item, const RuntimeMethod* method) 
 {
 	TextRangeU5BU5D_t3C518076530FDAC24800392362F9B0FE7E4C9B73* V_0 = NULL;
@@ -18421,7 +16577,6 @@ IL_0034:
 		return;
 	}
 }
-// Method Definition Index: 11187
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void List_1_Add_m914A99BCCE0BE36AAF4C060ECF78B96C6EAF8480_gshared_inline (List_1_t9C7EA48DFF4C9AF17149A47C2995223F3952D484* __this, ActionBarAction_t7B9822AC2405AD3C3A99843AB8C229E702526B64 ___0_item, const RuntimeMethod* method) 
 {
 	ActionBarActionU5BU5D_t0F198D5105668BF3A7B2AD9191509BAD6FE3A50D* V_0 = NULL;
@@ -18459,7 +16614,6 @@ IL_0034:
 		return;
 	}
 }
-// Method Definition Index: 45838
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR String_t* Vector2_ToString_mC10F098442E56919947154402A77EDE28DC9B7BE_inline (Vector2_t1FD6F485C871E832B347AB2DC8CBA08B739D8DF7* __this, String_t* ___0_format, RuntimeObject* ___1_formatProvider, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;

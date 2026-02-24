@@ -38,6 +38,25 @@ public class LoginUIManager : MonoBehaviour
         {
             UIManager.Instance.ShowPanel(UIPanelType.Register);
         });
+        forgotPassword.onClick.AddListener(() =>
+        {
+            Debug.Log("[LoginUIManager] Forgot Password clicked, calling native redirect");
+            try
+            {
+                using (AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                {
+                    using (AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject>("currentActivity"))
+                    {
+                        jo.Call("redirectToForgotPassword");
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("[LoginUIManager] Failed to call redirectToForgotPassword: " + e.Message);
+                // Fallback: maybe show a Unity-based message or just do nothing
+            }
+        });
     }
 
     private void OnEnable()
@@ -47,13 +66,25 @@ public class LoginUIManager : MonoBehaviour
 
     public void LoginUser(string username, string password)
     {
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            Debug.LogWarning("[LoginUIManager] LoginUser called with empty credentials");
+            UIManager.Instance.ShowPanel(UIPanelType.Login);
+            return;
+        }
+
+        Debug.Log("[LoginUIManager] LoginUser called for: " + username);
         loginErrorMsg.gameObject.SetActive(false);
         GameManager.Instance.ApiClient.Login(username, password, (success, err) =>
         {
             if (success)
             {
+                Debug.Log("[LoginUIManager] Login success for: " + username);
                 PlayerPrefs.SetString("username", username);
                 PlayerPrefs.SetString("password", password);
+                PlayerPrefs.SetInt("is_logged_in", 1);
+                PlayerPrefs.Save();
+
                 if (isLoginBtnClicked)
                 {
                     isLoginBtnClicked = false;
@@ -62,14 +93,17 @@ public class LoginUIManager : MonoBehaviour
                 }
                 else
                 {
-                    UIManager.Instance.ShowPanel(UIPanelType.Loading);
+                    Debug.Log("[LoginUIManager] Auto-login success, showing gameplay");
+                    UIManager.Instance.ShowPanel(UIPanelType.Gameplay);
                     loginErrorMsg.gameObject.SetActive(false);
                 }
             }
             else
             {
-                Debug.Log(err);
+                Debug.LogError("[LoginUIManager] Login failed for " + username + ": " + err);
                 loginErrorMsg.gameObject.SetActive(true);
+                // If auto-login failed, make sure we show the login panel
+                UIManager.Instance.ShowPanel(UIPanelType.Login);
             }
         });
     }

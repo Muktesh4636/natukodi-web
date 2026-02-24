@@ -101,7 +101,6 @@ inline bool HashSet_1_Add_mDA8E52933A6A885D9FCF549C99489EF5E095BE1E (HashSet_1_t
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 44213
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMP_TextParsingUtilities__cctor_mEE5F7444F4B17038658A67A8C46BCE39169D141F (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -114,41 +113,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMP_TextParsingUtilities__cctor_mEE5F744
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:10>
 		TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA* L_0 = (TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA*)il2cpp_codegen_object_new(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var);
 		TMP_TextParsingUtilities__ctor_m5B95C165745456957248A8D1EDFAD9B495F47323(L_0, NULL);
 		((TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_StaticFields*)il2cpp_codegen_static_fields_for(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var))->___s_Instance = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&((TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_StaticFields*)il2cpp_codegen_static_fields_for(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var))->___s_Instance), (void*)L_0);
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:184>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:185>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:186>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:187>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:188>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:189>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:190>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:191>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:192>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:193>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:194>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:195>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:196>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:197>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:198>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:199>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:200>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:201>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:202>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:203>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:204>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:205>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:206>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:207>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:208>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:209>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:210>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:211>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:212>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:213>
 		HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A* L_1 = (HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A*)il2cpp_codegen_object_new(HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A_il2cpp_TypeInfo_var);
 		HashSet_1__ctor_m4058973F19EEF9E5FCFF05F3779C7F219544C68A(L_1, HashSet_1__ctor_m4058973F19EEF9E5FCFF05F3779C7F219544C68A_RuntimeMethod_var);
 		HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A* L_2 = L_1;
@@ -5877,32 +5845,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMP_TextParsingUtilities__cctor_mEE5F744
 		L_2863 = HashSet_1_Add_mDA8E52933A6A885D9FCF549C99489EF5E095BE1E(L_2862, ((int32_t)129784), HashSet_1_Add_mDA8E52933A6A885D9FCF549C99489EF5E095BE1E_RuntimeMethod_var);
 		((TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_StaticFields*)il2cpp_codegen_static_fields_for(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var))->___k_EmojiLookup = L_2862;
 		Il2CppCodeGenWriteBarrier((void**)(&((TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_StaticFields*)il2cpp_codegen_static_fields_for(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var))->___k_EmojiLookup), (void*)L_2862);
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:219>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:220>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:221>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:222>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:223>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:224>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:225>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:226>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:227>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:228>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:229>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:230>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:231>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:232>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:233>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:234>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:235>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:236>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:237>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:238>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:239>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:240>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:241>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:242>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:243>
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:244>
 		HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A* L_2864 = (HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A*)il2cpp_codegen_object_new(HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A_il2cpp_TypeInfo_var);
 		HashSet_1__ctor_m4058973F19EEF9E5FCFF05F3779C7F219544C68A(L_2864, HashSet_1__ctor_m4058973F19EEF9E5FCFF05F3779C7F219544C68A_RuntimeMethod_var);
 		HashSet_1_t5DD20B42149A11AEBF12A75505306E6EFC34943A* L_2865 = L_2864;
@@ -10755,7 +10697,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void TMP_TextParsingUtilities__cctor_mEE5F744
 		L_5288 = HashSet_1_Add_mDA8E52933A6A885D9FCF549C99489EF5E095BE1E(L_5287, ((int32_t)129784), HashSet_1_Add_mDA8E52933A6A885D9FCF549C99489EF5E095BE1E_RuntimeMethod_var);
 		((TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_StaticFields*)il2cpp_codegen_static_fields_for(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var))->___k_EmojiPresentationFormLookup = L_5287;
 		Il2CppCodeGenWriteBarrier((void**)(&((TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_StaticFields*)il2cpp_codegen_static_fields_for(TMP_TextParsingUtilities_tF6AF6ED06ADFB8C71F4C1D713D677D821A1AB6FA_il2cpp_TypeInfo_var))->___k_EmojiPresentationFormLookup), (void*)L_5287);
-		//<source_info:./Library/PackageCache/com.unity.ugui@7056cb05de4c/Runtime/TMP/TMP_TextParsingUtilities.cs:15>
 		return;
 	}
 }

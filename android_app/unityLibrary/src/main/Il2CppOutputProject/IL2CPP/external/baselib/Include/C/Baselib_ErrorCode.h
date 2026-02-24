@@ -39,6 +39,8 @@ typedef enum Baselib_ErrorCode
     Baselib_ErrorCode_AddressUnreachable,
     Baselib_ErrorCode_AddressFamilyNotSupported,
     Baselib_ErrorCode_Disconnected,
+    Baselib_ErrorCode_InvalidSocketType,
+    Baselib_ErrorCode_InvalidAddressFamily,
 
     // FileIO
     Baselib_ErrorCode_InvalidPathname = 0x05000000,
@@ -48,6 +50,10 @@ typedef enum Baselib_ErrorCode
     // DynamicLibrary
     Baselib_ErrorCode_FailedToOpenDynamicLibrary = 0x06000000,
     Baselib_ErrorCode_FunctionNotFound,
+
+    // HostnameLookup
+    Baselib_ErrorCode_NoSupportedAddressFound = 0x07000000,
+    Baselib_ErrorCode_TryAgain,
 
     // An error that was not anticipated by the baselib authors.
     // Occurrence of this error is preceeded by a debug assertion.

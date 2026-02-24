@@ -43,13 +43,20 @@ fun LoginScreen(
     var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var savePassword by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
             onLoginSuccess()
         }
+    }
+
+    // Clear error when screen is shown (e.g. when navigating back) or when user navigates away
+    LaunchedEffect(Unit) {
+        viewModel.clearError()
+    }
+    DisposableEffect(Unit) {
+        onDispose { viewModel.clearError() }
     }
 
     Column(
@@ -144,9 +151,9 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Phone Number
+        // Username
         Text(
-            text = stringResource(R.string.phone_number),
+            text = stringResource(R.string.username),
             color = TextWhite,
             fontSize = 14.sp,
             modifier = Modifier.align(Alignment.Start).padding(bottom = 8.dp)
@@ -155,9 +162,10 @@ fun LoginScreen(
             value = phoneNumber,
             onValueChange = {
                 phoneNumber = it
+                if (viewModel.errorMessage != null) viewModel.clearError()
             },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.enter_phone_number), color = TextGrey) },
+            placeholder = { Text(stringResource(R.string.enter_username), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TextGrey) },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = PrimaryYellow,
@@ -181,7 +189,10 @@ fun LoginScreen(
         )
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                if (viewModel.errorMessage != null) viewModel.clearError()
+            },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.enter_password), color = TextGrey) },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextGrey) },
@@ -207,29 +218,11 @@ fun LoginScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Save password checkbox
-        Row(
-            modifier = Modifier.fillMaxWidth().clickable { savePassword = !savePassword },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = savePassword,
-                onCheckedChange = { savePassword = it },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = PrimaryYellow,
-                    uncheckedColor = TextGrey
-                )
-            )
-            Text(stringResource(R.string.save_password), color = TextGrey, fontSize = 14.sp)
-        }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // Login Button
         Button(
-            onClick = { viewModel.login(phoneNumber, password, savePassword) },
+            onClick = { viewModel.login(phoneNumber, password, savePassword = false) },
             enabled = !viewModel.isLoading && phoneNumber.isNotEmpty() && password.isNotEmpty(),
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow),

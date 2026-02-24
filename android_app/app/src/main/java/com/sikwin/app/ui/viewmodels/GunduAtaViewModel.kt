@@ -14,6 +14,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import com.unity3d.player.UnityTokenHolder
 
 class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel() {
 
@@ -194,8 +195,6 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             // This ensures Unity sees the timer the moment it starts
             val sessionManager = com.sikwin.app.data.api.RetrofitClient.getSessionManager()
             if (sessionManager != null) {
-                sessionManager.syncAuthToUnity() // Use existing helper to get context/prefs
-                
                 // Now add the timer specific fields
                 val context = sessionManager.getContext()
                 val standalonePackageName = "com.company.dicegame"
@@ -255,29 +254,35 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 if (response.isSuccessful) {
                     val authResponse = response.body()
                     authResponse?.let {
-                        sessionManager.saveAuthToken(it.access)
-                        sessionManager.saveRefreshToken(it.refresh)
+                        sessionManager.saveTokens(it.access, it.refresh)
                         sessionManager.saveUsername(username)  // Save login input (phone/username) for quick login display
                         sessionManager.saveUserId(it.user.id)
                         if (savePassword) sessionManager.savePassword(password) else sessionManager.clearSavedPassword()
                         sessionManager.saveReferralCode(it.user.referral_code)
                         
-                        // Sync auth to Unity PlayerPrefs
+                        // CRITICAL: Push tokens to Unity immediately (before any navigation)
+                        try {
+                            com.unity3d.player.UnityTokenHolder.setTokens(it.access, it.refresh ?: "", "", "")
+                            android.util.Log.d("GunduAtaViewModel", "Login: Set UnityTokenHolder (accessLen=${it.access.length})")
+                        } catch (e: Exception) {
+                            android.util.Log.e("GunduAtaViewModel", "Login: UnityTokenHolder failed", e)
+                        }
                         sessionManager.syncAuthToUnity()
                         
-                        // Send tokens to Unity if Unity is already running
+                        // Send broadcast for Unity if already running
                         try {
                             com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                sessionManager.getContext(),
                                 it.access,
                                 it.refresh
                             )
                         } catch (e: Exception) {
-                            // Unity might not be running yet, that's okay
-                            android.util.Log.d("GunduAtaViewModel", "Unity not running, tokens will be sent when Unity starts: ${e.message}")
+                            android.util.Log.d("GunduAtaViewModel", "Unity broadcast: ${e.message}")
                         }
                         
                         userProfile = it.user
                         loginSuccess = true
+                        registerFcmTokenIfNeeded()
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -289,6 +294,11 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 isLoading = false
             }
         }
+    }
+
+    /** Registers FCM token with backend. No-op when Firebase is not configured. See FCM_SETUP.md. */
+    fun registerFcmTokenIfNeeded() {
+        // FCM disabled until google-services.json is added. Uncomment Firebase in build.gradle and restore implementation.
     }
 
     fun sendOtp(phoneNumber: String) {
@@ -324,31 +334,36 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 if (response.isSuccessful) {
                     val authResponse = response.body()
                     authResponse?.let {
-                        sessionManager.saveAuthToken(it.access)
-                        sessionManager.saveRefreshToken(it.refresh)
+                        sessionManager.saveTokens(it.access, it.refresh)
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
                         sessionManager.saveReferralCode(it.user.referral_code)
                         // Note: We don't save password for OTP login
                         
-                        // Sync auth to Unity PlayerPrefs
+                        // CRITICAL: Push tokens to Unity immediately
+                        try {
+                            com.unity3d.player.UnityTokenHolder.setTokens(it.access, it.refresh ?: "", "", "")
+                            android.util.Log.d("GunduAtaViewModel", "OTP Login: Set UnityTokenHolder (accessLen=${it.access.length})")
+                        } catch (e: Exception) {
+                            android.util.Log.e("GunduAtaViewModel", "OTP Login: UnityTokenHolder failed", e)
+                        }
                         sessionManager.syncAuthToUnity()
                         
-                        // Send tokens to Unity if Unity is already running
                         try {
                             com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                sessionManager.getContext(),
                                 it.access,
                                 it.refresh
                             )
                         } catch (e: Exception) {
-                            // Unity might not be running yet, that's okay
-                            android.util.Log.d("GunduAtaViewModel", "Unity not running, tokens will be sent when Unity starts: ${e.message}")
+                            android.util.Log.d("GunduAtaViewModel", "Unity broadcast: ${e.message}")
                         }
                         
                         userProfile = it.user
                         sessionManager.saveReferralCode(it.user.referral_code)
                         loginSuccess = true
                         otpSent = false // Reset OTP state
+                        registerFcmTokenIfNeeded()
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -401,8 +416,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                 if (response.isSuccessful) {
                     val authResponse = response.body()
                     authResponse?.let {
-                        sessionManager.saveAuthToken(it.access)
-                        sessionManager.saveRefreshToken(it.refresh)
+                        sessionManager.saveTokens(it.access, it.refresh)
                         sessionManager.saveUsername(it.user.username)
                         sessionManager.saveUserId(it.user.id)
                         data["password"]?.let { pass -> sessionManager.savePassword(pass) }
@@ -410,9 +424,10 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         // Sync auth to Unity PlayerPrefs
                         sessionManager.syncAuthToUnity()
                         
-                        // Send tokens to Unity if Unity is already running
+                        // Send tokens to Unity if Unity is already running (token-only)
                         try {
                             com.sikwin.app.utils.UnityTokenHelper.sendTokensToUnity(
+                                sessionManager.getContext(),
                                 it.access,
                                 it.refresh
                             )
@@ -916,15 +931,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     */
 
     fun logout() {
-        sessionManager.logout()
-        
-        // Notify Unity to logout
-        try {
-            com.sikwin.app.utils.UnityTokenHelper.sendLogoutToUnity(sessionManager.getContext())
-        } catch (e: Exception) {
-            android.util.Log.d("GunduAtaViewModel", "Unity not running, logout signal skipped: ${e.message}")
-        }
-
+        // 1. Clear UI state IMMEDIATELY (Main Thread)
         userProfile = null
         wallet = null
         transactions = emptyList()
@@ -935,6 +942,22 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
         userRank = 0
         userRotationMoney = 0.0
         leaderboardPlayers = emptyList()
+
+        // 2. Perform heavy cleanup in background with extreme safety
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                // Use a local copy of context to avoid ViewModel lifecycle issues
+                val context = sessionManager.getContext().applicationContext
+                
+                // Clear app session
+                sessionManager.logout()
+                
+                // Clear Unity specific stuff
+                clearUnityAuthentication(context)
+            } catch (e: Exception) {
+                android.util.Log.e("GunduAtaViewModel", "Background session logout failed: ${e.message}")
+            }
+        }
     }
 
     fun clearUnityAuthentication(context: android.content.Context) {
@@ -942,17 +965,31 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             // Clear Unity PlayerPrefs for standalone app
             val standalonePackageName = "com.company.dicegame"
             val unityPrefsName = "$standalonePackageName.v2.playerprefs"
-            val unityPrefs = context.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
-            unityPrefs.edit().clear().apply()
+            
+            // Check if context is valid
+            val appContext = context.applicationContext ?: context
+            
+            val unityPrefs = appContext.getSharedPreferences(unityPrefsName, android.content.Context.MODE_PRIVATE)
+            
+            try {
+                unityPrefs.edit().clear().apply()
+            } catch (e: Exception) {
+                android.util.Log.e("GunduAtaViewModel", "Failed to clear unityPrefs: ${e.message}")
+            }
 
             // Also set logout flag for Unity
-            unityPrefs.edit()
-                .putString("is_logged_in", "false")
-                .putString("logout_requested", "true")
-                .putLong("logout_timestamp", System.currentTimeMillis())
-                .apply()
+            try {
+                unityPrefs.edit()
+                    .putString("is_logged_in", "false")
+                    .putString("logout_requested", "true")
+                    .putLong("logout_timestamp", System.currentTimeMillis())
+                    .apply()
+            } catch (e: Exception) {
+                android.util.Log.e("GunduAtaViewModel", "Failed to set logout flags: ${e.message}")
+            }
         } catch (e: Exception) {
             // Ignore errors when clearing Unity prefs
+            android.util.Log.e("GunduAtaViewModel", "clearUnityAuthentication failed: ${e.message}")
         }
     }
 
@@ -1029,33 +1066,6 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     if (prizes != null) {
                         leaderboardPrizes = prizes
                     }
-
-                    // Safety fallback: if API returns turnover > 0 but rank as 0,
-                    // avoid showing "Unranked" and show the user at rank 1 when list is empty.
-                    if (userRank <= 0 && userRotationMoney > 0.0) {
-                        if (leaderboardPlayers.isEmpty()) {
-                            userRank = 1
-                            leaderboardPlayers = listOf(
-                                hashMapOf<String, Any>(
-                                    "rank" to 1,
-                                    "username" to (sessionManager.fetchUsername() ?: "You"),
-                                    "turnover" to userRotationMoney,
-                                    "prize" to (leaderboardPrizes["1st"] ?: "")
-                                )
-                            )
-                        } else {
-                            val currentUserName = (userStats?.get("username") as? String)
-                                ?: sessionManager.fetchUsername()
-                            val selfEntry = leaderboardPlayers.firstOrNull {
-                                (it["username"] as? String) == currentUserName
-                            }
-                            if (selfEntry != null) {
-                                userRank = (selfEntry["rank"] as? Double)?.toInt()
-                                    ?: (selfEntry["rank"] as? Int)
-                                    ?: userRank
-                            }
-                        }
-                    }
                 }
             } catch (e: Exception) {
                 android.util.Log.e("GunduAtaViewModel", "Fetch leaderboard failed: ${e.message}")
@@ -1066,45 +1076,6 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
     }
 
     fun updateUserRotation(amount: Double) {
-        userRotationMoney += amount
-    }
-
-    private fun calculateUserRank() {
-        // Logic: Rank decreases (gets better) as rotation money increases.
-        // If rotation is 0, rank is 0 (unranked).
-        if (userRotationMoney <= 0) {
-            userRank = 0
-            return
-        }
-
-        // Stable ranking logic based on rotation money:
-        // Rank 1: > 1,00,000 rotation
-        // Rank 2: > 75,000
-        // Rank 3: > 50,000
-        // Rank 4: > 40,000
-        // Rank 5: > 30,000
-        // Rank 6: > 25,000
-        // Rank 7: > 20,000
-        // Rank 8: > 15,000
-        // Rank 9: > 10,000
-        // Rank 10: > 5,000
-        userRank = when {
-            userRotationMoney > 100000 -> 1
-            userRotationMoney > 75000 -> 2
-            userRotationMoney > 50000 -> 3
-            userRotationMoney > 40000 -> 4
-            userRotationMoney > 30000 -> 5
-            userRotationMoney > 25000 -> 6
-            userRotationMoney > 20000 -> 7
-            userRotationMoney > 15000 -> 8
-            userRotationMoney > 10000 -> 9
-            userRotationMoney > 5000 -> 10
-            else -> {
-                // For lower rotations, calculate a stable rank between 11 and 100
-                // Higher rotation = lower rank number
-                val calculated = 100 - (userRotationMoney / 5000 * 90).toInt()
-                calculated.coerceIn(11, 100)
-            }
-        }
+        // No local turnover updates, wait for API refresh
     }
 }

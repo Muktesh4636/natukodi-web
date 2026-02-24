@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Gundu Ata</string>
     
+    <!-- Notifications -->
+    <string name="default_notification_channel_id">gundu_ata_notifications</string>
+    <string name="notification_channel_name">Gundu Ata</string>
+    <string name="notification_channel_description">Game updates, round alerts, and promotions</string>
+    
     <!-- Common -->
     <string name="back">Back</string>
     <string name="cancel">Cancel</string>
@@ -47,8 +52,9 @@
     <string name="login_required">Login Required</string>
     <string name="login_required_message">Please sign up to access the Gundu Ata game and start winning!</string>
     <string name="welcome_back">Welcome back</string>
-    <string name="login_subtitle">Please enter your phone number and password to log in</string>
+    <string name="login_subtitle">Please enter your username and password to log in</string>
     <string name="phone_number">Phone Number</string>
+    <string name="username">Username</string>
     <string name="enter_phone_number">Enter phone number</string>
     <string name="password">Password</string>
     <string name="enter_password">Enter your password</string>
@@ -238,5 +244,5 @@
     <string name="step_share_code">Share your code with friends</string>
     <string name="step_friend_deposits">Friend registers &amp; deposits ₹100+</string>
     <string name="step_get_bonus">You get ₹100 instantly!</string>
-    <string name="step_milestone_bonuses">Unlock milestone bonuses: 3 refs → ₹500, 5 more → ₹1000</string>
+    <string name="step_milestone_bonuses">Unlock rewards: 3 refs → ₹500, 5 more → ₹1000, 10 → ₹5K, 20 → ₹10K, 30 → Mega Spin (up to ₹1 Lakh), 50 → ₹25K, 100 → ₹50K</string>
 </resources>

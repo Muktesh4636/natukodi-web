@@ -26,3 +26,7 @@ target_link_libraries(game
     log
     c++
 )
+
+if (GAME_ACTIVITY_STATIC_LIBRARY_OUTPUT)
+    target_link_libraries(game "${GAME_ACTIVITY_STATIC_LIBRARY_OUTPUT}/${CMAKE_ANDROID_ARCH_ABI}/libgame-activity_static.a")
+endif ()

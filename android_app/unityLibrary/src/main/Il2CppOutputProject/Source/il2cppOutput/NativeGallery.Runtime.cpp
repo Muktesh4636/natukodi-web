@@ -1213,6 +1213,10 @@ struct IntPtr_t_StaticFields
 {
 	intptr_t ___Zero;
 };
+struct Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D_StaticFields
+{
+	Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D ___kZero;
+};
 struct YieldAwaiter_t5F0A81DC85227C01FFC38D53139B5C19D920B52A_StaticFields
 {
 	WaitCallback_tFB2C7FD58D024BBC2B0333DC7A4CB63B8DEBD5D3* ___s_waitCallbackRunAction;
@@ -1655,7 +1659,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void PermissionCallback_Invoke_mD
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61813
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1667,7 +1670,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaClass_tE6296B30CC4BF84434A9B765267
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:67>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_ajc;
 		if (L_0)
 		{
@@ -1675,7 +1677,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaClass_tE6296B30CC4BF84434A9B765267
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:68>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_1 = (AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03*)il2cpp_codegen_object_new(AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03_il2cpp_TypeInfo_var);
 		AndroidJavaClass__ctor_mB5466169E1151B8CC44C8FED234D79984B431389(L_1, _stringLiteralEFE01C2CC4005799E2DF6AA0CDD5DE116776AFBC, NULL);
 		((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_ajc = L_1;
@@ -1684,12 +1685,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaClass_tE6296B30CC4BF84434A9B765267
 
 IL_0016:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:70>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_2 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_ajc;
 		return L_2;
 	}
 }
-// Method Definition Index: 61814
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0* NativeGallery_get_Context_mCCF96284368BB81A57E494FC19AF01D785AA5DAE (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1705,7 +1704,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaObject_t8FFB930F335C1178405B82AC2B
 	}
 	AndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0* V_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:79>
 		AndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0* L_0 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_context;
 		if (L_0)
 		{
@@ -1713,7 +1711,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR AndroidJavaObject_t8FFB930F335C1178405B82AC2B
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:81>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_1 = (AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03*)il2cpp_codegen_object_new(AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03_il2cpp_TypeInfo_var);
 		AndroidJavaClass__ctor_mB5466169E1151B8CC44C8FED234D79984B431389(L_1, _stringLiteral4D613657609485AE586A3379BA0E3FC13C1E1078, NULL);
 		V_0 = L_1;
@@ -1745,14 +1742,12 @@ IL_002d:
 		});
 		try
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:83>
 			AndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0* L_4 = V_0;
 			NullCheck(L_4);
 			AndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0* L_5;
 			L_5 = AndroidJavaObject_GetStatic_TisAndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0_mD7D192A35EB2B2DA3775FAB081958B72088251DD(L_4, _stringLiteralFB4AE4F77150C3A8E8E4F8B23E734E0C7277B7D9, AndroidJavaObject_GetStatic_TisAndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0_mD7D192A35EB2B2DA3775FAB081958B72088251DD_RuntimeMethod_var);
 			((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_context = L_5;
 			Il2CppCodeGenWriteBarrier((void**)(&((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_context), (void*)L_5);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:84>
 			goto IL_002e;
 		}
 		catch(Il2CppExceptionWrapper& e)
@@ -1763,12 +1758,10 @@ IL_002d:
 
 IL_002e:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:87>
 		AndroidJavaObject_t8FFB930F335C1178405B82AC2BF512BB1EEF9EB0* L_6 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_context;
 		return L_6;
 	}
 }
-// Method Definition Index: 61815
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_TemporaryImagePath_m05418FC4CC85508CDAE30BEDCC344C85884E1BF8 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1781,7 +1774,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_TemporaryImagePat
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:137>
 		String_t* L_0 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_temporaryImagePath;
 		if (L_0)
 		{
@@ -1789,7 +1781,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_TemporaryImagePat
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:139>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		String_t* L_1;
 		L_1 = Application_get_temporaryCachePath_mE4483A939988E69570C19F8B31AB9FB17B0FD97D(NULL);
@@ -1798,7 +1789,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_TemporaryImagePat
 		L_2 = Path_Combine_m1ADAC05CDA2D1D61B172DF65A81E86592696BEAE(L_1, _stringLiteral1256BD059A8D156C0578EF505C83E5862F0EFCD2, NULL);
 		((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_temporaryImagePath = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_temporaryImagePath), (void*)L_2);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:140>
 		String_t* L_3;
 		L_3 = Application_get_temporaryCachePath_mE4483A939988E69570C19F8B31AB9FB17B0FD97D(NULL);
 		DirectoryInfo_tEAEEC018EB49B4A71907FFEAFE935FAA8F9C1FE2* L_4;
@@ -1807,12 +1797,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_TemporaryImagePat
 
 IL_0026:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:143>
 		String_t* L_5 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_temporaryImagePath;
 		return L_5;
 	}
 }
-// Method Definition Index: 61816
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_SelectedMediaPath_mBB0C7C91D1B7ED7D8D2F457B86432E2D7AA7A19F (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1825,7 +1813,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_SelectedMediaPath
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:152>
 		String_t* L_0 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_selectedMediaPath;
 		if (L_0)
 		{
@@ -1833,7 +1820,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_SelectedMediaPath
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:154>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		String_t* L_1;
 		L_1 = Application_get_temporaryCachePath_mE4483A939988E69570C19F8B31AB9FB17B0FD97D(NULL);
@@ -1842,7 +1828,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_SelectedMediaPath
 		L_2 = Path_Combine_m1ADAC05CDA2D1D61B172DF65A81E86592696BEAE(L_1, _stringLiteralAF0174D5142A8DAD18DDD4423E7AFDBBC3687A8B, NULL);
 		((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_selectedMediaPath = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_selectedMediaPath), (void*)L_2);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:155>
 		String_t* L_3;
 		L_3 = Application_get_temporaryCachePath_mE4483A939988E69570C19F8B31AB9FB17B0FD97D(NULL);
 		DirectoryInfo_tEAEEC018EB49B4A71907FFEAFE935FAA8F9C1FE2* L_4;
@@ -1851,12 +1836,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_get_SelectedMediaPath
 
 IL_0026:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:158>
 		String_t* L_5 = ((NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_StaticFields*)il2cpp_codegen_static_fields_for(NativeGallery_t5E55EACA16F196F4214E0A3AB3A39B5CF555EB0B_il2cpp_TypeInfo_var))->___m_selectedMediaPath;
 		return L_5;
 	}
 }
-// Method Definition Index: 61817
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CheckPermission_m0A35CF502C770BAA965E8686E9564D7CC6B12745 (int32_t ___0_permissionType, int32_t ___1_mediaTypes, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1868,7 +1851,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CheckPermission_m0A35CF502
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:178>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)3);
@@ -1898,7 +1880,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CheckPermission_m0A35CF502
 		return (bool)((((int32_t)L_12) == ((int32_t)1))? 1 : 0);
 	}
 }
-// Method Definition Index: 61818
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_RequestPermissionAsync_m8125D5CD784CEA0E035B81BC769C573AE5BDE800 (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* ___0_callback, int32_t ___1_permissionType, int32_t ___2_mediaTypes, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1911,12 +1892,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_RequestPermissionAsync_m81
 	}
 	NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB* V_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:189>
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_0 = ___0_callback;
 		NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB* L_1 = (NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB*)il2cpp_codegen_object_new(NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB_il2cpp_TypeInfo_var);
 		NGPermissionCallbackAndroid__ctor_mCA109C7756DB9FECDF9EC9DD6054A157E7555DFA(L_1, L_0, NULL);
 		V_0 = L_1;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:190>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_2;
 		L_2 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_3 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)4);
@@ -1947,11 +1926,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_RequestPermissionAsync_m81
 		(L_12)->SetAt(static_cast<il2cpp_array_size_t>(3), (RuntimeObject*)L_15);
 		NullCheck(L_2);
 		AndroidJavaObject_CallStatic_mB677DE04369EDD8E6DECAF2F233116EE1F06555C(L_2, _stringLiteral0443845674FDE6986E4ECC72A8C096004DF51FC6, L_12, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:197>
 		return;
 	}
 }
-// Method Definition Index: 61819
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t5C89128A5298F29B41DC7B2DA6CCB578F49EFBC8* NativeGallery_RequestPermissionAsync_m3A8EC71785D2A093DC9477FDADE0BF3E2A35E047 (int32_t ___0_permissionType, int32_t ___1_mediaTypes, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -1968,21 +1945,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t5C89128A5298F29B41DC7B2DA6CCB578F49EF
 	{
 		U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8* L_0 = (U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8*)il2cpp_codegen_object_new(U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8_il2cpp_TypeInfo_var);
 		U3CU3Ec__DisplayClass25_0__ctor_mE4F80BA4379D0C5712819391CA037C8C1DFBC5AD(L_0, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:201>
 		U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8* L_1 = L_0;
 		TaskCompletionSource_1_tA40684670E345C5786526437707F448A78DD4DC2* L_2 = (TaskCompletionSource_1_tA40684670E345C5786526437707F448A78DD4DC2*)il2cpp_codegen_object_new(TaskCompletionSource_1_tA40684670E345C5786526437707F448A78DD4DC2_il2cpp_TypeInfo_var);
 		TaskCompletionSource_1__ctor_mE2CE066FBB5CD986B6EC9B8B287E263E3FE0E824(L_2, TaskCompletionSource_1__ctor_mE2CE066FBB5CD986B6EC9B8B287E263E3FE0E824_RuntimeMethod_var);
 		NullCheck(L_1);
 		L_1->___tcs = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___tcs), (void*)L_2);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:202>
 		U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8* L_3 = L_1;
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_4 = (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4*)il2cpp_codegen_object_new(PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4_il2cpp_TypeInfo_var);
 		PermissionCallback__ctor_mBD077D6A9E8984D7DF933B1BB0C704832503A8E2(L_4, L_3, (intptr_t)((void*)U3CU3Ec__DisplayClass25_0_U3CRequestPermissionAsyncU3Eb__0_m840DFF97FF53A7ECE5A501B9811A085F6BEA4490_RuntimeMethod_var), NULL);
 		int32_t L_5 = ___0_permissionType;
 		int32_t L_6 = ___1_mediaTypes;
 		NativeGallery_RequestPermissionAsync_m8125D5CD784CEA0E035B81BC769C573AE5BDE800(L_4, L_5, L_6, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:203>
 		NullCheck(L_3);
 		TaskCompletionSource_1_tA40684670E345C5786526437707F448A78DD4DC2* L_7 = L_3->___tcs;
 		NullCheck(L_7);
@@ -1991,11 +1965,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t5C89128A5298F29B41DC7B2DA6CCB578F49EF
 		return L_8;
 	}
 }
-// Method Definition Index: 61820
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t NativeGallery_ProcessPermission_m3F58F5B053D477F86A94386CECBE2B138AA407F2 (int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:209>
 		int32_t L_0 = ___0_permission;
 		if ((((int32_t)L_0) == ((int32_t)3)))
 		{
@@ -2012,18 +1984,14 @@ IL_0006:
 		return (int32_t)(1);
 	}
 }
-// Method Definition Index: 61821
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_TryExtendLimitedAccessPermission_mDAC7C73A2003140F4BAEA45D337879E8D635A7CF (const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:215>
 		bool L_0;
 		L_0 = NativeGallery_IsMediaPickerBusy_m08C8520C94ABF511EA6E7F48E63697CA7857BAAD(NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:216>
 		return;
 	}
 }
-// Method Definition Index: 61822
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_OpenSettings_mC3C5C5092A5C8F1E25548FC6B5F0684753541A98 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2034,7 +2002,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_OpenSettings_mC3C5C5092A5C
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:226>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)1);
@@ -2046,39 +2013,31 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_OpenSettings_mC3C5C5092A5C
 		(L_2)->SetAt(static_cast<il2cpp_array_size_t>(0), (RuntimeObject*)L_3);
 		NullCheck(L_0);
 		AndroidJavaObject_CallStatic_mB677DE04369EDD8E6DECAF2F233116EE1F06555C(L_0, _stringLiteral8A4D2503591255173AC6769BB8A784B9CC5B5BC6, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:230>
 		return;
 	}
 }
-// Method Definition Index: 61823
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveImageToGallery_mF8FF75568B3A97C19B9186B5A40DC00F3B3945E9 (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___0_mediaBytes, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:236>
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_0 = ___0_mediaBytes;
 		String_t* L_1 = ___1_album;
 		String_t* L_2 = ___2_filename;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_3 = ___3_callback;
 		NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A(L_0, L_1, L_2, 1, L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:237>
 		return;
 	}
 }
-// Method Definition Index: 61824
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveImageToGallery_m9E09891879D3D4BDB2C06E252D06E89CDC3B2C19 (String_t* ___0_existingMediaPath, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:241>
 		String_t* L_0 = ___0_existingMediaPath;
 		String_t* L_1 = ___1_album;
 		String_t* L_2 = ___2_filename;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_3 = ___3_callback;
 		NativeGallery_SaveToGallery_m531140F0CD974B1F3D34DABAA831DF91F6764C80(L_0, L_1, L_2, 1, L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:242>
 		return;
 	}
 }
-// Method Definition Index: 61825
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveImageToGallery_m9D41D51101BA8C57FA7BF38D263F73DE101B5044 (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* ___0_image, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2091,7 +2050,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveImageToGallery_m9D41D5
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:246>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_0 = ___0_image;
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		bool L_1;
@@ -2102,7 +2060,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveImageToGallery_m9D41D5
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:247>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_2 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_2, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral15332598528DB5F9A0B9473BE7DCE0BB1F8DCAA7)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_2, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_SaveImageToGallery_m9D41D51101BA8C57FA7BF38D263F73DE101B5044_RuntimeMethod_var)));
@@ -2110,7 +2067,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveImageToGallery_m9D41D5
 
 IL_0014:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:249>
 		String_t* L_3 = ___2_filename;
 		NullCheck(L_3);
 		bool L_4;
@@ -2133,7 +2089,6 @@ IL_0014:
 
 IL_0030:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:250>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_7 = ___0_image;
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_8;
 		L_8 = NativeGallery_GetTextureBytes_mB475FDFD6E1FBEAA043E1190CC5B4172EE3536EF(L_7, (bool)1, NULL);
@@ -2146,7 +2101,6 @@ IL_0030:
 
 IL_0041:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:251>
 		String_t* L_12 = ___2_filename;
 		NullCheck(L_12);
 		bool L_13;
@@ -2157,7 +2111,6 @@ IL_0041:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:252>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_14 = ___0_image;
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_15;
 		L_15 = NativeGallery_GetTextureBytes_mB475FDFD6E1FBEAA043E1190CC5B4172EE3536EF(L_14, (bool)0, NULL);
@@ -2170,7 +2123,6 @@ IL_0041:
 
 IL_0060:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:254>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_19 = ___0_image;
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_20;
 		L_20 = NativeGallery_GetTextureBytes_mB475FDFD6E1FBEAA043E1190CC5B4172EE3536EF(L_19, (bool)0, NULL);
@@ -2180,67 +2132,53 @@ IL_0060:
 		L_23 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(L_22, _stringLiteralA15C898F015A9B0BC3268E8883CD03008A56DE26, NULL);
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_24 = ___3_callback;
 		NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A(L_20, L_21, L_23, 1, L_24, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:255>
 		return;
 	}
 }
-// Method Definition Index: 61826
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveVideoToGallery_m23479CB1C87CFDFB7FAA1A07F093DDADE7423A98 (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___0_mediaBytes, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:259>
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_0 = ___0_mediaBytes;
 		String_t* L_1 = ___1_album;
 		String_t* L_2 = ___2_filename;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_3 = ___3_callback;
 		NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A(L_0, L_1, L_2, 2, L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:260>
 		return;
 	}
 }
-// Method Definition Index: 61827
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveVideoToGallery_m8B2164BEAA49C085D04ADB9DF1EB7174C2E1583B (String_t* ___0_existingMediaPath, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:264>
 		String_t* L_0 = ___0_existingMediaPath;
 		String_t* L_1 = ___1_album;
 		String_t* L_2 = ___2_filename;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_3 = ___3_callback;
 		NativeGallery_SaveToGallery_m531140F0CD974B1F3D34DABAA831DF91F6764C80(L_0, L_1, L_2, 2, L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:265>
 		return;
 	}
 }
-// Method Definition Index: 61828
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveAudioToGallery_m995B722490FE8BD51BD944B27CF88C003FDC245F (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___0_mediaBytes, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:269>
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_0 = ___0_mediaBytes;
 		String_t* L_1 = ___1_album;
 		String_t* L_2 = ___2_filename;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_3 = ___3_callback;
 		NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A(L_0, L_1, L_2, 4, L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:270>
 		return;
 	}
 }
-// Method Definition Index: 61829
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveAudioToGallery_m7185B424A09FE7F6360637D43FD4E528EF917CCE (String_t* ___0_existingMediaPath, String_t* ___1_album, String_t* ___2_filename, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:274>
 		String_t* L_0 = ___0_existingMediaPath;
 		String_t* L_1 = ___1_album;
 		String_t* L_2 = ___2_filename;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_3 = ___3_callback;
 		NativeGallery_SaveToGallery_m531140F0CD974B1F3D34DABAA831DF91F6764C80(L_0, L_1, L_2, 4, L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:275>
 		return;
 	}
 }
-// Method Definition Index: 61830
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CanSelectMultipleFilesFromGallery_m8B64B58699A6EEB502428C3444FBFEE702E63997 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2252,7 +2190,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CanSelectMultipleFilesFrom
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:282>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1;
@@ -2263,7 +2200,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CanSelectMultipleFilesFrom
 		return L_2;
 	}
 }
-// Method Definition Index: 61831
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CanSelectMultipleMediaTypesFromGallery_m285088023ECD53F60EB6C0848FC2C74C6B93FAB2 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2275,7 +2211,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CanSelectMultipleMediaType
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:295>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1;
@@ -2286,46 +2221,36 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_CanSelectMultipleMediaType
 		return L_2;
 	}
 }
-// Method Definition Index: 61832
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetImageFromGallery_m27F22F97C963F3DFA89DC32103E221C92727D5FA (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* ___0_callback, String_t* ___1_title, String_t* ___2_mime, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:305>
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_0 = ___0_callback;
 		String_t* L_1 = ___2_mime;
 		String_t* L_2 = ___1_title;
 		NativeGallery_GetMediaFromGallery_mE8337C04EEB899A53BDF33DFDBFC8E31FD0E9DA1(L_0, 1, L_1, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:306>
 		return;
 	}
 }
-// Method Definition Index: 61833
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetVideoFromGallery_mB2103D1B43DF9AFC934C2F08070B4876D3198B94 (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* ___0_callback, String_t* ___1_title, String_t* ___2_mime, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:310>
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_0 = ___0_callback;
 		String_t* L_1 = ___2_mime;
 		String_t* L_2 = ___1_title;
 		NativeGallery_GetMediaFromGallery_mE8337C04EEB899A53BDF33DFDBFC8E31FD0E9DA1(L_0, 2, L_1, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:311>
 		return;
 	}
 }
-// Method Definition Index: 61834
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetAudioFromGallery_m2FB466390655ADE023224B690E1CF51618AC1567 (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* ___0_callback, String_t* ___1_title, String_t* ___2_mime, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:315>
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_0 = ___0_callback;
 		String_t* L_1 = ___2_mime;
 		String_t* L_2 = ___1_title;
 		NativeGallery_GetMediaFromGallery_mE8337C04EEB899A53BDF33DFDBFC8E31FD0E9DA1(L_0, 4, L_1, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:316>
 		return;
 	}
 }
-// Method Definition Index: 61835
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMixedMediaFromGallery_m42FFCCF6C14465F77F0202C4B6C65AB03E44F7FE (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* ___0_callback, int32_t ___1_mediaTypes, String_t* ___2_title, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2335,55 +2260,43 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMixedMediaFromGallery_m
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:320>
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_0 = ___0_callback;
 		int32_t L_1 = ___1_mediaTypes;
 		String_t* L_2 = ___2_title;
 		NativeGallery_GetMediaFromGallery_mE8337C04EEB899A53BDF33DFDBFC8E31FD0E9DA1(L_0, L_1, _stringLiteral87811B8AF8DB46597B9C0A6BEAE14238FC7C81FF, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:321>
 		return;
 	}
 }
-// Method Definition Index: 61836
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetImagesFromGallery_m9D5CF2ED0E4CBC052616B7EA251A0FAEB12F59B4 (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* ___0_callback, String_t* ___1_title, String_t* ___2_mime, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:325>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_0 = ___0_callback;
 		String_t* L_1 = ___2_mime;
 		String_t* L_2 = ___1_title;
 		NativeGallery_GetMultipleMediaFromGallery_m12C90164BAFA9713D90650CB4BDE64A78B286C11(L_0, 1, L_1, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:326>
 		return;
 	}
 }
-// Method Definition Index: 61837
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetVideosFromGallery_m0BEEF0314AFD64D6F1A29F1BE5725B7EFC42A1FB (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* ___0_callback, String_t* ___1_title, String_t* ___2_mime, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:330>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_0 = ___0_callback;
 		String_t* L_1 = ___2_mime;
 		String_t* L_2 = ___1_title;
 		NativeGallery_GetMultipleMediaFromGallery_m12C90164BAFA9713D90650CB4BDE64A78B286C11(L_0, 2, L_1, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:331>
 		return;
 	}
 }
-// Method Definition Index: 61838
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetAudiosFromGallery_mBF753A41A936E7147FBDF8D2BBD816923405EE89 (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* ___0_callback, String_t* ___1_title, String_t* ___2_mime, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:335>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_0 = ___0_callback;
 		String_t* L_1 = ___2_mime;
 		String_t* L_2 = ___1_title;
 		NativeGallery_GetMultipleMediaFromGallery_m12C90164BAFA9713D90650CB4BDE64A78B286C11(L_0, 4, L_1, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:336>
 		return;
 	}
 }
-// Method Definition Index: 61839
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMixedMediasFromGallery_m9B0652F4A84544C13A217B298DEC63E56A7BBA56 (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* ___0_callback, int32_t ___1_mediaTypes, String_t* ___2_title, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2393,24 +2306,19 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMixedMediasFromGallery_
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:340>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_0 = ___0_callback;
 		int32_t L_1 = ___1_mediaTypes;
 		String_t* L_2 = ___2_title;
 		NativeGallery_GetMultipleMediaFromGallery_m12C90164BAFA9713D90650CB4BDE64A78B286C11(L_0, L_1, _stringLiteral87811B8AF8DB46597B9C0A6BEAE14238FC7C81FF, L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:341>
 		return;
 	}
 }
-// Method Definition Index: 61840
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR bool NativeGallery_IsMediaPickerBusy_m08C8520C94ABF511EA6E7F48E63697CA7857BAAD (const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:348>
 		return (bool)0;
 	}
 }
-// Method Definition Index: 61841
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t NativeGallery_GetMediaTypeOfFile_m2B9362DA4D77A54A20CE8CBCAA066451592390CF (String_t* ___0_path, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2428,7 +2336,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t NativeGallery_GetMediaTypeOfFile_m2B9
 	String_t* V_0 = NULL;
 	String_t* V_1 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:354>
 		String_t* L_0 = ___0_path;
 		bool L_1;
 		L_1 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_0, NULL);
@@ -2438,19 +2345,16 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t NativeGallery_GetMediaTypeOfFile_m2B9
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:355>
 		return (int32_t)(0);
 	}
 
 IL_000a:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:357>
 		String_t* L_2 = ___0_path;
 		il2cpp_codegen_runtime_class_init_inline(Path_t8A38A801D0219E8209C1B1D90D82D4D755D998BC_il2cpp_TypeInfo_var);
 		String_t* L_3;
 		L_3 = Path_GetExtension_m6FEAA9E14451BFD210B9D1AEC2430C813F570FE5(L_2, NULL);
 		V_0 = L_3;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:358>
 		String_t* L_4 = V_0;
 		bool L_5;
 		L_5 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_4, NULL);
@@ -2460,13 +2364,11 @@ IL_000a:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:359>
 		return (int32_t)(0);
 	}
 
 IL_001b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:361>
 		String_t* L_6 = V_0;
 		NullCheck(L_6);
 		Il2CppChar L_7;
@@ -2477,7 +2379,6 @@ IL_001b:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:363>
 		String_t* L_8 = V_0;
 		NullCheck(L_8);
 		int32_t L_9;
@@ -2488,13 +2389,11 @@ IL_001b:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:364>
 		return (int32_t)(0);
 	}
 
 IL_0031:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:366>
 		String_t* L_10 = V_0;
 		NullCheck(L_10);
 		String_t* L_11;
@@ -2504,7 +2403,6 @@ IL_0031:
 
 IL_0039:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:380>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_12;
 		L_12 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_13 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)1);
@@ -2520,7 +2418,6 @@ IL_0039:
 		String_t* L_17;
 		L_17 = AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3(L_12, _stringLiteral52E8298879B687FBFF2F48674AA2AFC36D912949, L_14, AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3_RuntimeMethod_var);
 		V_1 = L_17;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:381>
 		String_t* L_18 = V_1;
 		bool L_19;
 		L_19 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_18, NULL);
@@ -2530,13 +2427,11 @@ IL_0039:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:382>
 		return (int32_t)(0);
 	}
 
 IL_0062:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:383>
 		String_t* L_20 = V_1;
 		NullCheck(L_20);
 		bool L_21;
@@ -2547,13 +2442,11 @@ IL_0062:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:384>
 		return (int32_t)(1);
 	}
 
 IL_0071:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:385>
 		String_t* L_22 = V_1;
 		NullCheck(L_22);
 		bool L_23;
@@ -2564,13 +2457,11 @@ IL_0071:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:386>
 		return (int32_t)(2);
 	}
 
 IL_0080:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:387>
 		String_t* L_24 = V_1;
 		NullCheck(L_24);
 		bool L_25;
@@ -2581,17 +2472,14 @@ IL_0080:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:388>
 		return (int32_t)(4);
 	}
 
 IL_008f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:390>
 		return (int32_t)(0);
 	}
 }
-// Method Definition Index: 61842
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* ___0_mediaBytes, String_t* ___1_album, String_t* ___2_filename, int32_t ___3_mediaType, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___4_callback, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2634,7 +2522,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_mCC005AAECB6
 		int32_t L_10 = ___3_mediaType;
 		NullCheck(L_9);
 		L_9->___mediaType = L_10;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:402>
 		U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* L_11 = V_0;
 		NullCheck(L_11);
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_12 = L_11->___mediaBytes;
@@ -2656,7 +2543,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_mCC005AAECB6
 
 IL_003b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:403>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_15 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_15, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral7BB4B5568C63748C896DED09B403F2FC4F274E91)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_15, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A_RuntimeMethod_var)));
@@ -2664,7 +2550,6 @@ IL_003b:
 
 IL_0046:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:405>
 		U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* L_16 = V_0;
 		NullCheck(L_16);
 		String_t* L_17 = L_16->___album;
@@ -2688,7 +2573,6 @@ IL_0046:
 
 IL_005b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:406>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_21 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_21, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral30F8B1D027E92AF30A25606539C4A0E635BF0BBB)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_21, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A_RuntimeMethod_var)));
@@ -2696,7 +2580,6 @@ IL_005b:
 
 IL_0066:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:408>
 		U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* L_22 = V_0;
 		NullCheck(L_22);
 		String_t* L_23 = L_22->___filename;
@@ -2720,7 +2603,6 @@ IL_0066:
 
 IL_007b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:409>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_27 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_27, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral30F7CAA3903ABC311FB9B0881B8937BE76A5526D)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_27, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_SaveToGallery_mCC005AAECB653711D38111FD3D4CD992B1CD0B4A_RuntimeMethod_var)));
@@ -2728,7 +2610,6 @@ IL_007b:
 
 IL_0086:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:411>
 		U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* L_28 = V_0;
 		NullCheck(L_28);
 		String_t* L_29 = L_28->___filename;
@@ -2743,30 +2624,12 @@ IL_0086:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:412>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_LogWarning_m33EF1B897E0C7C6FF538989610BFAFFEF4628CA9(_stringLiteral1DA1565418493517EA4A1928E378AD0548A223E7, NULL);
 	}
 
 IL_00a2:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:414>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:415>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:416>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:417>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:418>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:419>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:420>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:421>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:422>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:423>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:424>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:425>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:426>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:427>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:428>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:429>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:430>
 		U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* L_32 = V_0;
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_33 = (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4*)il2cpp_codegen_object_new(PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4_il2cpp_TypeInfo_var);
 		PermissionCallback__ctor_mBD077D6A9E8984D7DF933B1BB0C704832503A8E2(L_33, L_32, (intptr_t)((void*)U3CU3Ec__DisplayClass48_0_U3CSaveToGalleryU3Eb__0_m86F3C7989021014A540ECBD7DC5A61E347ACF9A3_RuntimeMethod_var), NULL);
@@ -2774,11 +2637,9 @@ IL_00a2:
 		NullCheck(L_34);
 		int32_t L_35 = L_34->___mediaType;
 		NativeGallery_RequestPermissionAsync_m8125D5CD784CEA0E035B81BC769C573AE5BDE800(L_33, 1, L_35, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:431>
 		return;
 	}
 }
-// Method Definition Index: 61843
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_m531140F0CD974B1F3D34DABAA831DF91F6764C80 (String_t* ___0_existingMediaPath, String_t* ___1_album, String_t* ___2_filename, int32_t ___3_mediaType, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___4_callback, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -2822,7 +2683,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_m531140F0CD9
 		int32_t L_10 = ___3_mediaType;
 		NullCheck(L_9);
 		L_9->___mediaType = L_10;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:435>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_11 = V_0;
 		NullCheck(L_11);
 		String_t* L_12 = L_11->___existingMediaPath;
@@ -2834,7 +2694,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_m531140F0CD9
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:436>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_14 = V_0;
 		NullCheck(L_14);
 		String_t* L_15 = L_14->___existingMediaPath;
@@ -2847,7 +2706,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGallery_m531140F0CD9
 
 IL_004d:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:438>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_18 = V_0;
 		NullCheck(L_18);
 		String_t* L_19 = L_18->___album;
@@ -2871,7 +2729,6 @@ IL_004d:
 
 IL_0062:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:439>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_23 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_23, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral30F8B1D027E92AF30A25606539C4A0E635BF0BBB)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_23, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_SaveToGallery_m531140F0CD974B1F3D34DABAA831DF91F6764C80_RuntimeMethod_var)));
@@ -2879,7 +2736,6 @@ IL_0062:
 
 IL_006d:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:441>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_24 = V_0;
 		NullCheck(L_24);
 		String_t* L_25 = L_24->___filename;
@@ -2903,7 +2759,6 @@ IL_006d:
 
 IL_0082:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:442>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_29 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_29, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral30F7CAA3903ABC311FB9B0881B8937BE76A5526D)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_29, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_SaveToGallery_m531140F0CD974B1F3D34DABAA831DF91F6764C80_RuntimeMethod_var)));
@@ -2911,7 +2766,6 @@ IL_0082:
 
 IL_008d:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:444>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_30 = V_0;
 		NullCheck(L_30);
 		String_t* L_31 = L_30->___filename;
@@ -2926,7 +2780,6 @@ IL_008d:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:446>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_34 = V_0;
 		NullCheck(L_34);
 		String_t* L_35 = L_34->___existingMediaPath;
@@ -2934,7 +2787,6 @@ IL_008d:
 		String_t* L_36;
 		L_36 = Path_GetExtension_m6FEAA9E14451BFD210B9D1AEC2430C813F570FE5(L_35, NULL);
 		V_1 = L_36;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:447>
 		String_t* L_37 = V_1;
 		bool L_38;
 		L_38 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_37, NULL);
@@ -2944,7 +2796,6 @@ IL_008d:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:448>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_LogWarning_m33EF1B897E0C7C6FF538989610BFAFFEF4628CA9(_stringLiteral1DA1565418493517EA4A1928E378AD0548A223E7, NULL);
 		goto IL_00d1;
@@ -2952,7 +2803,6 @@ IL_008d:
 
 IL_00bf:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:450>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_39 = V_0;
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_40 = V_0;
 		NullCheck(L_40);
@@ -2967,23 +2817,6 @@ IL_00bf:
 
 IL_00d1:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:453>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:454>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:455>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:456>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:457>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:458>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:459>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:460>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:461>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:462>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:463>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:464>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:465>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:466>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:467>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:468>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:469>
 		U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* L_44 = V_0;
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_45 = (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4*)il2cpp_codegen_object_new(PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4_il2cpp_TypeInfo_var);
 		PermissionCallback__ctor_mBD077D6A9E8984D7DF933B1BB0C704832503A8E2(L_45, L_44, (intptr_t)((void*)U3CU3Ec__DisplayClass49_0_U3CSaveToGalleryU3Eb__0_mB83943B2548839B92036C70CCD4D12B5093FD3D8_RuntimeMethod_var), NULL);
@@ -2991,11 +2824,9 @@ IL_00d1:
 		NullCheck(L_46);
 		int32_t L_47 = L_46->___mediaType;
 		NativeGallery_RequestPermissionAsync_m8125D5CD784CEA0E035B81BC769C573AE5BDE800(L_45, 1, L_47, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:470>
 		return;
 	}
 }
-// Method Definition Index: 61844
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGalleryInternal_m7E98DD903D33ED3D5E3036C256CE09CC0422359E (String_t* ___0_path, String_t* ___1_album, int32_t ___2_mediaType, MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* ___3_callback, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3008,7 +2839,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGalleryInternal_m7E9
 	}
 	String_t* V_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:475>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)4);
@@ -3039,10 +2869,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGalleryInternal_m7E9
 		String_t* L_12;
 		L_12 = AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3(L_0, _stringLiteral98C4991DBD0370C554791D1BED854533606B6973, L_10, AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3_RuntimeMethod_var);
 		V_0 = L_12;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:477>
 		String_t* L_13 = ___0_path;
 		File_Delete_mE29829DA504F3E1B8BCB78F21E2862C9ED7EC386(L_13, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:479>
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_14 = ___3_callback;
 		if (!L_14)
 		{
@@ -3050,7 +2878,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGalleryInternal_m7E9
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:480>
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_15 = ___3_callback;
 		String_t* L_16 = V_0;
 		bool L_17;
@@ -3062,11 +2889,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_SaveToGalleryInternal_m7E9
 
 IL_0048:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:503>
 		return;
 	}
 }
-// Method Definition Index: 61845
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_GetTemporarySavePath_m2057630E0A0206CEEC5C908A37470E49A0D70E60 (String_t* ___0_filename, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3078,25 +2903,21 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* NativeGallery_GetTemporarySavePath_
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:507>
 		il2cpp_codegen_runtime_class_init_inline(Application_tDB03BE91CDF0ACA614A5E0B67CFB77C44EB19B21_il2cpp_TypeInfo_var);
 		String_t* L_0;
 		L_0 = Application_get_persistentDataPath_mC58BD3E1A20732E0A536491DBCAE6505B1624399(NULL);
 		il2cpp_codegen_runtime_class_init_inline(Path_t8A38A801D0219E8209C1B1D90D82D4D755D998BC_il2cpp_TypeInfo_var);
 		String_t* L_1;
 		L_1 = Path_Combine_m1ADAC05CDA2D1D61B172DF65A81E86592696BEAE(L_0, _stringLiteralCFA0E830C16EC57623615165EA8FBC2817BACCCF, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:508>
 		String_t* L_2 = L_1;
 		DirectoryInfo_tEAEEC018EB49B4A71907FFEAFE935FAA8F9C1FE2* L_3;
 		L_3 = Directory_CreateDirectory_m16EC5CE8561A997C6635E06DC24C77590F29D94F(L_2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:531>
 		String_t* L_4 = ___0_filename;
 		String_t* L_5;
 		L_5 = Path_Combine_m1ADAC05CDA2D1D61B172DF65A81E86592696BEAE(L_2, L_4, NULL);
 		return L_5;
 	}
 }
-// Method Definition Index: 61846
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMediaFromGallery_mE8337C04EEB899A53BDF33DFDBFC8E31FD0E9DA1 (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* ___0_callback, int32_t ___1_mediaType, String_t* ___2_mime, String_t* ___3_title, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3131,62 +2952,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMediaFromGallery_mE8337
 		NullCheck(L_7);
 		L_7->___title = L_8;
 		Il2CppCodeGenWriteBarrier((void**)(&L_7->___title), (void*)L_8);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:537>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:538>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:539>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:540>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:541>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:542>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:543>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:544>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:545>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:546>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:547>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:548>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:549>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:550>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:551>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:552>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:553>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:554>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:555>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:556>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:557>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:558>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:559>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:560>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:561>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:562>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:563>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:564>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:565>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:566>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:567>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:568>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:569>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:570>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:571>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:572>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:573>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:574>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:575>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:576>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:577>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:578>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:579>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:580>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:581>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:582>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:583>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:584>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:585>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:586>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:587>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:588>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:589>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:590>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:591>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:592>
 		U3CU3Ec__DisplayClass52_0_tF8F6FA62AA7C9BA3C92C4BC4B6C24FAC28557C97* L_9 = V_0;
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_10 = (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4*)il2cpp_codegen_object_new(PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4_il2cpp_TypeInfo_var);
 		PermissionCallback__ctor_mBD077D6A9E8984D7DF933B1BB0C704832503A8E2(L_10, L_9, (intptr_t)((void*)U3CU3Ec__DisplayClass52_0_U3CGetMediaFromGalleryU3Eb__0_mCAE8CCF79014F1383B11A45086F5351EAA2FF0ED_RuntimeMethod_var), NULL);
@@ -3194,11 +2959,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMediaFromGallery_mE8337
 		NullCheck(L_11);
 		int32_t L_12 = L_11->___mediaType;
 		NativeGallery_RequestPermissionAsync_m8125D5CD784CEA0E035B81BC769C573AE5BDE800(L_10, 0, L_12, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:593>
 		return;
 	}
 }
-// Method Definition Index: 61847
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMultipleMediaFromGallery_m12C90164BAFA9713D90650CB4BDE64A78B286C11 (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* ___0_callback, int32_t ___1_mediaType, String_t* ___2_mime, String_t* ___3_title, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3233,39 +2996,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMultipleMediaFromGaller
 		NullCheck(L_7);
 		L_7->___title = L_8;
 		Il2CppCodeGenWriteBarrier((void**)(&L_7->___title), (void*)L_8);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:597>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:598>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:599>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:600>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:601>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:602>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:603>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:604>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:605>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:606>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:607>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:608>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:609>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:610>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:611>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:612>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:613>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:614>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:615>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:616>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:617>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:618>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:619>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:620>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:621>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:622>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:623>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:624>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:625>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:626>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:627>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:628>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:629>
 		U3CU3Ec__DisplayClass53_0_t78441D89B8307D8C0B7CFE1D275E1E58EE84B1A0* L_9 = V_0;
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_10 = (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4*)il2cpp_codegen_object_new(PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4_il2cpp_TypeInfo_var);
 		PermissionCallback__ctor_mBD077D6A9E8984D7DF933B1BB0C704832503A8E2(L_10, L_9, (intptr_t)((void*)U3CU3Ec__DisplayClass53_0_U3CGetMultipleMediaFromGalleryU3Eb__0_mAA26ABE689236D1F94354485ED2B50BE0102B4AE_RuntimeMethod_var), NULL);
@@ -3273,11 +3003,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NativeGallery_GetMultipleMediaFromGaller
 		NullCheck(L_11);
 		int32_t L_12 = L_11->___mediaType;
 		NativeGallery_RequestPermissionAsync_m8125D5CD784CEA0E035B81BC769C573AE5BDE800(L_10, 0, L_12, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:630>
 		return;
 	}
 }
-// Method Definition Index: 61848
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* NativeGallery_GetTextureBytes_mB475FDFD6E1FBEAA043E1190CC5B4172EE3536EF (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* ___0_texture, bool ___1_isJpeg, const RuntimeMethod* method) 
 {
 	ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* V_0 = NULL;
@@ -3286,7 +3014,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A8261
 	try
 	{
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:636>
 			bool L_0 = ___1_isJpeg;
 			if (L_0)
 			{
@@ -3333,8 +3060,6 @@ IL_0013_1:
 CATCH_0016:
 	{
 		UnityException_tA1EC1E95ADE689CF6EB7FAFF77C160AE1F559067* L_5 = ((UnityException_tA1EC1E95ADE689CF6EB7FAFF77C160AE1F559067*)IL2CPP_GET_ACTIVE_EXCEPTION(UnityException_tA1EC1E95ADE689CF6EB7FAFF77C160AE1F559067*));;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:638>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:640>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_6 = ___0_texture;
 		bool L_7 = ___1_isJpeg;
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_8;
@@ -3347,8 +3072,6 @@ CATCH_0016:
 CATCH_0021:
 	{
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_9 = ((ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)IL2CPP_GET_ACTIVE_EXCEPTION(ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*));;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:642>
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:644>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_10 = ___0_texture;
 		bool L_11 = ___1_isJpeg;
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_12;
@@ -3360,12 +3083,10 @@ CATCH_0021:
 
 IL_002c:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:650>
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_13 = V_0;
 		return L_13;
 	}
 }
-// Method Definition Index: 61849
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* NativeGallery_GetTextureBytesFromCopy_m23C31F7FB9D56BD6144EA7D15230E0718D84DED7 (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* ___0_texture, bool ___1_isJpeg, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3392,12 +3113,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A8261
 	int32_t G_B4_2 = 0;
 	ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* G_B11_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:655>
 		il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 		Debug_LogWarning_m33EF1B897E0C7C6FF538989610BFAFFEF4628CA9(_stringLiteral7F7876094B3FA10965A88A7D08B74EA3DC22CAE9, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:657>
 		V_0 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:658>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_0 = ___0_texture;
 		NullCheck(L_0);
 		int32_t L_1;
@@ -3409,7 +3127,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A8261
 		RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* L_4;
 		L_4 = RenderTexture_GetTemporary_m82379FD4C767A36F0677CAF4E68319EAE16ADF7F(L_1, L_3, NULL);
 		V_1 = L_4;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:659>
 		RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* L_5;
 		L_5 = RenderTexture_get_active_mA4434B3E79DEF2C01CAE0A53061598B16443C9E7(NULL);
 		V_2 = L_5;
@@ -3420,13 +3137,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A8261
 
 FINALLY_008a:
 			{
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:679>
 				RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* L_6 = V_2;
 				RenderTexture_set_active_m5EE8E2327EF9B306C1425014CC34C41A8384E7AB(L_6, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:680>
 				RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* L_7 = V_1;
 				RenderTexture_ReleaseTemporary_mEEF2C1990196FF06FDD0DC190928AD3A023EBDD2(L_7, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:681>
 				return;
 			}
 		});
@@ -3435,15 +3149,12 @@ FINALLY_008a:
 			try
 			{
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:663>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_8 = ___0_texture;
 					RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* L_9 = V_1;
 					il2cpp_codegen_runtime_class_init_inline(Graphics_t99CD970FFEA58171C70F54DF0C06D315BD452F2C_il2cpp_TypeInfo_var);
 					Graphics_Blit_m8D99E16B74C7D3C8F79F4F142C59DB6B38114504(L_8, L_9, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:664>
 					RenderTexture_tBA90C4C3AD9EECCFDDCC632D97C29FAB80D60D27* L_10 = V_1;
 					RenderTexture_set_active_m5EE8E2327EF9B306C1425014CC34C41A8384E7AB(L_10, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:666>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_11 = ___0_texture;
 					NullCheck(L_11);
 					int32_t L_12;
@@ -3481,7 +3192,6 @@ IL_0044_2:
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_16 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)il2cpp_codegen_object_new(Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4_il2cpp_TypeInfo_var);
 					Texture2D__ctor_mECF60A9EC0638EC353C02C8E99B6B465D23BE917(L_16, G_B4_2, G_B4_1, G_B4_0, (bool)0, NULL);
 					V_0 = L_16;
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:667>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_17 = V_0;
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_18 = ___0_texture;
 					NullCheck(L_18);
@@ -3496,11 +3206,9 @@ IL_0044_2:
 					Rect__ctor_m18C3033D135097BEE424AAA68D91C706D2647F23_inline((&L_22), (0.0f), (0.0f), ((float)L_19), ((float)L_21), NULL);
 					NullCheck(L_17);
 					Texture2D_ReadPixels_m7483DB211233F02E46418E9A6077487925F0024C(L_17, L_22, 0, 0, (bool)0, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:668>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_23 = V_0;
 					NullCheck(L_23);
 					Texture2D_Apply_m36EE27E6F1BF7FB8C70A1D749DC4EE249810AA3A(L_23, (bool)0, (bool)0, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:669>
 					goto IL_0097;
 				}
 			}
@@ -3517,14 +3225,11 @@ IL_0044_2:
 CATCH_007b_1:
 			{
 				Exception_t* L_24 = ((Exception_t*)IL2CPP_GET_ACTIVE_EXCEPTION(Exception_t*));;
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:672>
 				il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var)));
 				Debug_LogException_mAB3F4DC7297ED8FBB49DAA718B70E59A6B0171B0(L_24, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:674>
 				Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_25 = V_0;
 				il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var)));
 				Object_DestroyImmediate_m6336EBC83591A5DB64EC70C92132824C6E258705(L_25, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:675>
 				V_3 = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)NULL;
 				IL2CPP_POP_ACTIVE_EXCEPTION(Exception_t*);
 				goto IL_00be;
@@ -3545,11 +3250,9 @@ IL_0097:
 
 FINALLY_00b7:
 			{
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:694>
 				Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_26 = V_0;
 				il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 				Object_DestroyImmediate_m6336EBC83591A5DB64EC70C92132824C6E258705(L_26, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:695>
 				return;
 			}
 		});
@@ -3558,7 +3261,6 @@ FINALLY_00b7:
 			try
 			{
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:685>
 					bool L_27 = ___1_isJpeg;
 					if (L_27)
 					{
@@ -3600,10 +3302,8 @@ IL_00ab_2:
 CATCH_00ae_1:
 			{
 				Exception_t* L_32 = ((Exception_t*)IL2CPP_GET_ACTIVE_EXCEPTION(Exception_t*));;
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:689>
 				il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var)));
 				Debug_LogException_mAB3F4DC7297ED8FBB49DAA718B70E59A6B0171B0(L_32, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:690>
 				V_3 = (ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031*)NULL;
 				IL2CPP_POP_ACTIVE_EXCEPTION(Exception_t*);
 				goto IL_00be;
@@ -3617,12 +3317,10 @@ CATCH_00ae_1:
 
 IL_00be:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:696>
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_33 = V_3;
 		return L_33;
 	}
 }
-// Method Definition Index: 61851
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* NativeGallery_LoadImageAtPath_m62187A34B7B063FBEFFD7E200DEC2332313A56AE (String_t* ___0_imagePath, int32_t ___1_maxSize, bool ___2_markTextureNonReadable, bool ___3_generateMipmaps, bool ___4_linearColorSpace, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3648,7 +3346,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11
 	il2cpp::utils::ExceptionSupportStack<RuntimeObject*, 1> __active_exceptions;
 	int32_t G_B10_0 = 0;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:730>
 		String_t* L_0 = ___0_imagePath;
 		bool L_1;
 		L_1 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_0, NULL);
@@ -3658,7 +3355,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:731>
 		ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_2 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 		ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_2, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral18B82B6B7DC4FE1988BA61A3784D1768F6C925DF)), NULL);
 		IL2CPP_RAISE_MANAGED_EXCEPTION(L_2, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&NativeGallery_LoadImageAtPath_m62187A34B7B063FBEFFD7E200DEC2332313A56AE_RuntimeMethod_var)));
@@ -3666,7 +3362,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11
 
 IL_0013:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:733>
 		String_t* L_3 = ___0_imagePath;
 		bool L_4;
 		L_4 = File_Exists_m95E329ABBE3EAD6750FE1989BBA6884457136D4A(L_3, NULL);
@@ -3676,7 +3371,6 @@ IL_0013:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:734>
 		String_t* L_5 = ___0_imagePath;
 		String_t* L_6;
 		L_6 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral491B4D9271839F0BD63211437BF7CEE5B2C6ADE9)), L_5, NULL);
@@ -3687,7 +3381,6 @@ IL_0013:
 
 IL_002c:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:736>
 		int32_t L_8 = ___1_maxSize;
 		if ((((int32_t)L_8) > ((int32_t)0)))
 		{
@@ -3695,7 +3388,6 @@ IL_002c:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:737>
 		int32_t L_9;
 		L_9 = SystemInfo_get_maxTextureSize_mEE557C09643222591C6F4D3F561D7A60CD403991(NULL);
 		___1_maxSize = L_9;
@@ -3703,7 +3395,6 @@ IL_002c:
 
 IL_0037:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:740>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_10;
 		L_10 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_11 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)4);
@@ -3735,7 +3426,6 @@ IL_0037:
 		String_t* L_22;
 		L_22 = AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3(L_10, _stringLiteralDD146CE30524569A8784D1FFE34EA505C910727D, L_18, AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3_RuntimeMethod_var);
 		V_0 = L_22;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:747>
 		String_t* L_23 = ___0_imagePath;
 		il2cpp_codegen_runtime_class_init_inline(Path_t8A38A801D0219E8209C1B1D90D82D4D755D998BC_il2cpp_TypeInfo_var);
 		String_t* L_24;
@@ -3744,7 +3434,6 @@ IL_0037:
 		String_t* L_25;
 		L_25 = String_ToLowerInvariant_mBE32C93DE27C5353FEA3FA654FC1DDBE3D0EB0F2(L_24, NULL);
 		V_1 = L_25;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:748>
 		String_t* L_26 = V_1;
 		bool L_27;
 		L_27 = String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1(L_26, _stringLiteral23DF9991B71463C240582D176E347E7E47AEFF5A, NULL);
@@ -3775,7 +3464,6 @@ IL_0093:
 IL_0094:
 	{
 		V_2 = G_B10_0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:750>
 		int32_t L_30 = V_2;
 		bool L_31 = ___3_generateMipmaps;
 		bool L_32 = ___4_linearColorSpace;
@@ -3790,7 +3478,6 @@ IL_0094:
 FINALLY_00dd:
 			{
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:771>
 					String_t* L_34 = V_0;
 					String_t* L_35 = ___0_imagePath;
 					bool L_36;
@@ -3802,10 +3489,8 @@ FINALLY_00dd:
 				}
 				try
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:775>
 					String_t* L_37 = V_0;
 					File_Delete_mE29829DA504F3E1B8BCB78F21E2862C9ED7EC386(L_37, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:776>
 					goto IL_00f1;
 				}
 				catch(Il2CppExceptionWrapper& e)
@@ -3821,15 +3506,12 @@ FINALLY_00dd:
 CATCH_00ee:
 				{
 					RuntimeObject* L_38 = ((RuntimeObject*)IL2CPP_GET_ACTIVE_EXCEPTION(RuntimeObject*));;
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:777>
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:777>
 					IL2CPP_POP_ACTIVE_EXCEPTION(Exception_t*);
 					goto IL_00f1;
 				}
 
 IL_00f1:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:779>
 					return;
 				}
 			}
@@ -3839,7 +3521,6 @@ IL_00f1:
 			try
 			{
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:754>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_39 = V_3;
 					String_t* L_40 = V_0;
 					ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_41;
@@ -3853,24 +3534,20 @@ IL_00f1:
 					}
 				}
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:756>
 					String_t* L_44 = V_0;
 					String_t* L_45;
 					L_45 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral76F1B85647641622FD867CE16AF6C584C5081BD4, L_44, NULL);
 					il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 					Debug_LogWarning_m33EF1B897E0C7C6FF538989610BFAFFEF4628CA9(L_45, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:758>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_46 = V_3;
 					il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 					Object_DestroyImmediate_m6336EBC83591A5DB64EC70C92132824C6E258705(L_46, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:759>
 					V_4 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 					goto IL_00f4;
 				}
 
 IL_00cb_2:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:761>
 					goto IL_00f2;
 				}
 			}
@@ -3887,14 +3564,11 @@ IL_00cb_2:
 CATCH_00cd_1:
 			{
 				Exception_t* L_47 = ((Exception_t*)IL2CPP_GET_ACTIVE_EXCEPTION(Exception_t*));;
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:764>
 				il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var)));
 				Debug_LogException_mAB3F4DC7297ED8FBB49DAA718B70E59A6B0171B0(L_47, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:766>
 				Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_48 = V_3;
 				il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var)));
 				Object_DestroyImmediate_m6336EBC83591A5DB64EC70C92132824C6E258705(L_48, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:767>
 				V_4 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 				IL2CPP_POP_ACTIVE_EXCEPTION(Exception_t*);
 				goto IL_00f4;
@@ -3908,19 +3582,16 @@ CATCH_00cd_1:
 
 IL_00f2:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:781>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_49 = V_3;
 		return L_49;
 	}
 
 IL_00f4:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:782>
 		Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_50 = V_4;
 		return L_50;
 	}
 }
-// Method Definition Index: 61852
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t95921EB64E237ACD28589D64B693C652268F225E* NativeGallery_LoadImageAtPathAsync_m5927E93A68C0EFA80CE2ED62FCDA3FAF6089134A (String_t* ___0_imagePath, int32_t ___1_maxSize, bool ___2_markTextureNonReadable, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3962,7 +3633,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t95921EB64E237ACD28589D64B693C652268F2
 		return L_6;
 	}
 }
-// Method Definition Index: 61853
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* NativeGallery_GetVideoThumbnail_m6D508C9C4809F558BAB746AC8F307AEEB4BDC499 (String_t* ___0_videoPath, int32_t ___1_maxSize, double ___2_captureTimeInSeconds, bool ___3_markTextureNonReadable, bool ___4_generateMipmaps, bool ___5_linearColorSpace, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -3976,7 +3646,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11
 	}
 	String_t* V_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:861>
 		int32_t L_0 = ___1_maxSize;
 		if ((((int32_t)L_0) > ((int32_t)0)))
 		{
@@ -3984,7 +3653,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:862>
 		int32_t L_1;
 		L_1 = SystemInfo_get_maxTextureSize_mEE557C09643222591C6F4D3F561D7A60CD403991(NULL);
 		___1_maxSize = L_1;
@@ -3992,7 +3660,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11
 
 IL_000b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:865>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_2;
 		L_2 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_3 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)6);
@@ -4039,7 +3706,6 @@ IL_000b:
 		String_t* L_22;
 		L_22 = AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3(L_2, _stringLiteral5D67C2D23D0E67BA40CD70B037A9F218807BB46F, L_18, AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3_RuntimeMethod_var);
 		V_0 = L_22;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:872>
 		String_t* L_23 = V_0;
 		bool L_24;
 		L_24 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_23, NULL);
@@ -4049,7 +3715,6 @@ IL_000b:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:873>
 		String_t* L_25 = V_0;
 		int32_t L_26 = ___1_maxSize;
 		bool L_27 = ___3_markTextureNonReadable;
@@ -4062,11 +3727,9 @@ IL_000b:
 
 IL_006f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:875>
 		return (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 	}
 }
-// Method Definition Index: 61854
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t95921EB64E237ACD28589D64B693C652268F225E* NativeGallery_GetVideoThumbnailAsync_mE047B654A91780110E44E61B9C7FDE2B58F536C7 (String_t* ___0_videoPath, int32_t ___1_maxSize, double ___2_captureTimeInSeconds, bool ___3_markTextureNonReadable, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4110,7 +3773,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR Task_1_t95921EB64E237ACD28589D64B693C652268F2
 		return L_7;
 	}
 }
-// Method Definition Index: 61855
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ImageProperties_t7C971D51A4992A01CD205754169B919B56696F59 NativeGallery_GetImageProperties_mD9D7562C327369A4FEE99EF08D2A0F6A1BEE0376 (String_t* ___0_imagePath, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4140,7 +3802,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ImageProperties_t7C971D51A4992A01CD205754169B
 	int32_t V_6 = 0;
 	String_t* V_7 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:901>
 		String_t* L_0 = ___0_imagePath;
 		bool L_1;
 		L_1 = File_Exists_m95E329ABBE3EAD6750FE1989BBA6884457136D4A(L_0, NULL);
@@ -4150,7 +3811,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ImageProperties_t7C971D51A4992A01CD205754169B
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:902>
 		String_t* L_2 = ___0_imagePath;
 		String_t* L_3;
 		L_3 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral491B4D9271839F0BD63211437BF7CEE5B2C6ADE9)), L_2, NULL);
@@ -4161,7 +3821,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR ImageProperties_t7C971D51A4992A01CD205754169B
 
 IL_0019:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:905>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_5;
 		L_5 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_6 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)2);
@@ -4180,15 +3839,10 @@ IL_0019:
 		String_t* L_11;
 		L_11 = AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3(L_5, _stringLiteralA3A21FB44DD18299A19A0B86BA27CEB4EDA6A941, L_9, AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3_RuntimeMethod_var);
 		V_0 = L_11;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:912>
 		V_1 = 0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:912>
 		V_2 = 0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:913>
 		V_3 = (String_t*)NULL;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:914>
 		V_4 = (-1);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:915>
 		String_t* L_12 = V_0;
 		bool L_13;
 		L_13 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_12, NULL);
@@ -4198,13 +3852,11 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:917>
 		String_t* L_14 = V_0;
 		NullCheck(L_14);
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_15;
 		L_15 = String_Split_m9530B73D02054692283BF35C3A27C8F2230946F4(L_14, ((int32_t)62), 0, NULL);
 		V_5 = L_15;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:918>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_16 = V_5;
 		if (!L_16)
 		{
@@ -4220,7 +3872,6 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:920>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_18 = V_5;
 		NullCheck(L_18);
 		int32_t L_19 = 0;
@@ -4236,13 +3887,11 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:921>
 		V_1 = 0;
 	}
 
 IL_007f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:922>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_23 = V_5;
 		NullCheck(L_23);
 		int32_t L_24 = 1;
@@ -4258,13 +3907,11 @@ IL_007f:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:923>
 		V_2 = 0;
 	}
 
 IL_0093:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:925>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_28 = V_5;
 		NullCheck(L_28);
 		int32_t L_29 = 2;
@@ -4273,7 +3920,6 @@ IL_0093:
 		String_t* L_31;
 		L_31 = String_Trim_mCD6D8C6D4CFD15225D12DB7D3E0544CA80FB8DA5(L_30, NULL);
 		V_3 = L_31;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:926>
 		String_t* L_32 = V_3;
 		NullCheck(L_32);
 		int32_t L_33;
@@ -4284,7 +3930,6 @@ IL_0093:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:928>
 		String_t* L_34 = ___0_imagePath;
 		il2cpp_codegen_runtime_class_init_inline(Path_t8A38A801D0219E8209C1B1D90D82D4D755D998BC_il2cpp_TypeInfo_var);
 		String_t* L_35;
@@ -4293,7 +3938,6 @@ IL_0093:
 		String_t* L_36;
 		L_36 = String_ToLowerInvariant_mBE32C93DE27C5353FEA3FA654FC1DDBE3D0EB0F2(L_35, NULL);
 		V_7 = L_36;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:929>
 		String_t* L_37 = V_7;
 		bool L_38;
 		L_38 = String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1(L_37, _stringLiteralA15C898F015A9B0BC3268E8883CD03008A56DE26, NULL);
@@ -4303,14 +3947,12 @@ IL_0093:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:930>
 		V_3 = _stringLiteral75E05143EB132AAA8A22B48813DB8E6047380821;
 		goto IL_011a;
 	}
 
 IL_00c8:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:931>
 		String_t* L_39 = V_7;
 		bool L_40;
 		L_40 = String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1(L_39, _stringLiteral23DF9991B71463C240582D176E347E7E47AEFF5A, NULL);
@@ -4331,14 +3973,12 @@ IL_00c8:
 
 IL_00e4:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:932>
 		V_3 = _stringLiteral3E96C9BB1B953A85290371E8CE7BB3F3ABB307CC;
 		goto IL_011a;
 	}
 
 IL_00ec:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:933>
 		String_t* L_43 = V_7;
 		bool L_44;
 		L_44 = String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1(L_43, _stringLiteral0CA4721FC9D82D780671DE2AB61257837402697D, NULL);
@@ -4348,14 +3988,12 @@ IL_00ec:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:934>
 		V_3 = _stringLiteralAFF4AA19F30B5DC5A240F413D92917103536F1AD;
 		goto IL_011a;
 	}
 
 IL_0102:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:935>
 		String_t* L_45 = V_7;
 		bool L_46;
 		L_46 = String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1(L_45, _stringLiteral985B72B30ECE05DD4EF5FE142CEE0FB8BF53A98C, NULL);
@@ -4365,20 +4003,17 @@ IL_0102:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:936>
 		V_3 = _stringLiteralCB4507437E3E619ECBAD84410155675EBEB3DB3F;
 		goto IL_011a;
 	}
 
 IL_0118:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:938>
 		V_3 = (String_t*)NULL;
 	}
 
 IL_011a:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:942>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_47 = V_5;
 		NullCheck(L_47);
 		int32_t L_48 = 3;
@@ -4394,14 +4029,12 @@ IL_011a:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:943>
 		int32_t L_52 = V_6;
 		V_4 = L_52;
 	}
 
 IL_0130:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:947>
 		int32_t L_53 = V_1;
 		int32_t L_54 = V_2;
 		String_t* L_55 = V_3;
@@ -4412,7 +4045,6 @@ IL_0130:
 		return L_57;
 	}
 }
-// Method Definition Index: 61856
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR VideoProperties_t11DD7C4EACACE50EA3D710F3E2595A68B17103A5 NativeGallery_GetVideoProperties_mE39CF69BF80843823CDC1B153B29B38413804E95 (String_t* ___0_videoPath, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4431,7 +4063,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR VideoProperties_t11DD7C4EACACE50EA3D710F3E259
 	float V_4 = 0.0f;
 	StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* V_5 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:952>
 		String_t* L_0 = ___0_videoPath;
 		bool L_1;
 		L_1 = File_Exists_m95E329ABBE3EAD6750FE1989BBA6884457136D4A(L_0, NULL);
@@ -4441,7 +4072,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR VideoProperties_t11DD7C4EACACE50EA3D710F3E259
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:953>
 		String_t* L_2 = ___0_videoPath;
 		String_t* L_3;
 		L_3 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral491B4D9271839F0BD63211437BF7CEE5B2C6ADE9)), L_2, NULL);
@@ -4452,7 +4082,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR VideoProperties_t11DD7C4EACACE50EA3D710F3E259
 
 IL_0019:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:956>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_5;
 		L_5 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_6 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)2);
@@ -4471,15 +4100,10 @@ IL_0019:
 		String_t* L_11;
 		L_11 = AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3(L_5, _stringLiteralF811A8F3778A439E75478C3728BE25A7853EAF83, L_9, AndroidJavaObject_CallStatic_TisString_t_mB5DC41208BD7C326A089C20F4F1C2B8B2444ACC3_RuntimeMethod_var);
 		V_0 = L_11;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:963>
 		V_1 = 0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:963>
 		V_2 = 0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:964>
 		V_3 = ((int64_t)0);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:965>
 		V_4 = (0.0f);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:966>
 		String_t* L_12 = V_0;
 		bool L_13;
 		L_13 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_12, NULL);
@@ -4489,13 +4113,11 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:968>
 		String_t* L_14 = V_0;
 		NullCheck(L_14);
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_15;
 		L_15 = String_Split_m9530B73D02054692283BF35C3A27C8F2230946F4(L_14, ((int32_t)62), 0, NULL);
 		V_5 = L_15;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:969>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_16 = V_5;
 		if (!L_16)
 		{
@@ -4511,7 +4133,6 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:971>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_18 = V_5;
 		NullCheck(L_18);
 		int32_t L_19 = 0;
@@ -4527,13 +4148,11 @@ IL_0019:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:972>
 		V_1 = 0;
 	}
 
 IL_007b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:973>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_23 = V_5;
 		NullCheck(L_23);
 		int32_t L_24 = 1;
@@ -4549,13 +4168,11 @@ IL_007b:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:974>
 		V_2 = 0;
 	}
 
 IL_008f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:975>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_28 = V_5;
 		NullCheck(L_28);
 		int32_t L_29 = 2;
@@ -4571,13 +4188,11 @@ IL_008f:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:976>
 		V_3 = ((int64_t)0);
 	}
 
 IL_00a4:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:977>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_33 = V_5;
 		NullCheck(L_33);
 		int32_t L_34 = 3;
@@ -4599,13 +4214,11 @@ IL_00a4:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:978>
 		V_4 = (0.0f);
 	}
 
 IL_00d0:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:982>
 		float L_40 = V_4;
 		if ((!(((float)L_40) == ((float)(-90.0f)))))
 		{
@@ -4613,13 +4226,11 @@ IL_00d0:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:983>
 		V_4 = (270.0f);
 	}
 
 IL_00e0:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:985>
 		int32_t L_41 = V_1;
 		int32_t L_42 = V_2;
 		int64_t L_43 = V_3;
@@ -4690,24 +4301,18 @@ IL2CPP_EXTERN_C void ImageProperties_t7C971D51A4992A01CD205754169B919B56696F59_m
 	il2cpp_codegen_marshal_free_bstring(marshaled.___mimeType);
 	marshaled.___mimeType = NULL;
 }
-// Method Definition Index: 61857
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ImageProperties__ctor_m544A791184FB701B39531F6E5CB3C023856797E3 (ImageProperties_t7C971D51A4992A01CD205754169B919B56696F59* __this, int32_t ___0_width, int32_t ___1_height, String_t* ___2_mimeType, int32_t ___3_orientation, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:23>
 		int32_t L_0 = ___0_width;
 		__this->___width = L_0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:24>
 		int32_t L_1 = ___1_height;
 		__this->___height = L_1;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:25>
 		String_t* L_2 = ___2_mimeType;
 		__this->___mimeType = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___mimeType), (void*)L_2);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:26>
 		int32_t L_3 = ___3_orientation;
 		__this->___orientation = L_3;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:27>
 		return;
 	}
 }
@@ -4726,23 +4331,17 @@ IL2CPP_EXTERN_C  void ImageProperties__ctor_m544A791184FB701B39531F6E5CB3C023856
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61858
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void VideoProperties__ctor_mF5D60E1ACB2B90A080BDB94C6362E49F835B2BFD (VideoProperties_t11DD7C4EACACE50EA3D710F3E2595A68B17103A5* __this, int32_t ___0_width, int32_t ___1_height, int64_t ___2_duration, float ___3_rotation, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:39>
 		int32_t L_0 = ___0_width;
 		__this->___width = L_0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:40>
 		int32_t L_1 = ___1_height;
 		__this->___height = L_1;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:41>
 		int64_t L_2 = ___2_duration;
 		__this->___duration = L_2;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:42>
 		float L_3 = ___3_rotation;
 		__this->___rotation = L_3;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:43>
 		return;
 	}
 }
@@ -4821,7 +4420,6 @@ IL2CPP_EXTERN_C  void DelegatePInvokeWrapper_PermissionCallback_t43E69EC9D59F3AD
 	il2cppPInvokeFunc(___0_permission);
 
 }
-// Method Definition Index: 61859
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void PermissionCallback__ctor_mBD077D6A9E8984D7DF933B1BB0C704832503A8E2 (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* __this, RuntimeObject* ___0_object, intptr_t ___1_method, const RuntimeMethod* method) 
 {
 	__this->___method_ptr = (intptr_t)il2cpp_codegen_get_method_pointer((RuntimeMethod*)___1_method);
@@ -4850,13 +4448,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void PermissionCallback__ctor_mBD077D6A9E8984
 	}
 	__this->___extra_arg = (intptr_t)&PermissionCallback_Invoke_mDFCBF3C4C5BFC95CBDC25A75169BA876EE76BB40_Multicast;
 }
-// Method Definition Index: 61860
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void PermissionCallback_Invoke_mDFCBF3C4C5BFC95CBDC25A75169BA876EE76BB40 (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, int32_t, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_permission, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 61861
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* PermissionCallback_BeginInvoke_m3C5989D51B318954F82FE4EBA6CF6C383840B95D (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* __this, int32_t ___0_permission, AsyncCallback_t7FEF460CBDCFB9C5FA2EF776984778B9A4145F4C* ___1_callback, RuntimeObject* ___2_object, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -4869,7 +4465,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* PermissionCallback_BeginInvoke
 	__d_args[0] = Box(Permission_t3F3DCD2A60B865EED3451B39DB6A376E75C8F831_il2cpp_TypeInfo_var, &___0_permission);
 	return (RuntimeObject*)il2cpp_codegen_delegate_begin_invoke((RuntimeDelegate*)__this, __d_args, (RuntimeDelegate*)___1_callback, (RuntimeObject*)___2_object);
 }
-// Method Definition Index: 61862
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void PermissionCallback_EndInvoke_m81AA5F8C453BC17C80D33C20E734962BA8DF30EA (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* __this, RuntimeObject* ___0_result, const RuntimeMethod* method) 
 {
 	il2cpp_codegen_delegate_end_invoke((Il2CppAsyncResult*) ___0_result, 0);
@@ -4916,7 +4511,6 @@ IL2CPP_EXTERN_C  void DelegatePInvokeWrapper_MediaSaveCallback_tEAA0B6F692AE0F92
 	____1_path_marshaled = NULL;
 
 }
-// Method Definition Index: 61863
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaSaveCallback__ctor_mC807D0DC716FCEACAB7FC85AD2916F702D92E5EF (MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* __this, RuntimeObject* ___0_object, intptr_t ___1_method, const RuntimeMethod* method) 
 {
 	__this->___method_ptr = (intptr_t)il2cpp_codegen_get_method_pointer((RuntimeMethod*)___1_method);
@@ -4945,13 +4539,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaSaveCallback__ctor_mC807D0DC716FCEA
 	}
 	__this->___extra_arg = (intptr_t)&MediaSaveCallback_Invoke_mD97247E7132D61D5D8C1E3063FEF0C09205E925C_Multicast;
 }
-// Method Definition Index: 61864
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaSaveCallback_Invoke_mD97247E7132D61D5D8C1E3063FEF0C09205E925C (MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* __this, bool ___0_success, String_t* ___1_path, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, bool, String_t*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_success, ___1_path, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 61865
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* MediaSaveCallback_BeginInvoke_m43DF1543431C55DFD9BCFF30017FA4F4FC2BEB72 (MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* __this, bool ___0_success, String_t* ___1_path, AsyncCallback_t7FEF460CBDCFB9C5FA2EF776984778B9A4145F4C* ___2_callback, RuntimeObject* ___3_object, const RuntimeMethod* method) 
 {
 	void *__d_args[3] = {0};
@@ -4959,7 +4551,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* MediaSaveCallback_BeginInvoke_
 	__d_args[1] = ___1_path;
 	return (RuntimeObject*)il2cpp_codegen_delegate_begin_invoke((RuntimeDelegate*)__this, __d_args, (RuntimeDelegate*)___2_callback, (RuntimeObject*)___3_object);
 }
-// Method Definition Index: 61866
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaSaveCallback_EndInvoke_mE988BF2B3A6EBA13C068BF8BAAFF8B9C2E4298BE (MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* __this, RuntimeObject* ___0_result, const RuntimeMethod* method) 
 {
 	il2cpp_codegen_delegate_end_invoke((Il2CppAsyncResult*) ___0_result, 0);
@@ -5007,7 +4598,6 @@ IL2CPP_EXTERN_C  void DelegatePInvokeWrapper_MediaPickCallback_tC207F6F3EEE18F64
 	____0_path_marshaled = NULL;
 
 }
-// Method Definition Index: 61867
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickCallback__ctor_m6772B2B8FB0ED8FC367118012A390E247874EA4D (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* __this, RuntimeObject* ___0_object, intptr_t ___1_method, const RuntimeMethod* method) 
 {
 	__this->___method_ptr = (intptr_t)il2cpp_codegen_get_method_pointer((RuntimeMethod*)___1_method);
@@ -5044,20 +4634,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickCallback__ctor_m6772B2B8FB0ED8F
 	}
 	__this->___extra_arg = (intptr_t)&MediaPickCallback_Invoke_m25F1FD61CF9FE4C835CD3298D790CBB61691BC4E_Multicast;
 }
-// Method Definition Index: 61868
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickCallback_Invoke_m25F1FD61CF9FE4C835CD3298D790CBB61691BC4E (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* __this, String_t* ___0_path, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, String_t*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_path, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 61869
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* MediaPickCallback_BeginInvoke_m722D25075399F4136F7A72DEB486B16E6979F072 (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* __this, String_t* ___0_path, AsyncCallback_t7FEF460CBDCFB9C5FA2EF776984778B9A4145F4C* ___1_callback, RuntimeObject* ___2_object, const RuntimeMethod* method) 
 {
 	void *__d_args[2] = {0};
 	__d_args[0] = ___0_path;
 	return (RuntimeObject*)il2cpp_codegen_delegate_begin_invoke((RuntimeDelegate*)__this, __d_args, (RuntimeDelegate*)___1_callback, (RuntimeObject*)___2_object);
 }
-// Method Definition Index: 61870
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickCallback_EndInvoke_m789929E1A570D84F6AE2F20FB722F42CC027E97D (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* __this, RuntimeObject* ___0_result, const RuntimeMethod* method) 
 {
 	il2cpp_codegen_delegate_end_invoke((Il2CppAsyncResult*) ___0_result, 0);
@@ -5127,7 +4714,6 @@ IL2CPP_EXTERN_C  void DelegatePInvokeWrapper_MediaPickMultipleCallback_t717A5D37
 	}
 
 }
-// Method Definition Index: 61871
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickMultipleCallback__ctor_m51B26CBD435D26A6CC44DFA51D2C58D74D6F1CE9 (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* __this, RuntimeObject* ___0_object, intptr_t ___1_method, const RuntimeMethod* method) 
 {
 	__this->___method_ptr = (intptr_t)il2cpp_codegen_get_method_pointer((RuntimeMethod*)___1_method);
@@ -5164,20 +4750,17 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickMultipleCallback__ctor_m51B26CB
 	}
 	__this->___extra_arg = (intptr_t)&MediaPickMultipleCallback_Invoke_m5FE7D489E8659411C7E24DB7E892B439C9990F3D_Multicast;
 }
-// Method Definition Index: 61872
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickMultipleCallback_Invoke_m5FE7D489E8659411C7E24DB7E892B439C9990F3D (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* __this, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* ___0_paths, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_paths, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 61873
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR RuntimeObject* MediaPickMultipleCallback_BeginInvoke_m6321A0529E97A8616F70F36CC82830AD8B1A38C9 (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* __this, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* ___0_paths, AsyncCallback_t7FEF460CBDCFB9C5FA2EF776984778B9A4145F4C* ___1_callback, RuntimeObject* ___2_object, const RuntimeMethod* method) 
 {
 	void *__d_args[2] = {0};
 	__d_args[0] = ___0_paths;
 	return (RuntimeObject*)il2cpp_codegen_delegate_begin_invoke((RuntimeDelegate*)__this, __d_args, (RuntimeDelegate*)___1_callback, (RuntimeObject*)___2_object);
 }
-// Method Definition Index: 61874
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickMultipleCallback_EndInvoke_m52B699AF968CA46D70F40ED0B433D9FE577753EF (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* __this, RuntimeObject* ___0_result, const RuntimeMethod* method) 
 {
 	il2cpp_codegen_delegate_end_invoke((Il2CppAsyncResult*) ___0_result, 0);
@@ -5190,7 +4773,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void MediaPickMultipleCallback_EndInvoke_m52B
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61875
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0__ctor_mE4F80BA4379D0C5712819391CA037C8C1DFBC5AD (U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5198,7 +4780,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0__ctor_mE4F80BA
 		return;
 	}
 }
-// Method Definition Index: 61876
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0_U3CRequestPermissionAsyncU3Eb__0_m840DFF97FF53A7ECE5A501B9811A085F6BEA4490 (U3CU3Ec__DisplayClass25_0_t3C98D622512227ED606A4FD9DB65F523A8D14AA8* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5208,7 +4789,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0_U3CRequestPerm
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:202>
 		TaskCompletionSource_1_tA40684670E345C5786526437707F448A78DD4DC2* L_0 = __this->___tcs;
 		int32_t L_1 = ___0_permission;
 		NullCheck(L_0);
@@ -5224,7 +4804,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass25_0_U3CRequestPerm
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61877
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass48_0__ctor_m6C34A2605B5B97E8B3D0EA4DE744837C12DD6A4E (U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5232,13 +4811,11 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass48_0__ctor_m6C34A26
 		return;
 	}
 }
-// Method Definition Index: 61878
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass48_0_U3CSaveToGalleryU3Eb__0_m86F3C7989021014A540ECBD7DC5A61E347ACF9A3 (U3CU3Ec__DisplayClass48_0_t70FC0381BDF6DD9D882EEB10C6C84DB7407C3297* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* G_B3_0 = NULL;
 	MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* G_B2_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:416>
 		int32_t L_0 = ___0_permission;
 		if ((((int32_t)L_0) == ((int32_t)1)))
 		{
@@ -5246,7 +4823,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass48_0_U3CSaveToGalle
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:418>
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_1 = __this->___callback;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_2 = L_1;
 		if (L_2)
@@ -5264,26 +4840,21 @@ IL_000f:
 	{
 		NullCheck(G_B3_0);
 		MediaSaveCallback_Invoke_mD97247E7132D61D5D8C1E3063FEF0C09205E925C_inline(G_B3_0, (bool)0, (String_t*)NULL, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:419>
 		return;
 	}
 
 IL_0017:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:422>
 		String_t* L_3 = __this->___filename;
 		String_t* L_4;
 		L_4 = NativeGallery_GetTemporarySavePath_m2057630E0A0206CEEC5C908A37470E49A0D70E60(L_3, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:426>
 		String_t* L_5 = L_4;
 		ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_6 = __this->___mediaBytes;
 		File_WriteAllBytes_mC491031DA14AA9B591F62D6AD0181D090E081077(L_5, L_6, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:429>
 		String_t* L_7 = __this->___album;
 		int32_t L_8 = __this->___mediaType;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_9 = __this->___callback;
 		NativeGallery_SaveToGalleryInternal_m7E98DD903D33ED3D5E3036C256CE09CC0422359E(L_5, L_7, L_8, L_9, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:430>
 		return;
 	}
 }
@@ -5295,7 +4866,6 @@ IL_0017:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61879
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass49_0__ctor_mC808AEEBF116347EE27DD07CE65FB918B9A90406 (U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5303,14 +4873,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass49_0__ctor_mC808AEE
 		return;
 	}
 }
-// Method Definition Index: 61880
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass49_0_U3CSaveToGalleryU3Eb__0_mB83943B2548839B92036C70CCD4D12B5093FD3D8 (U3CU3Ec__DisplayClass49_0_t970FF7910EAC35F617D5724A7A66F5BDE667AA12* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	String_t* V_0 = NULL;
 	MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* G_B3_0 = NULL;
 	MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* G_B2_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:455>
 		int32_t L_0 = ___0_permission;
 		if ((((int32_t)L_0) == ((int32_t)1)))
 		{
@@ -5318,7 +4886,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass49_0_U3CSaveToGalle
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:457>
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_1 = __this->___callback;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_2 = L_1;
 		if (L_2)
@@ -5336,28 +4903,23 @@ IL_000f:
 	{
 		NullCheck(G_B3_0);
 		MediaSaveCallback_Invoke_mD97247E7132D61D5D8C1E3063FEF0C09205E925C_inline(G_B3_0, (bool)0, (String_t*)NULL, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:458>
 		return;
 	}
 
 IL_0017:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:461>
 		String_t* L_3 = __this->___filename;
 		String_t* L_4;
 		L_4 = NativeGallery_GetTemporarySavePath_m2057630E0A0206CEEC5C908A37470E49A0D70E60(L_3, NULL);
 		V_0 = L_4;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:465>
 		String_t* L_5 = __this->___existingMediaPath;
 		String_t* L_6 = V_0;
 		File_Copy_m3798F05909C43D7EA26130D51D0A15CFCBE7458A(L_5, L_6, (bool)1, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:468>
 		String_t* L_7 = V_0;
 		String_t* L_8 = __this->___album;
 		int32_t L_9 = __this->___mediaType;
 		MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* L_10 = __this->___callback;
 		NativeGallery_SaveToGalleryInternal_m7E98DD903D33ED3D5E3036C256CE09CC0422359E(L_7, L_8, L_9, L_10, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:469>
 		return;
 	}
 }
@@ -5369,7 +4931,6 @@ IL_0017:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61881
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass52_0__ctor_mA0D6688D42551390F896C54CD0A2A536E3F38DB3 (U3CU3Ec__DisplayClass52_0_tF8F6FA62AA7C9BA3C92C4BC4B6C24FAC28557C97* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5377,7 +4938,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass52_0__ctor_mA0D6688
 		return;
 	}
 }
-// Method Definition Index: 61882
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass52_0_U3CGetMediaFromGalleryU3Eb__0_mCAE8CCF79014F1383B11A45086F5351EAA2FF0ED (U3CU3Ec__DisplayClass52_0_tF8F6FA62AA7C9BA3C92C4BC4B6C24FAC28557C97* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5391,7 +4951,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass52_0_U3CGetMediaFro
 	MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* G_B4_0 = NULL;
 	MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* G_B3_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:539>
 		int32_t L_0 = ___0_permission;
 		if ((!(((uint32_t)L_0) == ((uint32_t)1))))
 		{
@@ -5409,7 +4968,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass52_0_U3CGetMediaFro
 
 IL_000b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:541>
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_2 = __this->___callback;
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_3 = L_2;
 		if (L_3)
@@ -5427,13 +4985,11 @@ IL_0016:
 	{
 		NullCheck(G_B4_0);
 		MediaPickCallback_Invoke_m25F1FD61CF9FE4C835CD3298D790CBB61691BC4E_inline(G_B4_0, (String_t*)NULL, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:542>
 		return;
 	}
 
 IL_001d:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:574>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_4;
 		L_4 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_5 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)7);
@@ -5481,7 +5037,6 @@ IL_001d:
 		(L_22)->SetAt(static_cast<il2cpp_array_size_t>(6), (RuntimeObject*)L_23);
 		NullCheck(L_4);
 		AndroidJavaObject_CallStatic_mB677DE04369EDD8E6DECAF2F233116EE1F06555C(L_4, _stringLiteral79107FD6C984A88C27C9EA8214F1DDC00A8F6C36, L_22, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:592>
 		return;
 	}
 }
@@ -5493,7 +5048,6 @@ IL_001d:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61883
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass53_0__ctor_m0156569D649A45B4EFC5C9EE57BC5F24A3214249 (U3CU3Ec__DisplayClass53_0_t78441D89B8307D8C0B7CFE1D275E1E58EE84B1A0* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5501,7 +5055,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass53_0__ctor_m0156569
 		return;
 	}
 }
-// Method Definition Index: 61884
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass53_0_U3CGetMultipleMediaFromGalleryU3Eb__0_mAA26ABE689236D1F94354485ED2B50BE0102B4AE (U3CU3Ec__DisplayClass53_0_t78441D89B8307D8C0B7CFE1D275E1E58EE84B1A0* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5515,7 +5068,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass53_0_U3CGetMultiple
 	MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* G_B4_0 = NULL;
 	MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* G_B3_0 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:599>
 		int32_t L_0 = ___0_permission;
 		if ((!(((uint32_t)L_0) == ((uint32_t)1))))
 		{
@@ -5533,7 +5085,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass53_0_U3CGetMultiple
 
 IL_000b:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:601>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_2 = __this->___callback;
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_3 = L_2;
 		if (L_3)
@@ -5551,13 +5102,11 @@ IL_0016:
 	{
 		NullCheck(G_B4_0);
 		MediaPickMultipleCallback_Invoke_m5FE7D489E8659411C7E24DB7E892B439C9990F3D_inline(G_B4_0, (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)NULL, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:602>
 		return;
 	}
 
 IL_001d:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:605>
 		bool L_4;
 		L_4 = NativeGallery_CanSelectMultipleFilesFromGallery_m8B64B58699A6EEB502428C3444FBFEE702E63997(NULL);
 		if (!L_4)
@@ -5566,7 +5115,6 @@ IL_001d:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:608>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_5;
 		L_5 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_6 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)7);
@@ -5619,7 +5167,6 @@ IL_001d:
 
 IL_0082:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:627>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_25 = __this->___callback;
 		if (!L_25)
 		{
@@ -5627,7 +5174,6 @@ IL_0082:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:628>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_26 = __this->___callback;
 		NullCheck(L_26);
 		MediaPickMultipleCallback_Invoke_m5FE7D489E8659411C7E24DB7E892B439C9990F3D_inline(L_26, (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)NULL, NULL);
@@ -5635,7 +5181,6 @@ IL_0082:
 
 IL_0096:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:629>
 		return;
 	}
 }
@@ -5647,7 +5192,6 @@ IL_0096:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61887
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass58_0__ctor_m18D1E4394641E5CC23B40C6E2F274B3756A237B3 (U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5655,7 +5199,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass58_0__ctor_m18D1E43
 		return;
 	}
 }
-// Method Definition Index: 61888
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass58_0_U3CLoadImageAtPathAsyncU3Eb__0_m81DB6737A054C7FA2587D97485A98227B65D6F01 (U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5667,7 +5210,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass58_0_U3CLoadIm
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:797>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)4);
@@ -5708,7 +5250,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass58_0_U3CLoadIm
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61889
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass60_0__ctor_m3B9C217E955AB036BED0A6B175474C77BBDB553F (U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -5716,7 +5257,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass60_0__ctor_m3B9C217
 		return;
 	}
 }
-// Method Definition Index: 61890
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass60_0_U3CGetVideoThumbnailAsyncU3Eb__0_m9AC5A24F3ADAAC26F7143255FC7BAED03C055860 (U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5729,7 +5269,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass60_0_U3CGetVid
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:885>
 		AndroidJavaClass_tE6296B30CC4BF84434A9B765267F3FD0DD8DDB03* L_0;
 		L_0 = NativeGallery_get_AJC_m3DDA1C8C4108FA60670B808FB9BC23D478131F8A(NULL);
 		ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* L_1 = (ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918*)SZArrayNew(ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918_il2cpp_TypeInfo_var, (uint32_t)6);
@@ -5785,7 +5324,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* U3CU3Ec__DisplayClass60_0_U3CGetVid
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61891
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CGetVideoThumbnailAsyncU3Ed__60_MoveNext_m3103A6764748DA63B377082D3E2F1DCAF49A7959 (U3CGetVideoThumbnailAsyncU3Ed__60_t0B85C9BC617ECF7A8B34DCBF68C18A2304075BAD* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -5854,7 +5392,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CGetVideoThumbnailAsyncU3Ed__60_MoveNe
 			double L_9 = __this->___captureTimeInSeconds;
 			NullCheck(L_8);
 			L_8->___captureTimeInSeconds = L_9;
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:880>
 			U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* L_10 = __this->___U3CU3E8__1;
 			NullCheck(L_10);
 			int32_t L_11 = L_10->___maxSize;
@@ -5864,7 +5401,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CGetVideoThumbnailAsyncU3Ed__60_MoveNe
 			}
 		}
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:881>
 			U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* L_12 = __this->___U3CU3E8__1;
 			int32_t L_13;
 			L_13 = SystemInfo_get_maxTextureSize_mEE557C09643222591C6F4D3F561D7A60CD403991(NULL);
@@ -5874,14 +5410,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CGetVideoThumbnailAsyncU3Ed__60_MoveNe
 
 IL_0070_1:
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:884>
 			U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* L_14 = __this->___U3CU3E8__1;
 			String_t* L_15;
 			L_15 = NativeGallery_get_TemporaryImagePath_m05418FC4CC85508CDAE30BEDCC344C85884E1BF8(NULL);
 			NullCheck(L_14);
 			L_14->___temporaryImagePath = L_15;
 			Il2CppCodeGenWriteBarrier((void**)(&L_14->___temporaryImagePath), (void*)L_15);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:885>
 			U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* L_16 = __this->___U3CU3E8__1;
 			Func_1_t367387BB2C476D3F32DB12161B5FDC128DC3231C* L_17 = (Func_1_t367387BB2C476D3F32DB12161B5FDC128DC3231C*)il2cpp_codegen_object_new(Func_1_t367387BB2C476D3F32DB12161B5FDC128DC3231C_il2cpp_TypeInfo_var);
 			Func_1__ctor_m27A68E928C1D9158EAAD261086B9BC424339327B(L_17, L_16, (intptr_t)((void*)U3CU3Ec__DisplayClass60_0_U3CGetVideoThumbnailAsyncU3Eb__0_m9AC5A24F3ADAAC26F7143255FC7BAED03C055860_RuntimeMethod_var), NULL);
@@ -5927,7 +5461,6 @@ IL_00e4_1:
 			String_t* L_27;
 			L_27 = TaskAwaiter_1_GetResult_m82A392802A854576DC9525B87B0053B56201ABB9((&V_3), TaskAwaiter_1_GetResult_m82A392802A854576DC9525B87B0053B56201ABB9_RuntimeMethod_var);
 			V_2 = L_27;
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:893>
 			String_t* L_28 = V_2;
 			bool L_29;
 			L_29 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_28, NULL);
@@ -5937,7 +5470,6 @@ IL_00e4_1:
 			}
 		}
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:894>
 			String_t* L_30 = V_2;
 			U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8* L_31 = __this->___U3CU3E8__1;
 			NullCheck(L_31);
@@ -5990,7 +5522,6 @@ IL_0159_1:
 
 IL_0163_1:
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:896>
 			V_1 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 			goto IL_0187;
 		}
@@ -6022,7 +5553,6 @@ CATCH_0167:
 
 IL_0187:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:897>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		__this->___U3CU3E8__1 = (U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E8__1), (void*)(U3CU3Ec__DisplayClass60_0_tB4374130FA67F4A23AFBAA05595822491F3038A8*)NULL);
@@ -6044,7 +5574,6 @@ IL2CPP_EXTERN_C  void U3CGetVideoThumbnailAsyncU3Ed__60_MoveNext_m3103A6764748DA
 	_thisAdjusted = reinterpret_cast<U3CGetVideoThumbnailAsyncU3Ed__60_t0B85C9BC617ECF7A8B34DCBF68C18A2304075BAD*>(__this + _offset);
 	U3CGetVideoThumbnailAsyncU3Ed__60_MoveNext_m3103A6764748DA63B377082D3E2F1DCAF49A7959(_thisAdjusted, method);
 }
-// Method Definition Index: 61892
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CGetVideoThumbnailAsyncU3Ed__60_SetStateMachine_m98CB2F5859778450AD9E3C11ADCEFB06AB678D81 (U3CGetVideoThumbnailAsyncU3Ed__60_t0B85C9BC617ECF7A8B34DCBF68C18A2304075BAD* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6077,7 +5606,6 @@ IL2CPP_EXTERN_C  void U3CGetVideoThumbnailAsyncU3Ed__60_SetStateMachine_m98CB2F5
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61893
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CLoadImageAtPathAsyncU3Ed__58_MoveNext_mBA6E954BF9344C808A1287BFC3C63CBB2349A556 (U3CLoadImageAtPathAsyncU3Ed__58_t12B3392314F7B64231348CBE3B1E48FB7B84593E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6156,7 +5684,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CLoadImageAtPathAsyncU3Ed__58_MoveNext
 			int32_t L_7 = __this->___maxSize;
 			NullCheck(L_6);
 			L_6->___maxSize = L_7;
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:786>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_8 = __this->___U3CU3E8__1;
 			NullCheck(L_8);
 			String_t* L_9 = L_8->___imagePath;
@@ -6168,7 +5695,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CLoadImageAtPathAsyncU3Ed__58_MoveNext
 			}
 		}
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:787>
 			ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263* L_11 = (ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263*)il2cpp_codegen_object_new(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&ArgumentException_tAD90411542A20A9C72D5CDA3A84181D8B947A263_il2cpp_TypeInfo_var)));
 			ArgumentException__ctor_m026938A67AF9D36BB7ED27F80425D7194B514465(L_11, ((String_t*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&_stringLiteral18B82B6B7DC4FE1988BA61A3784D1768F6C925DF)), NULL);
 			IL2CPP_RAISE_MANAGED_EXCEPTION(L_11, ((RuntimeMethod*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&U3CLoadImageAtPathAsyncU3Ed__58_MoveNext_mBA6E954BF9344C808A1287BFC3C63CBB2349A556_RuntimeMethod_var)));
@@ -6176,7 +5702,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CLoadImageAtPathAsyncU3Ed__58_MoveNext
 
 IL_005e_1:
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:789>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_12 = __this->___U3CU3E8__1;
 			NullCheck(L_12);
 			String_t* L_13 = L_12->___imagePath;
@@ -6188,7 +5713,6 @@ IL_005e_1:
 			}
 		}
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:790>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_15 = __this->___U3CU3E8__1;
 			NullCheck(L_15);
 			String_t* L_16 = L_15->___imagePath;
@@ -6201,7 +5725,6 @@ IL_005e_1:
 
 IL_008b_1:
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:792>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_19 = __this->___U3CU3E8__1;
 			NullCheck(L_19);
 			int32_t L_20 = L_19->___maxSize;
@@ -6211,7 +5734,6 @@ IL_008b_1:
 			}
 		}
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:793>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_21 = __this->___U3CU3E8__1;
 			int32_t L_22;
 			L_22 = SystemInfo_get_maxTextureSize_mEE557C09643222591C6F4D3F561D7A60CD403991(NULL);
@@ -6221,14 +5743,12 @@ IL_008b_1:
 
 IL_00a9_1:
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:796>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_23 = __this->___U3CU3E8__1;
 			String_t* L_24;
 			L_24 = NativeGallery_get_TemporaryImagePath_m05418FC4CC85508CDAE30BEDCC344C85884E1BF8(NULL);
 			NullCheck(L_23);
 			L_23->___temporaryImagePath = L_24;
 			Il2CppCodeGenWriteBarrier((void**)(&L_23->___temporaryImagePath), (void*)L_24);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:797>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_25 = __this->___U3CU3E8__1;
 			Func_1_t367387BB2C476D3F32DB12161B5FDC128DC3231C* L_26 = (Func_1_t367387BB2C476D3F32DB12161B5FDC128DC3231C*)il2cpp_codegen_object_new(Func_1_t367387BB2C476D3F32DB12161B5FDC128DC3231C_il2cpp_TypeInfo_var);
 			Func_1__ctor_m27A68E928C1D9158EAAD261086B9BC424339327B(L_26, L_25, (intptr_t)((void*)U3CU3Ec__DisplayClass58_0_U3CLoadImageAtPathAsyncU3Eb__0_m81DB6737A054C7FA2587D97485A98227B65D6F01_RuntimeMethod_var), NULL);
@@ -6277,10 +5797,8 @@ IL_011d_1:
 			String_t* L_37 = V_2;
 			__this->___U3CloadPathU3E5__2 = L_37;
 			Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CloadPathU3E5__2), (void*)L_37);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:805>
 			__this->___U3CresultU3E5__3 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 			Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CresultU3E5__3), (void*)(Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:807>
 			String_t* L_38 = __this->___U3CloadPathU3E5__2;
 			String_t* L_39;
 			L_39 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral218F5A08519088A96BE3C1074984C53EA49F1CCA, L_38, NULL);
@@ -6336,7 +5854,6 @@ IL_0235_1:
 					}
 				}
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:809>
 					UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F* L_46 = __this->___U3CwwwU3E5__4;
 					NullCheck(L_46);
 					UnityWebRequestAsyncOperation_t14BE94558FF3A2CFC2EFBE2511A3A88252042B8C* L_47;
@@ -6348,7 +5865,6 @@ IL_0235_1:
 
 IL_016c_2:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:811>
 					il2cpp_codegen_runtime_class_init_inline(Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572_il2cpp_TypeInfo_var);
 					YieldAwaitable_tFEA898DB9022A953958C3CF531E1477D135D3DAB L_48;
 					L_48 = Task_Yield_m27EE257EF53788244C5B2E874C514C24C693F9B1(NULL);
@@ -6395,7 +5911,6 @@ IL_01c6_2:
 
 IL_01cd_2:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:810>
 					UnityWebRequestAsyncOperation_t14BE94558FF3A2CFC2EFBE2511A3A88252042B8C* L_57 = __this->___U3CasyncOperationU3E5__5;
 					NullCheck(L_57);
 					bool L_58;
@@ -6406,7 +5921,6 @@ IL_01cd_2:
 					}
 				}
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:813>
 					UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F* L_59 = __this->___U3CwwwU3E5__4;
 					NullCheck(L_59);
 					int32_t L_60;
@@ -6417,7 +5931,6 @@ IL_01cd_2:
 					}
 				}
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:814>
 					UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F* L_61 = __this->___U3CwwwU3E5__4;
 					NullCheck(L_61);
 					String_t* L_62;
@@ -6431,7 +5944,6 @@ IL_01cd_2:
 
 IL_0204_2:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:816>
 					UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F* L_64 = __this->___U3CwwwU3E5__4;
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_65;
 					L_65 = DownloadHandlerTexture_GetContent_m86BC88F58305A1B21C21CE7D82658197932EFB18(L_64, NULL);
@@ -6441,7 +5953,6 @@ IL_0204_2:
 
 IL_0215_2:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:817>
 					__this->___U3CasyncOperationU3E5__5 = (UnityWebRequestAsyncOperation_t14BE94558FF3A2CFC2EFBE2511A3A88252042B8C*)NULL;
 					Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CasyncOperationU3E5__5), (void*)(UnityWebRequestAsyncOperation_t14BE94558FF3A2CFC2EFBE2511A3A88252042B8C*)NULL);
 					goto IL_0236_1;
@@ -6457,7 +5968,6 @@ IL_0236_1:
 		{
 			__this->___U3CwwwU3E5__4 = (UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F*)NULL;
 			Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CwwwU3E5__4), (void*)(UnityWebRequest_t6233B8E22992FC2364A831C1ACB033EF3260C39F*)NULL);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:819>
 			Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_66 = __this->___U3CresultU3E5__3;
 			il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 			bool L_67;
@@ -6468,7 +5978,6 @@ IL_0236_1:
 			}
 		}
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:821>
 			U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_68 = __this->___U3CU3E8__1;
 			NullCheck(L_68);
 			String_t* L_69 = L_68->___imagePath;
@@ -6479,7 +5988,6 @@ IL_0236_1:
 			String_t* L_71;
 			L_71 = String_ToLowerInvariant_mBE32C93DE27C5353FEA3FA654FC1DDBE3D0EB0F2(L_70, NULL);
 			V_6 = L_71;
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:822>
 			String_t* L_72 = V_6;
 			bool L_73;
 			L_73 = String_op_Equality_m030E1B219352228970A076136E455C4E568C02C1(L_72, _stringLiteral23DF9991B71463C240582D176E347E7E47AEFF5A, NULL);
@@ -6510,7 +6018,6 @@ IL_0283_1:
 IL_0284_1:
 		{
 			V_7 = G_B34_0;
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:824>
 			int32_t L_76 = V_7;
 			Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_77 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)il2cpp_codegen_object_new(Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4_il2cpp_TypeInfo_var);
 			Texture2D__ctor_mC3F84195D1DCEFC0536B3FBD40A8F8E865A4F32A(L_77, 2, 2, L_76, (bool)1, (bool)0, NULL);
@@ -6531,7 +6038,6 @@ FINALLY_02f1_1:
 						}
 					}
 					{
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:845>
 						String_t* L_79 = __this->___U3CloadPathU3E5__2;
 						U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266* L_80 = __this->___U3CU3E8__1;
 						NullCheck(L_80);
@@ -6545,10 +6051,8 @@ FINALLY_02f1_1:
 					}
 					try
 					{
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:849>
 						String_t* L_83 = __this->___U3CloadPathU3E5__2;
 						File_Delete_mE29829DA504F3E1B8BCB78F21E2862C9ED7EC386(L_83, NULL);
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:850>
 						goto IL_031d_1;
 					}
 					catch(Il2CppExceptionWrapper& e)
@@ -6564,8 +6068,6 @@ FINALLY_02f1_1:
 CATCH_031a_1:
 					{
 						RuntimeObject* L_84 = ((RuntimeObject*)IL2CPP_GET_ACTIVE_EXCEPTION(RuntimeObject*));;
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:851>
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:851>
 						IL2CPP_POP_ACTIVE_EXCEPTION(Exception_t*);
 						goto IL_031d_1;
 					}
@@ -6581,7 +6083,6 @@ IL_031d_1:
 				try
 				{
 					{
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:828>
 						Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_85 = __this->___U3CresultU3E5__3;
 						String_t* L_86 = __this->___U3CloadPathU3E5__2;
 						ByteU5BU5D_tA6237BF417AE52AD70CFB4EF24A7A82613DF9031* L_87;
@@ -6595,24 +6096,20 @@ IL_031d_1:
 						}
 					}
 					{
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:830>
 						String_t* L_90 = __this->___U3CloadPathU3E5__2;
 						String_t* L_91;
 						L_91 = String_Concat_m9E3155FB84015C823606188F53B47CB44C444991(_stringLiteral76F1B85647641622FD867CE16AF6C584C5081BD4, L_90, NULL);
 						il2cpp_codegen_runtime_class_init_inline(Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var);
 						Debug_LogWarning_m33EF1B897E0C7C6FF538989610BFAFFEF4628CA9(L_91, NULL);
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:832>
 						Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_92 = __this->___U3CresultU3E5__3;
 						il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 						Object_DestroyImmediate_m6336EBC83591A5DB64EC70C92132824C6E258705(L_92, NULL);
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:833>
 						V_1 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 						goto IL_0355;
 					}
 
 IL_02d9_3:
 					{
-						//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:835>
 						goto IL_02ef_2;
 					}
 				}
@@ -6629,14 +6126,11 @@ IL_02d9_3:
 CATCH_02db_2:
 				{
 					Exception_t* L_93 = ((Exception_t*)IL2CPP_GET_ACTIVE_EXCEPTION(Exception_t*));;
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:838>
 					il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Debug_t8394C7EEAECA3689C2C9B9DE9C7166D73596276F_il2cpp_TypeInfo_var)));
 					Debug_LogException_mAB3F4DC7297ED8FBB49DAA718B70E59A6B0171B0(L_93, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:840>
 					Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_94 = __this->___U3CresultU3E5__3;
 					il2cpp_codegen_runtime_class_init_inline(((RuntimeClass*)il2cpp_codegen_initialize_runtime_metadata_inline((uintptr_t*)&Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var)));
 					Object_DestroyImmediate_m6336EBC83591A5DB64EC70C92132824C6E258705(L_94, NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:841>
 					V_1 = (Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4*)NULL;
 					IL2CPP_POP_ACTIVE_EXCEPTION(Exception_t*);
 					goto IL_0355;
@@ -6655,7 +6149,6 @@ IL_02ef_2:
 
 IL_031e_1:
 		{
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:856>
 			Texture2D_tE6505BC111DD8A424A9DBE8E05D7D09E11FFFCF4* L_95 = __this->___U3CresultU3E5__3;
 			V_1 = L_95;
 			goto IL_0355;
@@ -6692,7 +6185,6 @@ CATCH_0327:
 
 IL_0355:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/NativeGallery.cs:857>
 		__this->___U3CU3E1__state = ((int32_t)-2);
 		__this->___U3CU3E8__1 = (U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___U3CU3E8__1), (void*)(U3CU3Ec__DisplayClass58_0_t03A25575E78FFC955773B0C8D4B04EA8DBE83266*)NULL);
@@ -6718,7 +6210,6 @@ IL2CPP_EXTERN_C  void U3CLoadImageAtPathAsyncU3Ed__58_MoveNext_mBA6E954BF9344C80
 	_thisAdjusted = reinterpret_cast<U3CLoadImageAtPathAsyncU3Ed__58_t12B3392314F7B64231348CBE3B1E48FB7B84593E*>(__this + _offset);
 	U3CLoadImageAtPathAsyncU3Ed__58_MoveNext_mBA6E954BF9344C808A1287BFC3C63CBB2349A556(_thisAdjusted, method);
 }
-// Method Definition Index: 61894
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CLoadImageAtPathAsyncU3Ed__58_SetStateMachine_m00CA331F6D0F8897B179C0A3C626B7C5BE473408 (U3CLoadImageAtPathAsyncU3Ed__58_t12B3392314F7B64231348CBE3B1E48FB7B84593E* __this, RuntimeObject* ___0_stateMachine, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6751,7 +6242,6 @@ IL2CPP_EXTERN_C  void U3CLoadImageAtPathAsyncU3Ed__58_SetStateMachine_m00CA331F6
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61897
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR MonoScriptData_t9A8B4A7A72B94BF06BDD32BBF895DC7FE2AAD01B UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mBA502B738210E192D55ACE49B2CEDD61446DCC61 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6785,7 +6275,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR MonoScriptData_t9A8B4A7A72B94BF06BDD32BBF895D
 		return L_6;
 	}
 }
-// Method Definition Index: 61898
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mB81D88A5506F56903B8E41185B6537D608E7D175 (UnitySourceGeneratedAssemblyMonoScriptTypes_v1_t6093CE38E31E6B8989EF7A1E7193582957146F28* __this, const RuntimeMethod* method) 
 {
 	{
@@ -6871,7 +6360,6 @@ IL2CPP_EXTERN_C void MonoScriptData_t9A8B4A7A72B94BF06BDD32BBF895DC7FE2AAD01B_ma
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61899
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* NGCallbackHelper_Create_m58145FBA2C12E8F3CD3FD51E0B84B203AE753EFF (bool ___0_autoDestroyWithCallback, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6884,29 +6372,24 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:14>
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_0 = (GameObject_t76FEDD663AB33C991A9C9A23129337651094216F*)il2cpp_codegen_object_new(GameObject_t76FEDD663AB33C991A9C9A23129337651094216F_il2cpp_TypeInfo_var);
 		GameObject__ctor_m37D512B05D292F954792225E6C6EEE95293A9B88(L_0, _stringLiteral23A7F9B10A9B248A502580BB07C34BEC789A2F26, NULL);
 		NullCheck(L_0);
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_1;
 		L_1 = GameObject_AddComponent_TisNGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E_m122B4342704895B942EB668E066A8907E156D51F(L_0, GameObject_AddComponent_TisNGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E_m122B4342704895B942EB668E066A8907E156D51F_RuntimeMethod_var);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:15>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_2 = L_1;
 		bool L_3 = ___0_autoDestroyWithCallback;
 		NullCheck(L_2);
 		L_2->___autoDestroyWithCallback = L_3;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:16>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_4 = L_2;
 		NullCheck(L_4);
 		GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_5;
 		L_5 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(L_4, NULL);
 		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		Object_DontDestroyOnLoad_m4B70C3AEF886C176543D1295507B6455C9DCAEA7(L_5, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:17>
 		return L_4;
 	}
 }
-// Method Definition Index: 61900
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper_CallOnMainThread_mF7F169DC018B729E70CDD5017BA99B7F3DBA54D8 (NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* __this, Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* ___0_function, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6918,7 +6401,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper_CallOnMainThread_mF7F16
 	NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* V_0 = NULL;
 	bool V_1 = false;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:22>
 		V_0 = __this;
 		V_1 = (bool)0;
 	}
@@ -6950,14 +6432,12 @@ IL_002e:
 		{
 			NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_2 = V_0;
 			Monitor_Enter_m3CDB589DA1300B513D55FDCFB52B63E879794149(L_2, (&V_1), NULL);
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:24>
 			Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_3 = __this->___mainThreadAction;
 			Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_4 = ___0_function;
 			Delegate_t* L_5;
 			L_5 = Delegate_Combine_m1F725AEF318BE6F0426863490691A6F4606E7D00(L_3, L_4, NULL);
 			__this->___mainThreadAction = ((Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)CastclassSealed((RuntimeObject*)L_5, Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07_il2cpp_TypeInfo_var));
 			Il2CppCodeGenWriteBarrier((void**)(&__this->___mainThreadAction), (void*)((Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)CastclassSealed((RuntimeObject*)L_5, Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07_il2cpp_TypeInfo_var)));
-			//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:25>
 			goto IL_002f;
 		}
 		catch(Il2CppExceptionWrapper& e)
@@ -6968,11 +6448,9 @@ IL_002e:
 
 IL_002f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:26>
 		return;
 	}
 }
-// Method Definition Index: 61901
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper_Update_m14FAA6654D7EF046826BA233F9B206D89AB28BBC (NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* __this, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -6985,7 +6463,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper_Update_m14FAA6654D7EF04
 	NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* V_1 = NULL;
 	bool V_2 = false;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:30>
 		Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_0 = __this->___mainThreadAction;
 		if (!L_0)
 		{
@@ -6999,7 +6476,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper_Update_m14FAA6654D7EF04
 FINALLY_0036:
 			{
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:45>
 					bool L_1 = __this->___autoDestroyWithCallback;
 					if (!L_1)
 					{
@@ -7007,7 +6483,6 @@ FINALLY_0036:
 					}
 				}
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:46>
 					GameObject_t76FEDD663AB33C991A9C9A23129337651094216F* L_2;
 					L_2 = Component_get_gameObject_m57AEFBB14DB39EC476F740BA000E170355DE691B(__this, NULL);
 					il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
@@ -7016,7 +6491,6 @@ FINALLY_0036:
 
 IL_0049:
 				{
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:47>
 					return;
 				}
 			}
@@ -7024,7 +6498,6 @@ IL_0049:
 		try
 		{
 			{
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:35>
 				V_1 = __this;
 				V_2 = (bool)0;
 			}
@@ -7056,13 +6529,10 @@ IL_002d_1:
 				{
 					NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_5 = V_1;
 					Monitor_Enter_m3CDB589DA1300B513D55FDCFB52B63E879794149(L_5, (&V_2), NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:37>
 					Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_6 = __this->___mainThreadAction;
 					V_0 = L_6;
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:38>
 					__this->___mainThreadAction = (Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)NULL;
 					Il2CppCodeGenWriteBarrier((void**)(&__this->___mainThreadAction), (void*)(Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)NULL);
-					//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:39>
 					goto IL_002e_1;
 				}
 				catch(Il2CppExceptionWrapper& e)
@@ -7073,11 +6543,9 @@ IL_002d_1:
 
 IL_002e_1:
 			{
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:41>
 				Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_7 = V_0;
 				NullCheck(L_7);
 				Action_Invoke_m7126A54DACA72B845424072887B5F3A51FC3808E_inline(L_7, NULL);
-				//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:42>
 				goto IL_004a;
 			}
 		}
@@ -7089,11 +6557,9 @@ IL_002e_1:
 
 IL_004a:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGCallbackHelper.cs:49>
 		return;
 	}
 }
-// Method Definition Index: 61902
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper__ctor_mB5DCC404262A38A0DDF25EDBC00C0858834327AE (NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7109,7 +6575,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGCallbackHelper__ctor_mB5DCC404262A38A0
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61903
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid__ctor_mDA59DF94D1E808D51945EFC7935434A3B2D00E61 (NGMediaReceiveCallbackAndroid_tB8DDBFAD614592BF98999BEAC00A75E0D420CC52* __this, MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* ___0_callback, MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* ___1_callbackMultiple, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7120,27 +6585,21 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid__ctor_mDA5
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:13>
 		il2cpp_codegen_runtime_class_init_inline(AndroidJavaProxy_tE5521F9761F7B95444B9C39FB15FDFC23F80A78D_il2cpp_TypeInfo_var);
 		AndroidJavaProxy__ctor_m2832886A0E1BBF6702653A7C6A4609F11FB712C7(__this, _stringLiteral1323FA5608C80AC5A0D5F2B0116C96A1B9AFD381, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:15>
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_0 = ___0_callback;
 		__this->___callback = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___callback), (void*)L_0);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:16>
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_1 = ___1_callbackMultiple;
 		__this->___callbackMultiple = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___callbackMultiple), (void*)L_1);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:17>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_2;
 		L_2 = NGCallbackHelper_Create_m58145FBA2C12E8F3CD3FD51E0B84B203AE753EFF((bool)1, NULL);
 		__this->___callbackHelper = L_2;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___callbackHelper), (void*)L_2);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:18>
 		return;
 	}
 }
-// Method Definition Index: 61904
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid_OnMediaReceived_m927E33E6BA4435928E353290FE197407D0D935DE (NGMediaReceiveCallbackAndroid_tB8DDBFAD614592BF98999BEAC00A75E0D420CC52* __this, String_t* ___0_path, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7165,18 +6624,15 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid_OnMediaRec
 		NullCheck(L_2);
 		L_2->___path = L_3;
 		Il2CppCodeGenWriteBarrier((void**)(&L_2->___path), (void*)L_3);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:23>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_4 = __this->___callbackHelper;
 		U3CU3Ec__DisplayClass4_0_tD80C32708DF9E47C151599335772558DC8B3D9E8* L_5 = V_0;
 		Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_6 = (Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)il2cpp_codegen_object_new(Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07_il2cpp_TypeInfo_var);
 		Action__ctor_mBDC7B0B4A3F583B64C2896F01BDED360772F67DC(L_6, L_5, (intptr_t)((void*)U3CU3Ec__DisplayClass4_0_U3COnMediaReceivedU3Eb__0_mD53F98485F21EB4840C5FC510F8A15C1E9D9489B_RuntimeMethod_var), NULL);
 		NullCheck(L_4);
 		NGCallbackHelper_CallOnMainThread_mF7F169DC018B729E70CDD5017BA99B7F3DBA54D8(L_4, L_6, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:24>
 		return;
 	}
 }
-// Method Definition Index: 61905
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid_OnMultipleMediaReceived_m3D0BBCFE8A0047BFD2D8EDC32365ECCF5C917E09 (NGMediaReceiveCallbackAndroid_tB8DDBFAD614592BF98999BEAC00A75E0D420CC52* __this, String_t* ___0_paths, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7203,12 +6659,10 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid_OnMultiple
 		NullCheck(L_1);
 		L_1->___U3CU3E4__this = __this;
 		Il2CppCodeGenWriteBarrier((void**)(&L_1->___U3CU3E4__this), (void*)__this);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:29>
 		U3CU3Ec__DisplayClass5_0_tAE5229FA2486EA375EA2E7C0D014785D19289D9B* L_2 = V_0;
 		NullCheck(L_2);
 		L_2->___result = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)NULL;
 		Il2CppCodeGenWriteBarrier((void**)(&L_2->___result), (void*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:30>
 		String_t* L_3 = ___0_paths;
 		bool L_4;
 		L_4 = String_IsNullOrEmpty_mEA9E3FB005AC28FE02E69FCF95A7B8456192B478(L_3, NULL);
@@ -7218,22 +6672,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGMediaReceiveCallbackAndroid_OnMultiple
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:32>
 		String_t* L_5 = ___0_paths;
 		NullCheck(L_5);
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_6;
 		L_6 = String_Split_m9530B73D02054692283BF35C3A27C8F2230946F4(L_5, ((int32_t)62), 0, NULL);
 		V_1 = L_6;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:34>
 		V_2 = 0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:35>
 		V_3 = 0;
 		goto IL_003e;
 	}
 
 IL_002c:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:37>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_7 = V_1;
 		int32_t L_8 = V_3;
 		NullCheck(L_7);
@@ -7247,21 +6697,18 @@ IL_002c:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:38>
 		int32_t L_12 = V_2;
 		V_2 = ((int32_t)il2cpp_codegen_add(L_12, 1));
 	}
 
 IL_003a:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:35>
 		int32_t L_13 = V_3;
 		V_3 = ((int32_t)il2cpp_codegen_add(L_13, 1));
 	}
 
 IL_003e:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:35>
 		int32_t L_14 = V_3;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_15 = V_1;
 		NullCheck(L_15);
@@ -7271,7 +6718,6 @@ IL_003e:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:41>
 		int32_t L_16 = V_2;
 		if (L_16)
 		{
@@ -7279,7 +6725,6 @@ IL_003e:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:42>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_17 = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)SZArrayNew(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var, (uint32_t)0);
 		V_1 = L_17;
 		goto IL_008f;
@@ -7287,7 +6732,6 @@ IL_003e:
 
 IL_0050:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:43>
 		int32_t L_18 = V_2;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_19 = V_1;
 		NullCheck(L_19);
@@ -7297,20 +6741,16 @@ IL_0050:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:45>
 		int32_t L_20 = V_2;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_21 = (StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*)SZArrayNew(StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248_il2cpp_TypeInfo_var, (uint32_t)L_20);
 		V_4 = L_21;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:46>
 		V_5 = 0;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:46>
 		V_6 = 0;
 		goto IL_0085;
 	}
 
 IL_0066:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:48>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_22 = V_1;
 		int32_t L_23 = V_5;
 		NullCheck(L_22);
@@ -7324,7 +6764,6 @@ IL_0066:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:49>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_27 = V_4;
 		int32_t L_28 = V_6;
 		int32_t L_29 = L_28;
@@ -7340,14 +6779,12 @@ IL_0066:
 
 IL_007f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:46>
 		int32_t L_34 = V_5;
 		V_5 = ((int32_t)il2cpp_codegen_add(L_34, 1));
 	}
 
 IL_0085:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:46>
 		int32_t L_35 = V_5;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_36 = V_1;
 		NullCheck(L_36);
@@ -7357,14 +6794,12 @@ IL_0085:
 		}
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:52>
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_37 = V_4;
 		V_1 = L_37;
 	}
 
 IL_008f:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:55>
 		U3CU3Ec__DisplayClass5_0_tAE5229FA2486EA375EA2E7C0D014785D19289D9B* L_38 = V_0;
 		StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* L_39 = V_1;
 		NullCheck(L_38);
@@ -7374,14 +6809,12 @@ IL_008f:
 
 IL_0096:
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:58>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_40 = __this->___callbackHelper;
 		U3CU3Ec__DisplayClass5_0_tAE5229FA2486EA375EA2E7C0D014785D19289D9B* L_41 = V_0;
 		Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_42 = (Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)il2cpp_codegen_object_new(Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07_il2cpp_TypeInfo_var);
 		Action__ctor_mBDC7B0B4A3F583B64C2896F01BDED360772F67DC(L_42, L_41, (intptr_t)((void*)U3CU3Ec__DisplayClass5_0_U3COnMultipleMediaReceivedU3Eb__0_m6E894223713913587A5A8F533F621719D7DF949D_RuntimeMethod_var), NULL);
 		NullCheck(L_40);
 		NGCallbackHelper_CallOnMainThread_mF7F169DC018B729E70CDD5017BA99B7F3DBA54D8(L_40, L_42, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:59>
 		return;
 	}
 }
@@ -7393,7 +6826,6 @@ IL_0096:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61906
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_mC570477CEA424C12BDAE3117665FE99C9D0EA387 (U3CU3Ec__DisplayClass4_0_tD80C32708DF9E47C151599335772558DC8B3D9E8* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7401,7 +6833,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0__ctor_mC570477C
 		return;
 	}
 }
-// Method Definition Index: 61907
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3COnMediaReceivedU3Eb__0_mD53F98485F21EB4840C5FC510F8A15C1E9D9489B (U3CU3Ec__DisplayClass4_0_tD80C32708DF9E47C151599335772558DC8B3D9E8* __this, const RuntimeMethod* method) 
 {
 	MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* G_B2_0 = NULL;
@@ -7409,7 +6840,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass4_0_U3COnMediaRecei
 	String_t* G_B3_0 = NULL;
 	MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* G_B3_1 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:23>
 		NGMediaReceiveCallbackAndroid_tB8DDBFAD614592BF98999BEAC00A75E0D420CC52* L_0 = __this->___U3CU3E4__this;
 		NullCheck(L_0);
 		MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* L_1 = L_0->___callback;
@@ -7451,7 +6881,6 @@ IL_0021:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61908
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m7E74F3E4FBDB854C815800DE26A4F447CBBE6E91 (U3CU3Ec__DisplayClass5_0_tAE5229FA2486EA375EA2E7C0D014785D19289D9B* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7459,7 +6888,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0__ctor_m7E74F3E4
 		return;
 	}
 }
-// Method Definition Index: 61909
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0_U3COnMultipleMediaReceivedU3Eb__0_m6E894223713913587A5A8F533F621719D7DF949D (U3CU3Ec__DisplayClass5_0_tAE5229FA2486EA375EA2E7C0D014785D19289D9B* __this, const RuntimeMethod* method) 
 {
 	MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* G_B2_0 = NULL;
@@ -7468,7 +6896,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass5_0_U3COnMultipleMe
 	StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* G_B4_0 = NULL;
 	MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* G_B4_1 = NULL;
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGMediaReceiveCallbackAndroid.cs:58>
 		NGMediaReceiveCallbackAndroid_tB8DDBFAD614592BF98999BEAC00A75E0D420CC52* L_0 = __this->___U3CU3E4__this;
 		NullCheck(L_0);
 		MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* L_1 = L_0->___callbackMultiple;
@@ -7520,7 +6947,6 @@ IL_0025:
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61910
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGPermissionCallbackAndroid__ctor_mCA109C7756DB9FECDF9EC9DD6054A157E7555DFA (NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB* __this, PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* ___0_callback, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7531,23 +6957,18 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGPermissionCallbackAndroid__ctor_mCA109
 		s_Il2CppMethodInitialized = true;
 	}
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:11>
 		il2cpp_codegen_runtime_class_init_inline(AndroidJavaProxy_tE5521F9761F7B95444B9C39FB15FDFC23F80A78D_il2cpp_TypeInfo_var);
 		AndroidJavaProxy__ctor_m2832886A0E1BBF6702653A7C6A4609F11FB712C7(__this, _stringLiteral1797A6EC252879FB0D0CD0D8E0F03D8E0BBA57F2, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:13>
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_0 = ___0_callback;
 		__this->___callback = L_0;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___callback), (void*)L_0);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:14>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_1;
 		L_1 = NGCallbackHelper_Create_m58145FBA2C12E8F3CD3FD51E0B84B203AE753EFF((bool)1, NULL);
 		__this->___callbackHelper = L_1;
 		Il2CppCodeGenWriteBarrier((void**)(&__this->___callbackHelper), (void*)L_1);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:15>
 		return;
 	}
 }
-// Method Definition Index: 61911
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGPermissionCallbackAndroid_OnPermissionResult_mD0CDC84DE59FF176ECF2171C036A483E7FD771F2 (NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB* __this, int32_t ___0_result, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -7571,14 +6992,12 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGPermissionCallbackAndroid_OnPermission
 		int32_t L_3 = ___0_result;
 		NullCheck(L_2);
 		L_2->___result = L_3;
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:20>
 		NGCallbackHelper_t66F469013909FD93F5CEDB7C9C6689E79EB4605E* L_4 = __this->___callbackHelper;
 		U3CU3Ec__DisplayClass3_0_t020F1DFD0CD588019C6FD1736FB7C294D4DAE006* L_5 = V_0;
 		Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* L_6 = (Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07*)il2cpp_codegen_object_new(Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07_il2cpp_TypeInfo_var);
 		Action__ctor_mBDC7B0B4A3F583B64C2896F01BDED360772F67DC(L_6, L_5, (intptr_t)((void*)U3CU3Ec__DisplayClass3_0_U3COnPermissionResultU3Eb__0_m78027D083BADD9057416D5F68424A7A767891E9E_RuntimeMethod_var), NULL);
 		NullCheck(L_4);
 		NGCallbackHelper_CallOnMainThread_mF7F169DC018B729E70CDD5017BA99B7F3DBA54D8(L_4, L_6, NULL);
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:21>
 		return;
 	}
 }
@@ -7590,7 +7009,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void NGPermissionCallbackAndroid_OnPermission
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 61912
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m53F4C0D4B2B85BF7D6DBA7CD0940805730773296 (U3CU3Ec__DisplayClass3_0_t020F1DFD0CD588019C6FD1736FB7C294D4DAE006* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7598,11 +7016,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0__ctor_m53F4C0D4
 		return;
 	}
 }
-// Method Definition Index: 61913
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3COnPermissionResultU3Eb__0_m78027D083BADD9057416D5F68424A7A767891E9E (U3CU3Ec__DisplayClass3_0_t020F1DFD0CD588019C6FD1736FB7C294D4DAE006* __this, const RuntimeMethod* method) 
 {
 	{
-		//<source_info:./Library/PackageCache/com.yasirkula.nativegallery@e05fc5a14fe5/Plugins/NativeGallery/Android/NGPermissionCallbackAndroid.cs:20>
 		NGPermissionCallbackAndroid_t6824CF0103F77A92558E94C46463D4DECB491EEB* L_0 = __this->___U3CU3E4__this;
 		NullCheck(L_0);
 		PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* L_1 = L_0->___callback;
@@ -7639,7 +7055,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void U3CU3Ec__DisplayClass3_0_U3COnPermission
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-// Method Definition Index: 697
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline (String_t* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7647,13 +7062,11 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t String_get_Length_m42625D
 		return L_0;
 	}
 }
-// Method Definition Index: 61864
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void MediaSaveCallback_Invoke_mD97247E7132D61D5D8C1E3063FEF0C09205E925C_inline (MediaSaveCallback_tEAA0B6F692AE0F92C02E21CDDB75ADFF4D89CD1D* __this, bool ___0_success, String_t* ___1_path, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, bool, String_t*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_success, ___1_path, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 44867
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Rect__ctor_m18C3033D135097BEE424AAA68D91C706D2647F23_inline (Rect_tA04E0F8A1830E767F40FB27ECD8D309303571F0D* __this, float ___0_x, float ___1_y, float ___2_width, float ___3_height, const RuntimeMethod* method) 
 {
 	{
@@ -7668,31 +7081,26 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Rect__ctor_m18C3033D135097BE
 		return;
 	}
 }
-// Method Definition Index: 61868
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void MediaPickCallback_Invoke_m25F1FD61CF9FE4C835CD3298D790CBB61691BC4E_inline (MediaPickCallback_tC207F6F3EEE18F64B03E23D5C9FA8C79517A5EB6* __this, String_t* ___0_path, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, String_t*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_path, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 61872
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void MediaPickMultipleCallback_Invoke_m5FE7D489E8659411C7E24DB7E892B439C9990F3D_inline (MediaPickMultipleCallback_t717A5D378751E2CACB53E6BA25386FF8DB41627B* __this, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248* ___0_paths, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, StringU5BU5D_t7674CD946EC0CE7B3AE0BE70E6EE85F2ECD9F248*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_paths, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 871
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void Action_Invoke_m7126A54DACA72B845424072887B5F3A51FC3808E_inline (Action_tD00B0A84D7945E50C2DFFC28EFEE6ED44ED2AD07* __this, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 61860
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR void PermissionCallback_Invoke_mDFCBF3C4C5BFC95CBDC25A75169BA876EE76BB40_inline (PermissionCallback_t43E69EC9D59F3ADAC411FBE19A499BCB840180D4* __this, int32_t ___0_permission, const RuntimeMethod* method) 
 {
 	typedef void (*FunctionPointerType) (RuntimeObject*, int32_t, const RuntimeMethod*);
 	((FunctionPointerType)__this->___invoke_impl)((Il2CppObject*)__this->___method_code, ___0_permission, reinterpret_cast<RuntimeMethod*>(__this->___method));
 }
-// Method Definition Index: 4824
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Task_1_t8DED34447688BFCF5112B0D05D5A80CED94E4BFB* TaskCompletionSource_1_get_Task_mB4A2FF75AC28BB6E3B7A55129E9CD347E5F06FDC_gshared_inline (TaskCompletionSource_1_tF8DA32849B904AE4F51ECAF6C6D7FA080481A35A* __this, const RuntimeMethod* method) 
 {
 	{
@@ -7700,7 +7108,6 @@ IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR Task_1_t8DED34447688BFCF5112B0D05
 		return L_0;
 	}
 }
-// Method Definition Index: 3228
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* Array_Empty_TisRuntimeObject_mFB8A63D602BB6974D31E20300D9EB89C6FE7C278_gshared_inline (const RuntimeMethod* method) 
 {
 	il2cpp_rgctx_method_init(method);

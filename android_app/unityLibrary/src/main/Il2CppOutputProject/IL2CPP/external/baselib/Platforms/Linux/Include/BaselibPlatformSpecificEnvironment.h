@@ -14,7 +14,7 @@ enum { Baselib_SystemSemaphore_PlatformSize = 32 }; // sem_t; 32 bytes
 
 // Enable LLSC native support for supported compilers and architectures/profiles
 #ifndef PLATFORM_HAS_NATIVE_LLSC
-    #if COMPILER_CLANG && (defined(__arm__) || defined(__arm64__))
+    #if COMPILER_CLANG && (defined(__arm__) || defined(__aarch64__))
         #define PLATFORM_HAS_NATIVE_LLSC 1
     #else
         #define PLATFORM_HAS_NATIVE_LLSC 0

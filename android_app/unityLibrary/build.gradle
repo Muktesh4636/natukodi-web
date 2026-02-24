@@ -3,38 +3,38 @@ apply from: '../shared/keepUnitySymbols.gradle'
 apply from: '../shared/common.gradle'
 
 dependencies {
-    api files('libs/unity-classes.jar')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation(name: 'NativeGallery', ext:'aar')
     implementation(name: 'NativeKeyboard', ext:'aar')
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.core:core:1.9.0'
-    implementation 'androidx.games:games-activity:3.0.5'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.games:games-activity:3.0.5'
     implementation 'androidx.games:games-frame-pacing:2.1.2'
 }
 
 android {
     namespace "com.unity3d.player"
-//    ndkPath "C:/Program Files/Unity/Hub/Editor/6000.2.10f1/Editor/Data/PlaybackEngines/AndroidPlayer/NDK"
-//    ndkVersion "27.2.12479018"
-    compileSdk 36
+    ndkPath "/Applications/Unity/Hub/Editor/6000.3.8f1/PlaybackEngines/AndroidPlayer/NDK"
+    ndkVersion "27.2.12479018"
+    compileSdk 34
     buildToolsVersion = "36.0.0"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
         consumerProguardFiles "proguard-unity.txt"
         versionName "0.1"
-        minSdk 23
-        targetSdk 36
+        minSdk 25
+        targetSdk 34
         versionCode 1
 
         ndk {
             abiFilters "arm64-v8a"
-            debugSymbolLevel "symbol_table"
+            debugSymbolLevel "none"
         }
 
         externalNativeBuild {
@@ -61,14 +61,12 @@ android {
 }
 
 
-/*
 android.externalNativeBuild {
     cmake {
         version "3.22.1"
         path "src/main/cpp/CMakeLists.txt"
     }
 }
-*/
 android.buildFeatures {
     prefab true
 }
@@ -77,11 +75,9 @@ android {
     tasks.register('buildIl2Cpp') {
         def workingDir = projectDir.toString().replaceAll('\\\\', '/');
         def archs = [
-            'armv7' : 'armeabi-v7a',
             'arm64' : 'arm64-v8a'
         ]
         def staticLibs = [
-            'armv7' : [  ],
             'arm64' : [  ]
         ]
         inputs.files fileTree(dir: 'src/main/Il2CppOutputProject', include: ['**/*'])
@@ -92,8 +88,13 @@ android {
         }
         doLast {
             // skipIl2CppBuild used for testing purposes
-            if (project.hasProperty("skipIl2CppBuild")) {
-                println("Skipping il2cpp build, keeping existing files.")
+            if (project.hasProperty("skipIl2CppBuild") && project.getProperty("skipIl2CppBuild") == "true") {
+                println("Skipping il2cpp build, creating dummy files.")
+                archs.each { arch, abi ->
+                    {
+                        file(getIl2CppOutputPath(workingDir, abi)).write("DummyBinary")
+                        file(getIl2CppSymbolPath(workingDir, abi)).write("DummySymbols")
+                    }}
             }
             else {
                 archs.each { arch, abi ->
@@ -104,10 +105,13 @@ android {
     }
 
     afterEvaluate {
-        if (project(':unityLibrary').tasks.findByName('mergeDebugJniLibFolders'))
-            project(':unityLibrary').mergeDebugJniLibFolders.dependsOn buildIl2Cpp
-        if (project(':unityLibrary').tasks.findByName('mergeReleaseJniLibFolders'))
-            project(':unityLibrary').mergeReleaseJniLibFolders.dependsOn buildIl2Cpp
+        android.libraryVariants.all  { variant ->
+            def mergeTaskName = "merge${variant.name.capitalize()}JniLibFolders"
+            def mergeTask = tasks.findByName(mergeTaskName)
+            if (mergeTask != null) {
+                mergeTask.dependsOn buildIl2Cpp
+            }
+        }
     }
     sourceSets {
         main {
@@ -140,7 +144,7 @@ def buildIl2CppImpl(String workingDir, String configuration, String architecture
     commandLineArgs.add("--incremental-g-c-time-slice=3")
     commandLineArgs.add("--configuration=${configuration}")
     commandLineArgs.add("--dotnetprofile=unityaot-linux")
-    commandLineArgs.add("--usymtool-path=${workingDir}/src/main/Il2CppOutputProject/usymtool.exe")
+    commandLineArgs.add("--usymtool-path=${workingDir}/src/main/Il2CppOutputProject/usymtool")
     commandLineArgs.add("--profiler-report")
     commandLineArgs.add("--profiler-output-file=${workingDir}/build/il2cpp_${abi}_${configuration}/il2cpp_conv.traceevents")
     commandLineArgs.add("--print-command-line")
@@ -160,7 +164,7 @@ def buildIl2CppImpl(String workingDir, String configuration, String architecture
         commandLineArgs = commandLineArgs*.replace('\"', '\\\"')
     }
 
-    def command = "${workingDir}/src/main/Il2CppOutputProject/IL2CPP/build/deploy/il2cpp${executableExtension}";
+    def command = "/Applications/Unity/Hub/Editor/6000.3.8f1/Unity.app/Contents/Resources/Scripting/il2cpp/build/deploy/il2cpp${executableExtension}";
     execCommand(workingDir, [command, *commandLineArgs], [
         "ANDROID_SDK_ROOT": getProperty("unity.androidSdkPath"),
         "ANDROID_NDK_ROOT": getProperty("unity.androidNdkPath"),

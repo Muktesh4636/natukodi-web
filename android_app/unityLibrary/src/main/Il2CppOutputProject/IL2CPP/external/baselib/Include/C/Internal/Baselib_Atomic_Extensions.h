@@ -18,7 +18,7 @@
 // On architectures where read-modify-write with memory_order_acq_rel is more expensive than memory_order_release
 // the idea is to use a global memory_order_acquire fence instead, but only when the reference count drops to 0.
 // Only then the acquire/release synchronization is needed to make sure everything prior to atomic_release happens before running a d'tor.
-#if defined(__arm__) || defined(__arm64__) || defined(_M_ARM) || defined(_M_ARM64)
+#if defined(__arm__) || defined(__aarch64__) || defined(_M_ARM) || defined(_M_ARM64)
 
 static FORCE_INLINE bool Baselib_atomic_ref_dec_16_v(void* obj)
 {

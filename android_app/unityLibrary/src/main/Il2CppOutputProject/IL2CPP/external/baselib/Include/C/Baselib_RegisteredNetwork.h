@@ -392,6 +392,17 @@ BASELIB_API void Baselib_RegisteredNetwork_Socket_UDP_Close(
     Baselib_RegisteredNetwork_Socket_UDP socket
 );
 
+BASELIB_API void Baselib_RegisteredNetwork_Socket_UDP_SetIPv4DontFragHeader(
+    Baselib_RegisteredNetwork_Socket_UDP socket,
+    bool set,
+    Baselib_ErrorState* errorState
+);
+
+BASELIB_API bool Baselib_RegisteredNetwork_Socket_UDP_GetIPv4DontFragHeader(
+    Baselib_RegisteredNetwork_Socket_UDP socket,
+    Baselib_ErrorState* errorState
+);
+
 // ------------------------------------------------------------------------------------------------
 
 #ifdef __cplusplus

@@ -116,6 +116,11 @@ namespace baselib
                 return Baselib_Thread_GetCurrentThreadId();
             }
 
+            inline bool IsInitialized()
+            {
+                return thread != nullptr;
+            }
+
         private:
             Baselib_Thread* thread = nullptr;
 

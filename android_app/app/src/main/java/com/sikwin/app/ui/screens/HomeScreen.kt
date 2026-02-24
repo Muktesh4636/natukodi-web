@@ -189,7 +189,7 @@ fun HomeScreen(
                     // Search Results
                     SectionHeader(title = stringResource(R.string.search_results))
                     val games = listOf(
-                        GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0))
+                        GameItem("GUNDU ATA", "gundu_ata", Color(0xFF1565C0))
                     ).filter { it.name.contains(searchQuery, ignoreCase = true) }
                     
                     if (games.isNotEmpty()) {
@@ -289,7 +289,7 @@ fun HomeTopBar(
             Spacer(modifier = Modifier.width(4.dp))
             
             Text(
-                text = "Gundu Ata",
+                text = "GUNDU ATA",
                 style = androidx.compose.ui.text.TextStyle(
                     brush = textShimmerBrush,
                     fontSize = 22.sp,
@@ -531,7 +531,7 @@ fun HotGamesGrid(
     onNavigate: (String) -> Unit,
     onRequireLogin: () -> Unit
 ) {
-    val games = listOf(GameItem("Gundu Ata", "gundu_ata", Color(0xFF1565C0)))
+    val games = listOf(GameItem("GUNDU ATA", "gundu_ata", Color(0xFF1565C0)))
     val context = LocalContext.current
     
     // List of fake winning names and amounts
@@ -680,7 +680,7 @@ fun HotGamesGrid(
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .offset(y = 28.dp, x = 4.dp),
+                .offset(y = 28.dp, x = (-16).dp),
             contentAlignment = Alignment.BottomCenter
         ) {
             if (!showPopup) {
@@ -688,7 +688,7 @@ fun HotGamesGrid(
                     onClick = { supportMenuExpanded = true; supportMenuClosing = false },
                     modifier = Modifier
                         .size(48.dp)
-                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                        .background(SurfaceColor, CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.SupportAgent,
@@ -741,12 +741,23 @@ fun HotGamesGrid(
                             },
                             modifier = Modifier.size(52.dp)
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_whatsapp),
-                                contentDescription = "WhatsApp",
-                                modifier = Modifier.size(40.dp),
-                                tint = Color(0xFF25D366)
-                            )
+                            Surface(
+                                shape = CircleShape,
+                                color = Color(0xFF25D366).copy(alpha = 0.2f),
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_whatsapp),
+                                        contentDescription = "WhatsApp",
+                                        modifier = Modifier.size(26.dp),
+                                        tint = Color(0xFF25D366)
+                                    )
+                                }
+                            }
                         }
                         IconButton(
                             onClick = {
@@ -759,12 +770,23 @@ fun HotGamesGrid(
                             },
                             modifier = Modifier.size(52.dp)
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_telegram),
-                                contentDescription = "Telegram",
-                                modifier = Modifier.size(40.dp),
-                                tint = Color(0xFF0088cc)
-                            )
+                            Surface(
+                                shape = CircleShape,
+                                color = Color(0xFF0088cc).copy(alpha = 0.2f),
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_telegram),
+                                        contentDescription = "Telegram",
+                                        modifier = Modifier.size(26.dp),
+                                        tint = Color(0xFF0088cc)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -1043,7 +1065,7 @@ fun HomeBottomNavigation(currentRoute: String, viewModel: GunduAtaViewModel, onN
     ) {
         val items = listOf(
             BottomNavItem("Home", "home", Icons.Default.Home),
-            BottomNavItem("Gundu Ata", "gundu_ata", Icons.Default.Casino),
+            BottomNavItem("GUNDU ATA", "gundu_ata", Icons.Default.Casino),
             BottomNavItem("Me", "me", Icons.Default.AccountCircle)
         )
         

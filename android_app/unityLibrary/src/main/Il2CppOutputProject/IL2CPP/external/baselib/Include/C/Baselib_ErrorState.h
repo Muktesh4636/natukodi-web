@@ -105,7 +105,7 @@ typedef enum Baselib_ErrorState_ExplainVerbosity
     // Include error type with platform specific value (if specified).
     Baselib_ErrorState_ExplainVerbosity_ErrorType = 0,
     // Include error type with platform specific value (if specified),
-    // source location (subject to BASELIB_ENABLE_SOURCELOCATION define) and an error explanation if available.
+    // source location and an error explanation if available.
     Baselib_ErrorState_ExplainVerbosity_ErrorType_SourceLocation_Explanation = 1,
 } Baselib_ErrorState_ExplainVerbosity;
 BASELIB_ENUM_ENSURE_ABI_COMPATIBILITY(Baselib_ErrorState_ExplainVerbosity);

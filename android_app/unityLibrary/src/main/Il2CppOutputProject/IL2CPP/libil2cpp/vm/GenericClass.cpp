@@ -228,6 +228,8 @@ namespace vm
 
             klass->is_import_or_windows_runtime = definition->is_import_or_windows_runtime;
 
+            klass->genericContainerHandle = definition->genericContainerHandle;
+
             // Do not update gclass->cached_class until `klass` is fully initialized
             // And do so with an atomic barrier so no threads observer the writes out of order
             il2cpp::os::Atomic::ExchangePointer(&gclass->cached_class, klass);
@@ -241,7 +243,7 @@ namespace vm
         return &gclass->context;
     }
 
-    Il2CppClass* GenericClass::GetTypeDefinition(Il2CppGenericClass *gclass)
+    Il2CppClass* GenericClass::GetTypeDefinition(const Il2CppGenericClass *gclass)
     {
         return MetadataCache::GetTypeInfoFromType(gclass->type);
     }

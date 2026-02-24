@@ -87,6 +87,9 @@ interface ApiService {
     @GET("auth/leaderboard/")
     suspend fun getLeaderboard(): Response<Map<String, Any>>
 
+    @POST("auth/register-fcm-token/")
+    suspend fun registerFcmToken(@Body data: Map<String, String>): Response<Map<String, Any>>
+
     @GET("game/round/")
     suspend fun getCurrentRound(): Response<Map<String, Any>>
 

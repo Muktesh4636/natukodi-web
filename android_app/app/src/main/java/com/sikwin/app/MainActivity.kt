@@ -1,9 +1,12 @@
 package com.sikwin.app
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import android.content.Intent
 import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +25,24 @@ import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModelFactory
 
 class MainActivity : AppCompatActivity() {
+    private val requestNotificationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         com.sikwin.app.data.prefs.LanguagePreferences(this).applySavedLocale()
         super.onCreate(savedInstanceState)
+
+        // Request notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         
         val sessionManager = SessionManager(this)
         RetrofitClient.init(sessionManager)
+        
+        // CRITICAL: Sync tokens to Unity on every app launch (cold start or new intent)
+        sessionManager.syncAuthToUnity()
         
         // Handle incoming logout request from Unity or other sources
         handleIntent(intent, sessionManager)
@@ -75,6 +90,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Proactively sync tokens whenever the app comes to foreground
+        try {
+            SessionManager(this).syncAuthToUnity()
+        } catch (e: Exception) {}
     }
 
     override fun onPause() {

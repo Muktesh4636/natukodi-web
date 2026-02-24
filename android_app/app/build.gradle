@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    // Uncomment when you add google-services.json from Firebase Console
+    // id 'com.google.gms.google-services'
 }
 
 android {
@@ -9,10 +11,11 @@ android {
 
     defaultConfig {
         applicationId "com.sikwin.app"
-        minSdk 24
+        minSdk 25
         targetSdk 34
         versionCode 1
         versionName "1.0"
+        archivesBaseName = "Gundu Ata"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += ["en", "te", "hi"]
@@ -93,6 +96,10 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 
+    // Firebase Cloud Messaging - uncomment when you add google-services.json
+    // implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    // implementation 'com.google.firebase:firebase-messaging-ktx'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -102,4 +109,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
     implementation project(':unityLibrary')
+    // Unity plugins - must be in app since unityLibrary can't have local AAR deps (AGP 8)
+    implementation(name: 'NativeGallery', ext:'aar')
+    implementation(name: 'NativeKeyboard', ext:'aar')
 }

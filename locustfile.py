@@ -10,9 +10,9 @@ class GameUser(HttpUser):
 
     def on_start(self):
         """Login when user starts and ensure they have balance"""
-        user_id = random.randint(1, 1000)
+        user_id = random.randint(0, 499)  # testuser_0 to testuser_499 for 500 users
         username = f"testuser_{user_id}"
-        password = "password123"
+        password = "testpassword123"
 
         # 1. Login or Signup
         with self.client.post("/api/auth/login/", json={
@@ -24,19 +24,8 @@ class GameUser(HttpUser):
                 self.token = data.get("access")
                 self.client.headers.update({"Authorization": f"Bearer {self.token}"})
             elif response.status_code == 401:
-                # Signup if user doesn't exist
-                with self.client.post("/api/auth/signup/", json={
-                    "username": username,
-                    "password": password,
-                    "phone_number": f"91000{user_id:05d}",
-                    "otp_code": "1234"
-                }, catch_response=True) as signup_resp:
-                    if signup_resp.status_code in [200, 201]:
-                        data = signup_resp.json()
-                        self.token = data.get("access")
-                        self.client.headers.update({"Authorization": f"Bearer {self.token}"})
-                    else:
-                        signup_resp.failure(f"Signup failed: {signup_resp.text}")
+                # User not found - run: python scripts/create_test_users.py 500
+                response.failure(f"User {username} not found. Run: python scripts/create_test_users.py 500")
             else:
                 response.failure(f"Login failed: {response.status_code}")
 

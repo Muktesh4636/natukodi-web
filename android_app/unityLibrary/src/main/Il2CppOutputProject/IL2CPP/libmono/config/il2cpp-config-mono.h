@@ -13,8 +13,6 @@
 #include "il2cpp-config-mono-osx.h"
 #elif IL2CPP_TARGET_LINUX
 #include "il2cpp-config-mono-linux.h"
-#elif IL2CPP_TARGET_QNX
-#include "il2cpp-config-mono-qnx.h"
 #elif IL2CPP_TARGET_ANDROID
 #include "il2cpp-config-mono-android.h"
 #elif IL2CPP_TARGET_JAVASCRIPT

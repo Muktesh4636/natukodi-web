@@ -273,6 +273,38 @@ BASELIB_API void Baselib_Socket_Close(
     Baselib_Socket_Handle           socket
 );
 
+// Attempts to set the DON'T FRAGMENT header on an IPv4 socket.
+// This prevents the packet from being fragmented along the route,
+// which is useful for path MTU discovery and can provide improved network
+// performance so long as no packets exceed the path MTU.
+// Only available on IPv4 UDP sockets on certain platforms.
+//
+// Possible error codes:
+// - Baselib_ErrorCode_NotSupported: The current platform does not support user setting of the Don't Fragment header.
+// - Baselib_ErrorCode_InvalidSocketType: The socket is not a UDP socket.
+// - Baselib_ErrorCode_InvalidAddressFamily: The socket is not an IPv4 socket.
+//
+// The order that these error conditions are checked is always socket type, address family, platform support.
+BASELIB_API void Baselib_Socket_SetIPv4DontFragHeader(
+    Baselib_Socket_Handle           socket,
+    bool                            set,
+    Baselib_ErrorState*             errorState
+);
+
+// Retrieves the current value of the DON'T FRAGMENT header for an IPv4 socket.
+// Only available on IPv4 UDP sockets on certain platforms.
+//
+// Possible error codes:
+// - Baselib_ErrorCode_NotSupported: The current platform does not support user setting of the Don't Fragment header.
+// - Baselib_ErrorCode_InvalidSocketType: The socket is not a UDP socket.
+// - Baselib_ErrorCode_InvalidAddressFamily: The socket is not an IPv4 socket.
+//
+// The order that these error conditions are checked is always socket type, address family, platform support.
+BASELIB_API bool Baselib_Socket_GetIPv4DontFragHeader(
+    Baselib_Socket_Handle           socket,
+    Baselib_ErrorState*             errorState
+);
+
 #ifdef __cplusplus
 }
 #endif

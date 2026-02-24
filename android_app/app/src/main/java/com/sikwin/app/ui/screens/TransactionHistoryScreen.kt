@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.sikwin.app.R
+import com.sikwin.app.data.models.DepositRequest
+import com.sikwin.app.data.models.WithdrawRequest
 import com.sikwin.app.ui.theme.*
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
 
@@ -266,13 +268,13 @@ fun TransactionHistoryScreen(
                     "Deposit" -> {
                         items(filteredDeposits.size) { index ->
                             val dep = filteredDeposits[index]
-                            TransactionItem("Deposit #${dep.id} (${dep.status})", dep.amount, dep.created_at)
+                            DepositItem(dep = dep)
                         }
                     }
                     "Withdraw" -> {
                         items(filteredWithdrawals.size) { index ->
                             val wd = filteredWithdrawals[index]
-                            TransactionItem("Withdrawal #${wd.id} (${wd.status})", wd.amount, wd.created_at)
+                            WithdrawItem(wd = wd)
                         }
                     }
                 }
@@ -284,6 +286,96 @@ fun TransactionHistoryScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(stringResource(R.string.no_data_available), color = TextGrey, fontSize = 16.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun DepositItem(dep: DepositRequest) {
+    val isRejected = dep.status == "REJECTED"
+    val hasRejectionNote = !dep.admin_note.isNullOrBlank()
+    Surface(
+        color = SurfaceColor,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Deposit #${dep.id} (${dep.status})",
+                        color = if (isRejected) Color.Red else TextWhite,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(dep.created_at, color = TextGrey, fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "₹ ${dep.amount}",
+                    color = PrimaryYellow,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.widthIn(min = 80.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                )
+            }
+            if (isRejected && hasRejectionNote) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = dep.admin_note!!,
+                    color = TextGrey,
+                    fontSize = 13.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WithdrawItem(wd: WithdrawRequest) {
+    val isRejected = wd.status == "REJECTED"
+    val hasRejectionNote = !wd.admin_note.isNullOrBlank()
+    Surface(
+        color = SurfaceColor,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Withdrawal #${wd.id} (${wd.status})",
+                        color = if (isRejected) Color.Red else TextWhite,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(wd.created_at, color = TextGrey, fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "₹ ${wd.amount}",
+                    color = PrimaryYellow,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.widthIn(min = 80.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                )
+            }
+            if (isRejected && hasRejectionNote) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = wd.admin_note!!,
+                    color = TextGrey,
+                    fontSize = 13.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

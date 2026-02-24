@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,14 +17,18 @@ public class GameApiClient : MonoBehaviour
 {
     [Header("API Config")]
     [Tooltip("Base HTTP URL (no trailing slash)")]
-    [SerializeField] private string baseUrl = "http://159.198.46.36:8232";
+    [SerializeField] private string baseUrl = "https://gunduata.online";
 
     [Tooltip("Base WebSocket URL (ws://host:port/ws/game/)")]
-    [SerializeField] private string wsUrl = "ws://159.198.46.36:8232/ws/game/";
+    [SerializeField] private string wsUrl = "wss://gunduata.online/ws/game/";
 
     // Auth tokens (kept in memory; persist externally if desired)
     private string accessToken = null;
     private string refreshToken = null;
+
+    public string CurrentAccessToken => accessToken;
+    public string CurrentRefreshToken => refreshToken;
+    public bool HasAccessToken => !string.IsNullOrEmpty(accessToken);
 
     // WebSocket
     private WebSocket websocket;
@@ -1910,6 +1914,12 @@ public class GameApiClient : MonoBehaviour
 
     public async void CloseWebSocket()
     {
+        if (connectionMonitorRoutine != null)
+        {
+            StopCoroutine(connectionMonitorRoutine);
+            connectionMonitorRoutine = null;
+        }
+
         try
         {
             await CloseWebSocketAsync();
@@ -1924,25 +1934,25 @@ public class GameApiClient : MonoBehaviour
         }
     }
 
-    // New helper to close and cleanup websocket safely (used by Init and OnDestroy)
     private async System.Threading.Tasks.Task CloseWebSocketAsync()
     {
         if (websocket == null) return;
 
+        Debug.Log("[WS] Closing WebSocket...");
         try
         {
-            // Detach handlers first to avoid native callback into disposed managed objects
-            try
-            {
-                if (wsOnOpen != null) websocket.OnOpen -= wsOnOpen;
-                if (wsOnClose != null) websocket.OnClose -= wsOnClose;
-                if (wsOnError != null) websocket.OnError -= wsOnError;
-                if (wsOnMessage != null) websocket.OnMessage -= wsOnMessage;
-            }
-            catch { /* some transports might throw on -=; ignore safely */ }
+            // Detach handlers first
+            if (wsOnOpen != null) websocket.OnOpen -= wsOnOpen;
+            if (wsOnClose != null) websocket.OnClose -= wsOnClose;
+            if (wsOnError != null) websocket.OnError -= wsOnError;
+            if (wsOnMessage != null) websocket.OnMessage -= wsOnMessage;
 
-            // Close the websocket connection
-            await websocket.Close();
+            // Close with timeout to avoid hangs
+            var closeTask = websocket.Close();
+            if (await System.Threading.Tasks.Task.WhenAny(closeTask, System.Threading.Tasks.Task.Delay(2000)) != closeTask)
+            {
+                Debug.LogWarning("[WS] Close timeout reached, forcing null");
+            }
         }
         catch (Exception ex)
         {
@@ -1950,16 +1960,13 @@ public class GameApiClient : MonoBehaviour
         }
         finally
         {
-            // ensure references removed
-            try
-            {
-                websocket = null;
-            }
-            catch { }
+            websocket = null;
             wsOnOpen = null;
             wsOnClose = null;
             wsOnError = null;
             wsOnMessage = null;
+            wsConnected = false;
+            Debug.Log("[WS] WebSocket cleanup complete");
         }
     }
 
@@ -2082,6 +2089,9 @@ public class GameApiClient : MonoBehaviour
     /// </summary>
     private bool HandleAuthErrors(UnityWebRequest req, Action retryAction)
     {
+        // If the request was successful, no need to check for auth errors.
+        if (req.result == UnityWebRequest.Result.Success) return false;
+
 #if UNITY_2020_1_OR_NEWER
         bool isError = (req.result == UnityWebRequest.Result.ConnectionError || req.result == UnityWebRequest.Result.ProtocolError);
 #else
@@ -2092,6 +2102,14 @@ public class GameApiClient : MonoBehaviour
         long code = req.responseCode;
         if (code == 401)
         {
+            // During early boot Android injects tokens asynchronously.
+            // If refreshToken isn't available yet, don't force "Session expired" and flip UI to login.
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                Debug.Log("[Auth] 401 received but no refresh token available yet. Waiting for injection...");
+                return false;
+            }
+
             // attempt refresh once, then call retryAction if successful
             StartCoroutine(RefreshTokenCoroutine((ok, msg) =>
             {
@@ -2102,7 +2120,11 @@ public class GameApiClient : MonoBehaviour
                 else
                 {
                     Debug.LogWarning("[Auth] Refresh failed: " + msg);
-                    mainThreadQueue.Enqueue(() => OnError?.Invoke("Session expired. Please login again."));
+                    // Only show error if we actually had a refresh token but it failed.
+                    if (!string.IsNullOrEmpty(refreshToken))
+                    {
+                        mainThreadQueue.Enqueue(() => OnError?.Invoke("Session expired. Please login again."));
+                    }
                 }
             }));
             return true;
@@ -2121,6 +2143,40 @@ public class GameApiClient : MonoBehaviour
     #endregion
 
     #region Convenience wrappers
+
+    /// <summary>Set access and refresh tokens (e.g. from Android/Kotlin). Refresh can be null if not available.</summary>
+    public void SetAccessAndRefreshToken(string json)
+    {
+        Debug.Log("[GameApiClient] SetAccessAndRefreshToken called with JSON: " + json);
+        try
+        {
+            var obj = JObject.Parse(json);
+            string access = obj["accessToken"]?.ToString() ?? obj["access"]?.ToString() ?? obj["auth_token"]?.ToString();
+            string refresh = obj["refreshToken"]?.ToString() ?? obj["refresh"]?.ToString() ?? obj["refresh_token"]?.ToString();
+            
+            if (!string.IsNullOrEmpty(access))
+            {
+                accessToken = access;
+                refreshToken = refresh;
+                Debug.Log("[GameApiClient] Tokens updated successfully from JSON. Access length: " + access.Length);
+                
+                // If we are in the login scene, this might trigger a transition
+                isPlayerLoggedIn = true;
+                OnLoginSuccess?.Invoke();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[GameApiClient] SetAccessAndRefreshToken parse error: " + ex.Message);
+        }
+    }
+
+    public void SetTokens(string access, string refresh)
+    {
+        Debug.Log($"[GameApiClient] SetTokens called. Access length: {(access?.Length ?? -1)}, Refresh length: {(refresh?.Length ?? -1)}");
+        accessToken = access;
+        refreshToken = refresh;
+    }
 
     public void Register(string username, string password, string cnfPassword, Action<bool, RegisterationErrorResponse, string> callback = null) =>
         StartCoroutine(RegisterCoroutine(username, password, cnfPassword, callback));
@@ -2198,6 +2254,28 @@ public class GameApiClient : MonoBehaviour
         if (websocket.State != WebSocketState.Open) return false;
         if ((Time.time - lastMessageTime) > MESSAGE_TIMEOUT) return false;
         return true;
+    }
+
+    public void SetBaseUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return;
+        baseUrl = url.TrimEnd('/');
+        Debug.Log("[GameApiClient] Base URL updated to: " + baseUrl);
+    }
+
+    public void SetWsUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return;
+        wsUrl = url;
+        Debug.Log("[GameApiClient] WebSocket URL updated to: " + wsUrl);
+    }
+
+    public void SetApiUrl(string url)
+    {
+        // Many scripts might pass the /api/ suffix, we handle it in baseUrl
+        if (string.IsNullOrEmpty(url)) return;
+        baseUrl = url.Replace("/api/", "").TrimEnd('/');
+        Debug.Log("[GameApiClient] Base URL (from ApiUrl) updated to: " + baseUrl);
     }
 
     #endregion

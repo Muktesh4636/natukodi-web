@@ -6,6 +6,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('otp/send/', views.send_otp, name='send_otp'),
     path('otp/verify-login/', views.verify_otp_login, name='verify_otp_login'),
+    path('password/reset/', views.reset_password, name='reset_password'),
     path('profile/', views.profile, name='profile'),
     path('wallet/', views.WalletView.as_view(), name='wallet'),
     path('transactions/', views.TransactionList.as_view(), name='transactions'),

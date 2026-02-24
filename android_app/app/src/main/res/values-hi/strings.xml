@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">गुंडू आटा</string>
+    <string name="app_name">Gundu Ata</string>
     
     <!-- Common -->
     <string name="back">वापस</string>
@@ -47,8 +47,9 @@
     <string name="login_required">लॉगिन आवश्यक</string>
     <string name="login_required_message">गुंडू आटा गेम एक्सेस करने और जीतने के लिए कृपया साइन अप करें!</string>
     <string name="welcome_back">वापस स्वागत है</string>
-    <string name="login_subtitle">लॉगिन करने के लिए अपना फोन नंबर और पासवर्ड दर्ज करें</string>
+    <string name="login_subtitle">लॉगिन करने के लिए अपना यूजरनेम और पासवर्ड दर्ज करें</string>
     <string name="phone_number">फोन नंबर</string>
+    <string name="username">यूजरनेम</string>
     <string name="enter_phone_number">फोन नंबर दर्ज करें</string>
     <string name="password">पासवर्ड</string>
     <string name="enter_password">अपना पासवर्ड दर्ज करें</string>
@@ -234,5 +235,5 @@
     <string name="step_share_code">दोस्तों के साथ अपना कोड शेयर करें</string>
     <string name="step_friend_deposits">दोस्त रजिस्टर करता है और ₹100+ जमा करता है</string>
     <string name="step_get_bonus">आपको तुरंत ₹100 मिलता है!</string>
-    <string name="step_milestone_bonuses">माइलस्टोन बोनस अनलॉक करें: 3 रेफरल → ₹500, 5 और → ₹1000</string>
+    <string name="step_milestone_bonuses">इनाम अनलॉक करें: 3 रेफरल → ₹500, 5 और → ₹1000, 10 → ₹5K, 20 → ₹10K, 30 → मेगा स्पिन (₹1 लाख तक), 50 → ₹25K, 100 → ₹50K</string>
 </resources>

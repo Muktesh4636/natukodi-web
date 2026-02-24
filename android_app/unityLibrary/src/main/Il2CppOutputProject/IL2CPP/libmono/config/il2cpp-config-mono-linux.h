@@ -223,3 +223,12 @@
 #define STDC_HEADERS 1
 #define HAVE_SYS_ENDIAN_H 1
 #define HAVE_COMPLEX_H 1
+/* On glibc with _GNU_SOURCE, strerror_r returns char* (GNU variant).
+ * Define STRERROR_R_CHAR_P here so code that expects it (like gstr.c)
+ * takes the correct branch.
+ */
+#if defined(HAVE_STRERROR_R) && !defined(STRERROR_R_CHAR_P)
+#  if defined(__GLIBC__) && defined(_GNU_SOURCE)
+#    define STRERROR_R_CHAR_P 1
+#  endif
+#endif

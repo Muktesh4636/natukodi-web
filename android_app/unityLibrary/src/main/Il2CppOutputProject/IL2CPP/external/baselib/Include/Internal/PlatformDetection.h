@@ -8,6 +8,8 @@
 
 #if defined(__NX__)
     #define BASELIB_PLATFORM_SWITCH 1
+#elif defined(__NN_OS_GENERIC__)
+    #define BASELIB_PLATFORM_SWITCH2 1
 #elif defined __ORBIS__
     #define BASELIB_PLATFORM_PS4 1
 #elif defined __PROSPERO__

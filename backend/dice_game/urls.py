@@ -67,6 +67,7 @@ urlpatterns = [
     path('api/auth/daily-reward/history/', accounts_views.daily_reward_history, name='daily_reward_history'),
     path('api/auth/lucky-draw/', accounts_views.lucky_draw, name='lucky_draw'),
     path('api/auth/register-fcm-token/', accounts_views.register_fcm_token, name='register_fcm_token'),
+    path('api/auth/password/reset/', accounts_views.reset_password, name='reset_password'),
     
     # APK Download via API (guaranteed to work since API routes come before React)
     path('api/download/apk/', project_views.download_apk, name='api_download_apk'),

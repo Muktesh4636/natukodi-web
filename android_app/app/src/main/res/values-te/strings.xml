@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">గుండు ఆట</string>
+    <string name="app_name">Gundu Ata</string>
     
     <!-- Common -->
     <string name="back">వెనుక</string>
@@ -47,8 +47,9 @@
     <string name="login_required">లాగిన్ అవసరం</string>
     <string name="login_required_message">గుండు ఆట గేమ్ యాక్సెస్ చేయడానికి మరియు గెలవడానికి దయచేసి సైన్ అప్ చేయండి!</string>
     <string name="welcome_back">మళ్ళీ స్వాగతం</string>
-    <string name="login_subtitle">లాగిన్ చేయడానికి మీ ఫోన్ నంబర్ మరియు పాస్‌వర్డ్ నమోదు చేయండి</string>
+    <string name="login_subtitle">లాగిన్ చేయడానికి మీ యూజర్‌నేమ్ మరియు పాస్‌వర్డ్ నమోదు చేయండి</string>
     <string name="phone_number">ఫోన్ నంబర్</string>
+    <string name="username">యూజర్‌నేమ్</string>
     <string name="enter_phone_number">ఫోన్ నంబర్ నమోదు చేయండి</string>
     <string name="password">పాస్‌వర్డ్</string>
     <string name="enter_password">మీ పాస్‌వర్డ్ నమోదు చేయండి</string>
@@ -234,5 +235,5 @@
     <string name="step_share_code">స్నేహితులతో మీ కోడ్ షేర్ చేయండి</string>
     <string name="step_friend_deposits">స్నేహితుడు నమోదు చేసి ₹100+ జమ చేస్తాడు</string>
     <string name="step_get_bonus">మీకు వెంటనే ₹100 లభిస్తుంది!</string>
-    <string name="step_milestone_bonuses">మైల్స్టోన్ బోనస్లను అన్లాక్ చేయండి: 3 రిఫరల్స్ → ₹500, 5 మరింత → ₹1000</string>
+    <string name="step_milestone_bonuses">బహుమతులను అన్లాక్ చేయండి: 3 రిఫరల్స్ → ₹500, 5 మరింత → ₹1000, 10 → ₹5K, 20 → ₹10K, 30 → మెగా స్పిన్ (₹1 లక్ష వరకు), 50 → ₹25K, 100 → ₹50K</string>
 </resources>

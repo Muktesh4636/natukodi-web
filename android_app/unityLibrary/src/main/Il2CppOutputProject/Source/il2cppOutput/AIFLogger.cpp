@@ -250,7 +250,6 @@ inline void Dictionary_2__ctor_mFAF23CD29002CAB23492293F8C8B56962DE7A0B6 (Dictio
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// Method Definition Index: 62430
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog_SetColor_m4002E0003B45BC6913F898F8A56474DAC4CDC47F (RuntimeObject* ___0_obj, String_t* ___1_hexColorCode, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -308,7 +307,6 @@ IL_0037:
 		return;
 	}
 }
-// Method Definition Index: 62431
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* AIFLog_GenerateHexColorString_m8138E4FA059478B7BB9F063C8BDDDF166A7050E2 (RuntimeObject* ___0_obj, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -412,7 +410,6 @@ IL_00a6:
 		return L_30;
 	}
 }
-// Method Definition Index: 62432
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog_HsvToRgb_m8127559E2B9E12B0E73DDF7571D5840B5423A6E6 (double ___0_hue, double ___1_saturation, double ___2_value, int32_t* ___3_red, int32_t* ___4_green, int32_t* ___5_blue, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -710,7 +707,6 @@ IL_0181:
 		return;
 	}
 }
-// Method Definition Index: 62433
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t AIFLog_Clamp_mC7D4EE4D27E8092149E102845E0574051705BFF3 (int32_t ___0_i, const RuntimeMethod* method) 
 {
 	bool V_0 = false;
@@ -758,7 +754,6 @@ IL_0025:
 		return L_5;
 	}
 }
-// Method Definition Index: 62434
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog_Log_m72B8DE8424C4F242DBCC6C478DFAEE148873AA1B (RuntimeObject* ___0_obj, String_t* ___1_message, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -874,7 +869,6 @@ IL_008b:
 		return;
 	}
 }
-// Method Definition Index: 62435
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog_LogFormat_m5422363988DE060F5C63FD17BC1D49C7CE4E8609 (RuntimeObject* ___0_obj, String_t* ___1_message, ObjectU5BU5D_t8061030B0A12A55D5AD8652A20C922FE99450918* ___2_args, const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -894,7 +888,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog_LogFormat_m5422363988DE060F5C63FD
 		return;
 	}
 }
-// Method Definition Index: 62436
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog__cctor_m4DC0AE75E92923C6232EDE2B32A26F61D1C0E136 (const RuntimeMethod* method) 
 {
 	static bool s_Il2CppMethodInitialized;
@@ -916,7 +909,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void AIFLog__cctor_m4DC0AE75E92923C6232EDE2B3
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-// Method Definition Index: 697
 IL2CPP_MANAGED_FORCE_INLINE IL2CPP_METHOD_ATTR int32_t String_get_Length_m42625D67623FA5CC7A44D47425CE86FB946542D2_inline (String_t* __this, const RuntimeMethod* method) 
 {
 	{

@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import com.sikwin.app.utils.Constants
+import com.unity3d.player.UnityTokenHolder
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -63,6 +64,13 @@ fun AppNavigation(
         ProcessLifecycleOwner.get().lifecycle.addObserver(observer)
         onDispose {
             ProcessLifecycleOwner.get().lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Register FCM token when user is logged in (for push notifications)
+    LaunchedEffect(Unit) {
+        if (sessionManager.fetchAuthToken() != null) {
+            viewModel.registerFcmTokenIfNeeded()
         }
     }
 
@@ -212,10 +220,9 @@ fun AppNavigation(
         lastGameLaunchTime = now
         
         try {
-            // Get authentication data
             val authToken = sessionManager.fetchAuthToken()
             val refreshToken = sessionManager.fetchRefreshToken()
-            val username = sessionManager.fetchUsername()
+            android.util.Log.d("AppNavigation", "executeGameLaunch: token=${if (authToken.isNullOrBlank()) "EMPTY" else "${authToken.take(8)}..."}, refresh=${if (refreshToken.isNullOrBlank()) "EMPTY" else "${refreshToken.take(8)}..."}")
             val userId = sessionManager.fetchUserId()
             val isLoggedIn = !authToken.isNullOrBlank()
 
@@ -225,8 +232,6 @@ fun AppNavigation(
                 "com.unity3d.player.UnityPlayerGameActivity"
             )
 
-            val password = sessionManager.fetchPassword()
-            
             // Pass auth/session details (if available) for auto-login.
             intent.putExtra("token", authToken ?: "")
             intent.putExtra("auth_token", authToken ?: "")
@@ -235,12 +240,7 @@ fun AppNavigation(
             intent.putExtra("refresh_token", refreshToken ?: "")
             intent.putExtra("access", authToken ?: "")
             intent.putExtra("refresh", refreshToken ?: "")
-            intent.putExtra("username", username ?: "")
             intent.putExtra("user_id", userId)
-            intent.putExtra("user_pass", password ?: "")
-            if (password != null) {
-                intent.putExtra("password", password)
-            }
             
             intent.putExtra("base_url", Constants.BASE_URL.removeSuffix("api/"))
             intent.putExtra("api_url", Constants.BASE_URL)
@@ -270,6 +270,12 @@ fun AppNavigation(
             viewModel.preLoadedRoundId?.let { intent.putExtra("preloaded_round_id", it) }
             intent.putExtra("preloaded_timestamp", System.currentTimeMillis())
             
+            // CRITICAL: Sync auth to Unity PlayerPrefs BEFORE launch so GameManager.Start can read it
+            sessionManager.syncAuthToUnity()
+
+            // Store tokens in static holder so Unity can read even if Intent is lost (token-only)
+            com.unity3d.player.UnityTokenHolder.setTokens(authToken ?: "", refreshToken ?: "", "", "")
+
             context.startActivity(intent)
         } catch (e: Exception) {
             android.util.Log.e("AppNavigation", "Final launch failed", e)

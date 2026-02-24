@@ -284,7 +284,12 @@ fun AffiliateScreen(
                     val targetVal = next.target ?: next.next_milestone ?: 3
                     val nextRewardAmount = when (targetVal) {
                         3 -> 500
-                        5 -> 1000
+                        5, 8 -> 1000
+                        10 -> 5000
+                        20 -> 10000
+                        30 -> 0  // Mega Spin uses next_bonus_display
+                        50 -> 25000
+                        100 -> 50000
                         else -> next.next_bonus.toInt()
                     }
                     Surface(
@@ -336,13 +341,22 @@ fun AffiliateScreen(
                     }
                 }
 
-                // All Milestones List (3 refs → ₹500, 5 more → ₹1000)
+                // All Milestones List: 3 → ₹500, 5 more (8) → ₹1000, 10 → ₹5K, 20 → ₹10K, 30 → Mega Spin, 50 → ₹25K, 100 → ₹50K
                 referralData?.milestones?.let { milestones ->
-                    milestones.forEachIndexed { index, m ->
+                    milestones.forEach { m ->
                         val displayBonus = when (m.count) {
                             3 -> 500
-                            5 -> 1000
+                            8 -> 1000
+                            10 -> 5000
+                            20 -> 10000
+                            30 -> 0  // Mega Spin - uses bonus_display
+                            50 -> 25000
+                            100 -> 50000
                             else -> m.bonus
+                        }
+                        val (labelResId, labelFormatArgs) = when (m.count) {
+                            8 -> R.string.five_more_referrals to emptyArray<Any>()
+                            else -> R.string.referrals_count to arrayOf<Any>(m.count)
                         }
                         MilestoneCard(
                             count = m.count,
@@ -351,8 +365,8 @@ fun AffiliateScreen(
                             achieved = m.achieved,
                             progressCurrent = m.progress_current,
                             target = m.target,
-                            labelResId = if (index == 1) R.string.five_more_referrals else R.string.referrals_count,
-                            labelFormatArgs = if (index == 1) emptyArray() else arrayOf<Any>(m.count)
+                            labelResId = labelResId,
+                            labelFormatArgs = labelFormatArgs
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

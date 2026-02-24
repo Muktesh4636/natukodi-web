@@ -16,9 +16,11 @@ import androidx.compose.ui.unit.dp
 import com.sikwin.app.R
 import com.sikwin.app.data.auth.SessionManager
 import com.sikwin.app.ui.viewmodels.GunduAtaViewModel
+import com.sikwin.app.utils.UnityTokenHelper
 import android.util.Log
 import android.content.Intent
 import com.unity3d.player.UnityPlayerGameActivity
+import com.unity3d.player.UnityTokenHolder
 
 @Composable
 fun GunduAtaGameScreen(
@@ -36,19 +38,24 @@ fun GunduAtaGameScreen(
 
         val token = sessionManager.fetchAuthToken()
         val refresh = sessionManager.fetchRefreshToken()
-        val username = sessionManager.fetchUsername()
-        val password = sessionManager.fetchPassword()
         val intent = Intent(context, UnityPlayerGameActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (!token.isNullOrBlank()) {
                 putExtra("token", token)
-                putExtra("access_token", token)
                 putExtra("auth_token", token)
+                putExtra("access_token", token)
+                putExtra("access", token)
             }
-            if (!refresh.isNullOrBlank()) putExtra("refresh_token", refresh)
-            if (!username.isNullOrBlank()) putExtra("username", username)
-            if (!password.isNullOrBlank()) putExtra("password", password)
+            if (!refresh.isNullOrBlank()) {
+                putExtra("refresh_token", refresh)
+                putExtra("refresh", refresh)
+            }
         }
+        Log.d(
+            "GunduAtaGameScreen",
+            "Launching Unity with token=${if (token.isNullOrBlank()) "EMPTY" else "present"}, refresh=${if (refresh.isNullOrBlank()) "EMPTY" else "present"}"
+        )
+        com.unity3d.player.UnityTokenHolder.setTokens(token ?: "", refresh ?: "", "", "")
         context.startActivity(intent)
     }
 
