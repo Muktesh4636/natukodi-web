@@ -38,19 +38,15 @@ CURRENT_END_TIME_KEY = "current_end_time"
 ENGINE_LOCK_KEY = "game_engine_lock"
 LOCK_TIMEOUT = 10  # seconds
 
+# Priority Failover Configuration
+SERVER_ID = os.getenv('SERVER_ID', 'unknown')
+PRIMARY_SERVER_ID = '74'
+
 # Game time points (seconds from round start) - loaded from database settings
-# These define when phases change, timer counts UP from 1
-# Default values (will be reloaded from DB at start of each round)
 BETTING_CLOSE_TIME = 30  # When betting closes
 DICE_ROLL_TIME = 38      # When dice roll animation starts
 DICE_RESULT_TIME = 43    # When final result is shown
 ROUND_END_TIME = 60      # When round ends and starts new one
-
-# Calculate durations for backward compatibility
-BETTING_DURATION = BETTING_CLOSE_TIME
-DICE_ROLL_DURATION = DICE_ROLL_TIME - BETTING_CLOSE_TIME
-RESULT_DISPLAY_DURATION = DICE_RESULT_TIME - DICE_ROLL_TIME
-TOTAL_ROUND_DURATION = ROUND_END_TIME
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("GameEngine")
@@ -66,68 +62,76 @@ class GameEngine:
 
     async def connect_redis(self):
         self.redis = redis.from_url(REDIS_URL, decode_responses=True)
-        logger.info(f"Connected to Redis at {settings.REDIS_HOST}")
+        logger.info(f"Connected to Redis at {settings.REDIS_HOST} (Server ID: {SERVER_ID})")
 
     async def acquire_lock(self):
-        """Ensure only one engine runs using Redis SETNX"""
-        identifier = str(uuid.uuid4())
+        """Ensure only one engine runs using Redis SETNX with Priority Logic"""
         while True:
-            if await self.redis.set(ENGINE_LOCK_KEY, identifier, ex=LOCK_TIMEOUT, nx=True):
-                logger.info(f"Acquired engine lock: {identifier}")
-                return identifier
-            logger.warning("Another engine is running, waiting...")
+            current_lock = await self.redis.get(ENGINE_LOCK_KEY)
+            
+            # PRIORITY LOGIC:
+            # 1. If I am the Primary (74), I always try to take the lock
+            if SERVER_ID == PRIMARY_SERVER_ID:
+                if current_lock and current_lock != SERVER_ID:
+                    logger.info(f"Primary server {SERVER_ID} detected lock held by {current_lock}. Reclaiming...")
+                    await self.redis.delete(ENGINE_LOCK_KEY)
+                
+                if await self.redis.set(ENGINE_LOCK_KEY, SERVER_ID, ex=LOCK_TIMEOUT, nx=True):
+                    logger.info(f"Primary server {SERVER_ID} acquired engine lock.")
+                    return SERVER_ID
+            
+            # 2. If I am NOT the Primary, I only take the lock if it's free or held by another standby
+            else:
+                if current_lock == PRIMARY_SERVER_ID:
+                    logger.warning(f"Standby server {SERVER_ID} detected Primary ({PRIMARY_SERVER_ID}) is active. Waiting...")
+                else:
+                    # Lock is free or held by another standby, try to acquire
+                    if await self.redis.set(ENGINE_LOCK_KEY, SERVER_ID, ex=LOCK_TIMEOUT, nx=True):
+                        logger.info(f"Standby server {SERVER_ID} acquired engine lock.")
+                        return SERVER_ID
+            
             await asyncio.sleep(5)
 
     async def renew_lock(self, identifier):
-        """Keep the lock alive"""
+        """Keep the lock alive, but yield if a higher priority server wants it"""
         while True:
             try:
+                # Check if someone else (like Primary) took the lock from us
+                current_lock = await self.redis.get(ENGINE_LOCK_KEY)
+                if current_lock != SERVER_ID:
+                    logger.warning(f"Lock lost! Held by {current_lock}. Stopping engine...")
+                    os._exit(1) # Exit and let Docker restart us (we will then wait in acquire_lock)
+                
                 await self.redis.expire(ENGINE_LOCK_KEY, LOCK_TIMEOUT)
             except Exception as e:
                 logger.error(f"Lock renewal failed: {e}")
             await asyncio.sleep(LOCK_TIMEOUT / 2)
 
     async def start_new_round(self):
-        # Reload game settings each round (they might have changed)
+        # Reload game settings each round
         global BETTING_CLOSE_TIME, DICE_ROLL_TIME, DICE_RESULT_TIME, ROUND_END_TIME
-        global BETTING_DURATION, DICE_ROLL_DURATION, RESULT_DISPLAY_DURATION, TOTAL_ROUND_DURATION
         
-        # Store previous round ID for delayed cleanup
         old_round_id = self.round_id
         
-        # Fetch all settings at once (matches /api/game/settings/)
         try:
             all_settings = await async_get_all_game_settings()
             BETTING_CLOSE_TIME = all_settings.get('BETTING_CLOSE_TIME', 30)
             DICE_ROLL_TIME = all_settings.get('DICE_ROLL_TIME', 38)
             DICE_RESULT_TIME = all_settings.get('DICE_RESULT_TIME', 43)
             ROUND_END_TIME = all_settings.get('ROUND_END_TIME', 60)
-            
-            # Update durations for backward compatibility
-            BETTING_DURATION = all_settings.get('BETTING_DURATION', BETTING_CLOSE_TIME)
-            DICE_ROLL_DURATION = DICE_ROLL_TIME - BETTING_CLOSE_TIME
-            RESULT_DISPLAY_DURATION = DICE_RESULT_TIME - DICE_ROLL_TIME
-            TOTAL_ROUND_DURATION = ROUND_END_TIME
-            
-            # Store full settings for inclusion in WebSocket messages
             self.current_settings = all_settings
         except Exception as e:
-            logger.error(f"Error reloading settings from API/DB: {e}")
-            # Fallback to current global values if DB fails
-            pass
+            logger.error(f"Error reloading settings: {e}")
         
         self.round_id = f"R{int(time.time())}"
         self.start_monotonic = time.monotonic()
-        self.end_monotonic = self.start_monotonic + TOTAL_ROUND_DURATION
         self.status = "BETTING"
         self.dice_result = None
-        # Reset dice_roll sent flag for new round
         if hasattr(self, '_dice_roll_sent'):
             delattr(self, '_dice_roll_sent')
         
-        logger.info(f"New Round Started: {self.round_id} | Betting: 1-{BETTING_CLOSE_TIME}s | Closed: {BETTING_CLOSE_TIME+1}-{DICE_ROLL_TIME-1}s | Rolling: {DICE_ROLL_TIME}-{DICE_RESULT_TIME}s | Result: {DICE_RESULT_TIME+1}-{ROUND_END_TIME}s")
+        logger.info(f"New Round Started: {self.round_id}")
         
-        # Push event to stream for DB worker
         event = {
             "type": "round_start",
             "round_id": self.round_id,
@@ -136,160 +140,76 @@ class GameEngine:
                 "betting_close_time": BETTING_CLOSE_TIME,
                 "dice_roll_time": DICE_ROLL_TIME,
                 "dice_result_time": DICE_RESULT_TIME,
-                "round_end_time": ROUND_END_TIME,
-                "betting": BETTING_DURATION,
-                "roll": DICE_ROLL_DURATION,
-                "result": RESULT_DISPLAY_DURATION
+                "round_end_time": ROUND_END_TIME
             })
         }
         await self.redis.xadd(ROUND_EVENTS_STREAM, event)
 
-        # DELAYED CLEANUP: Only now delete the PREVIOUS round keys
-        # This ensures the old round data was available until the new round was fully active
         try:
             if old_round_id:
                 await self.redis.delete(f"round_total_bets:{old_round_id}")
                 await self.redis.delete(f"round_total_amount:{old_round_id}")
-                await self.redis.delete(f"round:{old_round_id}:total_exposure")
-                await self.redis.delete(f"round:{old_round_id}:user_exposure")
-                await self.redis.delete(f"round:{old_round_id}:bet_count")
-                
-                # CRITICAL: Clear all user bet stacks at the start of a new round
-                # This prevents users from removing bets from previous rounds
-                # We use a pattern match to find all user_bets_stack:* keys
-                # Note: In a high-scale environment, we should be careful with KEYS or SCAN
-                # but since these are per-user, we can't easily track them all without a set.
-                # For now, we'll use a more efficient approach if possible, or just accept 
-                # that the stack is checked against round_id in the view.
-                
-                logger.info(f"Cleaned up Redis stats for previous round {old_round_id}")
+                logger.info(f"Cleaned up Redis stats for {old_round_id}")
         except Exception as e:
-            logger.error(f"Error managing Redis stats cleanup: {e}")
+            logger.error(f"Error managing Redis cleanup: {e}")
 
     async def generate_dice_result(self):
-        """Generate dice result, checking for manual override first (Redis or DB)"""
         import random
         from collections import Counter
         from game.models import GameRound
         
-        # 1. Check for manual override in Redis (Fastest)
-        # This is where results from /game-admin/dice-control/ are stored
         try:
             manual_result_raw = await self.redis.get("manual_dice_result")
             if manual_result_raw:
-                logger.info(f"Manual dice result found in Redis: {manual_result_raw}")
-                # Format expected: "1,2,3,4,5,6"
                 manual_dice = [int(x.strip()) for x in manual_result_raw.split(",")]
                 if len(manual_dice) == 6:
-                    # Clear the override after using it once
                     await self.redis.delete("manual_dice_result")
-                    
                     counts = Counter(manual_dice)
                     winners = sorted([num for num, count in counts.items() if count >= 2])
                     result_str = ",".join(map(str, winners)) if winners else "0"
-                    logger.info(f"Using manual dice result from Redis: {manual_dice} -> {result_str}")
                     return manual_dice, result_str
-                else:
-                    logger.warning(f"Invalid manual dice result format in Redis: {manual_result_raw}")
         except Exception as e:
-            logger.error(f"Error checking manual dice result in Redis: {e}")
+            logger.error(f"Error checking manual result: {e}")
 
-        # 2. Check for manual override in Database (Fallback for Admin Panel)
-        # This checks if an admin has pre-set the dice for the CURRENT round_id in the DB
-        try:
-            def get_db_dice():
-                try:
-                    connections.close_all() # Ensure fresh connection
-                    # Use the current round_id to look up the pre-created record
-                    r = GameRound.objects.get(round_id=self.round_id)
-                    if all(getattr(r, f'dice_{i}') is not None for i in range(1, 7)):
-                        return [getattr(r, f'dice_{i}') for i in range(1, 7)]
-                    return None
-                except GameRound.DoesNotExist:
-                    return None
-            
-            db_dice = await sync_to_async(get_db_dice)()
-            if db_dice:
-                counts = Counter(db_dice)
-                winners = sorted([num for num, count in counts.items() if count >= 2])
-                result_str = ",".join(map(str, winners)) if winners else "0"
-                logger.info(f"Using manual dice result from DB: {db_dice} -> {result_str}")
-                return db_dice, result_str
-        except Exception as e:
-            logger.error(f"Error checking manual dice result in DB: {e}")
-
-        # 3. Fallback to random generation
-        dice = [random.randint(1, 6) for _ in range(6)]
-        counts = Counter(dice)
+        dice_values = [random.randint(1, 6) for _ in range(6)]
+        counts = Counter(dice_values)
         winners = sorted([num for num, count in counts.items() if count >= 2])
         result_str = ",".join(map(str, winners)) if winners else "0"
-        logger.info(f"Generated random dice result: {dice} -> {result_str}")
-        return dice, result_str
+        return dice_values, result_str
 
-    async def publish_state(self, legacy_type=None):
-        # Calculate elapsed time from round start (counts UP from 1)
-        now_mono = time.monotonic()
-        elapsed_seconds = now_mono - self.start_monotonic
-        timer = max(1, int(elapsed_seconds) + 1)  # Timer counts UP from 1
-        
-        # Calculate when the CURRENT phase ends (for end_time field)
-        if self.status == "BETTING":
-            phase_end_time = BETTING_CLOSE_TIME
-        elif self.status == "ROLLING":
-            phase_end_time = DICE_ROLL_TIME
-        else: # RESULT
-            phase_end_time = DICE_RESULT_TIME
-            
-        # Calculate remaining time until phase end (for end_time timestamp)
-        phase_end_mono = self.start_monotonic + phase_end_time
-        remaining_seconds = max(0, phase_end_mono - now_mono)
-        end_timestamp = int(time.time() + remaining_seconds)
+    async def publish_state(self, legacy_type="timer"):
+        elapsed = time.monotonic() - self.start_monotonic
+        timer = int(elapsed) + 1
+        end_timestamp = int(time.time() + (ROUND_END_TIME - timer))
 
         state = {
-            "type": legacy_type or "timer",
+            "type": legacy_type,
             "round_id": self.round_id,
-            "timer": timer,  # Counts UP from 1 (elapsed time + 1)
+            "timer": timer,
             "status": self.status,
             "dice_result": self.dice_result,
             "is_rolling": self.status == "ROLLING",
             "server_time": int(time.time()),
-            "end_time": end_timestamp, # Add end_time for safety checks
+            "end_time": end_timestamp,
             "total_round_duration": ROUND_END_TIME,
-            "betting_close_time": BETTING_CLOSE_TIME,
-            "dice_roll_time": DICE_ROLL_TIME,
-            "dice_result_time": DICE_RESULT_TIME
+            "server_id": SERVER_ID
         }
         
-        # Merge all settings from the API into the WebSocket message
         if hasattr(self, 'current_settings'):
             state['settings'] = self.current_settings
         
-        # Add dice values if in RESULT phase
         if self.status == "RESULT" and hasattr(self, 'last_dice_values'):
             state['dice_values'] = self.last_dice_values
-            for i, val in enumerate(self.last_dice_values, 1):
-                state[f'dice_{i}'] = val
-            state['dice_result'] = self.dice_result # Ensure dice_result is in the state
-            state['result'] = self.dice_result
+            state['dice_result'] = self.dice_result
 
         payload = json.dumps(state)
-        # Store for instant recovery (only current round)
-        # Set expiration to 60 seconds so it stays available even if engine has brief hiccup
-        #
-        # Also publish simple keys for ultra-fast API reads (avoids JSON parsing in hot paths).
         pipe = self.redis.pipeline()
         pipe.set(GAME_STATE_KEY, payload, ex=60)
-        # BACKWARD COMPATIBILITY: Also update 'current_round' key used by many views
         pipe.set('current_round', payload, ex=60)
         pipe.set(CURRENT_ROUND_ID_KEY, str(self.round_id), ex=60)
         pipe.set(CURRENT_STATUS_KEY, str(self.status), ex=60)
-        pipe.set(CURRENT_END_TIME_KEY, str(end_timestamp), ex=60)
         await pipe.execute()
         
-        # Direct Pub/Sub for high speed (only publish current round)
-        # Note: We publish ONE message per update to avoid duplicates
-        # The game_state message contains all necessary information including timer
-        logger.info(f"Publishing state: round={self.round_id}, timer={timer}, status={self.status}")
         await self.redis.publish(GAME_ROOM_CHANNEL, payload)
 
     async def run(self):
@@ -299,67 +219,47 @@ class GameEngine:
 
         while True:
             await self.start_new_round()
-            
-            # Start timer at 0 for the loop, so the first increment makes it 1
             self.start_monotonic = time.monotonic()
-            
             last_publish_time = 0
+            
             while True:
                 now = time.monotonic()
                 elapsed = now - self.start_monotonic
-                current_timer = int(elapsed) + 1  # Timer counts UP from 1
+                current_timer = int(elapsed) + 1
                 
-                # Update status based on timer value (using configured time points)
-                # Status flow: BETTING -> CLOSED -> ROLLING (when dice_roll sent) -> RESULT
-                
-                # Check if dice_roll has been sent
                 dice_roll_sent = hasattr(self, '_dice_roll_sent') and self._dice_roll_sent
-                
-                # Track if we already published due to status change
                 already_published = False
                 
-                # Send dice_roll message at the EXACT DICE_ROLL_TIME FIRST (before status check)
                 if current_timer == DICE_ROLL_TIME and not dice_roll_sent:
-                    logger.info(f"Round {self.round_id}: Sending dice_roll at timer {current_timer} (DICE_ROLL_TIME={DICE_ROLL_TIME})")
-                    # Change status to ROLLING when dice_roll message is sent
                     self.status = "ROLLING"
                     await self.publish_state(legacy_type="dice_roll")
                     self._dice_roll_sent = True
-                    dice_roll_sent = True  # Update local variable
                     already_published = True
-                    last_publish_time = now  # Update publish time to prevent immediate duplicate
-                    logger.info(f"Round {self.round_id}: Status set to ROLLING after dice_roll sent")
+                    last_publish_time = now
                 
-                # Determine new status based on timer and dice_roll state
                 if current_timer <= BETTING_CLOSE_TIME:
                     new_status = "BETTING"
                 elif not dice_roll_sent:
-                    # Before dice_roll is sent: Status is CLOSED
                     if current_timer <= ROUND_END_TIME:
                         new_status = "CLOSED"
                     else:
-                        break # Round finished
+                        break
                 elif current_timer <= DICE_RESULT_TIME:
-                    # After dice_roll message is sent: Status is ROLLING
                     new_status = "ROLLING"
                 elif current_timer <= ROUND_END_TIME:
                     new_status = "RESULT"
                 else:
-                    break # Round finished
+                    break
 
-                # If status changed, update and publish immediately
                 status_changed = (new_status != self.status)
                 if status_changed:
                     self.status = new_status
-                    logger.info(f"Round {self.round_id}: Status changed to {self.status} at timer {current_timer}")
                 
                 if self.status == "RESULT" and status_changed:
                     dice_values, result_str = await self.generate_dice_result()
                     self.dice_result = result_str
                     self.last_dice_values = dice_values
-                    logger.info(f"Round {self.round_id}: Result {result_str}")
                     
-                    # Push settlement/end event to stream
                     await self.redis.xadd(ROUND_EVENTS_STREAM, {
                         "type": "round_result",
                         "round_id": self.round_id,
@@ -368,67 +268,22 @@ class GameEngine:
                         "end_time": datetime.utcnow().isoformat()
                     })
                     
-                    # Publish legacy dice_result message
                     await self.publish_state(legacy_type="dice_result")
-                    
-                    # Keep API aligned with WebSocket immediately (DB worker may lag a few seconds).
-                    # last_round_results endpoint reads this key first.
-                    try:
-                        last_round_cache = {
-                            "round_id": self.round_id,
-                            "dice_1": dice_values[0] if len(dice_values) > 0 else None,
-                            "dice_2": dice_values[1] if len(dice_values) > 1 else None,
-                            "dice_3": dice_values[2] if len(dice_values) > 2 else None,
-                            "dice_4": dice_values[3] if len(dice_values) > 3 else None,
-                            "dice_5": dice_values[4] if len(dice_values) > 4 else None,
-                            "dice_6": dice_values[5] if len(dice_values) > 5 else None,
-                            "dice_result": result_str,
-                            "timestamp": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S') + 'Z',
-                        }
-                        await self.redis.set("last_round_results_cache", json.dumps(last_round_cache), ex=120)
-                        logger.info(f"Round {self.round_id}: Updated last_round_results_cache from engine")
-                    except Exception as cache_err:
-                        logger.error(f"Round {self.round_id}: Failed to update last_round_results_cache: {cache_err}")
-                    
                     already_published = True
-                    last_publish_time = now  # Update publish time to prevent immediate duplicate
+                    last_publish_time = now
 
-                # Publish state every 1s OR on status change (but not if already published)
-                # CRITICAL: Check time difference to prevent duplicate publishes
-                # Use current time again to ensure accuracy after async operations
                 current_time = time.monotonic()
-                time_since_last_publish = current_time - last_publish_time
-                
-                # Only publish if:
-                # 1. Status changed AND we haven't already published for this status change, OR
-                # 2. At least 0.95 seconds have passed since last publish (slightly less than 1.0 to account for timing precision)
-                should_publish = False
                 if status_changed and not already_published:
-                    should_publish = True
-                elif time_since_last_publish >= 0.95:  # 0.95s threshold to prevent duplicates
-                    should_publish = True
+                    await self.publish_state()
+                    last_publish_time = current_time
+                elif current_time - last_publish_time >= 0.95:
+                    await self.publish_state()
+                    last_publish_time = current_time
                 
-                if should_publish:
-                    # If it's the start of a new round (timer=1), send TWO messages:
-                    # 1. type: "game_start"
-                    # 2. type: "timer"
-                    if current_timer == 1:
-                        await self.publish_state(legacy_type="game_start")
-                        await self.publish_state(legacy_type="timer")
-                    else:
-                        # For all other seconds, just send the standard "timer" message
-                        await self.publish_state()
-                    
-                    last_publish_time = time.monotonic()  # Use fresh monotonic time after publish
-
-                # High-frequency check (0.1s) to ensure status changes are caught immediately
                 await asyncio.sleep(0.1) 
 
-            logger.info(f"Round {self.round_id} completed")
-            # Send game_end message (only once, no duplicates)
             await self.publish_state(legacy_type="game_end")
-            
-            await asyncio.sleep(1) # Gap between rounds
+            await asyncio.sleep(1)
 
 if __name__ == "__main__":
     engine = GameEngine()
