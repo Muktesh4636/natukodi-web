@@ -74,6 +74,42 @@ def current_round(request):
                 now = int(timezone.now().timestamp())
                 end_time = state.get('end_time', 0)
                 state['timer'] = max(0, end_time - now)
+
+                # Unity compatibility:
+                # - `/api/game/round/` is deserialized into `RoundData` where `dice_result` is `int?`
+                # - Engine may publish multiple winners as a string like "4,5" in `dice_result`
+                # If we return that string here, Json.NET can fail and the APK can show a stale/wrong result.
+                # So we normalize:
+                # - `result`: raw winner string (e.g. "4,5") if present
+                # - `dice_result`: primary winner as int (or null if not available)
+                try:
+                    raw_result = state.get('result') or state.get('dice_result')
+                    if isinstance(raw_result, str) and raw_result:
+                        state['result'] = raw_result
+                    elif raw_result is not None:
+                        state['result'] = str(raw_result)
+
+                    dice_values = state.get('dice_values')
+                    primary_winner = None
+                    if isinstance(dice_values, list) and dice_values:
+                        from collections import Counter
+                        counts = Counter([int(x) for x in dice_values if x is not None])
+                        winners = [(num, cnt) for num, cnt in counts.items() if cnt >= 2]
+                        if winners:
+                            # Pick highest frequency winner; tie-break by smallest number for stability
+                            winners.sort(key=lambda t: (-t[1], t[0]))
+                            primary_winner = int(winners[0][0])
+                    if primary_winner is None and isinstance(raw_result, str):
+                        # Fallback: parse first number from "4,5" or "4"
+                        first = raw_result.split(',', 1)[0].strip()
+                        if first.isdigit():
+                            primary_winner = int(first)
+                    # Only set dice_result when we actually have a number
+                    if primary_winner is not None:
+                        state['dice_result'] = primary_winner
+                except Exception:
+                    # Never fail current_round for result formatting
+                    pass
                 
                 # 2. Cache the response for 200ms
                 redis_client.set(cache_key, json.dumps(state), px=200)
