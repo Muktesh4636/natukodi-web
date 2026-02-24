@@ -1748,6 +1748,70 @@ def game_settings_api(request):
     dice_roll_time = int(get_game_setting('DICE_ROLL_TIME', 35))
     dice_result_time = int(get_game_setting('DICE_RESULT_TIME', 45))
     round_end_time = int(get_game_setting('ROUND_END_TIME', 70))
+
+    def _parse_chip_values(val):
+        # Prefer list/tuple, then JSON string, then comma-separated
+        if val is None:
+            return None
+        if isinstance(val, (list, tuple)):
+            try:
+                return [int(x) for x in val]
+            except Exception:
+                return None
+        if isinstance(val, str):
+            s = val.strip()
+            if not s:
+                return None
+            try:
+                if s.startswith('['):
+                    parsed = json.loads(s)
+                    if isinstance(parsed, list):
+                        return [int(x) for x in parsed]
+            except Exception:
+                pass
+            if ',' in s:
+                out = []
+                for part in s.split(','):
+                    part = part.strip()
+                    if not part:
+                        continue
+                    try:
+                        out.append(int(part))
+                    except Exception:
+                        return None
+                return out or None
+            try:
+                return [int(s)]
+            except Exception:
+                return None
+        return None
+
+    def _parse_payout_ratios(val):
+        if val is None:
+            return None
+        parsed = val
+        if isinstance(val, str):
+            s = val.strip()
+            if not s:
+                return None
+            try:
+                parsed = json.loads(s)
+            except Exception:
+                return None
+        if not isinstance(parsed, dict):
+            return None
+        out = {}
+        try:
+            for k, v in parsed.items():
+                out[str(k)] = float(v)
+        except Exception:
+            return None
+        return out or None
+
+    defaults = getattr(settings, 'GAME_SETTINGS', {}) or {}
+    chip_values = _parse_chip_values(get_game_setting('CHIP_VALUES', None)) or defaults.get('CHIP_VALUES') or [10, 20, 50, 100]
+    payout_ratios_raw = _parse_payout_ratios(get_game_setting('PAYOUT_RATIOS', None)) or defaults.get('PAYOUT_RATIOS') or {1: 6.0, 2: 6.0, 3: 6.0, 4: 6.0, 5: 6.0, 6: 6.0}
+    payout_ratios = {str(k): float(v) for k, v in payout_ratios_raw.items()}
     
     settings_data = {
         'BETTING_DURATION': betting_close_time,
@@ -1759,15 +1823,8 @@ def game_settings_api(request):
         'DICE_RESULT_TIME': dice_result_time,
         'RESULT_ANNOUNCE_TIME': dice_result_time,
         'ROUND_END_TIME': round_end_time,
-        'CHIP_VALUES': [10, 50, 100, 500, 1000, 5000],
-        'PAYOUT_RATIOS': {
-            "1": 1.0,
-            "2": 2.0,
-            "3": 3.0,
-            "4": 4.0,
-            "5": 5.0,
-            "6": 6.0
-        }
+        'CHIP_VALUES': chip_values,
+        'PAYOUT_RATIOS': payout_ratios,
     }
     
     return Response(settings_data)
