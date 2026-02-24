@@ -496,6 +496,8 @@ def reset_password(request):
         otp_code = request.data.get('otp_code', '').strip()
         new_password = request.data.get('new_password', '').strip()
 
+        logger.info(f"RESET_PASSWORD: phone={phone_number}, otp={otp_code}, passLen={len(new_password)}")
+
         if not phone_number or not otp_code or not new_password:
             return Response({'error': 'Phone number, OTP code, and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -525,6 +527,7 @@ def reset_password(request):
         # 2. Find user
         user = User.objects.filter(phone_number=clean_phone).first()
         if not user:
+            logger.warning(f"RESET_PASSWORD: User not found for {clean_phone}")
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if not user.is_active:
@@ -546,7 +549,7 @@ def reset_password(request):
 
     except Exception as e:
         logger.exception(f"Error in reset_password: {str(e)}")
-        return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': 'Internal server error', 'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET', 'POST'])
