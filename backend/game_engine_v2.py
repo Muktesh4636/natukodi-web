@@ -259,6 +259,25 @@ class GameEngine:
                     dice_values, result_str = await self.generate_dice_result()
                     self.dice_result = result_str
                     self.last_dice_values = dice_values
+
+                    # Cache last round dice values in Redis immediately.
+                    # The Unity client bottom bar uses /api/game/last-round-results/ which prefers this key.
+                    # Writing here avoids showing stale results when DB write-back lags under load.
+                    try:
+                        last_payload = {
+                            "round_id": self.round_id,
+                            "dice_1": dice_values[0] if len(dice_values) > 0 else None,
+                            "dice_2": dice_values[1] if len(dice_values) > 1 else None,
+                            "dice_3": dice_values[2] if len(dice_values) > 2 else None,
+                            "dice_4": dice_values[3] if len(dice_values) > 3 else None,
+                            "dice_5": dice_values[4] if len(dice_values) > 4 else None,
+                            "dice_6": dice_values[5] if len(dice_values) > 5 else None,
+                            "dice_result": result_str,
+                            "timestamp": datetime.utcnow().isoformat() + "Z",
+                        }
+                        await self.redis.set("last_round_results_cache", json.dumps(last_payload), ex=120)
+                    except Exception as e:
+                        logger.warning(f"Failed to cache last_round_results_cache: {e}")
                     
                     await self.redis.xadd(ROUND_EVENTS_STREAM, {
                         "type": "round_result",
