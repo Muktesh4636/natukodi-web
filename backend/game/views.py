@@ -1501,7 +1501,7 @@ def app_version(request):
         # Get settings from database/Redis
         version_code = int(get_game_setting('APP_VERSION_CODE', 1))
         version_name = get_game_setting('APP_VERSION_NAME', '1.0.0')
-        download_url = get_game_setting('APP_DOWNLOAD_URL', 'https://gunduata.online/download/')
+        download_url = get_game_setting('APP_DOWNLOAD_URL', 'https://gunduata.club/download/')
         force_update = get_game_setting('APP_FORCE_UPDATE', 'false').lower() == 'true'
         
         return Response({
@@ -2889,4 +2889,32 @@ def pending_payments(request):
         'pending_payments': payments_data,
         'total_commission': str(total_commission),
         'count': len(payments_data),
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def ending_payment_for_user(request, user_id):
+    """
+    Get ending payment (total pending commission) for a client/user.
+    For use by client-payments app: replace "Total Client PnL" with "Ending Payment" using this value.
+    Returns: user_id, username, ending_payment (sum of PendingPayment.commission_amount for this user).
+    """
+    from accounts.models import PendingPayment
+    from django.db.models import Sum
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    total = PendingPayment.objects.filter(user_id=user_id).aggregate(
+        total=Sum('commission_amount')
+    )['total']
+    ending_payment = total if total is not None else Decimal('0.00')
+
+    return Response({
+        'user_id': user.id,
+        'username': user.username,
+        'ending_payment': str(ending_payment),
     })

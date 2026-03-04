@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dice Controlled Rounds - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; min-height: 100vh; display: flex; color: #2d3748; }
+        .sidebar { width: 260px; background: #0f172a; height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; overflow-y: hidden; z-index: 1000; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header .logo { display: flex; align-items: center; gap: 8px; color: white; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .sidebar-header .subtitle { color: rgba(255,255,255,0.7); font-size: 13px; }
+        .main-content { margin-left: 260px; flex: 1; padding: 32px; min-height: 100vh; width: calc(100% - 260px); }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .header-left h1 { color: #1a202c; font-size: 28px; font-weight: 700; margin: 0 0 4px 0; }
+        .header-left p { color: #718096; font-size: 14px; margin: 0; }
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+        .action-btn { padding: 10px 20px; background: #00CED1; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; }
+        .action-btn:hover { background: #00B8B8; }
+        .logout-btn { background: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; }
+        .logout-btn:hover { background: #c82333; }
+        .control-panel { background: white; padding: 32px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .control-panel h2 { margin: 0 0 24px 0; color: #1a202c; font-size: 20px; font-weight: 700; }
+        .table-wrapper { overflow-x: auto; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f7fafc; font-weight: 600; color: #4a5568; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background: #f7fafc; }
+        .round-link { color: #5a9fd4; text-decoration: none; font-weight: 600; }
+        .round-link:hover { text-decoration: underline; }
+        .dice-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; background: linear-gradient(135deg, #a8e6cf 0%, #d4f4dd 100%); color: #1a202c; border-radius: 8px; font-size: 18px; font-weight: 700; }
+        .empty-state { text-align: center; padding: 48px 20px; color: #718096; font-size: 16px; }
+        .pagination { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 24px; }
+        .pagination a, .pagination span { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 14px; }
+        .pagination a { background: #e2e8f0; color: #2d3748; }
+        .pagination a:hover { background: #cbd5e0; }
+        .pagination .current { background: #00CED1; color: white; }
+        .alert { padding: 14px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 14px; }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; width: 100%; padding: 16px; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">🎲🎲</span><span>Gundu ata</span></div>
+            <div class="subtitle">Game control</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <div class="header-left">
+                    <h1>🎯 Rounds with controlled dice</h1>
+                    <p>Rounds where the dice result was manually set by an admin (Dice Control)</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'dice_control' %}" class="action-btn">← Dice Control</a>
+                    <a href="{% url 'admin_dashboard' %}" class="action-btn">Dashboard</a>
+                    <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
+                </div>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <div class="control-panel">
+                <h2>Manually controlled rounds (most recent first)</h2>
+                {% if page_obj.object_list %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Round ID</th>
+                                <th>Dice result</th>
+                                <th>Set by</th>
+                                <th>Set at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in page_obj %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'round_details' record.round.round_id %}" class="round-link">#{{ record.round.round_id }}</a>
+                                </td>
+                                <td><span class="dice-badge">{{ record.result }}</span></td>
+                                <td>{{ record.set_by.username|default:"—" }}</td>
+                                <td>{{ record.set_at|date:"Y-m-d H:i:s" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if page_obj.has_other_pages %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    {% endif %}
+                    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="empty-state">No rounds have been controlled yet. Use Dice Control to set the result for a round.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

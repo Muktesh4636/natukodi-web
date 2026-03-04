@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>White Label Messages - Admin Panel</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .page-subtitle {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px 16px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .search input:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 14px;
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .stat {
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 10px;
+            border-top: 1px solid #e2e8f0;
+            vertical-align: top;
+            font-size: 13px;
+        }
+
+        th {
+            color: #64748b;
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-top: none;
+        }
+
+        .msg {
+            white-space: pre-wrap;
+            color: #0f172a;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pagination a {
+            text-decoration: none;
+            color: #0f172a;
+            font-weight: 800;
+        }
+        .pagination .pill {
+            display: inline-block;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 999px;
+            padding: 8px 12px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 18px 14px; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle {
+                position: fixed;
+                top: 14px;
+                left: 14px;
+                z-index: 2000;
+                border: none;
+                background: #0f172a;
+                color: #fff;
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 10px 20px rgba(15,23,42,0.25);
+            }
+            th:nth-child(4), td:nth-child(4) { display: none; } /* Hide UA on mobile */
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">🎲</span> Gundu ata</div>
+            <div class="subtitle">Game Admin Panel</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">White Label Messages</div>
+                <div class="page-subtitle">View leads and messages submitted from the white label form (API: POST /api/whitelabel/lead/).</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="toolbar">
+                <form class="search" method="get">
+                    <input name="q" value="{{ q|default:'' }}" placeholder="Search name / phone / message" />
+                    <button class="btn" type="submit">Search</button>
+                </form>
+                <div class="stat">Total: {{ total_count }}</div>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 180px;">Name</th>
+                            <th style="width: 160px;">Phone</th>
+                            <th>Message</th>
+                            <th style="width: 240px;">User Agent</th>
+                            <th style="width: 160px;">When</th>
+                            <th style="width: 140px;">IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lead in leads_page %}
+                        <tr>
+                            <td><strong>{{ lead.name }}</strong></td>
+                            <td>{{ lead.phone_number }}</td>
+                            <td class="msg">{{ lead.message|default:"-" }}</td>
+                            <td class="muted">{{ lead.user_agent|default:"-" }}</td>
+                            <td class="muted">{{ lead.created_at }}</td>
+                            <td class="muted">{{ lead.ip_address|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="muted" style="padding: 16px;">No leads found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="pill muted">
+                    Page {{ leads_page.number }} / {{ leads_page.paginator.num_pages }}
+                </div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    {% if leads_page.has_previous %}
+                        <a class="pill" href="?q={{ q|urlencode }}&p={{ leads_page.previous_page_number }}">Prev</a>
+                    {% endif %}
+                    {% if leads_page.has_next %}
+                        <a class="pill" href="?q={{ q|urlencode }}&p={{ leads_page.next_page_number }}">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

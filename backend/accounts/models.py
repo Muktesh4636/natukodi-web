@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import F, Value
+from django.db.models.functions import Greatest
 from decimal import Decimal
 from django.utils import timezone
 import uuid
@@ -41,6 +43,8 @@ class User(AbstractUser):
         related_name='referrals'
     )
     referral_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    # Cached count of how many users this user has referred (kept in sync via save/delete)
+    total_referrals_count = models.PositiveIntegerField(default=0, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -81,11 +85,46 @@ class User(AbstractUser):
         return code
     
     def save(self, *args, **kwargs):
-        # Ensure referral code is generated if missing
-        # If it already exists, don't allow it to be overwritten by an empty value
+        # Track previous referred_by so we can update referrers' total_referrals_count
+        old_referred_by_id = None
+        if self.pk:
+            old = User.objects.filter(pk=self.pk).values_list('referred_by_id', flat=True).first()
+            old_referred_by_id = old
+
+        # Ensure referral code is generated if missing.
+        # When instance has pk (existing row), check DB first: request.user from
+        # CachedJWTAuthentication is a minimal user (no referral_code) and must
+        # not overwrite the real referral_code in DB with a new one.
         if not self.referral_code:
-            self.referral_code = self.generate_unique_referral_code()
+            if self.pk:
+                existing = User.objects.filter(pk=self.pk).values_list('referral_code', flat=True).first()
+                if existing:
+                    self.referral_code = existing
+                else:
+                    self.referral_code = self.generate_unique_referral_code()
+            else:
+                self.referral_code = self.generate_unique_referral_code()
         super().save(*args, **kwargs)
+
+        # Keep referrers' total_referrals_count in sync
+        new_referred_by_id = self.referred_by_id
+        if new_referred_by_id != old_referred_by_id:
+            if old_referred_by_id:
+                User.objects.filter(pk=old_referred_by_id).update(
+                    total_referrals_count=Greatest(F('total_referrals_count') - 1, Value(0))
+                )
+            if new_referred_by_id:
+                User.objects.filter(pk=new_referred_by_id).update(
+                    total_referrals_count=F('total_referrals_count') + 1
+                )
+
+    def delete(self, *args, **kwargs):
+        referrer_id = self.referred_by_id
+        super().delete(*args, **kwargs)
+        if referrer_id:
+            User.objects.filter(pk=referrer_id).update(
+                total_referrals_count=Greatest(F('total_referrals_count') - 1, Value(0))
+            )
 
 
 class Wallet(models.Model):
@@ -109,32 +148,51 @@ class Wallet(models.Model):
         return f"{self.user.username} - {self.balance}"
 
     def deduct(self, amount):
-        """Deduct amount from wallet (e.g. bet placed and lost).
-        Withdrawable = turnover (amount wagered). Unavailable = balance - turnover.
-        When we bet `amount`: balance -= amount, turnover += amount.
-        So unavaliable = balance - turnover drops by 2*amount (balance-amount, turnover+amount).
+        """
+        Deduct amount from wallet (bet placed).
+
+        IMPORTANT: Withdrawable/Unavailable is derived from turnover:
+        - unavailable = max(0, balance - turnover)
+        - withdrawable = min(balance, turnover)
+        So this method only updates balance; turnover is maintained by the bet worker.
         """
         if self.balance >= amount:
-            # Reduce unavaliable by 2*amount so withdrawable increases by amount (turnover)
-            release = int(min(self.unavaliable_balance, 2 * amount))
-            self.unavaliable_balance = max(0, self.unavaliable_balance - release)
             self.balance -= amount
-            self.save()
+            self.save(update_fields=['balance', 'updated_at'])
             return True
         return False
 
     def add(self, amount, is_bonus=False):
-        """Add amount to wallet. If is_bonus or deposit, add to unavaliable_balance too."""
+        """
+        Add amount to wallet.
+
+        IMPORTANT: We no longer maintain unavaliable_balance as a stored lock.
+        Locking/unlocking is derived from turnover.
+        `is_bonus` is kept for backward compatibility but does not change wallet fields.
+        """
         self.balance += amount
-        if is_bonus:
-            self.unavaliable_balance += amount
-        self.save()
+        self.save(update_fields=['balance', 'updated_at'])
         return True
 
     @property
     def withdrawable_balance(self):
         """Calculate balance available for withdrawal"""
-        return max(Decimal('0.00'), self.balance - self.unavaliable_balance)
+        try:
+            bal = Decimal(str(self.balance))
+            t = Decimal(str(self.turnover))
+            return max(Decimal('0.00'), min(bal, t))
+        except Exception:
+            return Decimal('0.00')
+
+    @property
+    def computed_unavailable_balance(self):
+        """Unavailable = max(0, balance - turnover)"""
+        try:
+            bal = Decimal(str(self.balance))
+            t = Decimal(str(self.turnover))
+            return max(Decimal('0.00'), bal - t)
+        except Exception:
+            return Decimal('0.00')
 
 
 class DailyReward(models.Model):
@@ -181,6 +239,7 @@ class Transaction(models.Model):
         ('REFUND', 'Refund'),
         ('REFERRAL_BONUS', 'Referral Bonus'),
         ('MILESTONE_BONUS', 'Milestone Bonus'),
+        ('LEADERBOARD_PRIZE', 'Leaderboard Prize'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')

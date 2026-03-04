@@ -8,7 +8,7 @@ echo "===================================="
 echo ""
 
 # Configuration
-HOST="https://gunduata.online"
+HOST="https://gunduata.club"
 USERS=100
 SPAWN_RATE=10  # Spawn 10 users per second
 DURATION="5m"  # Run for 5 minutes

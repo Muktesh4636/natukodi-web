@@ -562,7 +562,7 @@
                         {% if search_query %}Search: "{{ search_query }}"{% endif %}
                         {% if search_query and status_filter %} | {% endif %}
                         {% if status_filter %}Status: {{ status_filter }}{% endif %}
-                        <span style="color: #718096;">({{ deposit_requests|length }} found)</span>
+                        <span style="color: #718096;">({{ total_requests }} found)</span>
                     </p>
                 </div>
                 {% endif %}
@@ -667,6 +667,25 @@
                         </tbody>
                     </table>
                 </div>
+                {% if page_obj and page_obj.has_other_pages %}
+                <div class="pagination" style="margin-top: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    {% if page_obj.has_previous %}
+                        <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}&page=1" style="padding: 8px 12px; background: #edf2f7; border-radius: 6px; text-decoration: none; color: #4a5568;">« First</a>
+                        <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}&page={{ page_obj.previous_page_number }}" style="padding: 8px 12px; background: #edf2f7; border-radius: 6px; text-decoration: none; color: #4a5568;">‹ Prev</a>
+                    {% else %}
+                        <span style="padding: 8px 12px; color: #a0aec0;">« First</span>
+                        <span style="padding: 8px 12px; color: #a0aec0;">‹ Prev</span>
+                    {% endif %}
+                    <span style="padding: 8px 12px; color: #4a5568;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}&page={{ page_obj.next_page_number }}" style="padding: 8px 12px; background: #edf2f7; border-radius: 6px; text-decoration: none; color: #4a5568;">Next ›</a>
+                        <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}&page={{ page_obj.paginator.num_pages }}" style="padding: 8px 12px; background: #edf2f7; border-radius: 6px; text-decoration: none; color: #4a5568;">Last »</a>
+                    {% else %}
+                        <span style="padding: 8px 12px; color: #a0aec0;">Next ›</span>
+                        <span style="padding: 8px 12px; color: #a0aec0;">Last »</span>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

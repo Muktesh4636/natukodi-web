@@ -466,7 +466,7 @@
                             id="app_{{ setting.key }}" 
                             name="{{ setting.key }}" 
                             value="{{ setting.value }}"
-                            {% if setting.key == 'APP_DOWNLOAD_URL' %}placeholder="https://gunduata.online/gundu-ata.apk"{% endif %}
+                            {% if setting.key == 'APP_DOWNLOAD_URL' %}placeholder="https://gunduata.club/gundu-ata.apk"{% endif %}
                             style="width: 100%;"
                         >
                         {% endif %}
@@ -533,6 +533,17 @@
                 </form>
                 {% endif %}
             </div>
+
+            {% if request.user.is_superuser %}
+            <div class="control-panel" style="margin-top: 32px;">
+                <h2>🚪 Log out all users</h2>
+                <p style="color: #718096; font-size: 14px; margin-bottom: 16px;">Invalidate all app (JWT) sessions and clear all game-admin sessions. Everyone will need to log in again. Use after a security incident or to force re-login.</p>
+                <form method="post" action="{% url 'logout_all_sessions' %}" onsubmit="return confirm('Log out ALL users (app + game-admin)? You will be logged out too.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="background: #dc2626; color: white;">Log out all users</button>
+                </form>
+            </div>
+            {% endif %}
         </div>
     </div>
 

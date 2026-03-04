@@ -6,7 +6,8 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
+from django.views.static import serve
+from rest_framework_simplejwt.views import TokenVerifyView
 from . import views as project_views
 
 # Import all views
@@ -32,17 +33,25 @@ urlpatterns = [
     
     # Admin (must come before catch-all)
     path('admin/', admin.site.urls),
+    # Media files (explicit so uploads like deposit_screenshots are always served by Django)
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path('api/', project_views.api_root, name='api_root'),
+    path('api/health/', project_views.health, name='health'),
+    # Maintenance status (public; works even when maintenance is on)
+    path('api/maintenance/status/', project_views.maintenance_status, name='maintenance_status'),
     
     # Loading time endpoint (no authentication)
     path('api/loading-time/', accounts_views.loading_time, name='loading_time'),
+
+    # Public support contacts (help center)
+    path('api/support/contacts/', project_views.support_contacts, name='support_contacts'),
     
     # Auth endpoints (api/auth/)
     path('api/auth/register/', accounts_views.register, name='register'),
     path('api/auth/login/', accounts_views.login, name='login'),
     path('api/auth/otp/send/', accounts_views.send_otp, name='send_otp'),
     path('api/auth/otp/verify-login/', accounts_views.verify_otp_login, name='verify_otp_login'),
-    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/token/refresh/', accounts_views.SingleSessionTokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/auth/profile/', accounts_views.profile, name='profile'),
     path('api/auth/profile/photo/', accounts_views.update_profile_photo, name='update_profile_photo'),
@@ -66,13 +75,19 @@ urlpatterns = [
     path('api/auth/daily-reward/', accounts_views.daily_reward, name='daily_reward'),
     path('api/auth/daily-reward/history/', accounts_views.daily_reward_history, name='daily_reward_history'),
     path('api/auth/lucky-draw/', accounts_views.lucky_draw, name='lucky_draw'),
+    path('api/auth/leaderboard/', accounts_views.leaderboard, name='leaderboard'),
     path('api/auth/register-fcm-token/', accounts_views.register_fcm_token, name='register_fcm_token'),
     path('api/auth/password/reset/', accounts_views.reset_password, name='reset_password'),
+    path('api/auth/password/change/', accounts_views.change_password, name='change_password'),
     
     # APK Download via API (guaranteed to work since API routes come before React)
     path('api/download/apk/', project_views.download_apk, name='api_download_apk'),
     path('api/apk/', project_views.download_apk, name='api_apk'),
-    
+
+    # White-label lead capture (public)
+    path('api/whitelabel/lead/', project_views.white_label_lead, name='white_label_lead'),
+    # Client payments: ending payment (pending commission) per user — for client-payments app
+    path('api/client-payments/ending-payment/<int:user_id>/', game_views.ending_payment_for_user, name='ending_payment_for_user'),
     # Game endpoints (api/game/)
     path('api/game/', include('game.urls')),
     
@@ -83,6 +98,7 @@ urlpatterns = [
     path('game-admin/logout/', game_admin_views.admin_logout, name='admin_logout'),
     path('game-admin/dashboard/', game_admin_views.admin_dashboard, name='admin_dashboard'),
     path('game-admin/dice-control/', game_admin_views.dice_control, name='dice_control'),
+    path('game-admin/dice-controlled-rounds/', game_admin_views.dice_controlled_rounds, name='dice_controlled_rounds'),
     path('game-admin/recent-rounds/', game_admin_views.recent_rounds, name='recent_rounds'),
     path('game-admin/round/<str:round_id>/', game_admin_views.round_details, name='round_details'),
     path('game-admin/user/<int:user_id>/', game_admin_views.user_details, name='user_details'),
@@ -111,7 +127,10 @@ urlpatterns = [
     path('game-admin/players/', game_admin_views.players, name='players'),
     path('game-admin/players/assign-worker/', game_admin_views.assign_worker, name='assign_worker'),
     path('game-admin/game-settings/', game_admin_views.game_settings, name='game_settings'),
+    path('game-admin/help-center/', game_admin_views.help_center, name='help_center'),
+    path('game-admin/white-label/', game_admin_views.white_label_leads, name='white_label_leads'),
     path('game-admin/maintenance-toggle/', game_admin_views.maintenance_toggle, name='maintenance_toggle'),
+    path('game-admin/logout-all-sessions/', game_admin_views.logout_all_sessions, name='logout_all_sessions'),
     path('game-admin/admin-management/', game_admin_views.admin_management, name='admin_management'),
     path('game-admin/admin-management/create/', game_admin_views.create_admin, name='create_admin'),
     path('game-admin/admin-management/edit/<int:admin_id>/', game_admin_views.edit_admin, name='edit_admin'),

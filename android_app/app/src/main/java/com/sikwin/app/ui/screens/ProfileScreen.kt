@@ -85,8 +85,8 @@ fun ProfileScreen(
                 onNavigate = onNavigate
             )
 
-            // Leaderboard Ranking Highlight
-            if (viewModel.depositRequests.any { it.status.uppercase() == "COMPLETED" }) {
+            // Leaderboard Ranking Highlight — only if daily turnover > 50
+            if (viewModel.userRotationMoney > 50) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()

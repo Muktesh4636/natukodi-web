@@ -459,8 +459,8 @@
                         <div class="dashboard-card-value" id="total-amount">₹{{ total_amount|floatformat:2 }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL PROFIT</div>
-                        <div class="dashboard-card-value" id="total-profit" style="color: {% if total_profit >= 0 %}#38a169{% else %}#e53e3e{% endif %};">₹{{ total_profit|floatformat:2 }}</div>
+                        <div class="dashboard-card-label">TOTAL PAYOUT</div>
+                        <div class="dashboard-card-value" id="total-payout">₹{{ total_payout|floatformat:2 }}</div>
                     </div>
                 </div>
             </div>
@@ -625,11 +625,11 @@
                     if (data.total_amount !== undefined) {
                         document.getElementById('total-amount').textContent = '₹' + parseFloat(data.total_amount).toFixed(2);
                     }
-                    if (data.total_profit !== undefined) {
-                        const profitElement = document.getElementById('total-profit');
-                        const profit = parseFloat(data.total_profit);
-                        profitElement.textContent = (profit >= 0 ? '+' : '') + '₹' + profit.toFixed(2);
-                        profitElement.style.color = profit >= 0 ? '#38a169' : '#e53e3e';
+                    if (data.total_payout !== undefined) {
+                        const payoutElement = document.getElementById('total-payout');
+                        if (payoutElement) {
+                            payoutElement.textContent = '₹' + parseFloat(data.total_payout).toFixed(2);
+                        }
                     }
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));
@@ -639,7 +639,7 @@
         connectWebSocket();
 
         // Always run AJAX updates to ensure timer stays synced (WebSocket or not)
-        setInterval(updateDashboardData, 5000); // More frequent updates
+        setInterval(updateDashboardData, 10000); // Every 10s to reduce server load and 504 risk
 
         // Update immediately on page load
         setTimeout(function() {

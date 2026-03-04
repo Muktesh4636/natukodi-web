@@ -1395,7 +1395,7 @@
         setInterval(keepAlive, 30000);
 
         // Always run AJAX updates to ensure timer stays synced (WebSocket or not)
-        setInterval(updateDashboardData, 5000); // More frequent updates
+        setInterval(updateDashboardData, 10000); // Every 10s to reduce server load and 504 risk
 
         // Update immediately on page load and attempt to sync timer
         setTimeout(function() {

@@ -12,7 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger("WS-Test")
 
 async def test_websocket():
-    uri = "wss://gunduata.online/ws/game/"
+    uri = "wss://gunduata.club/ws/game/"
     logger.info(f"Connecting to {uri}...")
     
     try:

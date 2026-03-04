@@ -1,9 +1,37 @@
 import random
 import json
 from collections import Counter
+from datetime import datetime, timedelta
 from django.utils import timezone
 from django.conf import settings
 from .models import GameRound, GameSettings
+
+try:
+    import pytz
+    IST = pytz.timezone('Asia/Kolkata')
+except Exception:
+    IST = None
+
+
+def get_leaderboard_period_date(dt=None):
+    """
+    Return the leaderboard period date (IST) for the given datetime.
+    Period is 23:00 IST to next 23:00 IST; period_date is the date of the period start.
+    dt: timezone-aware or naive datetime; defaults to now (UTC).
+    """
+    if dt is None:
+        dt = timezone.now()
+    if timezone.is_naive(dt):
+        dt = timezone.make_aware(dt) if IST else dt
+    now_ist = dt.astimezone(IST) if IST and dt.tzinfo else dt
+    if not IST:
+        return now_ist.date()
+    period_anchor = now_ist.replace(hour=23, minute=0, second=0, microsecond=0)
+    if now_ist >= period_anchor:
+        period_start = period_anchor
+    else:
+        period_start = period_anchor - timedelta(days=1)
+    return period_start.date()
 
 
 def get_current_round_state(redis_client):

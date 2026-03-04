@@ -62,7 +62,8 @@ class MainActivity : AppCompatActivity() {
                     LaunchedEffect(intent) {
                         if (intent?.getStringExtra("action") == "logout") {
                             viewModel.logout()
-                            navController.navigate("home") {
+                            // Send user to sign-in page so they see login/register (no balance shown there)
+                            navController.navigate("login") {
                                 popUpTo(0) { inclusive = true }
                             }
                         }

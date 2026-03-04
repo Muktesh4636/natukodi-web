@@ -1,9 +1,20 @@
 from django.http import HttpResponse, JsonResponse, FileResponse, StreamingHttpResponse
 from django.conf import settings
 from django.views.decorators.cache import never_cache
-from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework import status
 from rest_framework.response import Response
 import os
+from game.utils import get_game_setting
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health(request):
+    """Minimal health check; no Redis or DB. Use for load balancer / 502 debugging."""
+    return JsonResponse({'status': 'ok'}, status=200)
 
 
 def api_root(request):
@@ -38,6 +49,102 @@ def api_root(request):
         }
     }
     return JsonResponse(api_data, json_dumps_params={'indent': 2})
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def support_contacts(request):
+    """
+    Public support contacts for Help Center (APK can read, admin panel edits).
+
+    Backed by GameSettings so admins can update without redeploy:
+    - SUPPORT_WHATSAPP_NUMBER  (example: +919876543210)
+    - SUPPORT_TELEGRAM        (example: +919876543210)
+    """
+    whatsapp = get_game_setting('SUPPORT_WHATSAPP_NUMBER', '+919876543210')
+    telegram = get_game_setting('SUPPORT_TELEGRAM', '+919876543210')
+
+    return Response({
+        'whatsapp_number': str(whatsapp).strip() if whatsapp is not None else '',
+        'telegram': str(telegram).strip() if telegram is not None else '',
+    })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def maintenance_status(request):
+    """
+    Public API: returns whether app maintenance is on or off.
+    Three fields only: maintenance, remaining_hours, remaining_minutes (for countdown display).
+    """
+    import time
+    from dice_game.maintenance_middleware import _get_maintenance_info
+    enabled, until = _get_maintenance_info()
+    remaining_hours = 0
+    remaining_minutes = 0
+    if enabled and until is not None:
+        now = int(time.time())
+        secs = max(0, until - now)
+        remaining_hours = secs // 3600
+        remaining_minutes = (secs % 3600) // 60
+    return Response({
+        'maintenance': enabled,
+        'remaining_hours': remaining_hours,
+        'remaining_minutes': remaining_minutes,
+    })
+
+
+def _normalize_phone_number(raw: str) -> str:
+    if raw is None:
+        return ''
+    s = str(raw).strip()
+    if not s:
+        return ''
+    keep_plus = s.startswith('+')
+    digits = ''.join(ch for ch in s if ch.isdigit())
+    if not digits:
+        return ''
+    return f"+{digits}" if keep_plus else digits
+
+
+@csrf_exempt
+@api_view(['POST', 'OPTIONS'])
+@permission_classes([AllowAny])
+def white_label_lead(request):
+    """
+    White-label lead capture. Public API; works during maintenance.
+    Body (JSON or form): name (required), phone_number (required), message (optional).
+    """
+    if request.method == 'OPTIONS':
+        return Response(status=status.HTTP_200_OK)
+    name = (request.data.get('name') or '').strip()
+    phone_number = _normalize_phone_number(request.data.get('phone_number'))
+    message = (request.data.get('message') or '').strip()
+
+    if not name:
+        return Response({'error': 'name is required'}, status=status.HTTP_400_BAD_REQUEST)
+    if not phone_number:
+        return Response({'error': 'phone_number is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Best-effort client metadata
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    ip = x_forwarded_for.split(',')[0].strip() if x_forwarded_for else request.META.get('REMOTE_ADDR', None)
+    ua = (request.META.get('HTTP_USER_AGENT') or '').strip()
+
+    try:
+        from game.models import WhiteLabelLead
+    except ImportError:
+        return Response({'error': 'Service not configured'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    WhiteLabelLead.objects.create(
+        name=name[:100],
+        phone_number=phone_number[:30],
+        message=message,
+        ip_address=ip if ip else None,
+        user_agent=ua,
+    )
+
+    return Response({'status': 'ok'}, status=status.HTTP_201_CREATED)
 
 
 def root_status(request):
@@ -118,63 +225,63 @@ def root_status(request):
 
 @never_cache
 def serve_react_app(request, path=''):
-    """Serve React app - serves index.html for all routes except API/admin/download"""
-    # CRITICAL: Explicitly exclude download paths - these should NEVER be served by React
-    request_path = request.path.strip('/')
-    download_paths = ['apk', 'download-apk', 'app.apk', 'gundu-ata.apk', 'download.apk']
-    if request_path in download_paths or request_path.endswith('.apk') or request_path.startswith('download/apk') or request_path.startswith('apk/download'):
-        return HttpResponse("This endpoint should be handled by download_apk view. If you see this, there's a URL routing issue.", status=404)
-    
-    react_build_dir = getattr(settings, 'REACT_BUILD_DIR', None)
-    
-    if not react_build_dir or not os.path.exists(react_build_dir):
-        # If React build doesn't exist, return a helpful message
-        return HttpResponse("""
-        <html>
-            <head><title>React App Not Built</title></head>
-            <body style="font-family: sans-serif; padding: 40px; text-align: center;">
-                <h1>React App Not Built</h1>
-                <p>Please run <code>npm run build</code> to build the React app.</p>
-                <p>Then restart the Django server.</p>
-            </body>
-        </html>
-        """, status=503)
-    
-    # Get the full path from the request
-    request_path = request.path.lstrip('/')
-    
-    # If requesting a static file (JS, CSS, images, etc.), serve it
-    if request_path and '.' in request_path:
-        # Check in assets directory first (Vite build structure)
-        file_path = os.path.join(react_build_dir, request_path)
-        if not os.path.exists(file_path):
-            # Try assets directory
-            file_path = os.path.join(react_build_dir, 'assets', os.path.basename(request_path))
-        
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            # Determine content type
-            content_type = 'application/octet-stream'
-            if file_path.endswith('.js'):
-                content_type = 'application/javascript'
-            elif file_path.endswith('.css'):
-                content_type = 'text/css'
-            elif file_path.endswith('.png'):
-                content_type = 'image/png'
-            elif file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
-                content_type = 'image/jpeg'
-            elif file_path.endswith('.svg'):
-                content_type = 'image/svg+xml'
-            
-            return FileResponse(open(file_path, 'rb'), content_type=content_type)
-    
-    # For all other routes, serve index.html (React Router will handle routing)
-    index_path = os.path.join(react_build_dir, 'index.html')
-    if os.path.exists(index_path):
-        with open(index_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        return HttpResponse(content, content_type='text/html')
-    
-    return HttpResponse("React app index.html not found", status=404)
+    """Serve React app - serves index.html for all routes except API/admin/download. Never crash to avoid 502."""
+    try:
+        request_path = (request.path or '').strip('/')
+        download_paths = ['apk', 'download-apk', 'app.apk', 'gundu-ata.apk', 'download.apk']
+        if request_path in download_paths or (request_path or '').endswith('.apk') or request_path.startswith('download/apk') or request_path.startswith('apk/download'):
+            return HttpResponse("This endpoint should be handled by download_apk view. If you see this, there's a URL routing issue.", status=404)
+
+        react_build_dir = getattr(settings, 'REACT_BUILD_DIR', None)
+        if react_build_dir is not None:
+            react_build_dir = os.path.normpath(str(react_build_dir))
+
+        if not react_build_dir or not os.path.exists(react_build_dir):
+            # Return 200 with minimal page so root never 5xx (avoids 502 from proxy)
+            return HttpResponse("""
+            <!DOCTYPE html>
+            <html><head><meta charset="utf-8"><title>Gundu Ata</title></head>
+            <body style="font-family:sans-serif;padding:40px;text-align:center;">
+            <h1>Gundu Ata</h1>
+            <p>App is running. <a href="/api/">API</a> | <a href="/game-admin/">Admin</a></p>
+            </body></html>
+            """, content_type='text/html', status=200)
+
+        request_path = (request.path or '').lstrip('/')
+        if request_path and '.' in request_path:
+            base_real = os.path.realpath(react_build_dir)
+            file_path = os.path.realpath(os.path.normpath(os.path.join(react_build_dir, request_path)))
+            if not file_path.startswith(base_real):
+                file_path = os.path.join(react_build_dir, 'assets', os.path.basename(request_path))
+                file_path = os.path.realpath(file_path) if os.path.exists(file_path) else None
+            if file_path and os.path.exists(file_path) and os.path.isfile(file_path) and file_path.startswith(base_real):
+                content_type = 'application/octet-stream'
+                if file_path.endswith('.js'):
+                    content_type = 'application/javascript'
+                elif file_path.endswith('.css'):
+                    content_type = 'text/css'
+                elif file_path.endswith('.png'):
+                    content_type = 'image/png'
+                elif file_path.endswith(('.jpg', '.jpeg')):
+                    content_type = 'image/jpeg'
+                elif file_path.endswith('.svg'):
+                    content_type = 'image/svg+xml'
+                return FileResponse(open(file_path, 'rb'), content_type=content_type)
+
+        index_path = os.path.join(react_build_dir, 'index.html')
+        if os.path.exists(index_path):
+            with open(index_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return HttpResponse(content, content_type='text/html')
+        return HttpResponse("React app index.html not found", status=404)
+    except Exception as e:
+        import logging
+        logging.getLogger('django').exception("serve_react_app error")
+        return HttpResponse(
+            f"<html><body><h1>Error</h1><p>Something went wrong.</p></body></html>",
+            content_type='text/html',
+            status=500
+        )
 
 
 @never_cache
@@ -209,8 +316,9 @@ def download_apk(request):
         # Android app build output (if building locally)
         str(settings.BASE_DIR.parent / 'android_app' / 'app' / 'build' / 'outputs' / 'apk' / 'debug' / 'app-debug.apk'),
         # Absolute paths (server locations)
-        '/var/www/gunduata.online/staticfiles/assets/gundu_ata_latest.apk',
-        '/var/www/gunduata.online/staticfiles/apks/gundu_ata_latest.apk',
+        # Common server locations (domain folder varies by deployment)
+        '/var/www/gunduata.club/staticfiles/assets/gundu_ata_latest.apk',
+        '/var/www/gunduata.club/staticfiles/apks/gundu_ata_latest.apk',
         '/home/ubuntu/apk_of_ata/backend/staticfiles/assets/gundu_ata_latest.apk',
         '/root/apk_of_ata/backend/staticfiles/assets/gundu_ata_latest.apk',
     ]

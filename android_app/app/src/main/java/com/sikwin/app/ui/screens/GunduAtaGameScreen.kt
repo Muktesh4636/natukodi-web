@@ -55,7 +55,9 @@ fun GunduAtaGameScreen(
             "GunduAtaGameScreen",
             "Launching Unity with token=${if (token.isNullOrBlank()) "EMPTY" else "present"}, refresh=${if (refresh.isNullOrBlank()) "EMPTY" else "present"}"
         )
-        com.unity3d.player.UnityTokenHolder.setTokens(token ?: "", refresh ?: "", "", "")
+        val savedUser = sessionManager.fetchUsername() ?: ""
+        val savedPass = sessionManager.fetchPassword() ?: ""
+        com.unity3d.player.UnityTokenHolder.setTokens(token ?: "", refresh ?: "", savedUser, savedPass)
         context.startActivity(intent)
     }
 

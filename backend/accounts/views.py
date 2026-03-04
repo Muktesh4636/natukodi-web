@@ -135,6 +135,57 @@ def cache_user_session(user, balance=None):
     except Exception as e:
         logger.error(f"Error caching user session: {e}")
 
+
+def _set_single_session(user_id, refresh_token):
+    """Store this login's access iat and refresh jti in Redis so only this session is valid (single session per user)."""
+    if not getattr(settings, 'SINGLE_SESSION_PER_USER', False):
+        return
+    if not redis_client:
+        return
+    try:
+        # Access token iat: used by CachedJWTAuthentication to reject old access tokens
+        at = getattr(refresh_token, 'access_token', None)
+        payload = getattr(at, 'payload', None) if at else None
+        if isinstance(payload, dict):
+            iat = payload.get('iat')
+        else:
+            iat = None
+        if iat is None:
+            iat = int(timezone.now().timestamp())
+        redis_client.set(f"user_valid_iat:{user_id}", str(int(iat)), ex=86400 * 30)  # 30 days
+        # Refresh token jti: used by custom refresh view to reject old refresh tokens (so other device cannot refresh)
+        ref_payload = getattr(refresh_token, 'payload', None)
+        if isinstance(ref_payload, dict) and ref_payload.get('jti'):
+            redis_client.set(f"user_valid_refresh_jti:{user_id}", str(ref_payload['jti']), ex=86400 * 30)
+    except Exception as e:
+        logger.warning(f"Single-session set skipped: {e}")
+
+
+def _login_redis_sync(user_id, username, is_staff, is_active, wallet_balance_str):
+    """Sync session/balance to Redis with short timeout so login never blocks (avoids 504)."""
+    import redis
+    host = getattr(settings, 'REDIS_HOST', 'localhost')
+    port = int(getattr(settings, 'REDIS_PORT', 6379))
+    db = int(getattr(settings, 'REDIS_DB', 0))
+    password = getattr(settings, 'REDIS_PASSWORD', None)
+    try:
+        client = redis.Redis(
+            host=host, port=port, db=db, password=password,
+            decode_responses=True,
+            socket_connect_timeout=2,
+            socket_timeout=2,
+        )
+        pipe = client.pipeline()
+        pipe.set(f"user_balance:{user_id}", wallet_balance_str, ex=86400)
+        pipe.set(f"user_session:{user_id}", json.dumps({
+            'id': user_id, 'username': username, 'is_staff': is_staff, 'is_active': is_active,
+            'wallet_balance': wallet_balance_str,
+        }), ex=3600)
+        pipe.execute()
+    except Exception as e:
+        logger.warning(f"Login Redis sync skipped (non-blocking): {e}")
+
+
 def notify_user(user, message):
     """Placeholder notification helper"""
     # In a real system, this would push a notification via WebSocket or a push service
@@ -213,6 +264,7 @@ def register(request):
 
                 # Generate tokens
                 refresh = RefreshToken.for_user(user)
+                _set_single_session(user.id, refresh)  # Only this session valid
                 return Response({
                     'user': UserSerializer(user).data,
                     'refresh': str(refresh),
@@ -286,39 +338,34 @@ def login(request):
 
         # 2. Generate JWT tokens (No DB hit)
         refresh = RefreshToken.for_user(user)
-        
-        # 3. Sync balance and session to Redis (CRITICAL for high-speed betting)
-        if redis_client:
-            try:
-                # Use the already fetched wallet from select_related
-                wallet_balance = user.wallet.balance if hasattr(user, 'wallet') else Decimal('0.00')
-                
-                # Use a pipeline for faster Redis operations
-                pipe = redis_client.pipeline()
-                pipe.set(f"user_balance:{user.id}", str(wallet_balance), ex=86400)
-                
-                user_session_data = {
-                    'id': user.id,
-                    'username': user.username,
-                    'is_staff': user.is_staff,
-                    'is_active': user.is_active,
-                    'wallet_balance': str(wallet_balance)
-                }
-                pipe.set(f"user_session:{user.id}", json.dumps(user_session_data), ex=3600)
-                pipe.execute()
-                
-                # Update last login - use update_fields to avoid full model save
-                # and only do it if it's been more than 5 minutes to reduce DB load
-                now = timezone.now()
-                if not user.last_login or (now - user.last_login).total_seconds() > 300:
-                    user.last_login = now
-                    user.save(update_fields=['last_login'])
-            except Exception as re:
-                logger.error(f"Redis sync error during login: {re}")
+        _set_single_session(user.id, refresh)  # Only this session valid; other device logged out
+        wallet_balance = user.wallet.balance if hasattr(user, 'wallet') else Decimal('0.00')
 
-        # 4. Return response with serialized data
+        # 3. Sync balance and session to Redis with SHORT timeout so login never blocks on Redis (fixes 504)
+        _login_redis_sync(user.id, user.username, user.is_staff, user.is_active, str(wallet_balance))
+        now = timezone.now()
+        if not user.last_login or (now - user.last_login).total_seconds() > 300:
+            user.last_login = now
+            user.save(update_fields=['last_login'])
+
+        # 4. Return response without calling UserSerializer (avoids extra Redis in get_wallet_balance)
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': getattr(user, 'email') or '',
+            'phone_number': getattr(user, 'phone_number') or '',
+            'gender': getattr(user, 'gender') or '',
+            'telegram': getattr(user, 'telegram') or '',
+            'facebook': getattr(user, 'facebook') or '',
+            'address': getattr(user, 'address') or '',
+            'date_of_birth': str(user.date_of_birth) if getattr(user, 'date_of_birth') else None,
+            'is_staff': user.is_staff,
+            'profile_photo_url': None,
+            'referral_code': getattr(user, 'referral_code', None) or '',
+            'wallet_balance': str(wallet_balance),
+        }
         return Response({
-            'user': UserSerializer(user).data,
+            'user': user_data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }, status=status.HTTP_200_OK)
@@ -445,6 +492,7 @@ def verify_otp_login(request):
 
         # 3. Create JWT tokens
         refresh = RefreshToken.for_user(user)
+        _set_single_session(user.id, refresh)  # Only this session valid; other device logged out
 
         # Update last login
         user.last_login = timezone.now()
@@ -552,14 +600,73 @@ def reset_password(request):
         return Response({'error': 'Internal server error', 'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def change_password(request):
+    """
+    Change password for the authenticated user.
+
+    Expects: current_password, new_password, confirm_password
+    """
+    # NOTE: request.user may come from CachedJWTAuthentication which returns a
+    # minimal user object from Redis cache (without password hash). For password
+    # verification we must fetch the real user row from DB.
+    user = request.user
+    try:
+        user = User.objects.get(pk=getattr(user, 'id', None))
+    except Exception:
+        return Response({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Admins/Staff are not allowed to participate in the game app
+    if user.is_staff or user.is_superuser:
+        return Response({'error': 'Admins are not allowed to use this endpoint.'}, status=status.HTTP_403_FORBIDDEN)
+
+    current_password = (request.data.get('current_password') or '').strip()
+    new_password = (request.data.get('new_password') or '').strip()
+    confirm_password = (request.data.get('confirm_password') or '').strip()
+
+    if not current_password or not new_password or not confirm_password:
+        return Response(
+            {'error': 'current_password, new_password, and confirm_password are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not user.check_password(current_password):
+        return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if new_password != confirm_password:
+        return Response({'error': 'New password and confirm password do not match'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if current_password == new_password:
+        return Response({'error': 'New password must be different from current password'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Minimal restriction: allow any password with length >= 4
+    if len(new_password) < 4:
+        return Response({'error': 'Password must be at least 4 characters'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save(update_fields=['password'])
+
+    return Response({'status': 'ok', 'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def profile(request):
     """Get or update user profile"""
     try:
+        # request.user may be a minimal cached user (from CachedJWTAuthentication).
+        # Always operate on the real DB row to avoid regenerating referral_code and
+        # to prevent accidental overwrites of non-loaded fields.
+        try:
+            db_user = User.objects.get(pk=getattr(request.user, 'id', None))
+        except Exception:
+            return Response({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+
         if request.method == 'GET':
-            logger.info(f"Profile access for user: {request.user.username} (ID: {request.user.id})")
-            user = request.user
+            logger.info(f"Profile access for user: {db_user.username} (ID: {db_user.id})")
+            user = db_user
             # Ensure user has a referral code (fix for legacy users or missing codes)
             if not user.referral_code:
                 user.referral_code = user.generate_unique_referral_code()
@@ -568,8 +675,8 @@ def profile(request):
             return Response(serializer.data)
         
         elif request.method == 'POST':
-            logger.info(f"Profile update for user: {request.user.username} (ID: {request.user.id})")
-            serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
+            logger.info(f"Profile update for user: {db_user.username} (ID: {db_user.id})")
+            serializer = UserSerializer(db_user, data=request.data, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
@@ -590,10 +697,15 @@ def update_profile_photo(request):
     photo = request.FILES.get('photo')
     if not photo:
         return Response({'error': 'Photo is required'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    request.user.profile_photo = photo
-    request.user.save()
-    serializer = UserSerializer(request.user)
+    # Use DB user and update_fields so we never call full save() on a minimal
+    # cached user (which would otherwise overwrite referral_code in DB).
+    try:
+        db_user = User.objects.get(pk=getattr(request.user, 'id', None))
+    except Exception:
+        return Response({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+    db_user.profile_photo = photo
+    db_user.save(update_fields=['profile_photo'])
+    serializer = UserSerializer(db_user, context={'request': request})
     return Response(serializer.data)
 
 
@@ -615,6 +727,78 @@ def register_fcm_token(request):
 
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework_simplejwt.views import TokenRefreshView as _TokenRefreshView
+
+# Redis key for single-session: only this refresh token jti is valid for this user
+USER_VALID_REFRESH_JTI_PREFIX = 'user_valid_refresh_jti:'
+
+
+class SingleSessionTokenRefreshView(_TokenRefreshView):
+    """
+    Token refresh that enforces single session per user: only the refresh token
+    from the latest login is accepted. When user logs in on another device, the
+    old device's refresh token (different jti) is rejected here.
+    """
+    def post(self, request, *args, **kwargs):
+        # If single-session is disabled, behave exactly like SimpleJWT default refresh.
+        if not getattr(settings, 'SINGLE_SESSION_PER_USER', False):
+            return super().post(request, *args, **kwargs)
+        refresh_str = (request.data.get('refresh') or request.data.get('refresh_token') or '').strip()
+        if not refresh_str:
+            return Response(
+                {'detail': 'Refresh token is required.', 'code': 'session_invalidated'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        if redis_client:
+            try:
+                import jwt
+                simp = getattr(settings, 'SIMPLE_JWT', {})
+                key = simp.get('SIGNING_KEY', settings.SECRET_KEY)
+                algo = simp.get('ALGORITHM', 'HS256')
+                user_id_claim = simp.get('USER_ID_CLAIM', 'user_id')
+                payload = jwt.decode(refresh_str, key, algorithms=[algo])
+                user_id = payload.get(user_id_claim)
+                jti = payload.get('jti')
+                if user_id is not None and jti is not None:
+                    stored = redis_client.get(f"{USER_VALID_REFRESH_JTI_PREFIX}{user_id}")
+                    if stored is not None:
+                        stored = stored.decode('utf-8', errors='ignore') if isinstance(stored, bytes) else str(stored)
+                        if stored != str(jti):
+                            return Response(
+                                {'detail': 'Logged in on another device. Please log in again.', 'code': 'session_invalidated'},
+                                status=status.HTTP_401_UNAUTHORIZED
+                            )
+            except jwt.InvalidTokenError:
+                pass  # Let parent view handle invalid token
+            except Exception as e:
+                logger.warning(f"Single-session refresh check skipped: {e}")
+
+        response = super().post(request, *args, **kwargs)
+        # After successful refresh, if rotation issued a new refresh token, update Redis so this device stays valid
+        if response.status_code == 200 and redis_client:
+            try:
+                new_refresh = (response.data.get('refresh') or '').strip()
+                if new_refresh:
+                    import jwt
+                    simp = getattr(settings, 'SIMPLE_JWT', {})
+                    key = simp.get('SIGNING_KEY', settings.SECRET_KEY)
+                    algo = simp.get('ALGORITHM', 'HS256')
+                    user_id_claim = simp.get('USER_ID_CLAIM', 'user_id')
+                    ref_payload = jwt.decode(new_refresh, key, algorithms=[algo])
+                    new_jti = ref_payload.get('jti')
+                    user_id = ref_payload.get(user_id_claim)
+                    if new_jti and user_id:
+                        redis_client.set(f"{USER_VALID_REFRESH_JTI_PREFIX}{user_id}", str(new_jti), ex=86400 * 30)
+                    # Update access token iat so CachedJWTAuthentication accepts the new access token
+                    new_access = (response.data.get('access') or '').strip()
+                    if new_access:
+                        acc_payload = jwt.decode(new_access, key, algorithms=[algo], options={'verify_exp': False})
+                        iat = acc_payload.get('iat')
+                        if iat is not None and user_id:
+                            redis_client.set(f"user_valid_iat:{user_id}", str(int(iat)), ex=86400 * 30)
+            except Exception as e:
+                logger.warning(f"Single-session refresh update skipped: {e}")
+        return response
 
 
 class WalletView(APIView):
@@ -670,8 +854,11 @@ class WalletView(APIView):
             unav = max(Decimal('0.00'), bal - turnover)
             withdrawable = str(max(Decimal('0.00'), bal - unav))
         except Exception:
-            withdrawable = str(wallet.withdrawable_balance)
-            unav = wallet.unavaliable_balance
+            # Fallback to formula (never rely on stored unavaliable_balance)
+            bal = Decimal('0.00')
+            turnover = Decimal(str(wallet.turnover or 0))
+            unav = max(Decimal('0.00'), bal - turnover)
+            withdrawable = str(max(Decimal('0.00'), bal - unav))
 
         wallet_response = {
             'id': wallet.id,
@@ -1547,38 +1734,20 @@ def daily_reward(request):
                 'error': 'Daily reward already claimed today'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Define reward probabilities and amounts
-        rewards = [
-            {'amount': 1000, 'type': 'MONEY', 'probability': 1},
-            {'amount': 500, 'type': 'MONEY', 'probability': 2},
-            {'amount': 100, 'type': 'MONEY', 'probability': 5},
-            {'amount': 50, 'type': 'MONEY', 'probability': 10},
-            {'amount': 30, 'type': 'MONEY', 'probability': 20},
-            {'amount': 20, 'type': 'MONEY', 'probability': 30},
-            {'amount': 10, 'type': 'MONEY', 'probability': 20},
-            {'amount': 5, 'type': 'MONEY', 'probability': 10},
-            {'amount': 0, 'type': 'TRY_AGAIN', 'probability': 2},
-        ]
-
-        # Calculate total probability
-        total_probability = sum(reward['probability'] for reward in rewards)
-
-        # Generate random number
+        # Rule: every 5 spins = exactly 3 × ₹10 and 2 × "Better luck next time" (₹30 total per 5 days)
+        # Only outcomes: ₹10 (MONEY) or ₹0 (TRY_AGAIN)
         import random
-        random_value = random.randint(1, total_probability)
+        last_5 = DailyReward.objects.filter(user=user).order_by('-reward_date')[:5]
+        wins = sum(1 for r in last_5 if r.reward_type == 'MONEY' and r.reward_amount and float(r.reward_amount) > 0)
+        try_again_count = sum(1 for r in last_5 if r.reward_type == 'TRY_AGAIN' or (r.reward_amount is not None and float(r.reward_amount) == 0))
 
-        # Select reward based on probability
-        cumulative_probability = 0
-        selected_reward = None
-
-        for reward in rewards:
-            cumulative_probability += reward['probability']
-            if random_value <= cumulative_probability:
-                selected_reward = reward
-                break
-
-        if not selected_reward:
-            selected_reward = rewards[-1]  # Default to last reward
+        if wins >= 3:
+            selected_reward = {'amount': 0, 'type': 'TRY_AGAIN'}
+        elif try_again_count >= 2:
+            selected_reward = {'amount': 10, 'type': 'MONEY'}
+        else:
+            # Fewer than 5 spins or room for both; randomize toward 3 wins / 2 try-again per 5
+            selected_reward = {'amount': 10, 'type': 'MONEY'} if random.random() < 0.6 else {'amount': 0, 'type': 'TRY_AGAIN'}
 
         # Create the daily reward record
         daily_reward = DailyReward.objects.create(
@@ -1588,18 +1757,15 @@ def daily_reward(request):
             reward_date=reward_day
         )
 
-        # If it's a money reward, add to wallet
+        # If it's a money reward, add to wallet (only ₹10 possible now)
         if selected_reward['type'] == 'MONEY' and selected_reward['amount'] > 0:
             try:
                 reward_amount = Decimal(str(selected_reward['amount']))
                 wallet = user.wallet
-                
-                # 1️⃣ Update DB atomically
-                # We use F() expression for safety
+
                 Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + reward_amount)
                 wallet.refresh_from_db()
 
-                # 2️⃣ Update Redis atomically using INCRBYFLOAT
                 if redis_client:
                     try:
                         redis_client.incrbyfloat(f"user_balance:{user.id}", float(reward_amount))
@@ -1607,7 +1773,6 @@ def daily_reward(request):
                     except Exception as re_err:
                         logger.error(f"Failed to update Redis balance for user {user.id} after daily reward: {re_err}")
 
-                # 3️⃣ Create transaction record
                 Transaction.objects.create(
                     user=user,
                     transaction_type='DEPOSIT',
@@ -1628,7 +1793,7 @@ def daily_reward(request):
                 'amount': selected_reward['amount'],
                 'type': selected_reward['type']
             },
-            'message': f'Congratulations! You won ₹{selected_reward["amount"]}' if selected_reward['type'] == 'MONEY' else 'Better luck next time! Try again tomorrow.'
+            'message': f'Congratulations! You won ₹{selected_reward["amount"]}' if selected_reward['type'] == 'MONEY' and selected_reward['amount'] else 'Better luck next time! Try again tomorrow.'
         })
 
 
@@ -1660,15 +1825,22 @@ def referral_data(request):
     from django.db.models import Count, Sum, Q
     from .referral_logic import get_tier_progress, get_next_milestone, TIER_1_COUNT
     
-    user = request.user
+    # request.user may be a minimal cached user (from CachedJWTAuthentication).
+    # Always operate on the real DB row to keep referral_code stable.
+    try:
+        user = User.objects.get(pk=getattr(request.user, 'id', None))
+    except Exception:
+        return Response({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
     
     # Ensure user has a referral code (fix for legacy users or missing codes)
     if not user.referral_code:
         user.referral_code = user.generate_unique_referral_code()
         user.save(update_fields=['referral_code'])
     
-    # Count total referrals (users who signed up using this user's referral code)
-    total_referrals = User.objects.filter(referred_by=user).count()
+    # Total referrals: use stored count (total_referrals_count) kept in sync on save/delete
+    total_referrals = getattr(user, 'total_referrals_count', None)
+    if total_referrals is None:
+        total_referrals = User.objects.filter(referred_by=user).count()
     
     # Count active referrals (referrals who have made at least one deposit)
     active_referrals = User.objects.filter(
@@ -1796,63 +1968,59 @@ def lucky_draw(request):
     user = request.user
     
     if request.method == 'GET':
-        # Find the OLDEST approved deposit of ₹2000+ that hasn't been used for lucky draw (FIFO).
-        # User must use their mega spin before the next deposit grants another.
+        # Only the single MOST RECENT eligible deposit can grant a spin. 3 deposits = 1 spin
+        # (for the latest deposit only). Older deposits never grant spins.
         recent_deposit = DepositRequest.objects.filter(
             user=user,
             status='APPROVED',
             amount__gte=Decimal('2000.00'),  # Minimum ₹2000 deposit required
             payment_reference__isnull=False  # Bank transfer has UTR/payment reference
-        ).exclude(
-            lucky_draws__isnull=False  # Exclude deposits that already have lucky draw
-        ).order_by('processed_at').first()
+        ).order_by('-processed_at').first()
         
-        # Check if user has already claimed lucky draw for this deposit
-        if recent_deposit:
-            existing_lucky_draw = LuckyDraw.objects.filter(
-                user=user,
-                deposit_request=recent_deposit
-            ).first()
-            
-            if existing_lucky_draw:
-                return Response({
-                    'claimed': True,
-                    'reward': {
-                        'amount': existing_lucky_draw.reward_amount,
-                    },
-                    'deposit_amount': float(existing_lucky_draw.deposit_amount),
-                    'message': 'Lucky draw already claimed for this deposit'
-                })
-            
+        if not recent_deposit:
             return Response({
                 'claimed': False,
-                'deposit_amount': float(recent_deposit.amount),
-                'message': 'Ready to spin for lucky draw'
+                'deposit_amount': None,
+                'message': 'No eligible deposit of ₹2000 or more found. Deposit ₹2000+ to unlock lucky draw!'
+            })
+        
+        # Check if user has already claimed lucky draw for this (latest) deposit
+        existing_lucky_draw = LuckyDraw.objects.filter(
+            user=user,
+            deposit_request=recent_deposit
+        ).first()
+        
+        if existing_lucky_draw:
+            return Response({
+                'claimed': True,
+                'reward': {
+                    'amount': existing_lucky_draw.reward_amount,
+                },
+                'deposit_amount': float(existing_lucky_draw.deposit_amount),
+                'message': 'Lucky draw already claimed for this deposit'
             })
         
         return Response({
             'claimed': False,
-            'deposit_amount': None,
-            'message': 'No eligible deposit of ₹2000 or more found. Deposit ₹2000+ to unlock lucky draw!'
+            'deposit_amount': float(recent_deposit.amount),
+            'message': 'Ready to spin for lucky draw'
         })
 
     elif request.method == 'POST':
-        # Find the OLDEST approved deposit of ₹2000+ (FIFO - must use current spin before next deposit grants one)
+        # Same rule: only the single latest eligible deposit grants 1 spin
         recent_deposit = DepositRequest.objects.filter(
             user=user,
             status='APPROVED',
-            amount__gte=Decimal('2000.00'),  # Minimum ₹2000 deposit required
+            amount__gte=Decimal('2000.00'),
             payment_reference__isnull=False
-        ).exclude(
-            lucky_draws__isnull=False
-        ).order_by('processed_at').first()
+        ).order_by('-processed_at').first()
         
         if not recent_deposit:
             return Response({
                 'error': 'No eligible deposit of ₹2000 or more found'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if already claimed
+        # Check if already claimed for this deposit
         existing_lucky_draw = LuckyDraw.objects.filter(
             user=user,
             deposit_request=recent_deposit
@@ -1896,7 +2064,9 @@ def lucky_draw(request):
                 break
         
         selected_amount = SLICE_TO_AMOUNT[selected_slice]
-        
+        # Cap: no user gets more than ₹100 from mega spin
+        selected_amount = min(selected_amount, 100)
+
         # Create the lucky draw record
         lucky_draw = LuckyDraw.objects.create(
             user=user,
@@ -1947,20 +2117,31 @@ def lucky_draw(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):
-    """Get leaderboard based on daily turnover (bets placed today IST). Prizes awarded to top 3."""
-    try:
-        from game.models import Bet, LeaderboardSetting
-        from datetime import datetime, timedelta
-        import pytz
+    """
+    Leaderboard API (daily turnover).
 
-        # Use India timezone (IST) for "today" - daily resets at midnight IST
-        ist = pytz.timezone('Asia/Kolkata')
-        now_ist = datetime.now(ist)
-        today_ist = now_ist.date()
-        today_start_ist = ist.localize(datetime.combine(today_ist, datetime.min.time()))
-        tomorrow_start_ist = ist.localize(datetime.combine(today_ist, datetime.min.time())) + timedelta(days=1)
-        today_start_utc = today_start_ist.astimezone(pytz.UTC)
-        tomorrow_start_utc = tomorrow_start_ist.astimezone(pytz.UTC)
+    Response shape (stable for clients):
+    {
+      "leaderboard": [{"username": "...", "turnover": 123.0}, ...],
+      "user_stats": {"rank": 7, "turnover": 1500.0},
+      "prizes": {"1st": "₹1,000", "2nd": "₹500", "3rd": "₹100"}
+    }
+
+    Note: Rank is returned as 0 when the user's daily turnover is <= 50 (client shows "Unranked").
+    """
+    try:
+        from game.models import LeaderboardSetting, UserDailyTurnover
+        from game.utils import get_leaderboard_period_date
+
+        # Use real DB user so ID/username are consistent (request.user may be minimal cached user)
+        try:
+            db_user = User.objects.get(pk=getattr(request.user, 'id', None))
+        except Exception:
+            return Response({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        current_user_id = db_user.id
+
+        # Current leaderboard period (23:00–23:00 IST); daily turnover is stored in UserDailyTurnover
+        period_date = get_leaderboard_period_date()
 
         # Get prizes from settings
         setting = LeaderboardSetting.objects.first()
@@ -1973,74 +2154,38 @@ def leaderboard(request):
             3: f"₹{setting.prize_3rd:,}"
         }
 
-        # Rank users by daily turnover (bets created today IST)
-        daily_bet_filter = {'created_at__gte': today_start_utc, 'created_at__lt': tomorrow_start_utc}
-        ranked_players = Bet.objects.filter(**daily_bet_filter) \
-            .values('user_id', 'user__username') \
-            .annotate(turnover=Coalesce(Sum('chip_amount'), 0)) \
-            .filter(turnover__gt=0) \
-            .order_by('-turnover', 'user_id')
-        
-        leaderboard_list = []
-        user_rank = 0
-        user_turnover = 0.0
-        
-        # Calculate rank for everyone and find current user's rank
-        # We'll use a dictionary to handle ties correctly if needed, 
-        # but for now, we'll follow the loop logic.
-        for index, data in enumerate(ranked_players):
-            rank = index + 1
-            turnover = float(data['turnover'])
-            
-            # Add to top 10 list
-            if len(leaderboard_list) < 10:
-                leaderboard_list.append({
-                    'rank': rank,
-                    'username': data['user__username'],
-                    'turnover': turnover,
-                    'prize': prizes.get(rank)
-                })
-            
-            # Check if this is the current user to get their rank
-            # CRITICAL: Ensure we compare the correct user ID
-            if str(data['user_id']) == str(request.user.id):
-                user_rank = rank
-                user_turnover = turnover
-                
-        # If user rank wasn't captured in loop (type mismatch / edge cases), compute directly.
-        if user_rank == 0:
-            user_turnover_data = Bet.objects.filter(user=request.user, **daily_bet_filter) \
-                .aggregate(total_turnover=Coalesce(Sum('chip_amount'), 0))
-            user_turnover = float(user_turnover_data['total_turnover'] or 0)
+        # 1) Top 10 from cached daily turnover (no Bet aggregation)
+        ranked_top10 = UserDailyTurnover.objects.filter(period_date=period_date, turnover__gt=0) \
+            .select_related('user') \
+            .order_by('-turnover', 'user_id')[:10]
+        leaderboard_list = [
+            {
+                'username': (row.user.username or ''),
+                'turnover': float(row.turnover),
+            }
+            for row in ranked_top10
+        ]
 
-            if user_turnover > 0:
-                # Rank = users with strictly higher daily turnover + 1
-                users_above_count = Bet.objects.filter(**daily_bet_filter) \
-                    .values('user_id') \
-                    .annotate(turnover=Coalesce(Sum('chip_amount'), 0)) \
-                    .filter(turnover__gt=user_turnover) \
-                    .count()
-                user_rank = users_above_count + 1
+        # 2) Current user's turnover from cache
+        user_row = UserDailyTurnover.objects.filter(user_id=current_user_id, period_date=period_date).first()
+        user_turnover = float(user_row.turnover) if user_row else 0.0
 
-        # If user wasn't in ranked players (no bets today), keep rank unranked.
-        if user_rank == 0:
-            user_turnover_data = Bet.objects.filter(user=request.user, **daily_bet_filter) \
-                .aggregate(total_turnover=Sum('chip_amount'))
-            user_turnover = float(user_turnover_data['total_turnover'] or 0)
-            # user_rank remains 0 (unranked) if no turnover today
-            
-        # DEBUG LOGGING
-        logger.info(f"Leaderboard Request - User: {request.user.username} (ID: {request.user.id}), Calculated Rank: {user_rank}, Turnover: {user_turnover}")
+        # 3) Current user's rank: only rank users with meaningful turnover (> 50)
+        if user_turnover > 50:
+            users_above_count = UserDailyTurnover.objects.filter(
+                period_date=period_date, turnover__gt=user_turnover
+            ).count()
+            user_rank = users_above_count + 1
+        else:
+            user_rank = 0
+
+        logger.info(f"Leaderboard Request - User: {db_user.username} (ID: {current_user_id}), Rank: {user_rank}, Turnover: {user_turnover}")
         
         return Response({
             'leaderboard': leaderboard_list,
-            'period': 'daily',
-            'period_label': 'Daily',
-            'date': today_ist.isoformat(),
             'user_stats': {
                 'rank': user_rank,
                 'turnover': user_turnover,
-                'username': request.user.username
             },
             'prizes': {
                 '1st': prizes[1],
@@ -2049,5 +2194,5 @@ def leaderboard(request):
             }
         })
     except Exception as e:
-        logger.error(f"Error in leaderboard API: {str(e)}")
+        logger.error(f"Error in leaderboard API: {str(e)}", exc_info=True)
         return Response({'error': 'Failed to fetch leaderboard data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

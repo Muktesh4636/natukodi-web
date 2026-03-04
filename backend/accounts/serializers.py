@@ -105,12 +105,27 @@ class UserSerializer(serializers.ModelSerializer):
 
 class WalletSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    withdrawable_balance = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    withdrawable_balance = serializers.SerializerMethodField()
+    unavaliable_balance = serializers.SerializerMethodField()
 
     class Meta:
         model = Wallet
         fields = ('id', 'user', 'balance', 'unavaliable_balance', 'withdrawable_balance', 'created_at', 'updated_at')
         read_only_fields = ('id', 'balance', 'unavaliable_balance', 'withdrawable_balance', 'created_at', 'updated_at')
+
+    def get_withdrawable_balance(self, obj):
+        # withdrawable = min(balance, turnover)
+        try:
+            return str(obj.withdrawable_balance)
+        except Exception:
+            return "0.00"
+
+    def get_unavaliable_balance(self, obj):
+        # unavailable = max(0, balance - turnover)
+        try:
+            return str(obj.computed_unavailable_balance)
+        except Exception:
+            return "0.00"
 
 
 class TransactionSerializer(serializers.ModelSerializer):

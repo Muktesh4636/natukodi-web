@@ -140,6 +140,14 @@ fun HomeScreen(
         }
     }
 
+    // Fetch wallet and profile when first landing on Home after login (ON_RESUME may not fire when navigating from Login)
+    LaunchedEffect(viewModel.loginSuccess) {
+        if (viewModel.loginSuccess) {
+            viewModel.fetchWallet()
+            viewModel.fetchProfile()
+        }
+    }
+
     Scaffold(
         topBar = { 
             HomeTopBar(

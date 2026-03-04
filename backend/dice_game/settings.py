@@ -20,15 +20,39 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Default to False for production
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Security: Only allow specific hosts
-ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,gunduata.online,www.gunduata.online,72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41')
+# Primary domains: gunduata.club (+ legacy gunduata.online)
+ALLOWED_HOSTS_STR = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,'
+    'gunduata.club,www.gunduata.club,'
+    'gunduata.online,www.gunduata.online,'
+    '72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41'
+)
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
 
 # For local development, allow all hosts if DEBUG is True
 if DEBUG:
     ALLOWED_HOSTS = ['*']
+else:
+    # Safety: prevent a too-strict ALLOWED_HOSTS env/.env from breaking the site (causes 400 everywhere).
+    # Always allow loopback + primary domains + known server IPs.
+    _required_hosts = {
+        'localhost',
+        '127.0.0.1',
+        'gunduata.club',
+        'www.gunduata.club',
+        'gunduata.online',
+        'www.gunduata.online',
+        '72.61.254.71',
+        '72.61.255.231',
+        '72.61.254.74',
+        '72.62.226.41',
+    }
+    if '*' not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS = sorted(set(ALLOWED_HOSTS) | _required_hosts)
 
 
 # Application definition
@@ -58,7 +82,7 @@ INSTALLED_APPS = [
 # Windows: Download installer from GitHub
 TESSERACT_CMD = os.getenv('TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
 
-# Maintenance mode: when enabled, most requests return 503; APK download always works
+# Maintenance mode: when enabled, app APIs and APK download return 503 for the duration
 # Enable: MAINTENANCE_MODE=1 in env, or: python manage.py maintenance on
 # Disable: python manage.py maintenance off
 
@@ -80,8 +104,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CSRF Settings
-CSRF_TRUSTED_ORIGINS = [
+# CSRF Settings — required for form POSTs (e.g. game-admin login/dice-control) when using HTTPS
+# When behind a proxy, ensure Nginx sends: proxy_set_header X-Forwarded-Proto $scheme;
+# and SECURE_PROXY_SSL_HEADER is set (see production block below)
+_default_csrf_origins = [
+    'https://gunduata.club',
+    'http://gunduata.club',
+    'https://www.gunduata.club',
+    'http://www.gunduata.club',
     'https://gunduata.online',
     'http://gunduata.online',
     'https://www.gunduata.online',
@@ -95,6 +125,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://0.0.0.0:8080',
     'http://0.0.0.0',
 ]
+_csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '').strip()
+if _csrf_origins_env:
+    _extra = [o.strip() for o in _csrf_origins_env.split(',') if o.strip()]
+    CSRF_TRUSTED_ORIGINS = list(_default_csrf_origins) + [o for o in _extra if o not in _default_csrf_origins]
+else:
+    CSRF_TRUSTED_ORIGINS = _default_csrf_origins
 
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_HTTPONLY = False
@@ -305,10 +341,19 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static' / 'unity',
 ]
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Allow override so production can use a shared path (e.g. /var/www/gunduata.club/media or mounted volume)
+_media_root_env = os.getenv('MEDIA_ROOT', '').strip()
+if _media_root_env:
+    MEDIA_ROOT = Path(_media_root_env) if os.path.isabs(_media_root_env) else BASE_DIR / _media_root_env
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
 
-# React app build directory
-REACT_BUILD_DIR = BASE_DIR / 'static' / 'react'
+# React app build directory (override via REACT_BUILD_DIR env for production)
+_react_build_env = os.getenv('REACT_BUILD_DIR', '').strip()
+if _react_build_env:
+    REACT_BUILD_DIR = Path(_react_build_env) if os.path.isabs(_react_build_env) else BASE_DIR / _react_build_env
+else:
+    REACT_BUILD_DIR = BASE_DIR / 'static' / 'react'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -370,10 +415,16 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
+# Session policy
+# If True: only one active login per user (new login invalidates old tokens).
+# If False: allow multiple devices/sessions for the same user (no forced logout message).
+SINGLE_SESSION_PER_USER = os.getenv('SINGLE_SESSION_PER_USER', 'False') == 'True'
+
 # CORS Settings - SECURITY: Restrict to specific origins
 CORS_ALLOWED_ORIGINS_STR = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'https://gunduata.online,https://www.gunduata.online,http://localhost:5173,http://localhost:3000'
+    'https://gunduata.club,https://www.gunduata.club,'
+    'http://localhost:5173,http://localhost:3000'
 )
 CORS_ALLOWED_ORIGINS = [
     origin.strip() for origin in CORS_ALLOWED_ORIGINS_STR.split(',') if origin.strip()

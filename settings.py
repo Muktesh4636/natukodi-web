@@ -20,10 +20,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Default to False for production
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Security: Only allow specific hosts
-ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,gunduata.online,www.gunduata.online,72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41')
+# Primary domains: gunduata.club (+ legacy gunduata.online)
+ALLOWED_HOSTS_STR = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,'
+    'gunduata.club,www.gunduata.club,'
+    'gunduata.online,www.gunduata.online,'
+    '72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41'
+)
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
 
 # For local development, allow all hosts if DEBUG is True
@@ -79,6 +86,10 @@ MIDDLEWARE = [
 
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = [
+    'https://gunduata.club',
+    'http://gunduata.club',
+    'https://www.gunduata.club',
+    'http://www.gunduata.club',
     'https://gunduata.online',
     'http://gunduata.online',
     'https://www.gunduata.online',
@@ -367,7 +378,8 @@ SIMPLE_JWT = {
 # CORS Settings - SECURITY: Restrict to specific origins
 CORS_ALLOWED_ORIGINS_STR = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'https://gunduata.online,https://www.gunduata.online,http://localhost:5173,http://localhost:3000'
+    'https://gunduata.club,https://www.gunduata.club,'
+    'http://localhost:5173,http://localhost:3000'
 )
 CORS_ALLOWED_ORIGINS = [
     origin.strip() for origin in CORS_ALLOWED_ORIGINS_STR.split(',') if origin.strip()

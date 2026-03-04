@@ -76,7 +76,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             val lower = raw.lowercase()
             return when {
                 lower.contains("413") || lower.contains("too large") -> "The file you are trying to upload is too large. Please use a smaller file (max 10MB)."
-                lower.contains("502") || lower.contains("bad gateway") -> "Server is busy. Please try again later."
+                lower.contains("502") || lower.contains("bad gateway") -> "Server temporarily unavailable. Please try again in a moment."
                 lower.contains("504") || lower.contains("gateway timeout") -> "Server timeout. Please try again."
                 else -> "An unexpected server error occurred. Please try again."
             }
@@ -87,7 +87,7 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
             lower.contains("already has a pending request") || 
             lower.contains("pending withdraw request") -> "Withdrawal already in processing"
             lower.contains("500") || lower.contains("internal server error") -> "Server error. Please try again later."
-            lower.contains("502") || lower.contains("bad gateway") -> "Server is busy. Please try again later."
+            lower.contains("502") || lower.contains("bad gateway") -> "Server temporarily unavailable. Please try again in a moment."
             lower.contains("503") || lower.contains("service unavailable") -> "Service temporarily unavailable. Please try again."
             lower.contains("404") || lower.contains("not found") -> "Request could not be completed. Please try again."
             lower.contains("403") || lower.contains("forbidden") -> "Access denied. Please try again."
@@ -262,7 +262,12 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         
                         // CRITICAL: Push tokens to Unity immediately (before any navigation)
                         try {
-                            com.unity3d.player.UnityTokenHolder.setTokens(it.access, it.refresh ?: "", "", "")
+                            com.unity3d.player.UnityTokenHolder.setTokens(
+                                it.access,
+                                it.refresh ?: "",
+                                username,
+                                if (savePassword) password else ""
+                            )
                             android.util.Log.d("GunduAtaViewModel", "Login: Set UnityTokenHolder (accessLen=${it.access.length})")
                         } catch (e: Exception) {
                             android.util.Log.e("GunduAtaViewModel", "Login: UnityTokenHolder failed", e)
@@ -283,6 +288,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         userProfile = it.user
                         loginSuccess = true
                         registerFcmTokenIfNeeded()
+                        fetchWallet()
+                        fetchProfile()
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -342,7 +349,12 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         
                         // CRITICAL: Push tokens to Unity immediately
                         try {
-                            com.unity3d.player.UnityTokenHolder.setTokens(it.access, it.refresh ?: "", "", "")
+                            com.unity3d.player.UnityTokenHolder.setTokens(
+                                it.access,
+                                it.refresh ?: "",
+                                phoneNumber,
+                                ""
+                            )
                             android.util.Log.d("GunduAtaViewModel", "OTP Login: Set UnityTokenHolder (accessLen=${it.access.length})")
                         } catch (e: Exception) {
                             android.util.Log.e("GunduAtaViewModel", "OTP Login: UnityTokenHolder failed", e)
@@ -364,6 +376,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         loginSuccess = true
                         otpSent = false // Reset OTP state
                         registerFcmTokenIfNeeded()
+                        fetchWallet()
+                        fetchProfile()
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -439,6 +453,8 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                         userProfile = it.user
                         sessionManager.saveReferralCode(it.user.referral_code)
                         loginSuccess = true
+                        fetchWallet()
+                        fetchProfile()
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -460,6 +476,9 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     val profile = response.body()
                     userProfile = profile
                     sessionManager.saveReferralCode(profile?.referral_code)
+                } else if (response.code() == 401 || response.code() == 403) {
+                    // Session logged out (invalid/expired token or session invalidated)
+                    logout()
                 }
             } catch (e: Exception) {
                 errorMessage = handleException(e)
@@ -475,6 +494,9 @@ class GunduAtaViewModel(private val sessionManager: SessionManager) : ViewModel(
                     wallet = response.body()
                     // Re-fetch betting history to update ranking whenever wallet is refreshed
                     fetchBettingHistory()
+                } else if (response.code() == 401 || response.code() == 403) {
+                    // Session logged out (invalid/expired token or session invalidated)
+                    logout()
                 }
             } catch (e: Exception) {
                 errorMessage = handleException(e)

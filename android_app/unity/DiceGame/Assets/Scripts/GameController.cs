@@ -273,7 +273,8 @@ public class GameController : MonoBehaviour
                 return;
             }
 
-            GameManager.Instance.RefreshWallet();
+            // Avoid extra REST call per bet (slow on mobile networks).
+            GameManager.Instance.ApplyWalletDelta(-amount);
             onResult?.Invoke(true);
         });
     }

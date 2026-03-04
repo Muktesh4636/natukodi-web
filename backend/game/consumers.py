@@ -5,6 +5,8 @@ import time
 import redis.asyncio as redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.conf import settings
+from django.utils import timezone
+from .utils import get_game_setting
 
 logger = logging.getLogger('game.websocket')
 
@@ -15,6 +17,87 @@ if settings.REDIS_PASSWORD:
 
 # Global Redis client (shared pool)
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+
+PLACE_BET_AND_QUEUE_LUA = r"""
+-- Redis-First Bet Placement + Queueing (Atomic)
+-- Keys:
+--  1 user_balance_key
+--  2 round_total_exposure_key
+--  3 round_user_exposure_hash_key
+--  4 round_bet_count_key
+--  5 legacy_round_total_amount_key
+--  6 legacy_round_total_bets_key
+--  7 bet_stream_key
+--  8 user_bets_stack_key
+-- Args:
+--  1 bet_amount
+--  2 user_id
+--  3 ttl_seconds
+--  4 round_id
+--  5 number
+--  6 username
+--  7 timestamp_iso
+
+local amount = tonumber(ARGV[1])
+local user_id = tostring(ARGV[2])
+local ttl = tonumber(ARGV[3])
+local round_id = tostring(ARGV[4])
+local number = tostring(ARGV[5])
+local username = tostring(ARGV[6])
+local ts = tostring(ARGV[7])
+
+-- Ensure balance exists
+local bal_raw = redis.call('GET', KEYS[1])
+if not bal_raw then
+  return {false, "NO_BALANCE", nil, nil, nil}
+end
+
+local bal = tonumber(bal_raw)
+if not bal or bal < amount then
+  return {false, "INSUFFICIENT_BALANCE", tostring(bal_raw), nil, nil}
+end
+
+-- 1) Deduct balance atomically
+local new_balance = tonumber(redis.call('INCRBYFLOAT', KEYS[1], -amount))
+redis.call('EXPIRE', KEYS[1], 86400)
+
+-- 2) Update exposure totals
+local total_exp = tonumber(redis.call('INCRBYFLOAT', KEYS[2], amount))
+redis.call('EXPIRE', KEYS[2], ttl)
+
+local user_exp = tonumber(redis.call('HINCRBYFLOAT', KEYS[3], user_id, amount))
+redis.call('EXPIRE', KEYS[3], ttl)
+
+-- 3) Increment counters (legacy)
+local bet_count = tonumber(redis.call('INCR', KEYS[4]))
+redis.call('EXPIRE', KEYS[4], ttl)
+
+local legacy_amount = tonumber(redis.call('INCRBYFLOAT', KEYS[5], amount))
+redis.call('EXPIRE', KEYS[5], ttl)
+
+local legacy_bets = tonumber(redis.call('INCR', KEYS[6]))
+redis.call('EXPIRE', KEYS[6], ttl)
+
+-- 4) Queue bet event in Redis Stream
+local msg_id = redis.call(
+  'XADD', KEYS[7],
+  'MAXLEN', '~', 10000,
+  '*',
+  'type', 'place_bet',
+  'user_id', user_id,
+  'round_id', round_id,
+  'number', number,
+  'chip_amount', tostring(amount),
+  'username', username,
+  'timestamp', ts
+)
+
+-- 5) Push to per-user stack for "remove last bet"
+redis.call('LPUSH', KEYS[8], msg_id)
+redis.call('EXPIRE', KEYS[8], ttl)
+
+return {true, tostring(new_balance), msg_id, tostring(legacy_bets), tostring(legacy_amount)}
+"""
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -297,11 +380,134 @@ class GameConsumer(AsyncWebsocketConsumer):
         logger.info(f"Redis listener stopped for {self.channel_name} (sent {message_count} messages total)")
 
     async def receive(self, text_data):
-        """Handle incoming messages (ping)"""
+        """Handle incoming messages (ping, place_bet)"""
         try:
             data = json.loads(text_data)
             if data.get('type') == 'ping':
                 await self.send(text_data=json.dumps({'type': 'pong'}))
+                return
+
+            if data.get('type') == 'place_bet':
+                user = self.scope.get('user')
+                if not user or not getattr(user, 'is_authenticated', False):
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'ok': False, 'error': 'Unauthorized'}))
+                    return
+
+                if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'ok': False, 'error': 'Admins are not allowed'}))
+                    return
+
+                request_id = str(data.get('request_id') or '')
+                try:
+                    number = int(data.get('number'))
+                except Exception:
+                    number = None
+                try:
+                    chip_amount = float(data.get('chip_amount'))
+                except Exception:
+                    chip_amount = None
+
+                if number is None or chip_amount is None:
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Invalid payload'}))
+                    return
+
+                max_bet_limit = float(get_game_setting('MAX_BET', 50000))
+                if chip_amount <= 0:
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Invalid bet amount'}))
+                    return
+                if chip_amount > max_bet_limit:
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': f'Maximum bet amount is {max_bet_limit}'}))
+                    return
+
+                user_id = user.id
+                username = user.username
+                balance_key = f"user_balance:{user_id}"
+
+                # 1) Get round state and balance from Redis in one round-trip
+                try:
+                    pipe = redis_client.pipeline()
+                    pipe.get('current_round_id')
+                    pipe.get('current_status')
+                    pipe.get('current_end_time')
+                    pipe.get(balance_key)
+                    round_id_raw, status_raw, end_time_raw, bal_raw = await pipe.execute()
+                except Exception as e:
+                    logger.error(f"[WS bet] Redis state fetch failed: {e}")
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Betting service unavailable'}))
+                    return
+
+                if not round_id_raw or not status_raw:
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Game state syncing, retry'}))
+                    return
+
+                round_id = round_id_raw
+                status_val = str(status_raw)
+                if status_val != 'BETTING':
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Betting is closed for this round'}))
+                    return
+
+                try:
+                    end_time = int(end_time_raw or 0)
+                    now_ts = int(timezone.now().timestamp())
+                    if end_time > 0 and now_ts > end_time:
+                        await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Betting period has expired'}))
+                        return
+                except Exception:
+                    pass
+
+                if bal_raw is None:
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Balance cache syncing, retry'}))
+                    return
+
+                # 2) Atomic place + queue (Lua)
+                keys = [
+                    balance_key,
+                    f"round:{round_id}:total_exposure",
+                    f"round:{round_id}:user_exposure",
+                    f"round:{round_id}:bet_count",
+                    f"round_total_amount:{round_id}",
+                    f"round_total_bets:{round_id}",
+                    "bet_stream",
+                    f"user_bets_stack:{user_id}",
+                ]
+                ts = timezone.now().isoformat()
+                try:
+                    result = await redis_client.eval(
+                        PLACE_BET_AND_QUEUE_LUA,
+                        8,
+                        *keys,
+                        chip_amount,
+                        user_id,
+                        3600,
+                        round_id,
+                        number,
+                        username,
+                        ts,
+                    )
+                    success = bool(result[0])
+                    response_val = result[1]
+                    if not success:
+                        await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': str(response_val)}))
+                        return
+
+                    new_balance = response_val
+                    legacy_bets = result[3]
+                    legacy_amount = result[4]
+
+                    await self.send(text_data=json.dumps({
+                        'type': 'place_bet_result',
+                        'request_id': request_id,
+                        'ok': True,
+                        'wallet_balance': "{:.2f}".format(float(new_balance)),
+                        'round': {
+                            'round_id': str(round_id),
+                            'total_bets': int(float(legacy_bets) if legacy_bets is not None else 0),
+                            'total_amount': "{:.2f}".format(float(legacy_amount) if legacy_amount is not None else 0.0),
+                        }
+                    }))
+                except Exception as e:
+                    logger.error(f"[WS bet] Redis eval failed: {e}")
+                    await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Betting service unavailable'}))
         except:
             pass
 

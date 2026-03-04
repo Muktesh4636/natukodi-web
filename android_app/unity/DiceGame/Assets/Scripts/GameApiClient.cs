@@ -17,10 +17,10 @@ public class GameApiClient : MonoBehaviour
 {
     [Header("API Config")]
     [Tooltip("Base HTTP URL (no trailing slash)")]
-    [SerializeField] private string baseUrl = "https://gunduata.online";
+    [SerializeField] private string baseUrl = "https://gunduata.club";
 
     [Tooltip("Base WebSocket URL (ws://host:port/ws/game/)")]
-    [SerializeField] private string wsUrl = "wss://gunduata.online/ws/game/";
+    [SerializeField] private string wsUrl = "wss://gunduata.club/ws/game/";
 
     // Auth tokens (kept in memory; persist externally if desired)
     private string accessToken = null;
@@ -33,6 +33,8 @@ public class GameApiClient : MonoBehaviour
     // WebSocket
     private WebSocket websocket;
     private bool wsConnected = false;
+    private readonly Dictionary<string, Action<bool, BetResponse, string>> pendingWsBets =
+        new Dictionary<string, Action<bool, BetResponse, string>>();
 
     // Main-thread queue for background callbacks
     private readonly ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
@@ -1602,6 +1604,53 @@ public class GameApiClient : MonoBehaviour
         }
     }
 
+    private IEnumerator PlaceBetSmartCoroutine(int number, float amount, Action<bool, BetResponse, string> callback = null)
+    {
+        // WebSocket avoids per-request HTTPS/TLS overhead on mobile networks.
+        if (IsWebSocketHealthy() && websocket != null && websocket.State == WebSocketState.Open)
+        {
+            yield return PlaceBetViaWebSocketCoroutine(number, amount, callback);
+            yield break;
+        }
+
+        yield return PlaceBetCoroutine(number, amount, callback);
+    }
+
+    private IEnumerator PlaceBetViaWebSocketCoroutine(int number, float amount, Action<bool, BetResponse, string> callback = null)
+    {
+        if (websocket == null || websocket.State != WebSocketState.Open)
+        {
+            yield return PlaceBetCoroutine(number, amount, callback);
+            yield break;
+        }
+
+        string requestId = Guid.NewGuid().ToString("N");
+        pendingWsBets[requestId] = callback;
+
+        SendWebSocketMessage(new
+        {
+            type = "place_bet",
+            request_id = requestId,
+            number = number,
+            chip_amount = amount.ToString("F2")
+        });
+
+        float started = Time.time;
+        const float timeoutSec = 1.25f;
+        while (Time.time - started < timeoutSec)
+        {
+            if (!pendingWsBets.ContainsKey(requestId))
+                yield break; // completed by WS response handler
+            yield return null;
+        }
+
+        // Timeout: remove and fallback to HTTP
+        if (pendingWsBets.ContainsKey(requestId))
+            pendingWsBets.Remove(requestId);
+
+        yield return PlaceBetCoroutine(number, amount, callback);
+    }
+
     private IEnumerator DeleteBetCoroutine(int number, Action<bool, string> callback = null)
     {
         var url = $"{baseUrl}/api/game/bet/{number}/";
@@ -2011,6 +2060,36 @@ public class GameApiClient : MonoBehaviour
 
             switch (type)
             {
+                case "place_bet_result":
+                    {
+                        string requestId = j.Value<string>("request_id");
+                        bool ok = j.Value<bool?>("ok") ?? false;
+                        string error = j.Value<string>("error");
+
+                        if (string.IsNullOrEmpty(requestId))
+                            break;
+
+                        if (!pendingWsBets.TryGetValue(requestId, out var cb))
+                        {
+                            pendingWsBets.Remove(requestId);
+                            break;
+                        }
+
+                        pendingWsBets.Remove(requestId);
+
+                        if (cb == null)
+                            break;
+
+                        if (!ok)
+                        {
+                            cb.Invoke(false, null, string.IsNullOrEmpty(error) ? "Bet failed" : error);
+                            break;
+                        }
+
+                        // Server may include additional fields; we don't rely on them.
+                        cb.Invoke(true, new BetResponse(), null);
+                        break;
+                    }
                 case "game_state":
                     {
                         var msg = j.ToObject<GameState>();
@@ -2217,7 +2296,7 @@ public class GameApiClient : MonoBehaviour
         StartCoroutine(GetRoundCoroutine(callback));
 
     public void PlaceBet(int number, float amount, Action<bool, BetResponse, string> callback = null) =>
-        StartCoroutine(PlaceBetCoroutine(number, amount, callback));
+        StartCoroutine(PlaceBetSmartCoroutine(number, amount, callback));
 
     public void DeleteBet(int number, Action<bool, string> callback = null) =>
         StartCoroutine(DeleteBetCoroutine(number, callback));

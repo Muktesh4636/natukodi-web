@@ -8,7 +8,8 @@ from django.db.models import F
 from django.utils import timezone
 import redis
 from django.conf import settings
-from game.models import GameRound, Bet, DiceResult
+from game.models import GameRound, Bet, DiceResult, UserDailyTurnover
+from game.utils import get_leaderboard_period_date
 from accounts.models import Wallet, Transaction, User
 
 logger = logging.getLogger('game.bet_worker')
@@ -148,6 +149,17 @@ class Command(BaseCommand):
                                         # Update turnover (deduct handles balance and unavaliable_balance)
                                         Wallet.objects.filter(user_id=user_id).update(turnover=F('turnover') + chip_amount)
                                         
+                                        # Update daily leaderboard turnover (cached to avoid aggregating Bet on each API call)
+                                        period_date = get_leaderboard_period_date(bet.created_at)
+                                        udt, created = UserDailyTurnover.objects.get_or_create(
+                                            user_id=user_id, period_date=period_date, defaults={'turnover': 0}
+                                        )
+                                        if created:
+                                            udt.turnover = int(chip_amount)
+                                            udt.save()
+                                        else:
+                                            UserDailyTurnover.objects.filter(pk=udt.pk).update(turnover=F('turnover') + int(chip_amount))
+                                        
                                         # Transaction log
                                         Transaction.objects.create(
                                             user_id=user_id, transaction_type='BET', amount=chip_amount,
@@ -159,6 +171,23 @@ class Command(BaseCommand):
                                         refund_amount = Decimal(bet_data['refund_amount'])
                                         msg_id_to_remove = bet_data.get('msg_id')
                                         
+                                        # Get bet before delete so we can compute leaderboard period_date
+                                        bet_id = redis_client.get(f"bet_msg_to_id:{msg_id_to_remove}")
+                                        bet_for_period = None
+                                        if bet_id:
+                                            bet_for_period = Bet.objects.filter(id=int(bet_id)).first()
+                                        if not bet_for_period:
+                                            number = int(bet_data.get('number', 0))
+                                            bet_for_period = Bet.objects.filter(
+                                                user_id=user_id,
+                                                round=round_obj,
+                                                number=number,
+                                                chip_amount=refund_amount
+                                            ).order_by('-created_at').first()
+                                            if bet_for_period:
+                                                bet_id = str(bet_for_period.id)
+                                        period_date = get_leaderboard_period_date(bet_for_period.created_at) if bet_for_period else None
+                                        
                                         # 1. Update DB Wallet atomically (Refund: balance + amount, turnover - amount)
                                         Wallet.objects.filter(user_id=user_id).update(
                                             balance=F('balance') + refund_amount,
@@ -166,26 +195,17 @@ class Command(BaseCommand):
                                         )
                                         
                                         # 2. Delete the bet record from DB strictly by ID
-                                        # First try to get the ID from Redis mapping
-                                        bet_id = redis_client.get(f"bet_msg_to_id:{msg_id_to_remove}")
-                                        
                                         if bet_id:
                                             Bet.objects.filter(id=int(bet_id)).delete()
                                             redis_client.delete(f"bet_msg_to_id:{msg_id_to_remove}")
-                                        else:
-                                            # Fallback if mapping is missing (e.g. worker restarted)
-                                            number = int(bet_data.get('number', 0))
-                                            bet_id = Bet.objects.filter(
-                                                user_id=user_id,
-                                                round=round_obj,
-                                                number=number,
-                                                chip_amount=refund_amount
-                                            ).order_by('-created_at').values_list('id', flat=True).first()
-
-                                            if bet_id:
-                                                Bet.objects.filter(id=bet_id).delete()
                                         
-                                        # 3. Transaction log
+                                        # 3. Update daily leaderboard turnover
+                                        if period_date is not None:
+                                            UserDailyTurnover.objects.filter(
+                                                user_id=user_id, period_date=period_date
+                                            ).update(turnover=F('turnover') - int(refund_amount))
+                                        
+                                        # 4. Transaction log
                                         bal_after = Decimal(redis_client.get(f"user_balance:{user_id}") or 0)
                                         Transaction.objects.create(
                                             user_id=user_id, transaction_type='REFUND', amount=refund_amount,

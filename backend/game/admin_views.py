@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.sessions.models import Session
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
@@ -11,14 +13,15 @@ import redis
 import json
 import os
 from collections import Counter
-from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions
+from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions, WhiteLabelLead
 from accounts.models import Wallet, Transaction, DepositRequest, WithdrawRequest, User, PaymentMethod
 from accounts.player_distribution import (
     redistribute_all_players,
     balance_player_distribution,
     get_admins_for_distribution
 )
-from django.db.models import Count
+from django.db.models import Count, Sum, Q, F, Value
+from django.db.models.functions import Coalesce
 try:
     from accounts.models import AdminProfile
 except ImportError:
@@ -27,17 +30,23 @@ from .views import get_dice_mode, set_dice_mode
 from .admin_utils import (
     is_super_admin, is_admin, has_permission, get_admin_profile,
     super_admin_required, admin_required, permission_required,
-    get_admin_permissions, has_menu_permission
+    get_admin_permissions, has_menu_permission, invalidate_admin_permissions_cache,
 )
 from .utils import get_game_setting, clear_game_setting_cache
 from .load_test_utils import load_tester
 from decimal import Decimal, InvalidOperation
-from django.db.models import Sum, Q, F
 import decimal
 from django.core.paginator import Paginator
+from django.core.cache import cache
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Cache TTLs for admin dashboard (reduce DB load and avoid 504 timeouts)
+ADMIN_DASHBOARD_STATS_CACHE_KEY = 'admin_dashboard_bet_stats'
+ADMIN_DASHBOARD_STATS_TTL = 15  # seconds
+ADMIN_DASHBOARD_DATA_CACHE_KEY = 'admin_dashboard_data_json'
+ADMIN_DASHBOARD_DATA_TTL = 4   # seconds (polling every 5s)
 
 # Redis connection using connection pool (optimized for scalability)
 from .utils import get_redis_client
@@ -212,11 +221,21 @@ def admin_dashboard(request):
     from .utils import get_current_round_state
     current_round, timer, status, _ = get_current_round_state(redis_client)
 
-    total_bets = Bet.objects.count()
-    total_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-
-    # Calculate profit: total bet amount - total payout amount
-    total_payout = Bet.objects.aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0
+    # Dashboard stats with short cache to avoid heavy Bet aggregates on every load (reduces 504 risk)
+    bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
+    if bet_stats is None:
+        bet_stats = Bet.objects.aggregate(
+            total_bets=Count('id'),
+            total_amount=Sum('chip_amount'),
+            total_payout=Sum('payout_amount')
+        )
+        try:
+            cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
+        except Exception:
+            pass
+    total_bets = bet_stats.get('total_bets') or 0
+    total_amount = bet_stats.get('total_amount') or 0
+    total_payout = bet_stats.get('total_payout') or 0
     total_profit = total_amount - total_payout
 
     # Get game timing settings for display (use current round settings if available)
@@ -399,7 +418,13 @@ def toggle_dice_mode(request):
 
 @admin_required
 def admin_dashboard_data(request):
-    """API endpoint to get admin dashboard data without page reload"""
+    """API endpoint to get admin dashboard data without page reload. Cached briefly to avoid 504 timeouts."""
+    # Serve from cache when possible (polling hits this every 5s; cache 4s reduces DB/Redis load)
+    cached = cache.get(ADMIN_DASHBOARD_DATA_CACHE_KEY)
+    if cached is not None:
+        from django.http import HttpResponse
+        return HttpResponse(cached, content_type='application/json')
+
     # Get current round state using helper
     from .utils import get_current_round_state
     current_round, timer, status, _ = get_current_round_state(redis_client)
@@ -413,24 +438,31 @@ def admin_dashboard_data(request):
         current_round_bets = Bet.objects.filter(round=current_round)
         current_round_total_bets = current_round_bets.count()
         current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-        
-        # Calculate bets by number
+        # Single query for bets by number (avoids 6 separate filter+aggregate+count)
+        per_number = current_round_bets.values('number').annotate(
+            amount=Sum('chip_amount'),
+            count=Count('id')
+        ).order_by('number')
+        per_number_map = {r['number']: r for r in per_number}
         for number in range(1, 7):
-            number_bets = current_round_bets.filter(number=number)
-            amount = number_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-            count = number_bets.count()
+            r = per_number_map.get(number, {})
             bets_by_number_list.append({
                 'number': number,
-                'amount': float(amount),
-                'count': count
+                'amount': float(r.get('amount') or 0),
+                'count': r.get('count') or 0
             })
 
-    # Calculate overall profit stats
-    overall_total_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-    overall_total_payout = Bet.objects.aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0
+    # Overall stats in one query
+    overall = Bet.objects.aggregate(
+        total_amount=Sum('chip_amount'),
+        total_payout=Sum('payout_amount')
+    )
+    overall_total_amount = overall.get('total_amount') or 0
+    overall_total_payout = overall.get('total_payout') or 0
     overall_total_profit = overall_total_amount - overall_total_payout
+    total_bets_count = Bet.objects.count()
 
-    # Prepare response data
+    # Prepare response data (JSON-serializable)
     data = {
         'timer': timer,
         'status': status,
@@ -448,12 +480,15 @@ def admin_dashboard_data(request):
         'current_round_total_bets': current_round_total_bets,
         'current_round_total_amount': float(current_round_total_amount),
         'bets_by_number_list': bets_by_number_list,
-        'total_bets': Bet.objects.count(),
+        'total_bets': total_bets_count,
         'total_amount': float(overall_total_amount),
         'total_payout': float(overall_total_payout),
         'total_profit': float(overall_total_profit),
     }
-    
+    try:
+        cache.set(ADMIN_DASHBOARD_DATA_CACHE_KEY, json.dumps(data), ADMIN_DASHBOARD_DATA_TTL)
+    except Exception:
+        pass
     return JsonResponse(data)
 
 @admin_required
@@ -712,18 +747,36 @@ def dice_control(request):
         return HttpResponse(f"<html><body><h1>Error loading Dice Control Page</h1><pre>{error_trace}</pre><br><a href='/game-admin/dashboard/'>Back to Dashboard</a></body></html>")
 
 @admin_required
+def dice_controlled_rounds(request):
+    """Redirect to Recent Rounds with controlled-only filter (controlled dice are shown there only)."""
+    if not has_menu_permission(request.user, 'dice_control'):
+        messages.error(request, 'You do not have permission to view this page.')
+        return redirect('admin_dashboard')
+    from django.urls import reverse
+    return redirect(reverse('recent_rounds') + '?controlled_only=1')
+
+@admin_required
 def recent_rounds(request):
     """Recent rounds page with search and filter"""
     if not has_menu_permission(request.user, 'recent_rounds'):
         messages.error(request, 'You do not have permission to view this page.')
         return redirect('admin_dashboard')
     
-    # Get search query
+    # Get search query and filters
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '')
+    controlled_only = request.GET.get('controlled_only') == '1'
     
-    # Get recent rounds with search/filter
-    recent_rounds_list = GameRound.objects.all()
+    # Get recent rounds with per-round bet count/sum from Bet table (use distinct names to avoid conflict with model fields)
+    recent_rounds_list = GameRound.objects.annotate(
+        round_bets_count=Count('bets'),
+        round_bets_amount=Coalesce(Sum('bets__chip_amount'), Value(0)),
+    )
+    
+    # Apply "controlled only" filter: only rounds where dice was set by an admin
+    if controlled_only:
+        controlled_round_ids = DiceResult.objects.filter(set_by__isnull=False).values_list('round_id', flat=True)
+        recent_rounds_list = recent_rounds_list.filter(pk__in=controlled_round_ids)
     
     # Apply search filter
     if search_query:
@@ -738,7 +791,10 @@ def recent_rounds(request):
         recent_rounds_list = recent_rounds_list.filter(status=status_filter)
     
     # Limit results and order by most recent
-    recent_rounds_list = recent_rounds_list.order_by('-start_time')[:50]
+    recent_rounds_list = list(recent_rounds_list.order_by('-start_time')[:50])
+    
+    # Set of round IDs that were manually controlled (for "Controlled" badge in table)
+    controlled_round_ids_set = set(DiceResult.objects.filter(set_by__isnull=False).values_list('round_id', flat=True))
     
     # Get recent bets (also with search if provided)
     recent_bets = Bet.objects.select_related('user', 'round').all()
@@ -754,11 +810,13 @@ def recent_rounds(request):
     total_bets_count = Bet.objects.count()
     total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
     
-    # Get dice control history
-    dice_control_history = DiceResult.objects.select_related('round', 'set_by').order_by('-set_at')[:50]
+    # Dice control history: only rounds manually controlled by admin (set_by not null)
+    dice_control_history = DiceResult.objects.filter(set_by__isnull=False).select_related('round', 'set_by').order_by('-set_at')[:50]
     
     context = get_admin_context(request, {
         'recent_rounds': recent_rounds_list,
+        'controlled_round_ids': controlled_round_ids_set,
+        'controlled_only': controlled_only,
         'recent_bets': recent_bets,
         'dice_control_history': dice_control_history,
         'total_rounds': total_rounds,
@@ -841,11 +899,33 @@ def user_details(request, user_id):
         messages.error(request, 'User not found.')
         return redirect('recent_rounds')
 
-    # Handle balance adjustment POST request
+    # Handle block/unblock and balance adjustment POST request
     if request.method == 'POST':
         action = request.POST.get('action')
         amount = request.POST.get('amount', '0').strip()
         utr_number = request.POST.get('utr_number', '').strip()
+
+        # Block / Unblock user (any admin can block; cannot block self or superuser)
+        if action in ('block', 'unblock'):
+            if user_id == request.user.id:
+                messages.error(request, 'You cannot block yourself.')
+                return redirect(request.get_full_path())
+            if user.is_superuser:
+                messages.error(request, 'Cannot block a superuser.')
+                return redirect(request.get_full_path())
+            new_active = (action == 'unblock')
+            if user.is_active != new_active:
+                user.is_active = new_active
+                user.save()
+                # Invalidate Redis cache so next API call sees updated is_active
+                try:
+                    if redis_client:
+                        cache_key = f"user_session:{user.id}"
+                        redis_client.delete(cache_key)
+                except Exception:
+                    pass
+            messages.success(request, f'User {user.username} has been {"unblocked" if new_active else "blocked"}.')
+            return redirect(request.get_full_path())
 
         # Debug logging
         logger.info(f"Balance adjustment request: user={user_id}, action={action}, amount={amount}, utr={utr_number}, user={request.user.username}, authenticated={request.user.is_authenticated}, is_admin={is_admin(request.user)}")
@@ -1073,9 +1153,16 @@ def user_details(request, user_id):
         # Get assigned users list (paginated)
         assigned_users = assigned_users_qs[:100] # Limit to 100 for now
     
+    # Show Block/Unblock to any admin when viewing another user who is not a superuser
+    can_block_user = (request.user.id != user_id and not user.is_superuser)
     context = get_admin_context(request, {
         'player': user,
         'wallet': wallet,
+        # Wallet formula:
+        # unavailable = max(0, balance - turnover)
+        # withdrawable = min(balance, turnover)
+        'wallet_unavailable': max(Decimal('0.00'), Decimal(str(wallet.balance)) - Decimal(str(wallet.turnover))),
+        'wallet_withdrawable': max(Decimal('0.00'), min(Decimal(str(wallet.balance)), Decimal(str(wallet.turnover)))),
         'user_bets': user_bets,
         'total_bets': total_bets,
         'total_bet_amount': total_bet_amount,
@@ -1087,6 +1174,7 @@ def user_details(request, user_id):
         'active_tab': active_tab,
         'admin_stats': admin_stats,
         'assigned_users': assigned_users,
+        'can_block_user': can_block_user,
         'page': 'user-details',
     })
     
@@ -1180,14 +1268,20 @@ def all_bets(request):
     elif status_filter == 'losers':
         all_bets_list = all_bets_list.filter(is_winner=False)
 
-    # Calculate stats for the current filter (before slicing)
-    total_bets_count = all_bets_list.count()
-    total_bets_amount = all_bets_list.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-    total_payouts = all_bets_list.aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0
-    total_winners = all_bets_list.filter(is_winner=True).count()
+    # Single aggregate for all stats (avoids 4 separate queries)
+    stats = all_bets_list.aggregate(
+        total_bets_count=Count('id'),
+        total_bets_amount=Sum('chip_amount'),
+        total_payouts=Sum('payout_amount'),
+        total_winners=Count('id', filter=Q(is_winner=True))
+    )
+    total_bets_count = stats.get('total_bets_count') or 0
+    total_bets_amount = stats.get('total_bets_amount') or 0
+    total_payouts = stats.get('total_payouts') or 0
+    total_winners = stats.get('total_winners') or 0
 
     # Limit results for performance
-    all_bets_list = all_bets_list[:200]
+    all_bets_list = list(all_bets_list[:200])
 
     context = get_admin_context(request, {
         'all_bets': all_bets_list,
@@ -1286,29 +1380,43 @@ def deposit_requests(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '').strip()
     
-    # Get all deposit requests
-    deposit_requests_list = DepositRequest.objects.select_related('user', 'processed_by').all()
+    # Base queryset for deposit requests
+    deposit_requests_qs = DepositRequest.objects.select_related('user', 'processed_by').all()
     
     # Filter by assigned worker (if not super admin)
     if not is_super_admin(request.user):
-        deposit_requests_list = deposit_requests_list.filter(user__worker=request.user)
+        deposit_requests_qs = deposit_requests_qs.filter(user__worker=request.user)
     
     # Apply filters
     if search_query:
-        deposit_requests_list = deposit_requests_list.filter(
+        deposit_requests_qs = deposit_requests_qs.filter(
             Q(user__username__icontains=search_query) |
             Q(payment_reference__icontains=search_query) |
             Q(amount__icontains=search_query)
         )
         
     if status_filter:
-        deposit_requests_list = deposit_requests_list.filter(status=status_filter)
+        deposit_requests_qs = deposit_requests_qs.filter(status=status_filter)
         
     # Order by most recent
-    deposit_requests_list = deposit_requests_list.order_by('-created_at')
+    deposit_requests_qs = deposit_requests_qs.order_by('-created_at')
     
-    # Calculate stats (totals always based on full dataset)
+    # Paginate: 50 per page for performance
+    try:
+        page_number = int(request.GET.get('page', 1))
+    except (ValueError, TypeError):
+        page_number = 1
+    paginator = Paginator(deposit_requests_qs, 50)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except Exception:
+        page_obj = paginator.get_page(1)
+    deposit_requests_list = page_obj.object_list
+    
+    # Stats (single filtered base for counts; avoid scanning full table multiple times)
     stats_base = DepositRequest.objects.all()
+    if not is_super_admin(request.user):
+        stats_base = stats_base.filter(user__worker=request.user)
     total_requests = stats_base.count()
     pending_requests = stats_base.filter(status='PENDING').count()
     approved_requests = stats_base.filter(status='APPROVED').count()
@@ -1316,12 +1424,13 @@ def deposit_requests(request):
     total_amount = stats_base.filter(status='APPROVED').aggregate(Sum('amount'))['amount__sum'] or 0
     pending_amount = stats_base.filter(status='PENDING').aggregate(Sum('amount'))['amount__sum'] or 0
     
-    # Get the latest request ID for polling
+    # Latest request ID for polling
     latest_request_id = stats_base.order_by('-id').first()
     latest_id = latest_request_id.id if latest_request_id else 0
     
     context = get_admin_context(request, {
         'deposit_requests': deposit_requests_list,
+        'page_obj': page_obj,
         'total_requests': total_requests,
         'pending_requests': pending_requests,
         'approved_requests': approved_requests,
@@ -1994,7 +2103,7 @@ def create_admin(request):
             
             # Create permissions
             AdminPermissions.objects.create(user=user, **permissions)
-            
+            invalidate_admin_permissions_cache(user)
             password_auto_generated = request.POST.get('password_auto_generated', 'false') == 'true'
             if password_auto_generated:
                 messages.success(request, f'🎉 Admin user "{username}" created successfully! 🔐 Generated Password: <strong style="font-family: monospace; background: #f0fdf4; padding: 4px 8px; border-radius: 4px; color: #166534;">{password}</strong><br><small style="color: #666;">⚠️ Save this password securely - it will only be shown once!</small>')
@@ -2041,7 +2150,7 @@ def edit_admin(request, admin_id):
         permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
         permissions.save()
-        
+        invalidate_admin_permissions_cache(user)
         # Update username if provided
         new_username = request.POST.get('username')
         username_updated = False
@@ -2366,7 +2475,7 @@ def game_settings(request):
         },
         {
             'key': 'APP_DOWNLOAD_URL',
-            'default': 'https://gunduata.online/gundu-ata.apk',
+            'default': 'https://gunduata.club/gundu-ata.apk',
             'input_type': 'url',
             'description': 'Direct URL to download the latest APK. Users tap "Update" to open this link.'
         },
@@ -2571,6 +2680,98 @@ def game_settings(request):
 
 @login_required(login_url='/game-admin/login/')
 @admin_required
+def help_center(request):
+    """Help Center settings (WhatsApp + Telegram phone number)"""
+    # Treat as a settings page: require game_settings permission
+    if not has_menu_permission(request.user, 'game_settings'):
+        messages.error(request, 'You do not have permission to access Help Center settings.')
+        return redirect('admin_dashboard')
+
+    # Current values (GameSettings-backed, cached via get_game_setting)
+    whatsapp_number = get_game_setting('SUPPORT_WHATSAPP_NUMBER', '')
+    telegram_number = get_game_setting('SUPPORT_TELEGRAM', '')
+
+    def normalize_phone_number(raw: str) -> str:
+        """
+        Keep leading '+' (if provided) and digits only; remove spaces/dashes/etc.
+        Accepts any country code (e.g. +91, +231).
+        """
+        if raw is None:
+            return ''
+        s = str(raw).strip()
+        if not s:
+            return ''
+        keep_plus = s.startswith('+')
+        digits = ''.join(ch for ch in s if ch.isdigit())
+        if not digits:
+            return ''
+        return f"+{digits}" if keep_plus else digits
+
+    if request.method == 'POST':
+        whatsapp_number = normalize_phone_number(request.POST.get('SUPPORT_WHATSAPP_NUMBER'))
+        telegram_number = normalize_phone_number(request.POST.get('SUPPORT_TELEGRAM'))
+
+        GameSettings.objects.update_or_create(
+            key='SUPPORT_WHATSAPP_NUMBER',
+            defaults={
+                'value': whatsapp_number,
+                'description': 'Help Center WhatsApp number (example: +919876543210)'
+            }
+        )
+        GameSettings.objects.update_or_create(
+            key='SUPPORT_TELEGRAM',
+            defaults={
+                'value': telegram_number,
+                'description': 'Help Center Telegram phone number (example: +919876543210)'
+            }
+        )
+
+        clear_game_setting_cache(['SUPPORT_WHATSAPP_NUMBER', 'SUPPORT_TELEGRAM'])
+        messages.success(request, 'Help Center contacts updated successfully.')
+        return redirect('help_center')
+
+    context = get_admin_context(request, {
+        'page': 'help_center',
+        'whatsapp_number': whatsapp_number,
+        'telegram_number': telegram_number,
+        'admin_profile': get_admin_profile(request.user),
+    })
+    return render(request, 'admin/help_center.html', context)
+
+
+@login_required(login_url='/game-admin/login/')
+@admin_required
+def white_label_leads(request):
+    """List White Label lead submissions"""
+    # Treat as a settings page: require game_settings permission
+    if not has_menu_permission(request.user, 'game_settings'):
+        messages.error(request, 'You do not have permission to access White Label leads.')
+        return redirect('admin_dashboard')
+
+    q = (request.GET.get('q') or '').strip()
+    leads_qs = WhiteLabelLead.objects.all()
+    if q:
+        leads_qs = leads_qs.filter(
+            Q(name__icontains=q) |
+            Q(phone_number__icontains=q) |
+            Q(message__icontains=q)
+        )
+
+    paginator = Paginator(leads_qs, 50)
+    leads_page = paginator.get_page(request.GET.get('p') or 1)
+
+    context = get_admin_context(request, {
+        'page': 'white_label',
+        'admin_profile': get_admin_profile(request.user),
+        'q': q,
+        'leads_page': leads_page,
+        'total_count': leads_qs.count(),
+    })
+    return render(request, 'admin/white_label_leads.html', context)
+
+
+@login_required(login_url='/game-admin/login/')
+@admin_required
 def maintenance_toggle(request):
     """Enable or disable maintenance mode from admin panel. Requires game_settings permission."""
     if not has_menu_permission(request.user, 'game_settings'):
@@ -2599,7 +2800,10 @@ def maintenance_toggle(request):
                 until = now + (mins * 60)
                 r.set('maintenance_mode', '1')
                 r.set('maintenance_until', str(until))
-                messages.success(request, f'Maintenance mode enabled for {mins} minutes. Users will see "Back in X" countdown.')
+                # Auto-disable after that time: Redis expires the key so maintenance ends even with no traffic
+                r.expireat('maintenance_mode', until)
+                r.expireat('maintenance_until', until)
+                messages.success(request, f'Maintenance enabled for {mins} minutes. It will automatically turn off after that time.')
             else:
                 messages.error(request, 'Redis not configured. Set MAINTENANCE_MODE=1 in environment instead.')
         elif action == 'disable':
@@ -2611,6 +2815,40 @@ def maintenance_toggle(request):
                 messages.error(request, 'Redis not configured. Unset MAINTENANCE_MODE in environment.')
 
     return redirect('game_settings')
+
+
+@login_required(login_url='/game-admin/login/')
+@require_POST
+def logout_all_sessions(request):
+    """Log out all users: invalidate all JWT (app) and clear all Django sessions (game-admin). Superuser only."""
+    if not request.user.is_superuser:
+        messages.error(request, 'Only superusers can log out all users.')
+        return redirect('admin_dashboard')
+    if not has_menu_permission(request.user, 'game_settings'):
+        messages.error(request, 'You do not have permission to manage this.')
+        return redirect('admin_dashboard')
+
+    import time
+    now = int(time.time())
+    r = None
+    if getattr(settings, 'REDIS_POOL', None):
+        r = redis.Redis(connection_pool=settings.REDIS_POOL)
+
+    # Invalidate all JWT (app users)
+    if r:
+        r.set('logout_all_issued_before', str(now))
+        try:
+            keys = list(r.scan_iter('user_session:*', count=1000))
+            if keys:
+                r.delete(*keys)
+        except Exception:
+            pass
+
+    # Clear all Django sessions (game-admin users; you will be logged out too)
+    count, _ = Session.objects.all().delete()
+
+    messages.success(request, f'All users have been logged out. ({count} game-admin session(s) cleared; app users must log in again.)')
+    return redirect('admin_login')
 
 
 @admin_required

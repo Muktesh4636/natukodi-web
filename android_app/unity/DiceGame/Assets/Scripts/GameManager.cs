@@ -217,6 +217,12 @@ public class GameManager : MonoBehaviour
         });
     }
 
+    public void ApplyWalletDelta(float delta)
+    {
+        WalletAmount = Mathf.Max(0f, WalletAmount + delta);
+        OnWalletUpdated?.Invoke(WalletAmount);
+    }
+
     /// <summary>Called from Kotlin/Android via UnitySendMessage - accepts {"accessToken","refreshToken"} or {"access","refresh"}</summary>
     public void SetAccessAndRefreshToken(string json)
     {

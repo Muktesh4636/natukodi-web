@@ -6,10 +6,17 @@ from .models import User, Wallet, Transaction, DepositRequest, PaymentMethod
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ['username', 'email', 'phone_number', 'is_active', 'created_at']
+    list_display = ['username', 'email', 'phone_number', 'total_referrals_count', 'referred_by', 'is_active', 'created_at']
     list_filter = ['is_active', 'is_staff', 'created_at']
     search_fields = ['username', 'email', 'phone_number']
-    
+    readonly_fields = ['total_referrals_count', 'referral_code']
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = list(super().get_fieldsets(request, obj))
+        # Add Referral section after the first section
+        fieldsets.insert(1, ('Referral', {'fields': ('referred_by', 'referral_code', 'total_referrals_count')}))
+        return fieldsets
+
     def delete_model(self, request, obj):
         """Allow deletion of all users except superusers"""
         if obj.is_superuser:

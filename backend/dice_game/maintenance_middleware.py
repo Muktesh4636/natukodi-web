@@ -2,7 +2,8 @@
 Maintenance mode middleware.
 
 When MAINTENANCE_MODE is enabled (env var or Redis), most requests return 503.
-APK download routes are ALWAYS allowed so users can get the app during maintenance.
+App API calls and APK download are all blocked for the maintenance duration.
+Only admin panel and static/media (for maintenance page) remain allowed.
 
 Enable: MAINTENANCE_MODE=1 or set Redis key maintenance_mode=1
 Disable: MAINTENANCE_MODE=0 or unset Redis key
@@ -14,26 +15,19 @@ from django.conf import settings
 
 logger = logging.getLogger('django')
 
-# Paths that ALWAYS work during maintenance (APK download + admin panel to turn off)
+# Paths that work during maintenance (admin to turn off; static/media for maintenance page)
+# API to check maintenance status must work during maintenance so app can show "Under maintenance"
 MAINTENANCE_ALLOWED_PREFIXES = (
-    '/apk',
-    '/download-apk',
-    '/api/download/apk',
-    '/api/apk',
-    '/gundu-ata.apk',
-    '/app.apk',
-    '/download.apk',
+    '/api/maintenance/',  # Status check — always reachable so app can show maintenance UI
+    '/api/health/',       # Health check — no deps; for load balancer / 502 debugging
+    '/api/whitelabel/',   # White-label lead capture — public form so leads still work during maintenance
     '/static/',
     '/media/',
     '/game-admin/',  # Admin can access to turn off maintenance
 )
 
-# Exact paths allowed during maintenance
-MAINTENANCE_ALLOWED_EXACT = frozenset([
-    'apk', 'apk/', 'download-apk', 'download-apk/',
-    'gundu-ata.apk', 'gundu-ata.apk/', 'app.apk', 'app.apk/',
-    'download.apk', 'download.apk/',
-])
+# Exact paths allowed during maintenance (none for APK)
+MAINTENANCE_ALLOWED_EXACT = frozenset()
 
 
 def _is_maintenance_allowed(path):
@@ -56,12 +50,25 @@ def _is_maintenance_allowed(path):
     return False
 
 
+# In-process cache for maintenance check (2s) to avoid Redis on every request
+_maintenance_cache = None  # (enabled, until, cached_at)
+_MAINTENANCE_CACHE_TTL = 2
+
+
 def _get_maintenance_info():
-    """Get (enabled, until_timestamp). Auto-clear if expired."""
+    """Get (enabled, until_timestamp). Auto-clear if expired. Cached 2s to reduce Redis load."""
     import time
+    now = time.time()
+    global _maintenance_cache
+    if _maintenance_cache is not None:
+        enabled, until, cached_at = _maintenance_cache
+        if now - cached_at < _MAINTENANCE_CACHE_TTL:
+            return enabled, until
+
     # 1. Environment variable
     env_val = os.getenv('MAINTENANCE_MODE', '').lower()
     if env_val in ('1', 'true', 'yes', 'on'):
+        _maintenance_cache = (True, None, now)
         return True, None  # No end time for env-based
 
     # 2. Redis (runtime toggle)
@@ -70,19 +77,23 @@ def _get_maintenance_info():
             import redis
             r = redis.Redis(connection_pool=settings.REDIS_POOL)
             if not r.get('maintenance_mode'):
+                _maintenance_cache = (False, None, now)
                 return False, None
             until_raw = r.get('maintenance_until')
             if until_raw is not None:
                 until_raw = until_raw.decode() if isinstance(until_raw, bytes) else str(until_raw)
             until = int(until_raw) if until_raw else None
-            now = int(time.time())
-            if until and until < now:
+            now_ts = int(time.time())
+            if until and until < now_ts:
                 r.delete('maintenance_mode')
                 r.delete('maintenance_until')
+                _maintenance_cache = (False, None, now)
                 return False, None
+            _maintenance_cache = (True, until, now)
             return True, until
     except Exception:
         pass
+    _maintenance_cache = (False, None, now)
     return False, None
 
 
@@ -92,10 +103,9 @@ def _is_maintenance_enabled():
 
 
 def _maintenance_response(request):
-    """Return 503 maintenance page with duration and Download APK button."""
+    """Return 503 maintenance page with duration. APK download disabled during maintenance."""
     import time
     _, until = _get_maintenance_info()
-    apk_url = request.build_absolute_uri('/api/download/apk/')
 
     if until:
         until_js = until * 1000  # JS uses milliseconds
@@ -174,8 +184,7 @@ def _maintenance_response(request):
     <div class="card">
         <h1>🔧 App Under Maintenance</h1>
         {duration_html}
-        <a href="{apk_url}" class="btn">📥 Download Gundu Ata APK</a>
-        <p class="note">You can still download the app while we work.</p>
+        <p class="note">App and downloads will be back after maintenance.</p>
     </div>
 </body>
 </html>'''
@@ -185,7 +194,7 @@ def _maintenance_response(request):
 class MaintenanceModeMiddleware:
     """
     When maintenance mode is on, return 503 for most requests.
-    APK download routes always work.
+    App APIs and APK download are blocked for the maintenance duration.
     """
 
     def __init__(self, get_response):

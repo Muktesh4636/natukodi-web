@@ -55,4 +55,39 @@ locust -f locustfile.py --host=https://gunduata.online --headless --users 100 --
 
 ## Test users
 
-The locustfile expects test users created by `scripts/create_test_users.py` (e.g. `testuser_0`, `testuser_1`, … with password `testpassword123`). Create them on the target environment before running load tests.
+### Option A: Run public-only (no login)
+The locustfile will always hit public endpoints (`/api/game/settings/`, `/api/game/last-round-results/`).  
+If you do **not** want login/bet traffic, set these to empty (or leave them unset) and run Locust normally.
+
+### Option B: Use a real account (recommended for quick laptop testing)
+Set credentials in environment variables so Locust can login and then hit authenticated endpoints (wallet, round, bets, betting):
+
+```bash
+export LOCUST_USERNAME="your_username_or_phone"
+export LOCUST_PASSWORD="your_password"
+locust -f locustfile.py --host=https://gunduata.online
+```
+
+### Option C: Use predictable load-test users (recommended for higher scale)
+The locustfile can use a pool like `testuser_0..testuser_499` with a shared password.
+
+Defaults:
+- `LOCUST_USER_PREFIX=testuser_`
+- `LOCUST_USER_COUNT=500`
+- `LOCUST_PASSWORD=testpassword123`
+
+Create them on the target DB before running a heavy test:
+
+```bash
+python scripts/create_test_users.py 500
+```
+
+Then run:
+
+```bash
+export LOCUST_USE_TEST_USERS="1"
+export LOCUST_USER_PREFIX="testuser_"
+export LOCUST_USER_COUNT="500"
+export LOCUST_PASSWORD="testpassword123"
+locust -f locustfile.py --host=https://gunduata.online
+```

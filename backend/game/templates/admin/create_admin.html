@@ -308,6 +308,16 @@
                         </div>
 
                         <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <input type="checkbox" id="can_view_help_center" name="can_view_game_settings" style="width: 18px; height: 18px; margin-right: 12px;">
+                            <label for="can_view_help_center" style="margin: 0; font-weight: 500; cursor: pointer;">🆘 Help Center</label>
+                        </div>
+
+                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <input type="checkbox" id="can_view_white_label" name="can_view_game_settings" style="width: 18px; height: 18px; margin-right: 12px;">
+                            <label for="can_view_white_label" style="margin: 0; font-weight: 500; cursor: pointer;">💬 White Label Messages</label>
+                        </div>
+
+                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
                             <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" style="width: 18px; height: 18px; margin-right: 12px;">
                             <label for="can_view_admin_management" style="margin: 0; font-weight: 500; cursor: pointer;">👨‍💼 Admin Management</label>
                         </div>
@@ -451,6 +461,22 @@
             btn.style.backgroundColor = '#2563eb';
         }, 1500);
     }
+
+    // Sync Game Settings, Help Center, and White Label (same permission)
+    function syncGameSettingsCheckboxes() {
+        const gs = document.getElementById('can_view_game_settings');
+        const hc = document.getElementById('can_view_help_center');
+        const wl = document.getElementById('can_view_white_label');
+        if (!gs || !hc || !wl) return;
+        const checked = gs.checked || hc.checked || wl.checked;
+        gs.checked = hc.checked = wl.checked = checked;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        ['can_view_game_settings', 'can_view_help_center', 'can_view_white_label'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', syncGameSettingsCheckboxes);
+        });
+    });
 
     function copyToClipboard() {
         const passwordText = document.getElementById('generatedPassword').textContent;

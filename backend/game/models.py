@@ -61,6 +61,9 @@ class Bet(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['created_at', 'user_id'], name='bet_leaderboard_created_user'),
+        ]
         # Removed unique_together constraint to allow multiple independent bets on same number
 
     def __str__(self):
@@ -213,4 +216,68 @@ class LeaderboardSetting(models.Model):
 
     def __str__(self):
         return f"Leaderboard Prizes: 1st: {self.prize_1st}, 2nd: {self.prize_2nd}, 3rd: {self.prize_3rd}"
+
+
+class WhiteLabelLead(models.Model):
+    """Leads/enquiries from white-label page (public form)."""
+    name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=30)
+    message = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.phone_number})"
+
+
+class LeaderboardPayout(models.Model):
+    """Tracks daily leaderboard prize payouts to prevent duplicates."""
+    period_end = models.DateTimeField(help_text="Leaderboard period end time (UTC).")
+    rank = models.IntegerField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='leaderboard_payouts')
+    amount = models.BigIntegerField()
+    transaction_id = models.BigIntegerField(null=True, blank=True)
+    awarded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-awarded_at']
+        constraints = [
+            models.UniqueConstraint(fields=['period_end', 'rank'], name='uniq_leaderboard_payout_period_rank'),
+            models.UniqueConstraint(fields=['period_end', 'user'], name='uniq_leaderboard_payout_period_user'),
+        ]
+
+    def __str__(self):
+        return f"{self.period_end} rank {self.rank} -> {self.user_id} ({self.amount})"
+
+
+class UserDailyTurnover(models.Model):
+    """
+    Cached daily turnover per user for the leaderboard period (23:00–23:00 IST).
+    Updated by the bet worker on place_bet/remove_bet; avoids aggregating Bet on every API call.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='daily_turnovers'
+    )
+    period_date = models.DateField(
+        help_text='IST date of the period start (23:00 on this date starts the period).'
+    )
+    turnover = models.BigIntegerField(default=0, help_text='Sum of chip_amount for this user in this period.')
+
+    class Meta:
+        ordering = ['-period_date', '-turnover']
+        unique_together = [('user', 'period_date')]
+        indexes = [
+            models.Index(fields=['period_date', '-turnover'], name='udt_period_turnover'),
+        ]
+        verbose_name = 'User daily turnover (leaderboard)'
+        verbose_name_plural = 'User daily turnovers (leaderboard)'
+
+    def __str__(self):
+        return f"{self.user_id} {self.period_date}: {self.turnover}"
 

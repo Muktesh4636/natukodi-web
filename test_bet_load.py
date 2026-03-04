@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Load test script for bet placement API with 100 concurrent users
-Usage: locust -f test_bet_load.py --host=https://gunduata.online --users 100 --spawn-rate 10
+Usage: locust -f test_bet_load.py --host=https://gunduata.club --users 100 --spawn-rate 10
 """
 
 from locust import HttpUser, task, between, events

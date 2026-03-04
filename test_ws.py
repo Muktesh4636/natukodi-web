@@ -4,7 +4,7 @@ import json
 import sys
 
 async def test_websocket():
-    uri = "wss://gunduata.online/ws/game/"
+    uri = "wss://gunduata.club/ws/game/"
     print(f"Connecting to {uri}...")
     try:
         async with websockets.connect(uri) as websocket:

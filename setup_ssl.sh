@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Script to set up SSL certificate for gunduata.online
+# Script to set up SSL certificate for gunduata.club
 # Run this on your server: 72.61.254.71
 
 SERVER_USER="root"
 SERVER_IP="72.61.254.71"
-DOMAIN="gunduata.online"
-WWW_DOMAIN="www.gunduata.online"
+DOMAIN="gunduata.club"
+WWW_DOMAIN="www.gunduata.club"
 
 echo "=== Setting up SSL Certificate for $DOMAIN ==="
 echo ""

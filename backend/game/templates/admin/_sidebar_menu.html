@@ -68,6 +68,14 @@
                 </a></li>
             {% endif %}
 
+            {% if is_super_admin or admin_permissions.can_view_game_settings %} <li><a href="{% url 'help_center' %}" {% if page == 'help_center' %}class="active" {% endif %}> <span class="menu-icon">🆘</span> Help Center
+                </a></li>
+            {% endif %}
+
+            {% if is_super_admin or admin_permissions.can_view_game_settings %} <li><a href="{% url 'white_label_leads' %}" {% if page == 'white_label' %}class="active" {% endif %}> <span class="menu-icon">💬</span> White Label Messages
+                </a></li>
+            {% endif %}
+
             {% if is_super_admin or admin_permissions.can_manage_payment_methods %} <li><a href="{% url 'payment_methods' %}" {% if page == 'payment-methods' %}class="active" {% endif %}> <span class="menu-icon">🏦</span> Payment Methods
                 </a></li>
             {% endif %}

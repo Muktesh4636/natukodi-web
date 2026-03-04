@@ -834,10 +834,16 @@ public class GameplayUIManager : MonoBehaviour
 
     #region Exposure fetch & UI helpers
 
+    private float lastExposureFetchTime = -999f;
+
     private void FetchAndUpdateExposure()
     {
         var api = GameManager.Instance?.ApiClient;
         if (api == null) return;
+
+        // Throttle: exposure is updated locally on each bet; only sync occasionally.
+        if (Time.time - lastExposureFetchTime < 2f) return;
+        lastExposureFetchTime = Time.time;
 
         // get current round id first
         api.GetCurrentRound((ok, data, err) =>

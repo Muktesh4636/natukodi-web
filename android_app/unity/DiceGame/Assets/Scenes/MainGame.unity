@@ -700,8 +700,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6441f7736e50b0047a528feea52ab4c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameApiClient
-  baseUrl: https://gunduata.online
-  wsUrl: wss://gunduata.online/ws/game/
+  baseUrl: https://gunduata.club
+  wsUrl: wss://gunduata.club/ws/game/
   connectionCheckInterval: 3
 --- !u!114 &1898802634
 MonoBehaviour:

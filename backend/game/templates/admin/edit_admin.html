@@ -371,6 +371,16 @@
                     </div>
 
                     <div class="permission-item">
+                        <input type="checkbox" id="can_view_help_center" name="can_view_game_settings" {% if permissions.can_view_game_settings %}checked{% endif %}>
+                        <label for="can_view_help_center">🆘 Help Center</label>
+                    </div>
+
+                    <div class="permission-item">
+                        <input type="checkbox" id="can_view_white_label" name="can_view_game_settings" {% if permissions.can_view_game_settings %}checked{% endif %}>
+                        <label for="can_view_white_label">💬 White Label Messages</label>
+                    </div>
+
+                    <div class="permission-item">
                         <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" {% if permissions.can_view_admin_management %}checked{% endif %}>
                         <label for="can_view_admin_management">👨‍💼 Admin Management</label>
                     </div>
@@ -450,6 +460,22 @@
                 btn.style.backgroundColor = '#10b981';
             }, 2000);
         }
+
+        // Sync Game Settings, Help Center, and White Label (same permission)
+        function syncGameSettingsCheckboxes() {
+            const gs = document.getElementById('can_view_game_settings');
+            const hc = document.getElementById('can_view_help_center');
+            const wl = document.getElementById('can_view_white_label');
+            if (!gs || !hc || !wl) return;
+            const checked = gs.checked || hc.checked || wl.checked;
+            gs.checked = hc.checked = wl.checked = checked;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            ['can_view_game_settings', 'can_view_help_center', 'can_view_white_label'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', syncGameSettingsCheckboxes);
+            });
+        });
 
         function copyToClipboard() {
             const passwordText = document.getElementById('generatedPassword').textContent;

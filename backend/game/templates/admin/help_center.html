@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Help Center - Admin Panel</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .page-subtitle {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px 18px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            max-width: 720px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 12px 12px;
+            font-size: 14px;
+            outline: none;
+            background: #ffffff;
+        }
+
+        input:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #111827;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(0.98);
+        }
+
+        .messages {
+            max-width: 720px;
+            margin-bottom: 14px;
+        }
+        .msg {
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            border: 1px solid transparent;
+        }
+        .msg.success { background: #ecfdf5; border-color: #34d399; color: #065f46; }
+        .msg.error { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
+
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 18px 14px; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle {
+                position: fixed;
+                top: 14px;
+                left: 14px;
+                z-index: 2000;
+                border: none;
+                background: #0f172a;
+                color: #fff;
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 10px 20px rgba(15,23,42,0.25);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">🎲</span> Gundu ata</div>
+            <div class="subtitle">Game Admin Panel</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Help Center</div>
+                <div class="page-subtitle">
+                    Update the WhatsApp number and Telegram phone number shown in the app.
+                    Values are saved in <code>GameSettings</code> keys:
+                    <code>SUPPORT_WHATSAPP_NUMBER</code> and <code>SUPPORT_TELEGRAM</code>.
+                </div>
+            </div>
+        </div>
+
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <label for="SUPPORT_WHATSAPP_NUMBER">WhatsApp Number</label>
+                    <input id="SUPPORT_WHATSAPP_NUMBER" name="SUPPORT_WHATSAPP_NUMBER" value="{{ whatsapp_number|default:'' }}" placeholder="+919876543210" />
+                    <div class="hint">Use full number with country code (example: <code>+91 9182351395</code>). Spaces are OK.</div>
+                </div>
+
+                <div class="form-row">
+                    <label for="SUPPORT_TELEGRAM">Telegram Number</label>
+                    <input id="SUPPORT_TELEGRAM" name="SUPPORT_TELEGRAM" value="{{ telegram_number|default:'' }}" placeholder="+919876543210" />
+                    <div class="hint">Use full number with country code (example: <code>+231 123456789</code>). Spaces are OK.</div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

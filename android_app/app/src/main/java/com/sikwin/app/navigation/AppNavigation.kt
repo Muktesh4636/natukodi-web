@@ -214,6 +214,16 @@ fun AppNavigation(
         )
     }
 
+    // When user is logged out, show sign-in page (login/register); do not show balance
+    LaunchedEffect(Unit) {
+        if (sessionManager.fetchAuthToken().isNullOrBlank()) {
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+
     fun executeGameLaunch() {
         val now = System.currentTimeMillis()
         if (now - lastGameLaunchTime < gameLaunchCooldown) return
@@ -273,8 +283,10 @@ fun AppNavigation(
             // CRITICAL: Sync auth to Unity PlayerPrefs BEFORE launch so GameManager.Start can read it
             sessionManager.syncAuthToUnity()
 
-            // Store tokens in static holder so Unity can read even if Intent is lost (token-only)
-            com.unity3d.player.UnityTokenHolder.setTokens(authToken ?: "", refreshToken ?: "", "", "")
+            // Store tokens (+ saved credentials) in static holder so Unity can read even if Intent is lost
+            val savedUser = sessionManager.fetchUsername() ?: ""
+            val savedPass = sessionManager.fetchPassword() ?: ""
+            com.unity3d.player.UnityTokenHolder.setTokens(authToken ?: "", refreshToken ?: "", savedUser, savedPass)
 
             context.startActivity(intent)
         } catch (e: Exception) {
@@ -444,8 +456,9 @@ fun AppNavigation(
                             popUpTo("home") { inclusive = true }
                         }
                     } else if (route == "login") {
+                        // After logout: go to sign-in and clear stack so user sees login/register (no balance)
                         navController.navigate("login") {
-                            popUpTo("home") { inclusive = false }
+                            popUpTo(0) { inclusive = true }
                             launchSingleTop = true
                         }
                     } else {

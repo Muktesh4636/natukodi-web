@@ -2,10 +2,24 @@ from functools import wraps
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.cache import cache
 try:
     from accounts.models import AdminProfile
 except ImportError:
     AdminProfile = None
+
+# Cache TTL for admin permissions (reduces DB hits on every admin page load; helps avoid 504)
+ADMIN_PERMS_CACHE_TTL = 60
+ADMIN_PERMS_CACHE_KEY_PREFIX = 'admin_perms_'
+
+
+class _CachedPermissions:
+    """Thin wrapper so has_menu_permission can use getattr(perms, field_name)."""
+    __slots__ = ('_data',)
+    def __init__(self, data):
+        self._data = data or {}
+    def __getattr__(self, name):
+        return self._data.get(name, False)
 
 
 def is_staff(user):
@@ -69,19 +83,48 @@ def get_admin_profile(user):
         return None
 
 
+def _perms_to_dict(perms):
+    """Build a dict of permission flags for caching."""
+    return {
+        'can_view_dashboard': getattr(perms, 'can_view_dashboard', False),
+        'can_control_dice': getattr(perms, 'can_control_dice', False),
+        'can_view_recent_rounds': getattr(perms, 'can_view_recent_rounds', False),
+        'can_view_all_bets': getattr(perms, 'can_view_all_bets', False),
+        'can_view_wallets': getattr(perms, 'can_view_wallets', False),
+        'can_view_players': getattr(perms, 'can_view_players', False),
+        'can_view_deposit_requests': getattr(perms, 'can_view_deposit_requests', False),
+        'can_view_withdraw_requests': getattr(perms, 'can_view_withdraw_requests', False),
+        'can_view_transactions': getattr(perms, 'can_view_transactions', False),
+        'can_view_game_settings': getattr(perms, 'can_view_game_settings', False),
+        'can_view_admin_management': getattr(perms, 'can_view_admin_management', False),
+        'can_manage_payment_methods': getattr(perms, 'can_manage_payment_methods', False),
+    }
+
+
 def get_admin_permissions(user):
-    """Get admin permissions for user"""
+    """Get admin permissions for user. Cached 60s per user to reduce DB load and 504 risk."""
     if not user.is_authenticated:
         return None
+    cache_key = ADMIN_PERMS_CACHE_KEY_PREFIX + str(user.id)
     try:
-        from .models import AdminPermissions
-        return AdminPermissions.objects.get(user=user)
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return _CachedPermissions(cached)
+    except Exception:
+        pass
+    from .models import AdminPermissions
+    try:
+        perms = AdminPermissions.objects.get(user=user)
     except AdminPermissions.DoesNotExist:
-        # Create default permissions if none exist
         if user.is_staff:
-            from .models import AdminPermissions
-            return AdminPermissions.objects.create(user=user)
-        return None
+            perms = AdminPermissions.objects.create(user=user)
+        else:
+            return None
+    try:
+        cache.set(cache_key, _perms_to_dict(perms), ADMIN_PERMS_CACHE_TTL)
+    except Exception:
+        pass
+    return perms
 
 
 def has_menu_permission(user, permission_name):
@@ -116,6 +159,16 @@ def has_menu_permission(user, permission_name):
         return False
     
     return getattr(perms, field_name, False)
+
+
+def invalidate_admin_permissions_cache(user):
+    """Call after creating/updating AdminPermissions for a user so next request sees fresh perms."""
+    if user is None:
+        return
+    try:
+        cache.delete(ADMIN_PERMS_CACHE_KEY_PREFIX + str(user.id))
+    except Exception:
+        pass
 
 
 def admin_required(view_func):

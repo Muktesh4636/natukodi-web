@@ -648,6 +648,20 @@
                         </value>
                     </div>
                 </div>
+                {% if can_block_user %}
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <form method="post" action="" style="display: inline-block;">
+                        {% csrf_token %}
+                        {% if player.is_active %}
+                        <input type="hidden" name="action" value="block">
+                        <button type="submit" class="btn" style="background: #dc2626; color: white;" onclick="return confirm('Block this user? They will not be able to log in or use the app.');">🚫 Block user</button>
+                        {% else %}
+                        <input type="hidden" name="action" value="unblock">
+                        <button type="submit" class="btn" style="background: #059669; color: white;">✅ Unblock user</button>
+                        {% endif %}
+                    </form>
+                </div>
+                {% endif %}
             </div>
 
             {% if admin_stats %}
@@ -772,11 +786,11 @@
                     </div>
                     <div class="stat-card">
                         <h3>Withdrawable</h3>
-                        <p style="color: #28a745;">₹{{ wallet.withdrawable_balance|default:0|floatformat:2 }}</p>
+                        <p style="color: #28a745;">₹{{ wallet_withdrawable|default:0|floatformat:2 }}</p>
                     </div>
                     <div class="stat-card">
                         <h3>Unavailable</h3>
-                        <p style="color: #dc3545;">₹{{ wallet.unavaliable_balance|default:0|floatformat:2 }}</p>
+                        <p style="color: #dc3545;">₹{{ wallet_unavailable|default:0|floatformat:2 }}</p>
                     </div>
                     <div class="stat-card">
                         <h3>Total Bets</h3>

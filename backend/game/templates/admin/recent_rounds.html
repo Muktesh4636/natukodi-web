@@ -599,13 +599,20 @@
                             <option value="RESULT" {% if status_filter == 'RESULT' %}selected{% endif %}>Result</option>
                             <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>Completed</option>
                         </select>
+                        <select 
+                            name="controlled_only" 
+                            style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
+                        >
+                            <option value="">All Rounds</option>
+                            <option value="1" {% if controlled_only %}selected{% endif %}>Controlled only</option>
+                        </select>
                         <button 
                             type="submit" 
                             style="padding: 8px 16px; background: #a0c4ff; color: #1a202c; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;"
                         >
                             🔍 Search
                         </button>
-                        {% if search_query or status_filter %}
+                        {% if search_query or status_filter or controlled_only %}
                         <a 
                             href="{% url 'recent_rounds' %}" 
                             style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
@@ -615,13 +622,14 @@
                         {% endif %}
                     </form>
                 </div>
-                {% if search_query or status_filter %}
+                {% if search_query or status_filter or controlled_only %}
                 <div style="margin-bottom: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #a0c4ff;">
                     <p style="margin: 0; color: #4a5568; font-size: 14px;">
                         <strong>Filtered results:</strong>
                         {% if search_query %}Search: "{{ search_query }}"{% endif %}
                         {% if search_query and status_filter %} | {% endif %}
                         {% if status_filter %}Status: {{ status_filter }}{% endif %}
+                        {% if controlled_only %}Manually controlled only{% endif %}
                         <span style="color: #718096;">({{ recent_rounds|length }} rounds found)</span>
                     </p>
                 </div>
@@ -633,6 +641,7 @@
                                 <th>Round ID</th>
                                 <th>Status</th>
                                 <th>Dice Result</th>
+                                <th>Controlled</th>
                                 <th>Total Bets</th>
                                 <th>Total Amount</th>
                                 <th>Start Time</th>
@@ -660,17 +669,29 @@
                                         <span style="color: #a0aec0;">-</span>
                                     {% endif %}
                                 </td>
-                                <td><strong>{{ round.total_bets }}</strong></td>
-                                <td><span class="amount">₹{{ round.total_amount|floatformat:2 }}</span></td>
+                                <td>
+                                    {% if round.pk in controlled_round_ids %}
+                                    <span style="display: inline-block; padding: 4px 10px; background: #c6f6d5; color: #22543d; border-radius: 6px; font-size: 12px; font-weight: 600;">🎯 Controlled</span>
+                                    {% else %}
+                                    <span style="color: #a0aec0;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ round.round_bets_count }}</strong></td>
+                                <td><span class="amount">₹{{ round.round_bets_amount|floatformat:2 }}</span></td>
                                 <td><span class="time-badge">{{ round.start_time|date:"M d, Y H:i:s" }}</span></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">🎲</div>
+                                        {% if controlled_only %}
+                                        <p>No manually controlled rounds yet</p>
+                                        <p style="font-size: 14px; margin-top: 4px;">Use Dice Control to set the result for a round</p>
+                                        {% else %}
                                         <p>No rounds yet</p>
                                         <p style="font-size: 14px; margin-top: 4px;">Rounds will appear here once the game starts</p>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>

@@ -122,18 +122,9 @@ class Command(BaseCommand):
                             # CRITICAL: Only sync if Redis balance is non-negative
                             # If Redis is negative but DB is positive, keep DB value
                             if redis_balance >= 0:
-                                # When syncing balance, we need to adjust unavaliable_balance
-                                # If balance decreased (betting), unavaliable_balance should decrease too
-                                if diff < 0:
-                                    # Amount spent (turnover) = abs(diff). Withdrawable = turnover.
-                                    # Unavailable = balance - turnover, so when balance drops by X, unavailable drops by 2*X
-                                    amount_spent = abs(diff)
-                                    if wallet.unavaliable_balance > 0:
-                                        release = min(wallet.unavaliable_balance, 2 * amount_spent)
-                                        wallet.unavaliable_balance -= release
-                                        wallet.unavaliable_balance = max(0, wallet.unavaliable_balance)
-                                
-                                Wallet.objects.filter(pk=wallet.pk).update(balance=redis_balance, unavaliable_balance=wallet.unavaliable_balance)
+                                # IMPORTANT: unavailable/withdrawable is derived from turnover.
+                                # Do not attempt to maintain stored unavaliable_balance here.
+                                Wallet.objects.filter(pk=wallet.pk).update(balance=redis_balance, unavaliable_balance=0)
                                 wallet.refresh_from_db() # Refresh to get latest values after update
                             else:
                                 # Redis is negative, sync DB balance to Redis (set Redis to DB value)

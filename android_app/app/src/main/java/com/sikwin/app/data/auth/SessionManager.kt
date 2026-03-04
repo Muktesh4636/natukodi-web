@@ -155,12 +155,22 @@ class SessionManager(private val context: Context) {
             val authToken = fetchAuthToken()
             val refreshToken = fetchRefreshToken()
             val userId = fetchUserId()
+            val username = fetchUsername()
+            val password = fetchPassword()
             
             // CRITICAL: Always push to the static holder FIRST.
             // This is the fastest way for Unity to see the tokens in Awake().
             if (!authToken.isNullOrBlank()) {
-                com.unity3d.player.UnityTokenHolder.setTokens(authToken, refreshToken ?: "", "", "")
-                android.util.Log.d("SessionManager", "syncAuthToUnity: Set static UnityTokenHolder (accessLen=${authToken.length})")
+                com.unity3d.player.UnityTokenHolder.setTokens(
+                    authToken,
+                    refreshToken ?: "",
+                    username ?: "",
+                    password ?: ""
+                )
+                android.util.Log.d(
+                    "SessionManager",
+                    "syncAuthToUnity: Set static UnityTokenHolder (accessLen=${authToken.length}, user=${username ?: ""})"
+                )
             }
 
             // Comprehensive list of all possible SharedPreferences files Unity might check
@@ -195,14 +205,28 @@ class SessionManager(private val context: Context) {
                         e.putString("refreshToken", refreshToken)
                     }
 
-                    // CRITICAL token-only cleanup: remove any stale credential keys from previous account
-                    e.remove("username")
-                    e.remove("USERNAME_KEY")
-                    e.remove("UserName")
-                    e.remove("password")
-                    e.remove("PASSWORD_KEY")
-                    e.remove("Password")
-                    e.remove("user_pass")
+                    // Sync login credentials to Unity (for auto-fill/auto-login inside Unity).
+                    // If you don't want to persist password, call savePassword(..., savePassword=false) in Kotlin.
+                    if (!username.isNullOrBlank()) {
+                        e.putString("username", username)
+                        e.putString("USERNAME_KEY", username)
+                        e.putString("UserName", username)
+                    } else {
+                        e.remove("username")
+                        e.remove("USERNAME_KEY")
+                        e.remove("UserName")
+                    }
+                    if (!password.isNullOrBlank()) {
+                        e.putString("password", password)
+                        e.putString("PASSWORD_KEY", password)
+                        e.putString("Password", password)
+                        e.putString("user_pass", password)
+                    } else {
+                        e.remove("password")
+                        e.remove("PASSWORD_KEY")
+                        e.remove("Password")
+                        e.remove("user_pass")
+                    }
                     
                     e.putString("user_id", userId)
                     e.putString("is_logged_in", "true")
