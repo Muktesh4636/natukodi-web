@@ -6,7 +6,7 @@
 - **Domain:** gunduata.club (also www.gunduata.club; config may mention gunduata.online)  
 - **Ports:** 80 / 443  
 - **Backends:** app servers on port **8001** (HTTP + WebSocket `/ws/`)
-- **Frontend (gunduata.club website):** Nginx serves the repo’s `frontend/` directory directly. On servers the repo lives at `/root/apk_of_ata`, so the site root is `/root/apk_of_ata/frontend`. After `git pull`, the live site is this folder (same as local `frontend/`). Add `index.html`, `apk/`, and `videos/` in the repo; `/api/`, `/admin/`, `/ws/`, `/static/`, `/media/` are proxied to the backend.
+- **Frontend (gunduata.club website):** Nginx serves the repo’s `frontend--2/` directory. Site root on server: `/root/apk_of_ata/frontend--2`. Default page is the file `html` (no extension). Add `apk/` and `videos/` assets as needed; `/api/`, `/admin/`, `/ws/`, `/static/`, `/media/` are proxied to the backend.
 
 ## App servers (Docker)
 
