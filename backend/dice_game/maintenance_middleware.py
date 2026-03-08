@@ -71,22 +71,37 @@ def _get_maintenance_info():
         _maintenance_cache = (True, None, now)
         return True, None  # No end time for env-based
 
-    # 2. Redis (runtime toggle)
+    # 2. Redis (runtime toggle) — use a direct client with short timeout so slow Redis does not block site load
     try:
         if getattr(settings, 'REDIS_POOL', None):
             import redis
-            r = redis.Redis(connection_pool=settings.REDIS_POOL)
+            host = getattr(settings, 'REDIS_HOST', 'localhost')
+            port = int(getattr(settings, 'REDIS_PORT', 6379))
+            db = int(getattr(settings, 'REDIS_DB', 0))
+            password = getattr(settings, 'REDIS_PASSWORD', None)
+            r = redis.Redis(
+                host=host,
+                port=port,
+                db=db,
+                password=password,
+                socket_timeout=1.5,
+                socket_connect_timeout=1.5,
+                decode_responses=True,
+            )
             if not r.get('maintenance_mode'):
                 _maintenance_cache = (False, None, now)
                 return False, None
             until_raw = r.get('maintenance_until')
             if until_raw is not None:
                 until_raw = until_raw.decode() if isinstance(until_raw, bytes) else str(until_raw)
-            until = int(until_raw) if until_raw else None
+            until = int(float(until_raw)) if until_raw else None
             now_ts = int(time.time())
             if until and until < now_ts:
-                r.delete('maintenance_mode')
-                r.delete('maintenance_until')
+                try:
+                    r.delete('maintenance_mode')
+                    r.delete('maintenance_until')
+                except Exception:
+                    pass
                 _maintenance_cache = (False, None, now)
                 return False, None
             _maintenance_cache = (True, until, now)
