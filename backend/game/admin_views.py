@@ -44,9 +44,11 @@ logger = logging.getLogger(__name__)
 
 # Cache TTLs for admin dashboard (reduce DB load and avoid 504 timeouts)
 ADMIN_DASHBOARD_STATS_CACHE_KEY = 'admin_dashboard_bet_stats'
-ADMIN_DASHBOARD_STATS_TTL = 15  # seconds
+ADMIN_DASHBOARD_STATS_TTL = 300  # 5 min - heavy Bet aggregate runs at most once per 5 min
 ADMIN_DASHBOARD_DATA_CACHE_KEY = 'admin_dashboard_data_json'
-ADMIN_DASHBOARD_DATA_TTL = 4   # seconds (polling every 5s)
+ADMIN_DASHBOARD_DATA_TTL = 20   # seconds - dashboard-data returns cache more often
+# Limit stats to last N days so aggregate uses index (created_at) and returns in ms instead of full table scan
+ADMIN_DASHBOARD_STATS_DAYS = 90
 
 # Redis connection using connection pool (optimized for scalability)
 from .utils import get_redis_client
@@ -221,10 +223,13 @@ def admin_dashboard(request):
     from .utils import get_current_round_state
     current_round, timer, status, _ = get_current_round_state(redis_client)
 
-    # Dashboard stats with short cache to avoid heavy Bet aggregates on every load (reduces 504 risk)
+    # Dashboard stats: cache 5 min; limit to last N days so query uses index and loads fast
     bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
     if bet_stats is None:
-        bet_stats = Bet.objects.aggregate(
+        from django.utils import timezone
+        from datetime import timedelta
+        cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
+        bet_stats = Bet.objects.filter(created_at__gte=cutoff).aggregate(
             total_bets=Count('id'),
             total_amount=Sum('chip_amount'),
             total_payout=Sum('payout_amount')
@@ -261,6 +266,7 @@ def admin_dashboard(request):
         'betting_close_time': betting_close_time,
         'dice_result_time': dice_result_time,
         'round_end_time': round_end_time,
+        'stats_period_days': ADMIN_DASHBOARD_STATS_DAYS,
     })
     return render(request, 'admin/game_dashboard.html', context)
 
@@ -418,27 +424,46 @@ def toggle_dice_mode(request):
 
 @admin_required
 def admin_dashboard_data(request):
-    """API endpoint to get admin dashboard data without page reload. Cached briefly to avoid 504 timeouts."""
-    # Serve from cache when possible (polling hits this every 5s; cache 4s reduces DB/Redis load)
+    """API endpoint to get admin dashboard data without page reload. Cached to avoid 504 timeouts."""
+    # Serve from cache when possible (reduces DB/Redis load significantly)
     cached = cache.get(ADMIN_DASHBOARD_DATA_CACHE_KEY)
     if cached is not None:
         from django.http import HttpResponse
         return HttpResponse(cached, content_type='application/json')
 
-    # Get current round state using helper
+    # Get current round state using helper (fast: Redis + one GameRound lookup)
     from .utils import get_current_round_state
     current_round, timer, status, _ = get_current_round_state(redis_client)
-    
-    # Get stats for current round
+
+    # Overall stats: reuse same cache as dashboard (time-bounded aggregate for fast load)
+    bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
+    if bet_stats is None:
+        from django.utils import timezone
+        from datetime import timedelta
+        cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
+        bet_stats = Bet.objects.filter(created_at__gte=cutoff).aggregate(
+            total_bets=Count('id'),
+            total_amount=Sum('chip_amount'),
+            total_payout=Sum('payout_amount')
+        )
+        try:
+            cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
+        except Exception:
+            pass
+    overall_total_amount = bet_stats.get('total_amount') or 0
+    overall_total_payout = bet_stats.get('total_payout') or 0
+    overall_total_profit = (overall_total_amount or 0) - (overall_total_payout or 0)
+    total_bets_count = bet_stats.get('total_bets') or 0
+
+    # Current round stats only (scoped to one round - much faster than full table)
     current_round_total_amount = 0
     current_round_total_bets = 0
     bets_by_number_list = []
-    
+
     if current_round:
         current_round_bets = Bet.objects.filter(round=current_round)
         current_round_total_bets = current_round_bets.count()
         current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-        # Single query for bets by number (avoids 6 separate filter+aggregate+count)
         per_number = current_round_bets.values('number').annotate(
             amount=Sum('chip_amount'),
             count=Count('id')
@@ -451,16 +476,6 @@ def admin_dashboard_data(request):
                 'amount': float(r.get('amount') or 0),
                 'count': r.get('count') or 0
             })
-
-    # Overall stats in one query
-    overall = Bet.objects.aggregate(
-        total_amount=Sum('chip_amount'),
-        total_payout=Sum('payout_amount')
-    )
-    overall_total_amount = overall.get('total_amount') or 0
-    overall_total_payout = overall.get('total_payout') or 0
-    overall_total_profit = overall_total_amount - overall_total_payout
-    total_bets_count = Bet.objects.count()
 
     # Prepare response data (JSON-serializable)
     data = {

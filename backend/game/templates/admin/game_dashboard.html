@@ -451,15 +451,15 @@
                         <div class="dashboard-card-value status" id="status">{{ status }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL BETS</div>
+                        <div class="dashboard-card-label">TOTAL BETS {% if stats_period_days %}<span style="font-weight:400;opacity:0.8;font-size:11px;">(last {{ stats_period_days }} days)</span>{% endif %}</div>
                         <div class="dashboard-card-value" id="total-bets">{{ total_bets }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL AMOUNT</div>
+                        <div class="dashboard-card-label">TOTAL AMOUNT {% if stats_period_days %}<span style="font-weight:400;opacity:0.8;font-size:11px;">(last {{ stats_period_days }} days)</span>{% endif %}</div>
                         <div class="dashboard-card-value" id="total-amount">₹{{ total_amount|floatformat:2 }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL PAYOUT</div>
+                        <div class="dashboard-card-label">TOTAL PAYOUT {% if stats_period_days %}<span style="font-weight:400;opacity:0.8;font-size:11px;">(last {{ stats_period_days }} days)</span>{% endif %}</div>
                         <div class="dashboard-card-value" id="total-payout">₹{{ total_payout|floatformat:2 }}</div>
                     </div>
                 </div>

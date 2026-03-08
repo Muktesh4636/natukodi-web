@@ -5,15 +5,23 @@ This command reconciles Redis balances (real-time ledger) with DB wallet table.
 Should be run periodically (e.g., every 5-10 minutes) via cron or scheduler.
 
 Architecture: Redis is the real-time ledger, DB is eventually consistent.
+When Redis > DB and the user has a recent completed/approved withdrawal, we treat
+DB as source of truth and fix Redis (so "after payment" balance is not reverted).
 """
 import logging
 import redis
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from accounts.models import Wallet
+from accounts.models import WithdrawRequest
 from decimal import Decimal
 
 logger = logging.getLogger('game.reconciliation')
+
+# If user had a completed/approved withdrawal in the last N hours, don't overwrite DB with higher Redis
+WITHDRAWAL_PROTECTION_HOURS = 24
 
 class Command(BaseCommand):
     help = 'Sync Redis wallet balances to Database (reconciliation job)'
@@ -122,10 +130,30 @@ class Command(BaseCommand):
                             # CRITICAL: Only sync if Redis balance is non-negative
                             # If Redis is negative but DB is positive, keep DB value
                             if redis_balance >= 0:
+                                # When Redis > DB: user may have completed a withdrawal (DB already deducted).
+                                # If we overwrite DB with Redis we would "undo" the payment. So if this user
+                                # has a recent completed/approved withdrawal, treat DB as source of truth.
+                                if redis_balance > db_balance:
+                                    since = timezone.now() - timedelta(hours=WITHDRAWAL_PROTECTION_HOURS)
+                                    has_recent_withdraw = WithdrawRequest.objects.filter(
+                                        user_id=user_id,
+                                        status__in=['COMPLETED', 'APPROVED'],
+                                        created_at__gte=since
+                                    ).exists()
+                                    if has_recent_withdraw:
+                                        redis_client.set(balance_key, str(db_balance), ex=3600)
+                                        self.stdout.write(
+                                            self.style.WARNING(
+                                                f'    → User has recent withdrawal; kept DB ({db_balance:.2f}), set Redis to match (avoid reverting payment)'
+                                            )
+                                        )
+                                        synced_count += 1
+                                        total_diff += abs(diff)
+                                        continue
+                                # Normal case: Redis is source of truth
                                 # IMPORTANT: unavailable/withdrawable is derived from turnover.
-                                # Do not attempt to maintain stored unavaliable_balance here.
                                 Wallet.objects.filter(pk=wallet.pk).update(balance=redis_balance, unavaliable_balance=0)
-                                wallet.refresh_from_db() # Refresh to get latest values after update
+                                wallet.refresh_from_db()
                             else:
                                 # Redis is negative, sync DB balance to Redis (set Redis to DB value)
                                 redis_client.set(balance_key, str(db_balance), ex=3600)
