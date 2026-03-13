@@ -1,0 +1,11 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<script>
+  (function() {
+    var theme = "dark";
+    localStorage.setItem("theme", theme);
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>
+{% endblock %}

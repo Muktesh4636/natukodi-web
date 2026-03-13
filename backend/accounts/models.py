@@ -132,7 +132,8 @@ class Wallet(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
     balance = models.BigIntegerField(default=0)
     unavaliable_balance = models.BigIntegerField(default=0, help_text="Amount currently locked or unavaliable for withdrawal")
-    turnover = models.BigIntegerField(default=0, help_text="Total amount wagered. unavaliable = max(0, balance - turnover)")
+    turnover = models.BigIntegerField(default=0, help_text="Total amount wagered. Unavailable = max(0, total_deposits - turnover).")
+    total_deposits = models.BigIntegerField(default=0, help_text="Cumulative deposits (and bonuses) credited. Unavailable = max(0, total_deposits - turnover).")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -176,21 +177,21 @@ class Wallet(models.Model):
 
     @property
     def withdrawable_balance(self):
-        """Calculate balance available for withdrawal"""
+        """Withdrawable = balance - unavailable; unavailable = max(0, total_deposits - turnover). So user can withdraw winnings + released deposit."""
         try:
             bal = Decimal(str(self.balance))
-            t = Decimal(str(self.turnover))
-            return max(Decimal('0.00'), min(bal, t))
+            unav = self.computed_unavailable_balance
+            return max(Decimal('0.00'), bal - unav)
         except Exception:
             return Decimal('0.00')
 
     @property
     def computed_unavailable_balance(self):
-        """Unavailable = max(0, balance - turnover)"""
+        """Unavailable = max(0, total_deposits - turnover). Deposit is released for withdrawal as user wagers."""
         try:
-            bal = Decimal(str(self.balance))
+            td = Decimal(str(getattr(self, 'total_deposits', 0) or 0))
             t = Decimal(str(self.turnover))
-            return max(Decimal('0.00'), bal - t)
+            return max(Decimal('0.00'), td - t)
         except Exception:
             return Decimal('0.00')
 

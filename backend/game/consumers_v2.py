@@ -1,6 +1,7 @@
 import json
 import asyncio
 import logging
+import time
 import msgpack
 import redis.asyncio as redis
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -20,17 +21,32 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_group_name = 'game_room'
         self.redis_task = None
+        self.heartbeat_task = None
+        self.user_id = None
+        self.connect_time = time.time()
 
         try:
             await self.accept()
-            
-            # Start Redis listener
+
+            # Extract user_id from query string or scope
+            try:
+                from urllib.parse import parse_qs
+                qs = parse_qs(self.scope.get('query_string', b'').decode())
+                uid = qs.get('user_id', [None])[0]
+                if uid:
+                    self.user_id = int(uid)
+            except Exception:
+                pass
+
+            # Start Redis listener and heartbeat
             self.redis_task = asyncio.create_task(self.redis_listener())
+            if self.user_id:
+                self.heartbeat_task = asyncio.create_task(self.session_heartbeat())
 
             # Send initial state
             await self.send_initial_state()
-            
-            logger.info(f"WebSocket connected: {self.channel_name}")
+
+            logger.info(f"WebSocket connected: {self.channel_name} user={self.user_id}")
         except Exception as e:
             logger.error(f"Connect error: {e}")
             await self.close()
@@ -38,7 +54,40 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if self.redis_task:
             self.redis_task.cancel()
-        logger.info(f"WebSocket disconnected: {self.channel_name}")
+        if self.heartbeat_task:
+            self.heartbeat_task.cancel()
+        logger.info(f"WebSocket disconnected: {self.channel_name} user={self.user_id}")
+
+    async def session_heartbeat(self):
+        """
+        Every 60 seconds, increment the player's time_played_seconds in Redis.
+        When time target is reached, mark time_target_reached = True.
+        """
+        str_redis = redis.from_url(REDIS_URL, decode_responses=True)
+        try:
+            while True:
+                await asyncio.sleep(60)
+                if not self.user_id:
+                    continue
+                try:
+                    ps_key = f"player_state:{self.user_id}"
+                    raw = await str_redis.get(ps_key)
+                    if not raw:
+                        continue
+                    state = json.loads(raw)
+                    played = int(state.get('time_played_seconds', 0)) + 60
+                    state['time_played_seconds'] = played
+                    target = int(state.get('time_target_seconds', 3600))
+                    if played >= target and not state.get('time_target_reached'):
+                        state['time_target_reached'] = True
+                        logger.info(f"User {self.user_id} reached time target ({target}s)")
+                    await str_redis.set(ps_key, json.dumps(state), ex=86400)
+                except Exception as he:
+                    logger.debug(f"Heartbeat error user={self.user_id}: {he}")
+        except asyncio.CancelledError:
+            pass
+        finally:
+            await str_redis.aclose()
 
     async def send_initial_state(self):
         try:

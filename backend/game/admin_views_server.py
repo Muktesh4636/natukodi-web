@@ -34,7 +34,7 @@ from .admin_utils import (
 from .utils import get_game_setting
 from .load_test_utils import load_tester
 from decimal import Decimal, InvalidOperation
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, F
 import decimal
 from django.core.paginator import Paginator
 
@@ -1347,6 +1347,7 @@ def approve_deposit(request, pk):
             
             wallet.balance = balance_before + final_amount
             wallet.save()
+            Wallet.objects.filter(pk=wallet.pk).update(total_deposits=F('total_deposits') + int(final_amount))
             
             deposit.status = 'APPROVED'
             deposit.processed_by = request.user

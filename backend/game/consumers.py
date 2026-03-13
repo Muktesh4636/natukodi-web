@@ -18,6 +18,9 @@ if settings.REDIS_PASSWORD:
 # Global Redis client (shared pool)
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
+# Redis set of user_ids currently watching the game (WebSocket connected)
+GAME_WATCHING_USERS_KEY = "game_watching_users"
+
 PLACE_BET_AND_QUEUE_LUA = r"""
 -- Redis-First Bet Placement + Queueing (Atomic)
 -- Keys:
@@ -117,8 +120,15 @@ class GameConsumer(AsyncWebsocketConsumer):
                 "server_time": int(time.time())
             }))
             
-            # 3. Join Channels groups (Only for admin notifications now)
+            # 3. Track watching user for "actively playing" (authenticated users only)
             user = self.scope.get('user')
+            self._watching_user_id = None
+            if user and getattr(user, 'id', None):
+                try:
+                    await redis_client.sadd(GAME_WATCHING_USERS_KEY, str(user.id))
+                    self._watching_user_id = user.id
+                except Exception as e:
+                    logger.debug(f"Could not add watching user: {e}")
             if user and getattr(user, 'is_staff', False):
                 await self.channel_layer.group_add('admin_notifications', self.channel_name)
 
@@ -154,7 +164,11 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.redis_task.cancel()
         if self.heartbeat_task:
             self.heartbeat_task.cancel()
-        
+        try:
+            if getattr(self, '_watching_user_id', None) is not None:
+                await redis_client.srem(GAME_WATCHING_USERS_KEY, str(self._watching_user_id))
+        except Exception as e:
+            logger.debug(f"Could not remove watching user: {e}")
         try:
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
             user = self.scope.get('user')
@@ -175,18 +189,42 @@ class GameConsumer(AsyncWebsocketConsumer):
             if state_raw:
                 try:
                     state = json.loads(state_raw)
-                    server_time = state.get('server_time', 0)
                     now = int(time.time())
-                    age = now - server_time
-                    
-                    # Only send if state is fresh (less than 10 seconds old)
-                    if age <= 10:
+                    server_time = state.get('server_time', 0)
+                    if server_time and server_time > 0:
+                        age = now - server_time
+                    else:
+                        # Fallback: use timestamp (ISO) if server_time missing (e.g. game_engine_v3)
+                        try:
+                            ts = state.get('timestamp', '')
+                            if ts:
+                                from datetime import datetime, timezone
+                                dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+                                if dt.tzinfo is None:
+                                    dt = dt.replace(tzinfo=timezone.utc)
+                                age = (datetime.now(timezone.utc) - dt).total_seconds()
+                            else:
+                                age = 999
+                        except Exception:
+                            age = 999
+
+                    # Only send if state is fresh (less than 15 seconds old)
+                    if age <= 15:
                         game_state_message = {
                             "type": "game_state",
                             "round_id": state.get('round_id', ''),
                             "status": state.get('status', 'BETTING'),
-                            "timer": state.get('timer', 1)
+                            "timer": state.get('timer', 1),
+                            "dice_result": state.get('dice_result'),
                         }
+                        # Include game settings (same as /api/game/settings/) so client matches API
+                        for key in ("round_end_time", "betting_close_time", "dice_roll_time", "dice_result_time"):
+                            if key in state:
+                                game_state_message[key] = state[key]
+                        # Also include API-style keys if present (for parity/debug on clients)
+                        for key in ("BETTING_CLOSE_TIME", "DICE_ROLL_TIME", "DICE_RESULT_TIME", "ROUND_END_TIME", "betting_open", "is_rolling"):
+                            if key in state:
+                                game_state_message[key] = state[key]
                         if self._is_connected:
                             await self.send(text_data=json.dumps(game_state_message))
                             logger.info(f"Sent fresh initial game_state to {self.channel_name}: round={game_state_message['round_id']}, age={age}s")
@@ -436,12 +474,45 @@ class GameConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Betting service unavailable'}))
                     return
 
+                # Fallback to engine state if legacy hot keys are missing (game_engine_v3 publishes current_game_state)
+                if (not round_id_raw) or (not status_raw):
+                    try:
+                        state_raw = await redis_client.get('current_game_state')
+                        if state_raw:
+                            state = json.loads(state_raw)
+                            round_id_raw = state.get('round_id') or round_id_raw
+                            status_raw = (state.get('status') or status_raw)
+                            # Compute an end_time if missing (safety guard only)
+                            if not end_time_raw:
+                                try:
+                                    round_end = int(state.get('ROUND_END_TIME') or state.get('round_end_time') or 0)
+                                    timer = int(state.get('timer') or 0)
+                                    end_time_raw = str(int(time.time()) + max(0, round_end - timer))
+                                except Exception:
+                                    end_time_raw = end_time_raw
+                    except Exception:
+                        pass
+
                 if not round_id_raw or not status_raw:
                     await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Game state syncing, retry'}))
                     return
 
-                round_id = round_id_raw
-                status_val = str(status_raw)
+                if isinstance(round_id_raw, bytes):
+                    try:
+                        round_id = round_id_raw.decode()
+                    except Exception:
+                        round_id = str(round_id_raw)
+                else:
+                    round_id = str(round_id_raw)
+
+                if isinstance(status_raw, bytes):
+                    try:
+                        status_val = status_raw.decode()
+                    except Exception:
+                        status_val = str(status_raw)
+                else:
+                    status_val = str(status_raw)
+                status_val = (status_val or "WAITING").upper()
                 if status_val != 'BETTING':
                     await self.send(text_data=json.dumps({'type': 'place_bet_result', 'request_id': request_id, 'ok': False, 'error': 'Betting is closed for this round'}))
                     return

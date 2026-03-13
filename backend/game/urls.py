@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('round/', views.current_round, name='current_round'),
+    path('round/start-time/', views.round_start_time, name='round_start_time'),
     path('round/<str:round_id>/bets/', views.round_bets, name='round_bets'),
     path('round/bets/', views.round_bets, name='round_bets_current'),
     path('round/<str:round_id>/exposure/', views.round_exposure, name='round_exposure'),

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Get gunduata.club working: deploy code, check app + nginx on the server.
 # Run from project root: bash tools/fix_site_now.sh
+# All servers root password: Gunduata@123 (override with SERVER_PASSWORD=...)
 
 set -e
 PASSWORD="${SERVER_PASSWORD:-Gunduata@123}"
@@ -17,6 +18,11 @@ sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no \
 sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no \
   "$REPO_ROOT/backend/dice_game/urls.py" \
   root@$SERVER:$REMOTE_DIR/backend/dice_game/urls.py
+if [ -d "$REPO_ROOT/backend/templates" ]; then
+  sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no -r \
+    "$REPO_ROOT/backend/templates/" \
+    root@$SERVER:$REMOTE_DIR/backend/
+fi
 echo "  Restarting web container..."
 sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$SERVER \
   "cd $REMOTE_DIR && (docker compose restart web 2>/dev/null || docker restart dice_game_web)"

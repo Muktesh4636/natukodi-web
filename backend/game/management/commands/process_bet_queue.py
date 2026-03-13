@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 import redis
 from django.conf import settings
 from game.models import GameRound, Bet, DiceResult, UserDailyTurnover
@@ -61,11 +62,21 @@ class Command(BaseCommand):
                                     if event_type == 'round_start':
                                         start_time_str = data.get('start_time')
                                         durations = json.loads(data.get('durations', '{}'))
+                                        start_dt = None
+                                        try:
+                                            if start_time_str:
+                                                start_dt = parse_datetime(start_time_str)
+                                        except Exception:
+                                            start_dt = None
+                                        if start_dt is None:
+                                            start_dt = timezone.now()
+                                        if timezone.is_naive(start_dt):
+                                            start_dt = timezone.make_aware(start_dt)
                                         GameRound.objects.get_or_create(
                                             round_id=round_id,
                                             defaults={
                                                 'status': 'BETTING',
-                                                'start_time': start_time_str,
+                                                'start_time': start_dt,
                                                 'betting_close_seconds': durations.get('betting_close_time', 30),
                                                 'dice_roll_seconds': durations.get('dice_roll_time', 35),
                                                 'dice_result_seconds': durations.get('dice_result_time', 45),
@@ -76,10 +87,21 @@ class Command(BaseCommand):
                                     elif event_type == 'round_result':
                                         result = data.get('result')
                                         dice_values = json.loads(data.get('dice_values', '[]'))
+                                        end_time_str = data.get('end_time')
+                                        end_dt = None
+                                        try:
+                                            if end_time_str:
+                                                end_dt = parse_datetime(end_time_str)
+                                        except Exception:
+                                            end_dt = None
+                                        if end_dt is None:
+                                            end_dt = timezone.now()
+                                        if timezone.is_naive(end_dt):
+                                            end_dt = timezone.make_aware(end_dt)
                                         round_obj = GameRound.objects.get(round_id=round_id)
                                         round_obj.status = 'RESULT'
                                         round_obj.dice_result = result
-                                        round_obj.result_time = data.get('end_time')
+                                        round_obj.result_time = end_dt
                                         if len(dice_values) == 6:
                                             for i, val in enumerate(dice_values, 1):
                                                 setattr(round_obj, f'dice_{i}', val)

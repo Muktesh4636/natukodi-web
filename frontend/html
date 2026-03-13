@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gundu Ata - Experience the Royal Dice Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald: #046307;
+            --emerald-dark: #023d04;
+            --gold: #D4AF37;
+            --gold-light: #f1d592;
+            --mahogany: #4a1c1c;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mahogany);
+            color: #fff;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(4, 99, 7, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(74, 28, 28, 0.4) 0%, transparent 50%);
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .bg-emerald-gradient {
+            background: radial-gradient(circle at center, var(--emerald) 0%, var(--emerald-dark) 100%);
+            position: relative;
+        }
+        /* Pattern for the felt table */
+        .bg-emerald-gradient::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("https://www.transparenttextures.com/patterns/felt.png");
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .text-gold {
+            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #F1D592 50%, #D4AF37 100%);
+            color: var(--mahogany);
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.8), inset 0 -2px 2px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-gold::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+        .btn-gold:hover::after {
+            left: 100%;
+        }
+        .btn-gold:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.4);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 24px;
+        }
+        .three-d-shadow {
+            text-shadow: 0 1px 0 #ccc,
+                         0 2px 0 #c9c9c9,
+                         0 3px 0 #bbb,
+                         0 4px 0 #b9b9b9,
+                         0 5px 0 #aaa,
+                         0 6px 1px rgba(0,0,0,.1),
+                         0 0 5px rgba(0,0,0,.1),
+                         0 1px 3px rgba(0,0,0,.3),
+                         0 3px 5px rgba(0,0,0,.2),
+                         0 5px 10px rgba(0,0,0,.25),
+                         0 10px 10px rgba(0,0,0,.2),
+                         0 20px 20px rgba(0,0,0,.15);
+        }
+        .dice-float {
+            animation: float 6s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate3d(1, 1, 1, 0deg); }
+            33% { transform: translateY(-30px) rotate3d(1, 0, 1, 10deg); }
+            66% { transform: translateY(-15px) rotate3d(0, 1, 1, -10deg); }
+        }
+        .perspective {
+            perspective: 2000px;
+        }
+        .preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .testimonial-card {
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .testimonial-card:hover {
+            transform: translateZ(50px) rotateY(5deg) rotateX(5deg);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--gold);
+        }
+        .gold-border {
+            border: 2px solid;
+            border-image: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C) 1;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--mahogany);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="bg-emerald-gradient min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-black/20 border-b border-white/5">
+        <div class="p-4 md:p-6 flex justify-between items-center max-w-7xl mx-auto">
+            <div class="text-2xl md:text-3xl font-black text-gold tracking-tighter">GUNDU ATA</div>
+            <div class="space-x-8 hidden md:flex items-center">
+                <a href="#home" class="hover:text-gold transition font-medium">Home</a>
+                <a href="#about" class="hover:text-gold transition font-medium">The Game</a>
+                <a href="#testimonials" class="hover:text-gold transition font-medium">Winners</a>
+                <a href="apk/Gundu Ata.apk" class="btn-gold px-8 py-2.5 rounded-full text-sm">Play Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative pt-32 md:pt-48 pb-32 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between">
+            <div class="lg:w-3/5 z-10 text-center lg:text-left">
+                <div class="inline-block px-4 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-sm font-bold mb-6 tracking-widest uppercase">
+                    Premium Indian Casino Experience
+                </div>
+                <h1 class="text-5xl md:text-8xl font-black mb-8 leading-[1.1] three-d-shadow">
+                    Roll with <span class="text-gold">Royalty</span>
+                </h1>
+                <p class="text-lg md:text-2xl mb-12 text-gray-300 max-w-2xl leading-relaxed">
+                    Step into the most immersive 3D dice game ever created. Feel the weight of the gold cup, hear the rattle of the dice, and claim your fortune.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
+                    <a href="apk/Gundu Ata.apk" class="btn-gold px-12 py-5 rounded-2xl text-xl flex items-center justify-center gap-3">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Get the Game
+                    </a>
+                    <button class="glass-card px-12 py-5 rounded-2xl text-xl hover:bg-white/10 transition border border-white/20">
+                        View Gameplay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hero Image / Video Section -->
+            <div class="lg:w-2/5 mt-20 lg:mt-0 relative perspective">
+                <div class="dice-float preserve-3d">
+                    <!-- Main Video Container -->
+                    <div class="relative w-72 h-72 md:w-96 md:h-[500px] mx-auto flex items-center justify-center">
+                        <div class="absolute inset-0 bg-gold/20 rounded-full blur-[100px] animate-pulse"></div>
+                        
+                        <!-- Video Frame -->
+                        <div class="relative w-full h-full glass-card overflow-hidden border-gold/40 transform rotate-[-2deg] shadow-[0_50px_100px_rgba(0,0,0,0.6)] group">
+                            <video 
+                                class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity brightness-110 contrast-110"
+                                autoplay 
+                                muted 
+                                loop 
+                                playsinline
+                                style="filter: saturate(1.2) contrast(1.1) brightness(1.1);"
+                            >
+                                <source src="videos/gameplay.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            
+                            <!-- Overlay to maintain 3D feel -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                            <div class="absolute bottom-4 left-4 text-gold font-bold tracking-widest text-xs uppercase">Live Gameplay</div>
+                        </div>
+                        
+                        <!-- Floating 3D Elements around the video -->
+                        <div class="absolute -bottom-10 -right-10 text-6xl md:text-8xl drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] z-20">🎲</div>
+                        <div class="absolute -top-10 -left-10 text-5xl md:text-7xl drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] z-20">🎲</div>
+                        
+                        <!-- Floating Particles -->
+                        <div class="absolute top-1/4 -right-16 text-4xl opacity-50">✨</div>
+                        <div class="absolute bottom-1/4 -left-16 text-4xl opacity-50">✨</div>
+                        <div class="absolute -top-20 right-10 text-6xl">🪙</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Features Section -->
+    <section id="about" class="py-24 px-6 bg-black/20">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl md:text-5xl text-center mb-16 text-gold">Why Gundu Ata?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card p-8 hover:bg-white/10 transition group">
+                    <div class="text-4xl mb-6 text-gold group-hover:scale-110 transition duration-300">👑</div>
+                    <h3 class="text-2xl mb-4">Royal Ambience</h3>
+                    <p class="text-gray-400">Immerse yourself in a high-stakes Indian casino environment with stunning visuals.</p>
+                </div>
+                <div class="glass-card p-8 hover:bg-white/10 transition group">
+                    <div class="text-4xl mb-6 text-gold group-hover:scale-110 transition duration-300">🎲</div>
+                    <h3 class="text-2xl mb-4">True 3D Physics</h3>
+                    <p class="text-gray-400">Experience the most realistic dice rolls powered by advanced physics engines.</p>
+                </div>
+                <div class="glass-card p-8 hover:bg-white/10 transition group">
+                    <div class="text-4xl mb-6 text-gold group-hover:scale-110 transition duration-300">💰</div>
+                    <h3 class="text-2xl mb-4">Big Wins</h3>
+                    <p class="text-gray-400">Join thousands of players winning daily. Your next big jackpot is just a roll away.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-24 px-6 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl md:text-5xl text-center mb-16 text-gold">What Our Players Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective">
+                <div class="glass-card p-8 testimonial-card preserve-3d">
+                    <div class="flex text-gold mb-4">★★★★★</div>
+                    <p class="text-lg italic mb-6">"The graphics are unbelievable! It feels like I'm actually sitting in a luxury casino in Goa. The dice physics are spot on."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gold/50 border border-gold"></div>
+                        <div>
+                            <p class="font-bold">Rahul S.</p>
+                            <p class="text-xs text-gray-400">Verified Player</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-8 testimonial-card preserve-3d">
+                    <div class="flex text-gold mb-4">★★★★★</div>
+                    <p class="text-lg italic mb-6">"Gundu Ata is my go-to game for relaxation. The music and the atmosphere are so calming yet exciting when you win!"</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/50 border border-gold"></div>
+                        <div>
+                            <p class="font-bold">Priya K.</p>
+                            <p class="text-xs text-gray-400">Verified Player</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-8 testimonial-card preserve-3d">
+                    <div class="flex text-gold mb-4">★★★★★</div>
+                    <p class="text-lg italic mb-6">"Best dice game on the Play Store. Hands down. The interface is so smooth and the 3D effects are top-notch."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/50 border border-gold"></div>
+                        <div>
+                            <p class="font-bold">Amit V.</p>
+                            <p class="text-xs text-gray-400">Verified Player</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download CTA -->
+    <section class="py-24 px-6 text-center">
+        <div class="max-w-3xl mx-auto glass-card p-12 border-gold/50 border-2">
+            <h2 class="text-4xl md:text-6xl mb-8 text-gold">Ready to Win?</h2>
+            <p class="text-xl mb-12 text-gray-300">Download Gundu Ata now and get a 100% welcome bonus on your first game.</p>
+            <a href="apk/Gundu Ata.apk" class="btn-gold px-12 py-5 rounded-2xl text-2xl inline-block shadow-2xl">
+                DOWNLOAD NOW
+            </a>
+            <p class="mt-6 text-gray-500 text-sm">Requires Android 8.0 or higher. Version 1.0.4</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/10 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-2xl font-black text-gold">GUNDU ATA</div>
+            <div class="text-gray-500 text-sm">
+                &copy; 2026 Gundu Ata Games. All rights reserved.
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="text-gray-400 hover:text-gold">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-gold">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple parallax effect for 3D elements
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) / 50;
+            const moveY = (e.clientY - window.innerHeight / 2) / 50;
+            
+            const diceContainer = document.querySelector('.dice-float');
+            if (diceContainer) {
+                diceContainer.style.transform = `rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
+            }
+
+            const cards = document.querySelectorAll('.testimonial-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardX = e.clientX - rect.left - rect.width / 2;
+                const cardY = e.clientY - rect.top - rect.height / 2;
+                
+                // Only effect if mouse is near the card
+                if (Math.abs(cardX) < 300 && Math.abs(cardY) < 300) {
+                    card.style.transform = `rotateY(${cardX / 20}deg) rotateX(${-cardY / 20}deg) translateZ(20px)`;
+                } else {
+                    card.style.transform = '';
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section > div').forEach(el => {
+            el.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

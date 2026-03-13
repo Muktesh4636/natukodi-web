@@ -66,12 +66,13 @@ services:
           memory: 2G
 
   # Game Timer Service (runs separately to avoid conflicts)
+  # Primary (74): leave STANDBY_MODE unset. Standby (71, 41): set STANDBY_MODE=1 in .env so they take over only when 74 stops.
   game_timer:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: dice_game_timer
-    command: python game_engine_v2.py
+    command: python game_engine_v3.py
     volumes:
       - ./backend:/app
       - logs_volume:/app/logs
@@ -89,6 +90,7 @@ services:
       - REDIS_DB=${REDIS_DB:-0}
       - REDIS_PASSWORD=Gunduata@123
       - REDIS_POOL_SIZE=${REDIS_POOL_SIZE:-200}
+      - STANDBY_MODE=${STANDBY_MODE:-}
       - AUTOBAHN_USE_NVX=0
     # depends_on removed for multi-server setup
     restart: unless-stopped
@@ -139,6 +141,43 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+
+  # Daily Journey Reset — runs at midnight IST (18:30 UTC)
+  daily_reset:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dice_game_daily_reset
+    command: >
+      sh -c "
+        while true; do
+          now=$(date -u +%H:%M);
+          if [ \"$$now\" = '18:30' ]; then
+            python manage.py daily_journey_reset;
+            sleep 61;
+          fi;
+          sleep 30;
+        done
+      "
+    volumes:
+      - ./backend:/app
+      - logs_volume:/app/logs
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=GunduataSecretKey2026_HighScale_Secure
+      - USE_SQLITE=${USE_SQLITE:-False}
+      - DB_NAME=${DB_NAME:-dice_game}
+      - DB_USER=${DB_USER:-muktesh}
+      - DB_PASSWORD=${DB_PASSWORD:-Gunduata@123}
+      - DB_HOST=72.61.255.231
+      - DB_PORT=6432
+      - REDIS_HOST=${REDIS_HOST:-72.61.254.74}
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-0}
+      - REDIS_PASSWORD=Gunduata@123
+    restart: unless-stopped
+    networks:
+      - dice_game_network
 
 volumes:
   redis_data:

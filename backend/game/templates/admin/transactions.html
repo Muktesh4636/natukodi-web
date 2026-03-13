@@ -465,10 +465,36 @@
                     <h1>Reports</h1>
                     <p>Financial summary and statistics</p>
                 </div>
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
+                    <button type="button" id="reports-custom-date-btn" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">📅 Custom date</button>
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>
+
+            <!-- Custom date panel (hidden; toggled by button above) -->
+            <div id="reports-custom-date-panel" style="display: none; margin-bottom: 24px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                <p style="margin: 0 0 16px 0; color: #64748b; font-size: 14px;">Select <strong>Start date</strong> and <strong>End date</strong>, then click Apply. Use &quot;Overall (all time)&quot; for no date filter.</p>
+                <form method="get" action="" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <input type="hidden" name="search" value="{{ search_query }}" />
+                    <label style="font-size: 14px; color: #334155; font-weight: 600;">Start date</label>
+                    <input type="date" name="from_date" value="{{ from_date }}" style="padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; min-width: 150px;" />
+                    <label style="font-size: 14px; color: #334155; font-weight: 600;">End date</label>
+                    <input type="date" name="to_date" value="{{ to_date }}" style="padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; min-width: 150px;" />
+                    <button type="submit" style="padding: 10px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">Apply</button>
+                    <a href="{% url 'admin_transactions' %}?overall=1{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" style="padding: 10px 24px; background: #64748b; color: white; border-radius: 8px; text-decoration: none; font-size: 14px; display: inline-block;">Overall (all time)</a>
+                </form>
+            </div>
+            <script>
+            (function() {
+                var btn = document.getElementById('reports-custom-date-btn');
+                var panel = document.getElementById('reports-custom-date-panel');
+                if (btn && panel) {
+                    btn.addEventListener('click', function() {
+                        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                    });
+                }
+            })();
+            </script>
 
             {% if messages %}
                 {% for message in messages %}
@@ -507,49 +533,21 @@
             </div>
 
             <div class="control-panel" style="margin-bottom: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                    <h2 style="margin: 0;">🔍 Search Report by User</h2>
-                    
-                    <form method="get" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <input 
-                            type="text" 
-                            name="search" 
-                            value="{{ search_query }}" 
-                            placeholder="Username or Phone..." 
-                            style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; min-width: 250px;"
-                        />
-                        <button 
-                            type="submit" 
-                            style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;"
-                            onmouseover="this.style.background='#5568d3'"
-                            onmouseout="this.style.background='#667eea'"
-                        >
-                            🔍 Filter Report
-                        </button>
-                        {% if search_query %}
-                        <a 
-                            href="{% url 'admin_transactions' %}" 
-                            style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
-                        >
-                            Clear
-                        </a>
-                        {% endif %}
-                    </form>
-                </div>
-                
-                {% if search_query %}
-                <div style="margin-top: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #667eea;">
-                    <p style="margin: 0; color: #4a5568; font-size: 14px;">
-                        <strong>Viewing report for:</strong> "{{ search_query }}"
-                    </p>
-                </div>
-                {% endif %}
+                <form method="get" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    {% if from_date %}<input type="hidden" name="from_date" value="{{ from_date }}" />{% endif %}
+                    {% if to_date %}<input type="hidden" name="to_date" value="{{ to_date }}" />{% endif %}
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Filter by Username or Phone..." style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; min-width: 250px;" />
+                    <button type="submit" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🔍 Filter by User</button>
+                    {% if search_query or from_date or to_date %}
+                    <a href="{% url 'admin_transactions' %}" style="padding: 10px 20px; background: #6c757d; color: white; border-radius: 8px; text-decoration: none; font-size: 14px;">Clear all</a>
+                    {% endif %}
+                </form>
             </div>
 
             <!-- Profit Chart Section -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <h2>📈 Monthly Profit Analysis (Last 30 Days)</h2>
+                    <h2>📈 Profit trend</h2>
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="profitChart"></canvas>

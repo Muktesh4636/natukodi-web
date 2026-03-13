@@ -451,20 +451,28 @@
                         <div class="dashboard-card-value status" id="status">{{ status }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL BETS {% if stats_period_days %}<span style="font-weight:400;opacity:0.8;font-size:11px;">(last {{ stats_period_days }} days)</span>{% endif %}</div>
+                        <div class="dashboard-card-label">TOTAL BETS <span style="font-weight:400;opacity:0.8;font-size:11px;">(daily overview)</span></div>
                         <div class="dashboard-card-value" id="total-bets">{{ total_bets }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL AMOUNT {% if stats_period_days %}<span style="font-weight:400;opacity:0.8;font-size:11px;">(last {{ stats_period_days }} days)</span>{% endif %}</div>
+                        <div class="dashboard-card-label">TOTAL AMOUNT <span style="font-weight:400;opacity:0.8;font-size:11px;">(daily overview)</span></div>
                         <div class="dashboard-card-value" id="total-amount">₹{{ total_amount|floatformat:2 }}</div>
                     </div>
                     <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL PAYOUT {% if stats_period_days %}<span style="font-weight:400;opacity:0.8;font-size:11px;">(last {{ stats_period_days }} days)</span>{% endif %}</div>
+                        <div class="dashboard-card-label">TOTAL PAYOUT <span style="font-weight:400;opacity:0.8;font-size:11px;">(daily overview)</span></div>
                         <div class="dashboard-card-value" id="total-payout">₹{{ total_payout|floatformat:2 }}</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">TOTAL PROFIT TODAY</div>
+                        <div class="dashboard-card-value" id="total-profit">₹{{ total_profit|floatformat:2 }}</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-label">ACTIVELY PLAYING</div>
+                        <div class="dashboard-card-value" id="active-players">{{ current_round_active_bettors }}</div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Game Time Settings -->
             <div class="settings-section">
                 <div class="settings-header">
@@ -630,6 +638,42 @@
                         if (payoutElement) {
                             payoutElement.textContent = '₹' + parseFloat(data.total_payout).toFixed(2);
                         }
+                    }
+                    if (data.total_profit !== undefined) {
+                        const profitEl = document.getElementById('total-profit');
+                        if (profitEl) profitEl.textContent = '₹' + parseFloat(data.total_profit).toFixed(2);
+                    }
+                    if (data.current_round_active_bettors !== undefined) {
+                        const activeEl = document.getElementById('active-players');
+                        if (activeEl) activeEl.textContent = data.current_round_active_bettors;
+                    }
+
+                    // Daily section (IST)
+                    if (data.daily && data.daily.today) {
+                        const today = data.daily.today;
+                        const dateEl = document.getElementById('daily-date-ist');
+                        if (dateEl && today.date) dateEl.textContent = today.date;
+
+                        const depositsEl = document.getElementById('today-deposits');
+                        if (depositsEl && today.deposits_amount !== undefined) depositsEl.textContent = '₹' + parseFloat(today.deposits_amount).toFixed(2);
+
+                        const withdrawsEl = document.getElementById('today-withdraws');
+                        if (withdrawsEl && today.withdraws_amount !== undefined) withdrawsEl.textContent = '₹' + parseFloat(today.withdraws_amount).toFixed(2);
+
+                        const betsEl = document.getElementById('today-bets');
+                        if (betsEl && today.bets_amount !== undefined) betsEl.textContent = '₹' + parseFloat(today.bets_amount).toFixed(2);
+
+                        const payoutEl = document.getElementById('today-payout');
+                        if (payoutEl && today.payout_amount !== undefined) payoutEl.textContent = '₹' + parseFloat(today.payout_amount).toFixed(2);
+
+                        const profitEl = document.getElementById('today-profit');
+                        if (profitEl && today.profit !== undefined) profitEl.textContent = '₹' + parseFloat(today.profit).toFixed(2);
+
+                        const activeEl = document.getElementById('today-active-bettors');
+                        if (activeEl && today.active_bettors !== undefined) activeEl.textContent = today.active_bettors;
+
+                        const newUsersEl = document.getElementById('today-new-users');
+                        if (newUsersEl && today.new_users !== undefined) newUsersEl.textContent = today.new_users;
                     }
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));

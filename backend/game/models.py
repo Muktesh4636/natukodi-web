@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
+import json
+import random
 
 
 class GameRound(models.Model):
@@ -281,3 +283,294 @@ class UserDailyTurnover(models.Model):
     def __str__(self):
         return f"{self.user_id} {self.period_date}: {self.turnover}"
 
+
+# ─────────────────────────────────────────────
+#  ADDICTION / RETENTION ENGINE MODELS
+# ─────────────────────────────────────────────
+
+DAY_TYPES = [
+    ('WIN', 'Win Day'),
+    ('LOSS', 'Loss Day'),
+    ('BREAK_EVEN', 'Break Even Day'),
+    ('BIG_WIN', 'Big Win Day'),
+]
+
+PHASE_CHOICES = [
+    ('HOOK', 'Hook (Week 1)'),
+    ('SLOWDOWN', 'Slow Down (Week 2)'),
+    ('LOSSES', 'Losses (Week 3)'),
+    ('HARVEST', 'Harvest (Week 4+)'),
+]
+
+
+def _generate_30_day_chart():
+    """
+    Generate a randomised but controlled 30-day win/loss chart.
+
+    Week 1 (days 0-6):   min 5 WIN days
+    Week 2 (days 7-13):  min 3 WIN days, 2 BREAK_EVEN
+    Week 3 (days 14-20): max 1 WIN day, 2 BREAK_EVEN
+    Week 4+ (days 21-29): LOSS LOSS BIG_WIN pattern (repeating every 3)
+    """
+    # Week 1
+    w1_extras = random.sample(['LOSS', 'BREAK_EVEN'], 2)
+    week1 = ['WIN'] * 5 + w1_extras
+    random.shuffle(week1)
+
+    # Week 2
+    w2_pool = ['LOSS', 'LOSS', 'BREAK_EVEN', 'BREAK_EVEN']
+    week2 = ['WIN'] * 3 + w2_pool
+    random.shuffle(week2)
+
+    # Week 3
+    week3 = ['WIN'] * 1 + ['LOSS'] * 4 + ['BREAK_EVEN'] * 2
+    random.shuffle(week3)
+
+    # Week 4+ (9 days: 3 cycles of LOSS LOSS BIG_WIN)
+    week4 = ['LOSS', 'LOSS', 'BIG_WIN',
+             'LOSS', 'LOSS', 'BIG_WIN',
+             'LOSS', 'LOSS', 'BIG_WIN']
+
+    return week1 + week2 + week3 + week4  # 28 days (close enough; repeats after)
+
+
+# Daily time targets (seconds) — increases every 2 days
+_TIME_TARGETS = [
+    3600, 3600,          # Day 1-2:   1 hour
+    4500, 4500,          # Day 3-4:   1.25 hours
+    5400, 5400, 5400,    # Day 5-7:   1.5 hours
+    6300, 6300,          # Day 8-9:   1.75 hours
+    7200, 7200, 7200,    # Day 10-12: 2 hours
+    8100, 8100,          # Day 13-14: 2.25 hours
+    9000, 9000, 9000,    # Day 15-17: 2.5 hours
+    9900, 9900,          # Day 18-19: 2.75 hours
+    10800, 10800,        # Day 20-21: 3 hours
+    11700, 11700,        # Day 22-23: 3.25 hours
+    12600, 12600, 12600, # Day 24-26: 3.5 hours
+    14400, 14400,        # Day 27-28: 4 hours
+    16200,               # Day 29:    4.5 hours
+    18000,               # Day 30:    5 hours
+]
+
+
+def get_time_target(active_day):
+    """Return daily play-time target in seconds for a given active day (1-indexed)."""
+    idx = max(0, min(active_day - 1, len(_TIME_TARGETS) - 1))
+    return _TIME_TARGETS[idx]
+
+
+class PlayerJourney(models.Model):
+    """
+    Stores each player's 30-day chart and active-day counter.
+    Created on first deposit.
+    """
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='journey'
+    )
+    # JSON list of 30 day-type strings
+    chart_json = models.TextField(default='[]')
+    # How many days the player has actually played (not calendar days)
+    active_days = models.PositiveIntegerField(default=0)
+    # Date of last actual play (IST date)
+    last_play_date = models.DateField(null=True, blank=True)
+    # Calendar date of first deposit
+    first_deposit_date = models.DateField(null=True, blank=True)
+    # Is account flagged for multi-account abuse?
+    is_flagged = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Player Journey'
+        verbose_name_plural = 'Player Journeys'
+
+    def __str__(self):
+        return f"{self.user.username} — Active Day {self.active_days}"
+
+    @property
+    def chart(self):
+        try:
+            return json.loads(self.chart_json)
+        except Exception:
+            return []
+
+    @chart.setter
+    def chart(self, value):
+        self.chart_json = json.dumps(value)
+
+    def get_day_type(self, day_number):
+        """Return day type for given 1-indexed active day."""
+        chart = self.chart
+        if not chart:
+            return 'WIN'
+        idx = min(day_number - 1, len(chart) - 1)
+        # Journey complete after 30 days — pure random
+        if day_number - 1 >= len(chart):
+            return 'RANDOM'
+        return chart[idx]
+
+    def initialise_chart(self):
+        """Generate and save a fresh 30-day chart."""
+        self.chart = _generate_30_day_chart()
+        self.save(update_fields=['chart_json', 'updated_at'])
+
+    def get_phase(self):
+        if self.active_days <= 7:
+            return 'HOOK'
+        elif self.active_days <= 14:
+            return 'SLOWDOWN'
+        elif self.active_days <= 21:
+            return 'LOSSES'
+        return 'HARVEST'
+
+
+class PlayerDailyState(models.Model):
+    """
+    Per-player per-day state used by the smart dice engine.
+    One row per player per IST calendar date.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='daily_states'
+    )
+    date = models.DateField()
+    active_day_number = models.PositiveIntegerField(default=1)
+    day_type = models.CharField(max_length=20, choices=DAY_TYPES, default='WIN')
+
+    # Balance management
+    deposit_today = models.BigIntegerField(default=0)
+    floor_balance = models.BigIntegerField(default=0)
+    emergency_floor = models.BigIntegerField(default=0)
+    target_min = models.BigIntegerField(default=0)
+    target_max = models.BigIntegerField(default=0)
+
+    # Budget
+    daily_budget = models.BigIntegerField(default=0)
+    budget_used = models.BigIntegerField(default=0)
+
+    # Session time
+    time_target_seconds = models.IntegerField(default=3600)
+    time_played_seconds = models.IntegerField(default=0)
+    time_target_reached = models.BooleanField(default=False)
+
+    # Round tracking
+    rounds_today = models.IntegerField(default=0)
+    rounds_since_last_win = models.IntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [('user', 'date')]
+        ordering = ['-date']
+        verbose_name = 'Player Daily State'
+        verbose_name_plural = 'Player Daily States'
+
+    def __str__(self):
+        return f"{self.user.username} {self.date} — {self.day_type}"
+
+    @property
+    def budget_remaining(self):
+        return max(0, self.daily_budget - self.budget_used)
+
+    @classmethod
+    def compute_floor_and_target(cls, deposit_amount, day_type):
+        """
+        Given today's deposit and day type, return
+        (floor, emergency_floor, target_min, target_max, budget).
+        """
+        if day_type == 'WIN':
+            floor = int(deposit_amount * 0.50)
+            emergency = int(deposit_amount * 0.25)
+            target_min = int(deposit_amount * 1.50)
+            target_max = int(deposit_amount * 2.50)
+            low = int(deposit_amount * 1.0)
+            high = int(deposit_amount * 2.0)
+        elif day_type == 'BIG_WIN':
+            floor = int(deposit_amount * 0.30)
+            emergency = int(deposit_amount * 0.15)
+            target_min = int(deposit_amount * 2.0)
+            target_max = int(deposit_amount * 4.0)
+            low = int(deposit_amount * 1.5)
+            high = int(deposit_amount * 3.0)
+        elif day_type == 'BREAK_EVEN':
+            floor = int(deposit_amount * 0.40)
+            emergency = int(deposit_amount * 0.20)
+            target_min = int(deposit_amount * 0.90)
+            target_max = int(deposit_amount * 1.10)
+            low = 0
+            high = 0
+        else:  # LOSS
+            floor = int(deposit_amount * 0.20)
+            emergency = int(deposit_amount * 0.10)
+            target_min = 0
+            target_max = int(deposit_amount * 0.50)
+            low = 0
+            high = 0
+
+        budget = random.randint(low, high) if high > low else 0
+        return floor, emergency, target_min, target_max, budget
+
+
+class IPTracker(models.Model):
+    """
+    Tracks IP addresses and which accounts have used them.
+    3rd+ account from same IP is flagged as RANDOM_ONLY.
+    """
+    ip_address = models.GenericIPAddressField(unique=True)
+    # JSON list of user IDs
+    account_ids_json = models.TextField(default='[]')
+    flagged_ids_json = models.TextField(default='[]')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'IP Tracker'
+        verbose_name_plural = 'IP Trackers'
+
+    def __str__(self):
+        return f"{self.ip_address} — {len(self.account_ids)} accounts"
+
+    @property
+    def account_ids(self):
+        try:
+            return json.loads(self.account_ids_json)
+        except Exception:
+            return []
+
+    @property
+    def flagged_ids(self):
+        try:
+            return json.loads(self.flagged_ids_json)
+        except Exception:
+            return []
+
+    @classmethod
+    def register_login(cls, ip_address, user_id):
+        """
+        Register a login from an IP. Returns True if account is flagged.
+        Max 2 accounts per IP allowed before flagging.
+        """
+        if not ip_address or ip_address in ('127.0.0.1', '::1'):
+            return False  # Never flag localhost
+
+        obj, _ = cls.objects.get_or_create(ip_address=ip_address)
+        ids = obj.account_ids
+        flagged = obj.flagged_ids
+
+        if user_id in ids:
+            return user_id in flagged
+
+        ids.append(user_id)
+        obj.account_ids_json = json.dumps(ids)
+
+        if len(ids) > 2:
+            # 3rd+ account — flag it
+            flagged.append(user_id)
+            obj.flagged_ids_json = json.dumps(flagged)
+
+        obj.save(update_fields=['account_ids_json', 'flagged_ids_json', 'updated_at'])
+        return user_id in flagged

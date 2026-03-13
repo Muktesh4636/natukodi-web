@@ -1,6 +1,7 @@
 #!/bin/bash
 # Deploy leaderboard route and view to all production servers.
 # Fixes 404 on /api/auth/leaderboard/ (gunduata.club or gunduata.online).
+# All servers root password: Gunduata@123 (override with SERVER_PASSWORD=...)
 set -e
 PASSWORD="${SERVER_PASSWORD:-Gunduata@123}"
 SERVERS=("72.61.254.71" "72.61.254.74" "72.62.226.41")
@@ -50,6 +51,11 @@ for SERVER in "${SERVERS[@]}"; do
     "$REPO_ROOT/backend/game/templates/admin/edit_admin.html" \
     "$REPO_ROOT/backend/game/templates/admin/_sidebar_menu.html" \
     root@$SERVER:$REMOTE_DIR/backend/game/templates/admin/
+  if [ -d "$REPO_ROOT/backend/templates" ]; then
+    sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no -r \
+      "$REPO_ROOT/backend/templates/" \
+      root@$SERVER:$REMOTE_DIR/backend/
+  fi
   sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no \
     "$REPO_ROOT/backend/game/migrations/0014_whitelabel_lead.py" \
     root@$SERVER:$REMOTE_DIR/backend/game/migrations/ 2>/dev/null || true

@@ -20,6 +20,13 @@ from asgiref.sync import sync_to_async
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("WorkerV2")
 
+try:
+    from smart_dice_engine import update_player_state_sync
+    _SMART_ENGINE_AVAILABLE = True
+except ImportError:
+    _SMART_ENGINE_AVAILABLE = False
+    logger.warning("smart_dice_engine not available — player state updates disabled")
+
 REDIS_URL = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
 if settings.REDIS_PASSWORD:
     REDIS_URL = f"redis://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
@@ -115,6 +122,20 @@ class WorkerV2:
                             balance_after=wallet.balance,
                             description=f"Bet on {number} in round {round_id}"
                         )
+                        # Update smart dice player state
+                        if _SMART_ENGINE_AVAILABLE:
+                            try:
+                                sync_redis = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+                                update_player_state_sync(
+                                    sync_redis,
+                                    user_id=int(user_id),
+                                    won=False,  # bets are losses until settlement
+                                    win_amount=0,
+                                    current_balance=wallet.balance,
+                                )
+                            except Exception as se:
+                                logger.debug(f"Player state update skipped: {se}")
+
                         count += 1
                     except Exception as e:
                         logger.error(f"Failed to process bet in batch: {e}")

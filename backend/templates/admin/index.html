@@ -1,0 +1,16 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="admin-help-box" style="margin-bottom: 24px; padding: 16px 20px; background: #f0f4ff; border: 1px solid #c7d2fe; border-radius: 8px; font-size: 14px; line-height: 1.5;">
+  <strong style="display: block; margin-bottom: 8px; color: #3730a3;">What is this page?</strong>
+  <p style="margin: 0 0 10px 0;">This is the <strong>database admin</strong> for Gundu Ata. Here you can view and edit the raw data stored in the app (users, wallets, bets, rounds, etc.).</p>
+  <ul style="margin: 0 0 10px 0; padding-left: 20px;">
+    <li><strong>Core</strong> — Users, Wallets, Deposit requests, Payment methods, Transactions.</li>
+    <li><strong>Game</strong> — Game rounds, Bets, Dice results, and probability/sound settings.</li>
+    <li><strong>Add</strong> — Create a new record. <strong>Change</strong> — View or edit existing records.</li>
+  </ul>
+  <p style="margin: 0; font-size: 13px; color: #5b21b6;">For the game dashboard (dice control, deposits, withdrawals), use <a href="/game-admin/">Game Admin</a> instead.</p>
+</div>
+{{ block.super }}
+{% endblock %}

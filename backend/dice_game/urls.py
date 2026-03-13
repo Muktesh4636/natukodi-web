@@ -4,6 +4,12 @@ All URLs consolidated into a single file.
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
+
+# Clear Django admin branding so it's obvious this is the database admin
+admin.site.site_header = "Gundu Ata — Database Admin"
+admin.site.site_title = "Gundu Ata Admin"
+admin.site.index_title = "Database tables & models"
+from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
@@ -37,6 +43,7 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path('api/', project_views.api_root, name='api_root'),
     path('api/health/', project_views.health, name='health'),
+    path('api/time/', project_views.time_now, name='time_now'),
     # Maintenance status (public; works even when maintenance is on)
     path('api/maintenance/status/', project_views.maintenance_status, name='maintenance_status'),
     
@@ -88,6 +95,9 @@ urlpatterns = [
     path('api/whitelabel/lead/', project_views.white_label_lead, name='white_label_lead'),
     # Client payments: ending payment (pending commission) per user — for client-payments app
     path('api/client-payments/ending-payment/<int:user_id>/', game_views.ending_payment_for_user, name='ending_payment_for_user'),
+    # Game settings API (explicit so it always resolves even if include order or proxy differs)
+    path('api/game/settings/', game_views.game_settings_api, name='game_settings_api_direct'),
+    path('api/game/settings', game_views.game_settings_api, name='game_settings_api_direct_no_slash'),
     # Game endpoints (api/game/)
     path('api/game/', include('game.urls')),
     
@@ -96,6 +106,8 @@ urlpatterns = [
     path('game-admin/', game_admin_views.admin_login, name='game_admin_root'),
     path('game-admin/login/', game_admin_views.admin_login, name='admin_login'),
     path('game-admin/logout/', game_admin_views.admin_logout, name='admin_logout'),
+    # Redirect game-admin/admin/ -> Django admin (view DB tables)
+    path('game-admin/admin/', RedirectView.as_view(url='/admin/', permanent=False), name='game_admin_to_django_admin'),
     path('game-admin/dashboard/', game_admin_views.admin_dashboard, name='admin_dashboard'),
     path('game-admin/dice-control/', game_admin_views.dice_control, name='dice_control'),
     path('game-admin/dice-controlled-rounds/', game_admin_views.dice_controlled_rounds, name='dice_controlled_rounds'),
@@ -146,8 +158,8 @@ urlpatterns = [
     # Serve React static assets (assets/*)
     re_path(r'^assets/.*$', project_views.serve_react_app, name='react_assets'),
     
-    # Root path - serve React app (must come before catch-all)
-    path('', project_views.serve_react_app, name='root'),
+    # Root path - public website landing page
+    path('', project_views.home, name='root'),
     
     # Catch-all route for React app (must be last)
     # This will serve the React app for all routes not matched above

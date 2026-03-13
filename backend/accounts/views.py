@@ -48,6 +48,111 @@ from game.utils import get_redis_client
 redis_client = get_redis_client()
 
 
+def _initialise_player_journey(user, deposit_amount, redis_client=None):
+    """
+    Called whenever a deposit is approved.
+    - Creates PlayerJourney + chart on first deposit.
+    - Creates / refreshes today's PlayerDailyState.
+    - Pushes player_state to Redis for the smart dice engine.
+    """
+    import json as _json
+    from django.utils import timezone as tz
+    from game.models import PlayerJourney, PlayerDailyState, get_time_target
+
+    try:
+        import pytz
+        IST = pytz.timezone('Asia/Kolkata')
+        today = tz.now().astimezone(IST).date()
+    except Exception:
+        today = tz.now().date()
+
+    # ── Journey ──────────────────────────────────────────────────────────────
+    journey, created = PlayerJourney.objects.get_or_create(user=user)
+    if created or not journey.chart:
+        journey.first_deposit_date = today
+        journey.initialise_chart()
+
+    # Advance active day if playing on a new calendar date
+    if journey.last_play_date != today:
+        # Check gap for re-hook logic
+        if journey.last_play_date:
+            gap = (today - journey.last_play_date).days
+            if gap >= 30:
+                # Full reset — treat as new player
+                journey.active_days = 0
+                journey.initialise_chart()
+            elif gap >= 7:
+                # Re-hook: step back to day 5 and give 3 WIN days
+                journey.active_days = max(1, journey.active_days - 3)
+        journey.active_days = journey.active_days + 1
+        journey.last_play_date = today
+        journey.save(update_fields=['active_days', 'last_play_date', 'first_deposit_date', 'updated_at'])
+
+    active_day = journey.active_days
+    if active_day > 30:
+        # Journey complete — no algorithm state; player gets pure random
+        if redis_client:
+            try:
+                redis_client.delete(f"player_state:{user.id}")
+            except Exception:
+                pass
+        return
+
+    day_type = journey.get_day_type(active_day)
+
+    # ── Daily State ───────────────────────────────────────────────────────────
+    floor, emergency, target_min, target_max, budget = \
+        PlayerDailyState.compute_floor_and_target(deposit_amount, day_type)
+
+    state, _ = PlayerDailyState.objects.update_or_create(
+        user=user,
+        date=today,
+        defaults={
+            'active_day_number': active_day,
+            'day_type': day_type,
+            'deposit_today': deposit_amount,
+            'floor_balance': floor,
+            'emergency_floor': emergency,
+            'target_min': target_min,
+            'target_max': target_max,
+            'daily_budget': budget,
+            'time_target_seconds': get_time_target(active_day),
+        }
+    )
+
+    # ── Push to Redis ─────────────────────────────────────────────────────────
+    if redis_client:
+        try:
+            wallet = user.wallet
+            current_balance = int(wallet.balance)
+        except Exception:
+            current_balance = deposit_amount
+
+        ps_key = f"player_state:{user.id}"
+        existing_raw = redis_client.get(ps_key) or '{}'
+        try:
+            existing = _json.loads(existing_raw)
+        except Exception:
+            existing = {}
+
+        existing.update({
+            'day_type': day_type,
+            'floor_balance': floor,
+            'emergency_floor': emergency,
+            'target_min': target_min,
+            'target_max': target_max,
+            'budget_remaining': state.daily_budget - state.budget_used,
+            'time_target_seconds': state.time_target_seconds,
+            'time_played_seconds': state.time_played_seconds,
+            'time_target_reached': state.time_target_reached,
+            'active_day': active_day,
+            'is_flagged': journey.is_flagged,
+            'current_balance': current_balance,
+            'rounds_since_last_win': existing.get('rounds_since_last_win', 0),
+        })
+        redis_client.set(ps_key, _json.dumps(existing), ex=86400)
+
+
 import hashlib
 import hmac
 from django.utils.crypto import constant_time_compare
@@ -347,6 +452,29 @@ def login(request):
         if not user.last_login or (now - user.last_login).total_seconds() > 300:
             user.last_login = now
             user.save(update_fields=['last_login'])
+
+        # IP tracking for multi-account detection
+        try:
+            from game.models import IPTracker
+            ip = (
+                request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+                or request.META.get('REMOTE_ADDR', '')
+            )
+            is_flagged = IPTracker.register_login(ip, user.id)
+            if is_flagged:
+                # Silently flag in Redis — no error to user
+                if redis_client:
+                    import json as _json
+                    ps_key = f"player_state:{user.id}"
+                    raw = redis_client.get(ps_key) or '{}'
+                    try:
+                        ps = _json.loads(raw)
+                    except Exception:
+                        ps = {}
+                    ps['is_flagged'] = True
+                    redis_client.set(ps_key, _json.dumps(ps), ex=86400)
+        except Exception:
+            pass
 
         # 4. Return response without calling UserSerializer (avoids extra Redis in get_wallet_balance)
         user_data = {
@@ -847,17 +975,18 @@ class WalletView(APIView):
                     redis_client.set(f"user_balance:{user_id}", balance, ex=86400)
                 except: pass
 
-        # unavaliable = max(0, balance - turnover); turnover maintained by bet worker
+        # unavailable = max(0, total_deposits - turnover); withdrawable = balance - unavailable
         try:
             bal = Decimal(str(balance))
             turnover = Decimal(str(wallet.turnover))
-            unav = max(Decimal('0.00'), bal - turnover)
+            total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
+            unav = max(Decimal('0.00'), total_deposits - turnover)
             withdrawable = str(max(Decimal('0.00'), bal - unav))
         except Exception:
-            # Fallback to formula (never rely on stored unavaliable_balance)
             bal = Decimal('0.00')
             turnover = Decimal(str(wallet.turnover or 0))
-            unav = max(Decimal('0.00'), bal - turnover)
+            total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
+            unav = max(Decimal('0.00'), total_deposits - turnover)
             withdrawable = str(max(Decimal('0.00'), bal - unav))
 
         wallet_response = {
@@ -1332,7 +1461,8 @@ def approve_deposit_request(request, pk):
             balance_before = wallet.balance
             # Deposit money needs to be rotated 1 time
             wallet.add(deposit.amount, is_bonus=True)
-            wallet.save()
+            Wallet.objects.filter(pk=wallet.pk).update(total_deposits=F('total_deposits') + deposit.amount)
+            wallet.refresh_from_db()
 
             # Update Redis balance (CRITICAL for Redis-First betting)
             if redis_client:
@@ -1356,6 +1486,16 @@ def approve_deposit_request(request, pk):
             deposit.save()
             logger.info(f"Deposit {pk} approved by admin {request.user.username}. User: {deposit.user.username}, Amount: {deposit.amount}")
 
+            # Initialise or update player journey on deposit
+            try:
+                _initialise_player_journey(
+                    user=deposit.user,
+                    deposit_amount=int(deposit.amount),
+                    redis_client=redis_client,
+                )
+            except Exception as je:
+                logger.warning(f"Journey init failed for user {deposit.user.id}: {je}")
+
             # Check for referral bonus
             if deposit.user.referred_by:
                 from .referral_logic import calculate_referral_bonus
@@ -1367,9 +1507,10 @@ def approve_deposit_request(request, pk):
                     referrer_wallet = Wallet.objects.select_for_update().get(pk=referrer_wallet.pk)
                     
                     ref_balance_before = referrer_wallet.balance
-                    # Referral bonus needs to be rotated 1 time
+                    # Referral bonus needs to be rotated 1 time (counts as deposit for withdrawable rule)
                     referrer_wallet.add(bonus_amount, is_bonus=True)
-                    referrer_wallet.save()
+                    Wallet.objects.filter(pk=referrer_wallet.pk).update(total_deposits=F('total_deposits') + int(bonus_amount))
+                    referrer_wallet.refresh_from_db()
 
                     # Update Redis balance for referrer
                     if redis_client:
@@ -1473,14 +1614,16 @@ def initiate_withdraw(request):
         logger.warning(f"Withdrawal failed for user {request.user.username}: Amount {amount} below minimum ₹200")
         return Response({'error': 'Minimum withdrawal amount is ₹200'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Check if user has sufficient withdrawable balance (turnover from wallet)
+    # Check if user has sufficient withdrawable balance: withdrawable = balance - max(0, total_deposits - turnover)
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     balance_for_withdrawable = redis_client.get(f"user_balance:{request.user.id}") if redis_client else None
     if balance_for_withdrawable is None:
         balance_for_withdrawable = str(wallet.balance)
     bal = Decimal(str(balance_for_withdrawable))
     turnover = Decimal(str(wallet.turnover))
-    withdrawable = max(Decimal('0.00'), bal - max(Decimal('0.00'), bal - turnover))
+    total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
+    unav = max(Decimal('0.00'), total_deposits - turnover)
+    withdrawable = max(Decimal('0.00'), bal - unav)
     
     # Check Redis balance and exposure for real-time validation
     if redis_client:

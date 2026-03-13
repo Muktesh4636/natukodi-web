@@ -42,13 +42,31 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Dashboard "daily" metrics are requested in IST (business day).
+# We keep project TIME_ZONE=UTC, so compute IST day bounds and convert to UTC for DB filtering.
+import datetime as _dt
+_IST_TZ = _dt.timezone(_dt.timedelta(hours=5, minutes=30))
+
+
+def _ist_day_bounds_utc(day_offset: int = 0):
+    """
+    Return (start_utc, end_utc, ist_date) for IST day `today + day_offset`.
+    Uses a fixed +05:30 offset (no DST in IST).
+    """
+    now_ist = timezone.now().astimezone(_IST_TZ)
+    ist_date = now_ist.date() + _dt.timedelta(days=day_offset)
+    start_ist = _dt.datetime.combine(ist_date, _dt.time.min, tzinfo=_IST_TZ)
+    end_ist = start_ist + _dt.timedelta(days=1)
+    return start_ist.astimezone(_dt.timezone.utc), end_ist.astimezone(_dt.timezone.utc), ist_date
+
+
 # Cache TTLs for admin dashboard (reduce DB load and avoid 504 timeouts)
 ADMIN_DASHBOARD_STATS_CACHE_KEY = 'admin_dashboard_bet_stats'
 ADMIN_DASHBOARD_STATS_TTL = 300  # 5 min - heavy Bet aggregate runs at most once per 5 min
 ADMIN_DASHBOARD_DATA_CACHE_KEY = 'admin_dashboard_data_json'
 ADMIN_DASHBOARD_DATA_TTL = 20   # seconds - dashboard-data returns cache more often
-# Limit stats to last N days so aggregate uses index (created_at) and returns in ms instead of full table scan
-ADMIN_DASHBOARD_STATS_DAYS = 90
+# Dashboard shows daily overview only (today's stats)
+ADMIN_DASHBOARD_STATS_DAYS = 1
 
 # Redis connection using connection pool (optimized for scalability)
 from .utils import get_redis_client
@@ -243,6 +261,21 @@ def admin_dashboard(request):
     total_payout = bet_stats.get('total_payout') or 0
     total_profit = total_amount - total_payout
 
+    # Actively playing = users who bet this round UNION users currently watching (WebSocket)
+    bettor_user_ids = set()
+    if current_round:
+        bettor_user_ids = set(
+            str(uid) for uid in
+            Bet.objects.filter(round=current_round).values_list('user_id', flat=True).distinct()
+        )
+    watching_user_ids = set()
+    try:
+        if redis_client:
+            watching_user_ids = redis_client.smembers('game_watching_users') or set()
+    except Exception:
+        pass
+    current_round_active_bettors = len(bettor_user_ids | watching_user_ids)
+
     # Get game timing settings for display (use current round settings if available)
     if current_round:
         betting_close_time = current_round.betting_close_seconds
@@ -261,6 +294,7 @@ def admin_dashboard(request):
         'total_amount': total_amount,
         'total_payout': total_payout,
         'total_profit': total_profit,
+        'current_round_active_bettors': current_round_active_bettors,
         'page': 'dashboard',
         'admin_profile': admin_profile,
         'betting_close_time': betting_close_time,
@@ -455,15 +489,64 @@ def admin_dashboard_data(request):
     overall_total_profit = (overall_total_amount or 0) - (overall_total_payout or 0)
     total_bets_count = bet_stats.get('total_bets') or 0
 
+    # Daily data (IST)
+    today_start_utc, today_end_utc, today_ist_date = _ist_day_bounds_utc(0)
+    yday_start_utc, yday_end_utc, yday_ist_date = _ist_day_bounds_utc(-1)
+
+    today_bet_agg = Bet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc).aggregate(
+        bets_count=Count('id'),
+        bets_amount=Sum('chip_amount'),
+        payout_amount=Sum('payout_amount'),
+    )
+    yday_bet_agg = Bet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc).aggregate(
+        bets_count=Count('id'),
+        bets_amount=Sum('chip_amount'),
+        payout_amount=Sum('payout_amount'),
+    )
+
+    today_deposit_agg = Transaction.objects.filter(
+        created_at__gte=today_start_utc, created_at__lt=today_end_utc, transaction_type='DEPOSIT'
+    ).aggregate(count=Count('id'), amount=Sum('amount'))
+    today_withdraw_agg = Transaction.objects.filter(
+        created_at__gte=today_start_utc, created_at__lt=today_end_utc, transaction_type='WITHDRAW'
+    ).aggregate(count=Count('id'), amount=Sum('amount'))
+    yday_deposit_agg = Transaction.objects.filter(
+        created_at__gte=yday_start_utc, created_at__lt=yday_end_utc, transaction_type='DEPOSIT'
+    ).aggregate(count=Count('id'), amount=Sum('amount'))
+    yday_withdraw_agg = Transaction.objects.filter(
+        created_at__gte=yday_start_utc, created_at__lt=yday_end_utc, transaction_type='WITHDRAW'
+    ).aggregate(count=Count('id'), amount=Sum('amount'))
+
+    # Active bettors (distinct users who placed at least one bet today)
+    today_active_bettors = Bet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc).aggregate(n=Count('user_id', distinct=True))['n'] or 0
+    yday_active_bettors = Bet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc).aggregate(n=Count('user_id', distinct=True))['n'] or 0
+
+    # New users registered today (UTC timestamps, counted in IST day)
+    today_new_users = User.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc).count()
+    yday_new_users = User.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc).count()
+
     # Current round stats only (scoped to one round - much faster than full table)
     current_round_total_amount = 0
     current_round_total_bets = 0
     bets_by_number_list = []
 
+    current_round_bettor_ids = set()
+    current_round_active_bettors = 0
     if current_round:
         current_round_bets = Bet.objects.filter(round=current_round)
         current_round_total_bets = current_round_bets.count()
         current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
+        current_round_bettor_ids = set(
+            str(uid) for uid in current_round_bets.values_list('user_id', flat=True).distinct()
+        )
+        try:
+            if redis_client:
+                watching_ids = redis_client.smembers('game_watching_users') or set()
+                current_round_active_bettors = len(current_round_bettor_ids | watching_ids)
+            else:
+                current_round_active_bettors = len(current_round_bettor_ids)
+        except Exception:
+            current_round_active_bettors = len(current_round_bettor_ids)
         per_number = current_round_bets.values('number').annotate(
             amount=Sum('chip_amount'),
             count=Count('id')
@@ -481,6 +564,7 @@ def admin_dashboard_data(request):
     data = {
         'timer': timer,
         'status': status,
+        'round_id': current_round.round_id if current_round else None,
         'current_round': {
             'round_id': current_round.round_id if current_round else None,
             'dice_result': current_round.dice_result if current_round else None,
@@ -494,11 +578,41 @@ def admin_dashboard_data(request):
         } if current_round else None,
         'current_round_total_bets': current_round_total_bets,
         'current_round_total_amount': float(current_round_total_amount),
+        'current_round_active_bettors': current_round_active_bettors,
         'bets_by_number_list': bets_by_number_list,
         'total_bets': total_bets_count,
         'total_amount': float(overall_total_amount),
         'total_payout': float(overall_total_payout),
         'total_profit': float(overall_total_profit),
+        'daily': {
+            'timezone': 'IST',
+            'today': {
+                'date': str(today_ist_date),
+                'deposits_count': int(today_deposit_agg.get('count') or 0),
+                'deposits_amount': float(today_deposit_agg.get('amount') or 0),
+                'withdraws_count': int(today_withdraw_agg.get('count') or 0),
+                'withdraws_amount': float(today_withdraw_agg.get('amount') or 0),
+                'bets_count': int(today_bet_agg.get('bets_count') or 0),
+                'bets_amount': float(today_bet_agg.get('bets_amount') or 0),
+                'payout_amount': float(today_bet_agg.get('payout_amount') or 0),
+                'profit': float((today_bet_agg.get('bets_amount') or 0) - (today_bet_agg.get('payout_amount') or 0)),
+                'active_bettors': int(today_active_bettors or 0),
+                'new_users': int(today_new_users or 0),
+            },
+            'yesterday': {
+                'date': str(yday_ist_date),
+                'deposits_count': int(yday_deposit_agg.get('count') or 0),
+                'deposits_amount': float(yday_deposit_agg.get('amount') or 0),
+                'withdraws_count': int(yday_withdraw_agg.get('count') or 0),
+                'withdraws_amount': float(yday_withdraw_agg.get('amount') or 0),
+                'bets_count': int(yday_bet_agg.get('bets_count') or 0),
+                'bets_amount': float(yday_bet_agg.get('bets_amount') or 0),
+                'payout_amount': float(yday_bet_agg.get('payout_amount') or 0),
+                'profit': float((yday_bet_agg.get('bets_amount') or 0) - (yday_bet_agg.get('payout_amount') or 0)),
+                'active_bettors': int(yday_active_bettors or 0),
+                'new_users': int(yday_new_users or 0),
+            },
+        },
     }
     try:
         cache.set(ADMIN_DASHBOARD_DATA_CACHE_KEY, json.dumps(data), ADMIN_DASHBOARD_DATA_TTL)
@@ -777,6 +891,31 @@ def recent_rounds(request):
         messages.error(request, 'You do not have permission to view this page.')
         return redirect('admin_dashboard')
     
+    # Fix stale rounds so we don't show old rounds stuck as "Betting"
+    try:
+        from datetime import timedelta
+        now = timezone.now()
+        # 1) Rounds that have result data but are still BETTING -> RESULT
+        GameRound.objects.filter(
+            status='BETTING'
+        ).filter(
+            Q(dice_result__isnull=False) & ~Q(dice_result='') | Q(result_time__isnull=False)
+        ).update(status='RESULT')
+        # 2) Any BETTING or CLOSED round that has exceeded its round duration -> RESULT
+        # (round_result event may never have been processed; use each round's round_end_seconds)
+        for round_obj in GameRound.objects.filter(status__in=['BETTING', 'CLOSED']).only('id', 'start_time', 'round_end_seconds'):
+            try:
+                duration_sec = (round_obj.round_end_seconds or 90) + 60  # round length + 60s buffer
+                if (now - round_obj.start_time).total_seconds() > duration_sec:
+                    GameRound.objects.filter(pk=round_obj.pk).update(status='RESULT')
+            except Exception:
+                pass
+        # 3) Fallback: any BETTING/CLOSED round older than 5 minutes -> RESULT
+        cutoff = now - timedelta(seconds=300)
+        GameRound.objects.filter(status__in=['BETTING', 'CLOSED'], start_time__lt=cutoff).update(status='RESULT')
+    except Exception:
+        pass
+
     # Get search query and filters
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '')
@@ -964,8 +1103,11 @@ def user_details(request, user_id):
                 # Deposit money needs to be rotated 1 time
                 amount_decimal = Decimal(str(amount))
                 
-                # 1️⃣ Update DB atomically
-                Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + amount_decimal)
+                # 1️⃣ Update DB atomically (balance + total_deposits for withdrawable rule)
+                Wallet.objects.filter(pk=wallet.pk).update(
+                    balance=F('balance') + amount_decimal,
+                    total_deposits=F('total_deposits') + int(amount_decimal),
+                )
                 wallet.refresh_from_db()
                 
                 transaction_type = 'DEPOSIT'
@@ -1173,11 +1315,9 @@ def user_details(request, user_id):
     context = get_admin_context(request, {
         'player': user,
         'wallet': wallet,
-        # Wallet formula:
-        # unavailable = max(0, balance - turnover)
-        # withdrawable = min(balance, turnover)
-        'wallet_unavailable': max(Decimal('0.00'), Decimal(str(wallet.balance)) - Decimal(str(wallet.turnover))),
-        'wallet_withdrawable': max(Decimal('0.00'), min(Decimal(str(wallet.balance)), Decimal(str(wallet.turnover)))),
+        # Wallet formula: unavailable = max(0, total_deposits - turnover), withdrawable = balance - unavailable
+        'wallet_unavailable': wallet.computed_unavailable_balance,
+        'wallet_withdrawable': wallet.withdrawable_balance,
         'user_bets': user_bets,
         'total_bets': total_bets,
         'total_bet_amount': total_bet_amount,
@@ -1519,8 +1659,11 @@ def approve_deposit(request, pk):
                 bonus_amount = deposit.amount * Decimal('0.05')
                 final_amount += bonus_amount
             
-            # 1️⃣ Update DB atomically
-            Wallet.objects.filter(pk=wallet.pk).update(balance=F('balance') + final_amount)
+            # 1️⃣ Update DB atomically (balance + total_deposits for withdrawable rule)
+            Wallet.objects.filter(pk=wallet.pk).update(
+                balance=F('balance') + final_amount,
+                total_deposits=F('total_deposits') + int(final_amount),
+            )
             wallet.refresh_from_db()
             
             deposit.status = 'APPROVED'
@@ -1568,9 +1711,10 @@ def approve_deposit(request, pk):
                     ref_wallet, _ = Wallet.objects.get_or_create(user=referrer)
                     ref_wallet = Wallet.objects.select_for_update().get(pk=ref_wallet.pk)
                     ref_balance_before = ref_wallet.balance
-                    # Referral bonus needs to be rotated 1 time
+                    # Referral bonus needs to be rotated 1 time (counts as deposit for withdrawable rule)
                     ref_wallet.add(referral_bonus, is_bonus=True)
-                    # ref_wallet.save() # ref_wallet.add already calls save()
+                    Wallet.objects.filter(pk=ref_wallet.pk).update(total_deposits=F('total_deposits') + int(referral_bonus))
+                    ref_wallet.refresh_from_db()
 
                     Transaction.objects.create(
                         user=referrer,
@@ -1959,17 +2103,52 @@ def reject_withdraw(request, pk):
 
 @admin_required
 def transactions(request):
-    """Reports page showing financial summary statistics"""
+    """Reports page showing financial summary statistics. Default: overall (all time). Optional: filter by custom date range."""
     if not has_menu_permission(request.user, 'transactions'):
         messages.error(request, 'You do not have permission to view reports.')
         return redirect('admin_dashboard')
 
-    # Get search filter
+    from datetime import timedelta
+    from django.db.models.functions import TruncDate
+
+    # Get filters: search and optional date range. Default = last 7 days when no params; overall=1 = all time.
     search_query = request.GET.get('search', '').strip()
-    
+    from_date_str = request.GET.get('from_date', '').strip()
+    to_date_str = request.GET.get('to_date', '').strip()
+    show_overall = request.GET.get('overall', '').strip().lower() in ('1', 'true', 'yes')
+
     # Base transaction queryset
     transactions_query = Transaction.objects.all()
-    
+
+    today = timezone.now().date()
+    from_date = None
+    to_date = None
+
+    if from_date_str:
+        try:
+            from_date = _dt.datetime.strptime(from_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            from_date = None
+    if to_date_str:
+        try:
+            to_date = _dt.datetime.strptime(to_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            to_date = None
+
+    # Default: when no date params and not "overall", use last 7 days
+    if not show_overall and from_date is None and to_date is None:
+        from_date = today - timedelta(days=6)  # 7 days inclusive
+        to_date = today
+        from_date_str = from_date.strftime('%Y-%m-%d')
+        to_date_str = to_date.strftime('%Y-%m-%d')
+
+    if from_date is not None:
+        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+    if to_date is not None:
+        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
+
+    date_filter_applied = from_date is not None or to_date is not None
+
     # Apply search filter (filter by user)
     if search_query:
         transactions_query = transactions_query.filter(
@@ -1977,7 +2156,7 @@ def transactions(request):
             Q(user__phone_number__icontains=search_query)
         )
 
-    # Calculate stats directly from database
+    # Calculate stats from (possibly filtered) queryset
     total_transactions = transactions_query.count()
     total_deposits = transactions_query.filter(transaction_type='DEPOSIT').aggregate(Sum('amount'))['amount__sum'] or 0
     total_withdraws = transactions_query.filter(transaction_type='WITHDRAW').aggregate(Sum('amount'))['amount__sum'] or 0
@@ -1985,15 +2164,19 @@ def transactions(request):
     total_wins = transactions_query.filter(transaction_type='WIN').aggregate(Sum('amount'))['amount__sum'] or 0
     admin_profit = total_bets - total_wins
 
-    # Calculate last 10 days profit data for chart
-    from datetime import timedelta
-    from django.db.models.functions import TruncDate
-    
-    # Changed from 30 days to 10 days as requested
-    days_count = 10
-    start_date = timezone.now().date() - timedelta(days=days_count-1)
+    # Chart: when custom date range, use that range (up to 90 days for chart); otherwise last 30 days
+    if date_filter_applied and from_date is not None and to_date is not None:
+        chart_start = from_date
+        chart_end = to_date
+        if (chart_end - chart_start).days > 90:
+            chart_end = chart_start + timedelta(days=90)
+    else:
+        chart_end = timezone.now().date()
+        chart_start = chart_end - timedelta(days=29)
+
     daily_stats = transactions_query.filter(
-        created_at__date__gte=start_date,
+        created_at__date__gte=chart_start,
+        created_at__date__lte=chart_end,
         transaction_type__in=['BET', 'WIN']
     ).annotate(
         date=TruncDate('created_at')
@@ -2001,11 +2184,11 @@ def transactions(request):
         daily_amount=Sum('amount')
     ).order_by('date')
 
-    # Process daily stats into a format for the chart
     profit_data_map = {}
-    for i in range(days_count):
-        date = start_date + timedelta(days=i)
-        profit_data_map[date] = 0
+    d = chart_start
+    while d <= chart_end:
+        profit_data_map[d] = 0
+        d += timedelta(days=1)
 
     for stat in daily_stats:
         date = stat['date']
@@ -2015,7 +2198,6 @@ def transactions(request):
         else:
             profit_data_map[date] -= amount
 
-    # Convert to sorted lists for the chart
     chart_labels = [date.strftime('%b %d') for date in sorted(profit_data_map.keys())]
     chart_data = [float(profit_data_map[date]) for date in sorted(profit_data_map.keys())]
 
@@ -2029,6 +2211,9 @@ def transactions(request):
         'chart_labels': json.dumps(chart_labels),
         'chart_data': json.dumps(chart_data),
         'search_query': search_query,
+        'from_date': from_date_str,
+        'to_date': to_date_str,
+        'date_filter_applied': date_filter_applied,
         'page': 'transactions',
     })
 
