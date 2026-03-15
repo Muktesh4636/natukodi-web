@@ -29,7 +29,7 @@ from .views import get_dice_mode, set_dice_mode
 from .admin_utils import (
     is_super_admin, is_admin, has_permission, get_admin_profile,
     super_admin_required, admin_required, permission_required,
-    get_admin_permissions, has_menu_permission
+    get_admin_permissions, has_menu_permission, get_effective_admin
 )
 from .utils import get_game_setting
 from .load_test_utils import load_tester
@@ -1088,17 +1088,18 @@ def all_bets(request):
     status_filter = request.GET.get('status', 'all') # all, winners, losers
 
     # Get all bets
+    effective_admin = get_effective_admin(request.user)
     all_bets_list = Bet.objects.select_related('user', 'round').all().order_by('-created_at')
 
-    # If not super admin, filter by worker's clients
-    if not is_super_admin(request.user):
-        all_bets_list = all_bets_list.filter(user__worker=request.user)
+    # If not super admin, filter by franchise (players under this admin)
+    if not is_super_admin(effective_admin):
+        all_bets_list = all_bets_list.filter(user__worker=effective_admin)
 
-    # Apply search filter
+    # Apply date filter
     if from_date:
-        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
+        all_bets_list = all_bets_list.filter(created_at__date__gte=from_date)
     if to_date:
-        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
+        all_bets_list = all_bets_list.filter(created_at__date__lte=to_date)
     if search_query:
         all_bets_list = all_bets_list.filter(
             Q(user__username__icontains=search_query) |
@@ -1154,21 +1155,21 @@ def wallets(request):
     except (ValueError, TypeError):
         page_number = 1
     
-    # Build query
-    wallets_query = Wallet.objects.select_related('user').all()
-    
+    # Build query — franchise owners see only their players' wallets
+    effective_admin = get_effective_admin(request.user)
+    base_wallets = Wallet.objects.select_related('user').all()
+    if not is_super_admin(effective_admin):
+        base_wallets = base_wallets.filter(user__worker=effective_admin)
+    wallets_query = base_wallets
+
     # Apply balance filter
     if balance_filter == 'has_balance':
         wallets_query = wallets_query.filter(balance__gt=0)
     elif balance_filter == 'zero':
         wallets_query = wallets_query.filter(balance=0)
-    # 'all' shows all wallets
-    
+    # 'all' shows all wallets in scope
+
     # Apply search
-    if from_date:
-        transactions_query = transactions_query.filter(created_at__date__gte=from_date)
-    if to_date:
-        transactions_query = transactions_query.filter(created_at__date__lte=to_date)
     if search_query:
         wallets_query = wallets_query.filter(
             Q(user__username__icontains=search_query) |
@@ -1187,11 +1188,11 @@ def wallets(request):
     else:
         wallets_query = wallets_query.order_by('-balance')  # default
     
-    # Calculate stats (before pagination for accurate totals)
-    total_wallets = Wallet.objects.count()
-    total_balance = Wallet.objects.aggregate(Sum('balance'))['balance__sum'] or 0
-    active_wallets = Wallet.objects.filter(balance__gt=0).count()
-    zero_balance_wallets = Wallet.objects.filter(balance=0).count()
+    # Calculate stats (before pagination, same scope as list)
+    total_wallets = base_wallets.count()
+    total_balance = base_wallets.aggregate(Sum('balance'))['balance__sum'] or 0
+    active_wallets = base_wallets.filter(balance__gt=0).count()
+    zero_balance_wallets = base_wallets.filter(balance=0).count()
     
     # Pagination - 50 wallets per page for better performance
     paginator = Paginator(wallets_query, 50)
@@ -1718,7 +1719,7 @@ def reject_withdraw(request, pk):
 
 @admin_required
 def transactions(request):
-    """Reports page showing financial summary statistics"""
+    """Reports page showing financial summary. Franchise owners see only their players' transactions."""
     if not has_menu_permission(request.user, 'transactions'):
         messages.error(request, 'You do not have permission to view reports.')
         return redirect('admin_dashboard')
@@ -1727,11 +1728,13 @@ def transactions(request):
     search_query = request.GET.get('search', '').strip()
     from_date = request.GET.get('from_date', '').strip()
     to_date = request.GET.get('to_date', '').strip()
-    
-    # Base transaction queryset
+
+    effective_admin = get_effective_admin(request.user)
     transactions_query = Transaction.objects.all()
-    
-    # Apply search filter (filter by user)
+    if not is_super_admin(effective_admin):
+        transactions_query = transactions_query.filter(user__worker=effective_admin)
+
+    # Apply date filter
     if from_date:
         transactions_query = transactions_query.filter(created_at__date__gte=from_date)
     if to_date:
@@ -2024,12 +2027,11 @@ def manage_players(request):
         page_number = 1
     search_query = request.GET.get('search', '')
     
-    # Build query - only show actual players (not staff)
+    # Build query - only show actual players (not staff). Franchise sees only their players.
+    effective_admin = get_effective_admin(request.user)
     users_query = User.objects.filter(is_staff=False)
-    
-    # If not super admin, only show assigned clients
-    if not is_super_admin(request.user):
-        users_query = users_query.filter(worker=request.user)
+    if not is_super_admin(effective_admin):
+        users_query = users_query.filter(worker=effective_admin)
     
     # Apply status filter
     if status_filter == 'active':
@@ -2055,12 +2057,15 @@ def manage_players(request):
     except Exception:
         page_obj = None
     
-    # Statistics
-    total_users = User.objects.filter(is_staff=False).count()
-    active_users = User.objects.filter(is_staff=False, is_active=True).count()
-    inactive_users = User.objects.filter(is_staff=False, is_active=False).count()
-    
-    # Get distribution statistics
+    # Statistics (same scope as list — franchise sees only their players)
+    base_players = User.objects.filter(is_staff=False)
+    if not is_super_admin(effective_admin):
+        base_players = base_players.filter(worker=effective_admin)
+    total_users = base_players.count()
+    active_users = base_players.filter(is_active=True).count()
+    inactive_users = base_players.filter(is_active=False).count()
+
+    # Get distribution statistics (super admin only)
     admins = get_admins_for_distribution()
     admin_distribution = []
     for admin in admins:
@@ -2336,13 +2341,19 @@ def game_settings(request):
 
 @admin_required
 def payment_methods(request):
-    """List all payment methods"""
+    """List payment methods. Super admin sees global (owner=null); franchise owners see only their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
 
-    # Create default payment methods if none exist
-    if not PaymentMethod.objects.exists():
+    effective_admin = get_effective_admin(request.user)
+    if is_super_admin(effective_admin):
+        methods_qs = PaymentMethod.objects.filter(owner__isnull=True)
+    else:
+        methods_qs = PaymentMethod.objects.filter(owner=effective_admin)
+
+    # Create default global payment methods only for super admin when none exist
+    if is_super_admin(effective_admin) and not PaymentMethod.objects.filter(owner__isnull=True).exists():
         default_methods = [
             {
                 'name': 'Bank Account',
@@ -2389,11 +2400,12 @@ def payment_methods(request):
         ]
 
         for method_data in default_methods:
-            PaymentMethod.objects.create(**method_data)
+            PaymentMethod.objects.create(owner=None, **method_data)
 
         messages.info(request, 'Created default payment methods. Please edit them with your actual payment details.')
+        return redirect('payment_methods')
 
-    methods = PaymentMethod.objects.all().order_by('-is_active', 'method_type')
+    methods = methods_qs.order_by('-is_active', 'method_type')
 
     # Get available method types (exclude already used ones)
     used_method_types = set(methods.values_list('method_type', flat=True))
@@ -2403,11 +2415,11 @@ def payment_methods(request):
     available_method_types = [mt for mt in all_method_choices if mt[0] not in used_method_types]
 
     context = get_admin_context(request, {
-        'from_date': from_date,
-        'to_date': to_date,
         'payment_methods': methods,
         'available_method_types': available_method_types,
         'page': 'payment-methods',
+        'is_franchise_scope': not is_super_admin(effective_admin),
+        'scope_label': 'Your franchise' if not is_super_admin(effective_admin) else None,
     })
     return render(request, 'admin/payment_methods.html', context)
 
@@ -2436,9 +2448,11 @@ def create_payment_method(request):
             messages.error(request, 'Method Type is required.')
             return redirect('payment_methods')
 
-        # Check if this method type is already used
-        if PaymentMethod.objects.filter(method_type=method_type).exists():
-            messages.error(request, 'This payment method type is already in use.')
+        effective_admin = get_effective_admin(request.user)
+        owner_for_create = None if is_super_admin(effective_admin) else effective_admin
+        scope_qs = PaymentMethod.objects.filter(owner=owner_for_create) if owner_for_create is not None else PaymentMethod.objects.filter(owner__isnull=True)
+        if scope_qs.filter(method_type=method_type).exists():
+            messages.error(request, 'This payment method type is already in use in your list.')
             return redirect('payment_methods')
 
         # Get the display name for the method type
@@ -2446,6 +2460,7 @@ def create_payment_method(request):
 
         try:
             PaymentMethod.objects.create(
+                owner=owner_for_create,
                 name=method_type_display,
                 method_type=method_type,
                 upi_id=upi_id,
@@ -2468,12 +2483,16 @@ def create_payment_method(request):
 
 @admin_required
 def edit_payment_method(request, pk):
-    """Edit a payment method"""
+    """Edit a payment method. Franchise can only edit their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
 
-    method = get_object_or_404(PaymentMethod, pk=pk)
+    effective_admin = get_effective_admin(request.user)
+    if is_super_admin(effective_admin):
+        method = get_object_or_404(PaymentMethod, pk=pk, owner__isnull=True)
+    else:
+        method = get_object_or_404(PaymentMethod, pk=pk, owner=effective_admin)
 
     if request.method == 'POST':
         method.method_type = request.POST.get('method_type')
@@ -2515,13 +2534,17 @@ def edit_payment_method(request, pk):
 
 @admin_required
 def delete_payment_method(request, pk):
-    """Delete a payment method"""
+    """Delete a payment method. Franchise can only delete their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
 
     if request.method == 'POST':
-        method = get_object_or_404(PaymentMethod, pk=pk)
+        effective_admin = get_effective_admin(request.user)
+        if is_super_admin(effective_admin):
+            method = get_object_or_404(PaymentMethod, pk=pk, owner__isnull=True)
+        else:
+            method = get_object_or_404(PaymentMethod, pk=pk, owner=effective_admin)
         name = method.name
 
         try:
@@ -2535,12 +2558,16 @@ def delete_payment_method(request, pk):
 
 @admin_required
 def toggle_payment_method(request, pk):
-    """Toggle active status of a payment method"""
+    """Toggle active status of a payment method. Franchise can only toggle their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
-    
-    method = get_object_or_404(PaymentMethod, pk=pk)
+
+    effective_admin = get_effective_admin(request.user)
+    if is_super_admin(effective_admin):
+        method = get_object_or_404(PaymentMethod, pk=pk, owner__isnull=True)
+    else:
+        method = get_object_or_404(PaymentMethod, pk=pk, owner=effective_admin)
     method.is_active = not method.is_active
     method.save()
     

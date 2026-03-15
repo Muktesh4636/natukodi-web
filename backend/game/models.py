@@ -124,7 +124,10 @@ class AdminPermissions(models.Model):
     can_view_deposit_requests = models.BooleanField(default=True)
     can_view_withdraw_requests = models.BooleanField(default=True)
     can_view_transactions = models.BooleanField(default=True)
+    can_view_game_history = models.BooleanField(default=True)
     can_view_game_settings = models.BooleanField(default=False)  # Super Admin only by default
+    can_view_help_center = models.BooleanField(default=False)
+    can_view_white_label = models.BooleanField(default=False)
     can_view_admin_management = models.BooleanField(default=False)  # Super Admin only by default
     can_manage_payment_methods = models.BooleanField(default=True)
     
@@ -146,7 +149,10 @@ class AdminPermissions(models.Model):
             'deposit_requests': self.can_view_deposit_requests,
             'withdraw_requests': self.can_view_withdraw_requests,
             'transactions': self.can_view_transactions,
+            'game_history': self.can_view_game_history,
             'game_settings': self.can_view_game_settings,
+            'help_center': self.can_view_help_center,
+            'white_label': self.can_view_white_label,
             'admin_management': self.can_view_admin_management,
             'payment_methods': self.can_manage_payment_methods,
         }

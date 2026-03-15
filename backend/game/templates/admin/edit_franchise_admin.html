@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit privileges – {{ admin_user.username }} – Admin Panel</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .container { max-width: 800px; margin: 0 auto; }
+        .btn-group { display: flex; gap: 12px; margin-top: 24px; }
+        .btn {
+            padding: 12px 24px; border-radius: 8px; font-weight: 500; font-size: 14px; text-decoration: none;
+            display: inline-block; cursor: pointer; border: none; transition: all 0.2s;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .alert { padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .note { background: #fef3c7; padding: 12px 16px; border-radius: 8px; margin-top: 16px; font-size: 13px; color: #92400e; }
+        .permissions-section h2 { font-size: 18px; margin-bottom: 12px; color: #334155; }
+        .permissions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .permission-item { display: flex; align-items: center; padding: 10px 12px; background: #f8fafc; border-radius: 8px; }
+        .permission-item input[type="checkbox"] { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; }
+        .permission-item label { margin: 0; font-weight: 500; cursor: pointer; flex: 1; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">🎲🎲</span><span>Gundu ata</span></div>
+            <div class="subtitle">Game control</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <div class="header" style="margin-bottom: 24px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
+                <div class="header-left">
+                    <h1 style="font-size: 28px; color: #0f172a; margin: 0;">Edit privileges: {{ admin_user.username }}</h1>
+                    <p style="color: #64748b; margin-top: 4px;">Menu permissions only</p>
+                </div>
+                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                    <a href="{% url 'franchise_balance' %}" class="btn-secondary btn">← Back to Franchise Balance</a>
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="permissions-section">
+                    <h2>🔐 Menu permissions</h2>
+                    <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">Select which menu options this franchise owner can access:</p>
+                    <div class="permissions-grid">
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_dashboard" name="can_view_dashboard" {% if permissions.can_view_dashboard %}checked{% endif %}>
+                            <label for="can_view_dashboard">📊 Dashboard</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_control_dice" name="can_control_dice" {% if permissions.can_control_dice %}checked{% endif %}>
+                            <label for="can_control_dice">🎯 Dice Control</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_recent_rounds" name="can_view_recent_rounds" {% if permissions.can_view_recent_rounds %}checked{% endif %}>
+                            <label for="can_view_recent_rounds">🔄 Recent Rounds</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_all_bets" name="can_view_all_bets" {% if permissions.can_view_all_bets %}checked{% endif %}>
+                            <label for="can_view_all_bets">💰 All Bets</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_wallets" name="can_view_wallets" {% if permissions.can_view_wallets %}checked{% endif %}>
+                            <label for="can_view_wallets">💳 Wallets</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_players" name="can_view_players" {% if permissions.can_view_players %}checked{% endif %}>
+                            <label for="can_view_players">👥 Players</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_deposit_requests" name="can_view_deposit_requests" {% if permissions.can_view_deposit_requests %}checked{% endif %}>
+                            <label for="can_view_deposit_requests">📥 Deposit Requests</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_withdraw_requests" name="can_view_withdraw_requests" {% if permissions.can_view_withdraw_requests %}checked{% endif %}>
+                            <label for="can_view_withdraw_requests">💸 Withdraw Requests</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_transactions" name="can_view_transactions" {% if permissions.can_view_transactions %}checked{% endif %}>
+                            <label for="can_view_transactions">📋 Reports</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_game_settings" name="can_view_game_settings" {% if permissions.can_view_game_settings %}checked{% endif %}>
+                            <label for="can_view_game_settings">⏱️ Game Settings</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_help_center" name="can_view_help_center" {% if permissions.can_view_help_center %}checked{% endif %}>
+                            <label for="can_view_help_center">🆘 Help Center</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_white_label" name="can_view_white_label" {% if permissions.can_view_white_label %}checked{% endif %}>
+                            <label for="can_view_white_label">💬 White Label Messages</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" {% if permissions.can_view_admin_management %}checked{% endif %}>
+                            <label for="can_view_admin_management">👨‍💼 Worker Management</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="can_manage_payment_methods" name="can_manage_payment_methods" {% if permissions.can_manage_payment_methods %}checked{% endif %}>
+                            <label for="can_manage_payment_methods">🏦 Payment Methods</label>
+                        </div>
+                    </div>
+                    <div class="note" style="margin-top: 12px;">Game Settings and Worker Management are typically Super Admin only.</div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">✅ Save changes</button>
+                    <a href="{% url 'franchise_balance' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

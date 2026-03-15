@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Admin - Admin Panel</title>
+    <title>Edit worker - Admin Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -275,6 +275,17 @@
                 </label>
             </div>
 
+            <div class="form-group" style="margin-top: 20px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
+                <label for="works_under_id" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e40af;">Works under (deposit/withdraw queue)</label>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">This worker will see that admin’s deposit and withdraw requests only. Leave empty if not assigned to any admin.</p>
+                <select id="works_under_id" name="works_under_id" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; min-width: 260px;">
+                    <option value="">— None —</option>
+                    {% for q in queue_owners %}
+                    <option value="{{ q.id }}" {% if admin_user.works_under_id == q.id %}selected{% endif %}>{{ q.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="password-section">
                 <h3 style="margin-bottom: 16px; font-size: 16px; color: #4a5568;">Change Password (Optional)</h3>
                 <div class="form-group">
@@ -371,18 +382,18 @@
                     </div>
 
                     <div class="permission-item">
-                        <input type="checkbox" id="can_view_help_center" name="can_view_game_settings" {% if permissions.can_view_game_settings %}checked{% endif %}>
+                        <input type="checkbox" id="can_view_help_center" name="can_view_help_center" {% if permissions.can_view_help_center %}checked{% endif %}>
                         <label for="can_view_help_center">🆘 Help Center</label>
                     </div>
 
                     <div class="permission-item">
-                        <input type="checkbox" id="can_view_white_label" name="can_view_game_settings" {% if permissions.can_view_game_settings %}checked{% endif %}>
+                        <input type="checkbox" id="can_view_white_label" name="can_view_white_label" {% if permissions.can_view_white_label %}checked{% endif %}>
                         <label for="can_view_white_label">💬 White Label Messages</label>
                     </div>
 
                     <div class="permission-item">
                         <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" {% if permissions.can_view_admin_management %}checked{% endif %}>
-                        <label for="can_view_admin_management">👨‍💼 Admin Management</label>
+                        <label for="can_view_admin_management">👨‍💼 Worker Management</label>
                     </div>
 
                     <div class="permission-item">
@@ -392,7 +403,7 @@
                 </div>
 
                 <div class="note">
-                    <strong>Note:</strong> "Game Settings" and "Admin Management" are typically Super Admin only. Only grant these permissions to trusted administrators.
+                    <strong>Note:</strong> "Game Settings" and "Worker Management" are typically Super Admin only. Only grant these permissions to trusted workers.
                 </div>
             </div>
 
@@ -460,22 +471,6 @@
                 btn.style.backgroundColor = '#10b981';
             }, 2000);
         }
-
-        // Sync Game Settings, Help Center, and White Label (same permission)
-        function syncGameSettingsCheckboxes() {
-            const gs = document.getElementById('can_view_game_settings');
-            const hc = document.getElementById('can_view_help_center');
-            const wl = document.getElementById('can_view_white_label');
-            if (!gs || !hc || !wl) return;
-            const checked = gs.checked || hc.checked || wl.checked;
-            gs.checked = hc.checked = wl.checked = checked;
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            ['can_view_game_settings', 'can_view_help_center', 'can_view_white_label'].forEach(function(id) {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener('change', syncGameSettingsCheckboxes);
-            });
-        });
 
         function copyToClipboard() {
             const passwordText = document.getElementById('generatedPassword').textContent;

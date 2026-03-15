@@ -17,6 +17,8 @@ import uuid
 import re
 import logging
 import json
+import threading
+import os
 
 logger = logging.getLogger('accounts')
 
@@ -28,7 +30,7 @@ try:
 except ImportError:
     TESSERACT_AVAILABLE = False
 
-from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw, DeviceToken
+from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw, DeviceToken, FranchiseBalance
 from game.models import MegaSpinProbability
 from .serializers import (
     UserRegistrationSerializer,
@@ -297,6 +299,68 @@ def notify_user(user, message):
     print(f"[NOTIFY] {user.username}: {message}")
 
 
+def _link_user_to_franchise_by_package(request):
+    """If request has package/package_name, set request.user.worker to that franchise admin. Ensures deposit/withdraw notifications go to the correct admin."""
+    if not getattr(request, 'user', None) or not request.user.is_authenticated or request.user.is_staff:
+        return
+    package = (getattr(request, 'data', None) or {}).get('package') or (getattr(request, 'data', None) or {}).get('package_name') or ''
+    package = (package or '').strip()
+    if not package:
+        return
+    fb = FranchiseBalance.objects.filter(package_name=package).first()
+    if fb and request.user.worker_id != fb.user_id:
+        request.user.worker = fb.user
+        request.user.save(update_fields=['worker_id'])
+        logger.info(f"User {request.user.username} linked to franchise admin {fb.user.username} via package {package} (deposit/withdraw)")
+
+
+def _extract_utr_from_deposit_async(deposit_id):
+    """Run OCR on a deposit's screenshot in a background thread and update payment_reference if UTR found."""
+    def _run():
+        try:
+            deposit = DepositRequest.objects.filter(id=deposit_id).first()
+            if not deposit or not getattr(deposit.screenshot, 'path', None) or not os.path.isfile(deposit.screenshot.path):
+                return
+            if not TESSERACT_AVAILABLE:
+                return
+            tesseract_path = '/usr/bin/tesseract'
+            if not os.path.exists(tesseract_path):
+                tesseract_path = getattr(settings, 'TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
+            pytesseract.pytesseract.tesseract_cmd = tesseract_path
+            img = Image.open(deposit.screenshot.path)
+            img = img.convert('L')
+            text = pytesseract.image_to_string(img, config=r'--oem 3 --psm 6')
+            if len(text.strip()) < 20:
+                text += "\n" + pytesseract.image_to_string(img, config=r'--oem 3 --psm 11')
+            if len(text.strip()) < 20:
+                text += "\n" + pytesseract.image_to_string(img, config=r'--oem 3 --psm 3')
+            clean_text = ' '.join(text.split())
+            extracted_utr = None
+            utr_match = re.search(r'(?:\b|\D)(\d{12})(?:\b|\D)', clean_text)
+            if utr_match:
+                extracted_utr = utr_match.group(1)
+            if not extracted_utr:
+                keyword_match = re.search(r'(?:UTR|Ref|Transaction|Ref\s*No|TXN)[:\s\-\.]*([A-Z0-9]{10,22})', clean_text, re.IGNORECASE)
+                if keyword_match:
+                    extracted_utr = keyword_match.group(1)
+            if not extracted_utr:
+                phonepe_match = re.search(r'\b(T\d{18,24})\b', clean_text)
+                if phonepe_match:
+                    extracted_utr = phonepe_match.group(1)
+            if not extracted_utr:
+                gpay_match = re.search(r'\b(\d{4}\s*\d{4}\s*\d{4})\b', clean_text)
+                if gpay_match:
+                    extracted_utr = gpay_match.group(1).replace(' ', '')
+            if extracted_utr:
+                DepositRequest.objects.filter(id=deposit_id).update(payment_reference=extracted_utr)
+                logger.info(f"Background OCR: updated deposit {deposit_id} with UTR {extracted_utr}")
+        except Exception as e:
+            logger.warning(f"Background UTR extraction failed for deposit {deposit_id}: {e}")
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication for registration
 @permission_classes([AllowAny])
@@ -330,7 +394,9 @@ def register(request):
         if User.objects.filter(username=username).exists():
             return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(phone_number=clean_phone).exists():
-            return Response({'error': 'Phone number already registered'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': 'This phone number is already registered. You cannot create another account in a different franchise.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # 3. Create User and Wallet in a single transaction
         try:
@@ -347,6 +413,21 @@ def register(request):
                     phone_number=clean_phone,
                     referred_by=referred_by
                 )
+                
+                # Link to franchise admin by APK package name (optional)
+                package = (request.data.get('package') or request.data.get('package_name') or '').strip()
+                if package:
+                    fb = FranchiseBalance.objects.filter(package_name=package).first()
+                    if fb:
+                        user.worker = fb.user
+                        user.save(update_fields=['worker_id'])
+                        logger.info(f"User {user.username} linked to franchise admin {fb.user.username} via package {package}")
+                
+                # If referred by a franchise admin (staff, not superuser), put new user under that admin
+                if referred_by and referred_by.is_staff and not referred_by.is_superuser:
+                    user.worker = referred_by
+                    user.save(update_fields=['worker_id'])
+                    logger.info(f"User {user.username} linked to franchise admin {referred_by.username} via referral")
                 
                 # Create wallet
                 wallet = Wallet.objects.create(user=user, balance=Decimal('0.00'))
@@ -406,29 +487,32 @@ def loading_time(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def login(request):
-    """Optimized User login with minimal DB hits and NO Redis dependency"""
+    """Optimized User login with minimal DB hits and NO Redis dependency.
+    Accepts username or phone (case-insensitive for username; phone normalized to 10 digits)."""
     try:
-        username = request.data.get('username', '').strip()
-        password = request.data.get('password', '').strip()
+        # Accept both 'username' and 'phone' so app can send either
+        username = (request.data.get('username') or request.data.get('phone') or '').strip()
+        password = (request.data.get('password') or '').strip()
 
         if not username or not password:
             return Response({'error': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 1. Clean username if it looks like a phone number
-        # This ensures login works even if user enters +91 or spaces
-        clean_username = username
-        if any(char.isdigit() for char in username):
-            # Extract only digits
+        # Normalize phone the same way as registration (10 digits, no country code)
+        clean_phone = username
+        if any(c.isdigit() for c in username):
             digits = ''.join(filter(str.isdigit, username))
             if len(digits) >= 10:
-                clean_username = digits[-10:]
+                try:
+                    from .sms_service import sms_service
+                    clean_phone = sms_service._clean_phone_number(username, for_sms=False)
+                except Exception:
+                    clean_phone = digits[-10:]
 
-        # 2. Single query for User and Wallet (using select_related)
-        # Check both original username and cleaned phone number
+        # Single query: match by username (case-insensitive) or phone (raw or normalized)
         user = User.objects.filter(
-            Q(username=username) | 
-            Q(phone_number=username) | 
-            Q(phone_number=clean_username)
+            Q(username__iexact=username) |
+            Q(phone_number=username) |
+            Q(phone_number=clean_phone)
         ).select_related('wallet').first()
 
         if not user or not user.check_password(password):
@@ -440,6 +524,16 @@ def login(request):
         # Admins/Staff are not allowed to login to the game app
         if user.is_staff or user.is_superuser:
             return Response({'error': 'Admins are not allowed to login to the game app.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Link to franchise admin by APK package name (optional) – so this user's activity shows only to that admin
+        package = (request.data.get('package') or request.data.get('package_name') or '').strip()
+        if package:
+            fb = FranchiseBalance.objects.filter(package_name=package).first()
+            if fb:
+                if user.worker_id != fb.user_id:
+                    user.worker = fb.user
+                    user.save(update_fields=['worker_id'])
+                    logger.info(f"User {user.username} linked to franchise admin {fb.user.username} via package {package} on login")
 
         # 2. Generate JWT tokens (No DB hit)
         refresh = RefreshToken.for_user(user)
@@ -944,14 +1038,14 @@ class WalletView(APIView):
                     wallet, _ = Wallet.objects.get_or_create(user=request.user)
                     bal = Decimal(realtime_balance)
                     turnover = Decimal(str(wallet.turnover))
-                    unav = max(Decimal('0.00'), bal - turnover)
+                    total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
+                    unav = max(Decimal('0.00'), total_deposits - turnover)
                     withdrawable = max(Decimal('0.00'), bal - unav)
                     wallet_data = {
                         'id': wallet.id,
                         'balance': realtime_balance,
-                        'unavaliable_balance': str(unav),
+                        'unavailable_balance': str(unav),
                         'withdrawable_balance': str(withdrawable),
-                        'unavailable_balance': str(unav)
                     }
                     return Response(wallet_data)
             except Exception as re:
@@ -992,9 +1086,8 @@ class WalletView(APIView):
         wallet_response = {
             'id': wallet.id,
             'balance': balance,
-            'unavaliable_balance': str(unav),
+            'unavailable_balance': str(unav),
             'withdrawable_balance': withdrawable,
-            'unavailable_balance': str(unav)
         }
 
         return Response(wallet_response)
@@ -1243,103 +1336,36 @@ def upload_deposit_proof(request):
             'error': 'You already have a pending deposit request. Please wait for it to be approved or rejected before sending another.'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create deposit request with PENDING status - no wallet credit yet
+    # Create deposit request with PENDING status - no wallet credit yet (OCR runs in background so API responds fast)
     try:
         payment_method_id = request.data.get('payment_method_id')
         payment_method = None
         if payment_method_id:
             try:
-                payment_method = PaymentMethod.objects.get(id=payment_method_id)
+                pm = PaymentMethod.objects.get(id=payment_method_id, is_active=True)
+                if pm.owner_id is None or pm.owner_id == getattr(request.user, 'worker_id', None):
+                    payment_method = pm
             except PaymentMethod.DoesNotExist:
                 pass
 
-        # Try to extract UTR from screenshot before creating the request
-        extracted_utr = None
-        if TESSERACT_AVAILABLE:
-            try:
-                # Set tesseract path - check both common locations
-                import os
-                tesseract_path = '/usr/bin/tesseract'
-                if not os.path.exists(tesseract_path):
-                    tesseract_path = getattr(settings, 'TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
-                
-                pytesseract.pytesseract.tesseract_cmd = tesseract_path
-                logger.info(f"Using tesseract at: {tesseract_path}")
-                
-                # Open image from the uploaded file
-                # Reset file pointer to beginning just in case
-                screenshot.seek(0)
-                img = Image.open(screenshot)
-                # Convert to grayscale for better OCR
-                img = img.convert('L')
-                
-                # Use custom config for better digit recognition
-                # Try multiple PSM modes if one fails
-                text = pytesseract.image_to_string(img, config=r'--oem 3 --psm 6')
-                
-                # If text is very short, try PSM 11 (sparse text)
-                if len(text.strip()) < 20:
-                    text += "\n" + pytesseract.image_to_string(img, config=r'--oem 3 --psm 11')
-                
-                # If still short, try PSM 3 (default)
-                if len(text.strip()) < 20:
-                    text += "\n" + pytesseract.image_to_string(img, config=r'--oem 3 --psm 3')
+        # Link user to franchise admin by package (so deposit notification goes to correct admin)
+        _link_user_to_franchise_by_package(request)
 
-                # Clean text: remove extra spaces but keep structure
-                clean_text = ' '.join(text.split())
-                logger.info(f"OCR Extracted Text (cleaned): {clean_text[:500]}")
-                
-                # Extract UTR using regex - try multiple patterns
-                # 1. Standard 12-digit UTR (most common for IMPS/UPI)
-                # Look for 12 digits that might have spaces or dots between them
-                utr_match = re.search(r'(?:\b|\D)(\d{12})(?:\b|\D)', clean_text)
-                if utr_match:
-                    extracted_utr = utr_match.group(1)
-                    logger.info(f"Found 12-digit UTR: {extracted_utr}")
-                
-                # 2. Look for patterns like "UTR: 123456789012" or "Ref No: 123456789012"
-                if not extracted_utr:
-                    # More flexible regex for keywords
-                    keyword_match = re.search(r'(?:UTR|Ref|Transaction|Ref\s*No|TXN)[:\s\-\.]*([A-Z0-9]{10,22})', clean_text, re.IGNORECASE)
-                    if keyword_match:
-                        extracted_utr = keyword_match.group(1)
-                        logger.info(f"Found keyword-based UTR: {extracted_utr}")
-                
-                # 3. PhonePe specific: T followed by many digits
-                if not extracted_utr:
-                    phonepe_match = re.search(r'\b(T\d{18,24})\b', clean_text)
-                    if phonepe_match:
-                        extracted_utr = phonepe_match.group(1)
-                        logger.info(f"Found PhonePe ID: {extracted_utr}")
-
-                # 4. Google Pay / GPay specific: often starts with "CIC" or similar or just 12 digits
-                if not extracted_utr:
-                    gpay_match = re.search(r'\b(\d{4}\s*\d{4}\s*\d{4})\b', clean_text)
-                    if gpay_match:
-                        extracted_utr = gpay_match.group(1).replace(' ', '')
-                        logger.info(f"Found GPay style 12-digit: {extracted_utr}")
-
-                if extracted_utr:
-                    logger.info(f"Auto-extracted UTR {extracted_utr} from screenshot for user {request.user.username}")
-                else:
-                    logger.warning(f"Could not find UTR in extracted text for user {request.user.username}")
-            except Exception as ocr_err:
-                logger.error(f"Failed to auto-extract UTR for user {request.user.username}: {ocr_err}")
-                import traceback
-                logger.error(traceback.format_exc())
-            finally:
-                # Reset file pointer again for saving
-                screenshot.seek(0)
-
+        # Create deposit immediately so API returns fast; UTR extraction runs in background
+        screenshot.seek(0)
         deposit = DepositRequest.objects.create(
             user=request.user,
             amount=amount,
             screenshot=screenshot,
             payment_method=payment_method,
             status='PENDING',
-            payment_reference=extracted_utr if extracted_utr else ''
+            payment_reference=''
         )
-        logger.info(f"Deposit request created: ID {deposit.id} for user {request.user.username}, amount: {amount}, extracted_utr: {extracted_utr}")
+        logger.info(f"Deposit request created: ID {deposit.id} for user {request.user.username}, amount: {amount}")
+
+        # Run OCR in background so response is fast; update deposit.payment_reference if UTR found
+        if TESSERACT_AVAILABLE and deposit.screenshot:
+            _extract_utr_from_deposit_async(deposit.id)
     except Exception as e:
         logger.exception(f"Unexpected error creating deposit request for user {request.user.username}: {e}")
         import traceback
@@ -1403,6 +1429,9 @@ def submit_utr(request):
             except PaymentMethod.DoesNotExist:
                 pass
 
+        # Link user to franchise admin by package (so deposit notification goes to correct admin)
+        _link_user_to_franchise_by_package(request)
+
         deposit = DepositRequest.objects.create(
             user=request.user,
             amount=amount,
@@ -1455,6 +1484,15 @@ def approve_deposit_request(request, pk):
             if deposit.status != 'PENDING':
                 logger.warning(f"Admin {request.user.username} failed to approve deposit {pk}: Already processed (Status: {deposit.status})")
                 return Response({'error': 'Deposit request already processed'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Franchise balance: deduct from processing admin's balance (skip for superuser)
+            if not request.user.is_superuser:
+                fb, _ = FranchiseBalance.objects.get_or_create(user=request.user, defaults={'balance': 0})
+                fb = FranchiseBalance.objects.select_for_update().get(pk=fb.pk)
+                if fb.balance < deposit.amount:
+                    logger.warning(f"Admin {request.user.username} insufficient franchise balance: {fb.balance} < {deposit.amount}")
+                    return Response({'error': 'Insufficient franchise balance. Contact super admin for top-up.'}, status=status.HTTP_400_BAD_REQUEST)
+                FranchiseBalance.objects.filter(pk=fb.pk).update(balance=F('balance') - deposit.amount)
 
             wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
             wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
@@ -1739,9 +1777,12 @@ def my_withdraw_requests(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_payment_methods(request):
-    """List active payment methods for deposits"""
-    logger.info("Fetching active payment methods")
+    """List active payment methods for deposits. Global (owner=null) + franchise's own if user has worker."""
     methods = PaymentMethod.objects.filter(is_active=True)
+    if request.user.is_authenticated and getattr(request.user, 'worker_id', None):
+        methods = methods.filter(Q(owner__isnull=True) | Q(owner_id=request.user.worker_id))
+    else:
+        methods = methods.filter(owner__isnull=True)
     serializer = PaymentMethodSerializer(methods, many=True, context={'request': request})
     return Response(serializer.data)
 

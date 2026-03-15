@@ -434,7 +434,7 @@
                             {% elif setting.key == 'APP_DOWNLOAD_URL' %}
                                 APK Download URL
                             {% elif setting.key == 'APP_FORCE_UPDATE' %}
-                                Force Update (block app until updated)
+                                Force update
                             {% else %}
                                 {{ setting.key }}
                             {% endif %}
@@ -458,7 +458,7 @@
                                 {% if setting.value %}checked{% endif %}
                                 style="width: 20px; height: 20px;"
                             >
-                            <span style="color: #718096; font-size: 14px;">Enable to force users to update before using the app</span>
+                            <span style="color: #718096; font-size: 14px;">When ticked: users cannot use the APK until they update. They must install the latest version to continue.</span>
                         </div>
                         {% else %}
                         <input 

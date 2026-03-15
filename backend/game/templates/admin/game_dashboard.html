@@ -236,6 +236,28 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
+        .chips-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+            color: #fde047;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            border: 1px solid #475569;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .chips-display .chip-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fef08a, #eab308 40%, #ca8a04 70%, #a16207);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.25);
+            flex-shrink: 0;
+        }
         
         /* Game Admin Dashboard Section */
         .dashboard-section {
@@ -421,7 +443,13 @@
                     <h1>Dashboard</h1>
                     <p>Manage game and monitor activity</p>
                 </div>
-                <div class="header-actions">
+                <div class="header-actions" style="align-items: center;">
+                    {% if my_franchise_balance is not None %}
+                    <span class="chips-display" title="Your balance">
+                        <span class="chip-icon"></span>
+                        <span>{{ my_franchise_balance_display }}</span>
+                    </span>
+                    {% endif %}
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 import os
 from game.utils import get_game_setting
 from .maintenance_middleware import _get_maintenance_info
+from accounts.models import FranchiseBalance
 
 
 @api_view(['GET'])
@@ -81,16 +82,30 @@ def support_contacts(request):
     """
     Public support contacts for Help Center (APK can read, admin panel edits).
 
-    Backed by GameSettings so admins can update without redeploy:
-    - SUPPORT_WHATSAPP_NUMBER  (example: +919876543210)
-    - SUPPORT_TELEGRAM        (example: +919876543210)
+    Query params (optional):
+    - package or package_name: APK applicationId (e.g. com.franchise1.app).
+      When provided, returns help numbers for that franchise if configured; else global defaults.
+
+    Global defaults (GameSettings):
+    - SUPPORT_WHATSAPP_NUMBER, SUPPORT_TELEGRAM
     """
+    package = (request.GET.get('package') or request.GET.get('package_name') or '').strip()
     whatsapp = get_game_setting('SUPPORT_WHATSAPP_NUMBER', '+919876543210')
     telegram = get_game_setting('SUPPORT_TELEGRAM', '+919876543210')
 
+    if package:
+        try:
+            fb = FranchiseBalance.objects.filter(package_name=package).first()
+            if fb:
+                if (fb.help_whatsapp_number or fb.help_telegram):
+                    whatsapp = fb.help_whatsapp_number or whatsapp
+                    telegram = fb.help_telegram or telegram
+        except Exception:
+            pass
+
     return Response({
-        'whatsapp_number': str(whatsapp).strip() if whatsapp is not None else '',
-        'telegram': str(telegram).strip() if telegram is not None else '',
+        'whatsapp_number': str(whatsapp).strip() if whatsapp else '',
+        'telegram': str(telegram).strip() if telegram else '',
     })
 
 

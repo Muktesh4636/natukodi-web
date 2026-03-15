@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ admin_user.username }} – User info – Admin Panel</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; font-size: 14px; }
+        .form-group input[type="text"] { width: 100%; max-width: 320px; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+        .btn-group { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; align-items: center; }
+        .btn { padding: 12px 24px; border-radius: 8px; font-weight: 500; font-size: 14px; text-decoration: none; display: inline-block; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .alert { padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .info-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+        .info-box { padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .info-box strong { color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-box span { display: block; font-size: 16px; font-weight: 600; color: #0f172a; margin-top: 4px; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .stat-card strong { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .value { font-size: 20px; font-weight: 700; color: #334155; margin-top: 4px; }
+        .stat-card.profit .value { color: #047857; }
+        .stat-card.profit.negative .value { color: #b91c1c; }
+        .log-section { margin-bottom: 28px; }
+        .log-section h2 { font-size: 18px; color: #334155; margin-bottom: 12px; }
+        .log-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .log-table th, .log-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .log-table th { background: #f8fafc; color: #64748b; font-weight: 600; }
+        .log-table tr:hover { background: #f8fafc; }
+        .log-action-add { color: #047857; font-weight: 600; }
+        .log-action-set { color: #7c3aed; font-weight: 600; }
+        .link-teal { color: #0d9488; text-decoration: none; font-weight: 600; }
+        .link-teal:hover { color: #00CED1; }
+        .status-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 9999px; }
+        .status-badge.active { background: #d1fae5; color: #047857; }
+        .status-badge.inactive { background: #fee2e2; color: #b91c1c; }
+        .btn-deactivate { background: #dc3545; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+        .btn-deactivate:hover { background: #c82333; }
+        .btn-activate { background: #059669; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+        .btn-activate:hover { background: #047857; }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">🎲🎲</span><span>Gundu ata</span></div>
+            <div class="subtitle">Game control</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <div class="header" style="margin-bottom: 24px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
+                <div class="header-left">
+                    <h1 style="font-size: 28px; color: #0f172a; margin: 0;">{{ admin_user.username }}</h1>
+                    <p style="color: #64748b; margin-top: 4px;">User info – balance, stats and history</p>
+                </div>
+                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                    <a href="{% url 'edit_franchise_admin' admin_user.id %}" class="link-teal" style="padding: 10px 16px; border: 1px solid #0d9488; border-radius: 8px;">Edit privileges</a>
+                    <a href="{% url 'franchise_balance' %}" class="btn-secondary btn">← Back to Franchise Balance</a>
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="info-row">
+                <div class="info-box">
+                    <strong>Current balance</strong>
+                    <span>₹{{ balance|floatformat:0 }}</span>
+                </div>
+                <div class="info-box" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <div>
+                        <strong>Status</strong>
+                        <span style="display: block; margin-top: 4px;">
+                            <span class="status-badge {% if admin_user.is_active %}active{% else %}inactive{% endif %}">
+                                {% if admin_user.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </span>
+                    </div>
+                    {% if admin_user.id != user.id and not admin_user.is_superuser %}
+                        {% if admin_user.is_active %}
+                            <form method="post" style="display: inline;" id="deactivate-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="deactivate_franchise_admin">
+                                <button type="submit" class="btn-deactivate">Deactivate</button>
+                            </form>
+                        {% else %}
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="activate_franchise_admin">
+                                <button type="submit" class="btn-activate">Activate</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not admin_user.is_superuser %}
+            <div class="info-box" style="margin-bottom: 24px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #166534; margin-bottom: 8px;">🔐 Change password</h3>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Set a new login password for this franchise admin.</p>
+                <form method="post" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    <div>
+                        <label for="new_password" style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px;">New password</label>
+                        <input type="password" id="new_password" name="new_password" minlength="4" placeholder="Min 4 characters" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 200px;">
+                    </div>
+                    <div>
+                        <label for="new_password_confirm" style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px;">Confirm password</label>
+                        <input type="password" id="new_password_confirm" name="new_password_confirm" minlength="4" placeholder="Same as above" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 200px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Change password</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="info-box" style="margin-bottom: 24px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #1e40af; margin-bottom: 8px;">Assign player to this franchise</h3>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">If a player's deposit/withdraw requests show under Super Admin instead of here, enter their <strong>phone number</strong> or <strong>username</strong> to assign them to this franchise.</p>
+                <form method="post" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="assign_player">
+                    <input type="text" name="assign_phone" placeholder="e.g. muktesh or 9182351381" maxlength="150" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 220px;">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Assign</button>
+                </form>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_settings">
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" value="{{ form_username|default:admin_user.username }}" required maxlength="150" style="max-width: 320px;">
+                </div>
+
+                <div class="form-group" style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <h3 style="font-size: 16px; color: #334155; margin-bottom: 12px;">📱 Help Center (for this franchise’s APK)</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+                        <div>
+                            <label for="package_name" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">Package name</label>
+                            <input type="text" id="package_name" name="package_name" value="{{ package_name }}" placeholder="e.g. com.franchise1.app" maxlength="255" style="width: 280px; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <a href="{% url 'franchise_admin_players' admin_user.id %}" class="stat-card" style="text-decoration: none; color: inherit; display: block; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                        <strong>Users under this admin</strong>
+                        <div class="value">{{ clients_count }}</div>
+                        <span style="font-size: 11px; color: #64748b; margin-top: 4px; display: block;">Click to view all →</span>
+                    </a>
+                    <div class="stat-card">
+                        <strong>Total deposits</strong>
+                        <div class="value">₹{{ total_deposits|floatformat:0 }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <strong>Total withdrawals</strong>
+                        <div class="value">₹{{ total_withdrawals|floatformat:0 }}</div>
+                    </div>
+                    <div class="stat-card profit {% if segment_profit < 0 %}negative{% endif %}">
+                        <strong>Net profit (segment)</strong>
+                        <div class="value">₹{{ segment_profit|floatformat:0 }}</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="{% url 'franchise_balance' %}" class="btn btn-secondary">Back to Franchise Balance</a>
+                </div>
+            </form>
+
+            <div class="log-section" style="margin-top: 32px;">
+                <h2>💰 Money given to this admin</h2>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Every Add or Set balance for this franchise is recorded below.</p>
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Date & time</th>
+                            <th>Action</th>
+                            <th>Amount</th>
+                            <th>Balance after</th>
+                            <th>Done by</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in balance_logs %}
+                        <tr>
+                            <td>{{ log.created_at|date:"d M Y H:i" }}</td>
+                            <td class="log-action-{{ log.action|lower }}">{{ log.get_action_display }}</td>
+                            <td>₹{{ log.amount|floatformat:0 }}</td>
+                            <td>{% if log.balance_after is not None %}₹{{ log.balance_after|floatformat:0 }}{% else %}—{% endif %}</td>
+                            <td>{{ log.performed_by.username|default:"—" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" style="text-align: center; padding: 24px; color: #94a3b8;">No balance add/set recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function() {
+            var form = document.getElementById('deactivate-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Are you sure you want to deactivate this admin? All players under this admin will be reassigned to you.')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

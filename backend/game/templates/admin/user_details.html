@@ -647,6 +647,18 @@
                             </span>
                         </value>
                     </div>
+                    {% if not player.is_staff %}
+                    <div class="info-item">
+                        <label>Assigned to</label>
+                        <value style="font-size: 14px;">
+                            {% if player.worker %}
+                                <a href="{% url 'franchise_admin_details' player.worker.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">{{ player.worker.username }}</a> (franchise admin)
+                            {% else %}
+                                Super Admin
+                            {% endif %}
+                        </value>
+                    </div>
+                    {% endif %}
                 </div>
                 {% if can_block_user %}
                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0;">

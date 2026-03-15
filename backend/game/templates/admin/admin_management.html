@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Management - Admin Panel</title>
+    <title>Worker Management - Admin Panel</title>
     {% load static %}
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -165,6 +165,24 @@
             font-size: 18px;
             width: 20px;
             text-align: center;
+        }
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            padding: 8px 12px;
+            background: #0f172a;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .sidebar-toggle { display: block; }
+            .main-content { margin-left: 0; width: 100%; }
         }
         .main-content {
             margin-left: 260px;
@@ -350,63 +368,26 @@
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
     <div class="sidebar">
-                <div class="sidebar-header">
+        <div class="sidebar-header">
             <div class="logo">
                 <span class="logo-icon">🎲🎲</span>
                 <span>Gundu ata</span>
             </div>
             <div class="subtitle">Game control</div>
         </div>
-        <ul class="sidebar-menu">
-            <li><a href="{% url 'admin_dashboard' %}">
-                <span class="menu-icon">📊</span> Dashboard
-            </a></li>
-            <li><a href="{% url 'dice_control' %}">
-                <span class="menu-icon">🎯</span> Dice Control
-            </a></li>
-            <li><a href="{% url 'recent_rounds' %}">
-                <span class="menu-icon">🔄</span> Recent Rounds
-            </a></li>
-            <li><a href="{% url 'all_bets' %}">
-                <span class="menu-icon">💰</span> All Bets
-            </a></li>
-            <li><a href="{% url 'wallets' %}">
-                <span class="menu-icon">💳</span> Wallets
-            </a></li>
-            <li><a href="{% url 'players' %}">
-                <span class="menu-icon">👥</span> Players
-            </a></li>
-            <li><a href="{% url 'deposit_requests' %}">
-                <span class="menu-icon">📥</span> Deposit Requests
-            </a></li>
-            <li><a href="{% url 'admin_transactions' %}">
-                <span class="menu-icon">📊</span> Reports
-            </a></li>
-            {% if is_super_admin %}
-            <li><a href="{% url 'game_settings' %}">
-                <span class="menu-icon">⏱️</span> Game Settings
-            </a></li>
-            <li><a href="{% url 'admin_management' %}" class="active">
-                <span class="menu-icon">👨‍💼</span> Admin Management
-            </a></li>
-            {% endif %}
-            <li style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 8px;">
-                <a href="{% url 'admin_logout' %}" style="color: #dc3545;">
-                    <span class="menu-icon">🚪</span> Logout
-                </a>
-            </li>
-        </ul>
+        {% include 'admin/_sidebar_menu.html' %}
     </div>
 
     <div class="main-content">
         <div class="container">
             <div class="header">
                 <div class="header-left">
-                    <h1>👨‍💼 Admin Management</h1>
+                    <h1>👨‍💼 Worker Management</h1>
                 </div>
                 <div class="header-actions">
-                    <a href="{% url 'create_admin' %}" class="btn btn-primary">➕ Create New Admin</a>
+                    <a href="{% url 'create_admin' %}" class="btn btn-primary">➕ Add worker</a>
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>
@@ -418,6 +399,13 @@
                     </div>
                 {% endfor %}
             {% endif %}
+
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span style="font-weight: 600; color: #4a5568; margin-right: 8px;">Show:</span>
+                <a href="{% url 'admin_management' %}" style="padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; {% if status_filter == 'all' %}background: #4f46e5; color: white;{% else %}background: #f1f5f9; color: #475569;{% endif %}">All ({{ total_admins }})</a>
+                <a href="{% url 'admin_management' %}?status=active" style="padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; {% if status_filter == 'active' %}background: #059669; color: white;{% else %}background: #f1f5f9; color: #475569;{% endif %}">Active ({{ active_admins }})</a>
+                <a href="{% url 'admin_management' %}?status=inactive" style="padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; {% if status_filter == 'inactive' %}background: #dc3545; color: white;{% else %}background: #f1f5f9; color: #475569;{% endif %}">Inactive ({{ inactive_admins }})</a>
+            </div>
 
             <div class="table">
                 <table>
@@ -456,7 +444,7 @@
                                     {% if admin.permissions.can_view_transactions %}<span class="permission-tag">Reports</span>{% endif %}
                                     {% if admin.permissions.can_manage_payment_methods %}<span class="permission-tag">Payment Methods</span>{% endif %}
                                     {% if admin.permissions.can_view_game_settings %}<span class="permission-tag">Game Settings</span>{% endif %}
-                                    {% if admin.permissions.can_view_admin_management %}<span class="permission-tag">Admin Management</span>{% endif %}
+                                    {% if admin.permissions.can_view_admin_management %}<span class="permission-tag">Worker Management</span>{% endif %}
                                 </div>
                             </td>
                             <td>
@@ -469,15 +457,35 @@
                             <td>
                                 {% if not admin.is_superuser %}
                                     <a href="{% url 'edit_admin' admin.user.id %}" class="btn btn-secondary" style="padding: 6px 12px; margin-right: 8px;">✏️ Edit</a>
+                                    <form method="post" action="{% url 'toggle_admin_status' admin.user.id %}?status={{ status_filter }}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="{{ status_filter }}">
+                                        {% if admin.user.is_active %}
+                                            <button type="submit" class="btn" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Deactivate</button>
+                                        {% else %}
+                                            <button type="submit" class="btn" style="padding: 6px 12px; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Activate</button>
+                                        {% endif %}
+                                    </form>
                                 {% else %}
                                     <span style="color: #9ca3af; font-size: 12px;">Super Admin (cannot edit)</span>
+                                    {% if admin.user.id != user.id %}
+                                    <form method="post" action="{% url 'toggle_admin_status' admin.user.id %}?status={{ status_filter }}" style="display: inline; margin-left: 8px;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="{{ status_filter }}">
+                                        {% if admin.user.is_active %}
+                                            <button type="submit" class="btn" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Deactivate</button>
+                                        {% else %}
+                                            <button type="submit" class="btn" style="padding: 6px 12px; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Activate</button>
+                                        {% endif %}
+                                    </form>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
-                                No admin users found. <a href="{% url 'create_admin' %}">Create one now</a>.
+                                No workers found. <a href="{% url 'create_admin' %}">Add worker</a>.
                             </td>
                         </tr>
                         {% endfor %}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Add worker - Admin Panel</title>
+    <title>Add admin (Franchise owner) - Admin Panel</title>
     <style>
         * {
             margin: 0;
@@ -172,7 +172,7 @@
             <div class="navbar-links">
                 <a href="{% url 'admin_dashboard' %}">Dashboard</a>
                 <a href="{% url 'dice_control' %}">Dice Control</a>
-                <a href="{% url 'admin_management' %}">Worker Management</a>
+                <a href="{% url 'franchise_balance' %}">Franchise Balance</a>
             </div>
         </div>
     </nav>
@@ -180,13 +180,13 @@
     <div class="container">
         <div class="header">
             <div class="header-left">
-                <h1>➕ Add worker</h1>
-                <p>Add a new worker and allocate privileges</p>
+                <h1>➕ Add admin</h1>
+                <p>Franchise owner – will appear only in Franchise Balance list</p>
             </div>
             <div class="header-actions">
                 <span>👤 {{ user.username }}</span>
                 <a href="{% url 'admin_dashboard' %}" class="action-btn">🏠 Dashboard</a>
-                <a href="{% url 'admin_management' %}" class="action-btn">👑 Worker Management</a>
+                <a href="{% url 'franchise_balance' %}" class="action-btn">💰 Franchise Balance</a>
             </div>
         </div>
 
@@ -207,7 +207,7 @@
                     <input type="text" id="username" name="username" required
                            style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.2s;"
                            onfocus="this.style.borderColor='#93c5fd'" onblur="this.style.borderColor='#e2e8f0'"
-                           placeholder="Enter worker username">
+                           placeholder="Enter admin username">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 24px;">
@@ -252,20 +252,9 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 24px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
-                    <label for="works_under_id" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e40af;">Works under (deposit/withdraw queue)</label>
-                    <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">If set, this worker will see that admin’s deposit and withdraw requests only. Leave empty if this worker is not assigned to any admin.</p>
-                    <select id="works_under_id" name="works_under_id" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; min-width: 260px;">
-                        <option value="">— None —</option>
-                        {% for q in queue_owners %}
-                        <option value="{{ q.id }}">{{ q.label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
                 <div class="form-group" style="margin-bottom: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
                     <h2 style="font-size: 20px; margin-bottom: 16px; color: #1a202c;">🔐 Privileges</h2>
-                    <p style="color: #718096; margin-bottom: 20px; font-size: 14px;">Select which menu options this worker can access:</p>
+                    <p style="color: #718096; margin-bottom: 20px; font-size: 14px;">Select which menu options this franchise admin can access:</p>
                     
                     <div class="permissions-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
                         <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -341,9 +330,9 @@
                 </div>
 
                 <div class="form-actions" style="display: flex; gap: 16px; justify-content: flex-end;">
-                    <a href="{% url 'players' %}" class="btn" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Cancel</a>
+                    <a href="{% url 'franchise_balance' %}" class="btn" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Cancel</a>
                     <button type="submit" class="btn" style="background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'">
-                        ➕ Add worker
+                        ➕ Add admin
                     </button>
                 </div>
             </form>

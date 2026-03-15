@@ -14,7 +14,7 @@ import json
 import os
 from collections import Counter
 from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions, WhiteLabelLead
-from accounts.models import Wallet, Transaction, DepositRequest, WithdrawRequest, User, PaymentMethod
+from accounts.models import Wallet, Transaction, DepositRequest, WithdrawRequest, User, PaymentMethod, FranchiseBalance, FranchiseBalanceLog
 from accounts.player_distribution import (
     redistribute_all_players,
     balance_player_distribution,
@@ -31,6 +31,7 @@ from .admin_utils import (
     is_super_admin, is_admin, has_permission, get_admin_profile,
     super_admin_required, admin_required, permission_required,
     get_admin_permissions, has_menu_permission, invalidate_admin_permissions_cache,
+    get_effective_admin,
 )
 from .utils import get_game_setting, clear_game_setting_cache
 from .load_test_utils import load_tester
@@ -89,6 +90,7 @@ def get_admin_context(request, extra_context=None):
             can_view_deposit_requests = True
             can_view_withdraw_requests = True
             can_view_transactions = True
+            can_view_game_history = True
             can_view_game_settings = True
             can_view_admin_management = True
             can_manage_payment_methods = True
@@ -98,6 +100,7 @@ def get_admin_context(request, extra_context=None):
         'admin_permissions': admin_permissions,
         'is_super_admin': is_super_admin(request.user),
         'user': request.user,
+        'user_works_under_id': getattr(request.user, 'works_under_id', None) or '',
     }
     
     if extra_context:
@@ -155,21 +158,38 @@ def admin_login(request):
     
     error_message = None
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = (request.POST.get('username') or '').strip()
+        password = (request.POST.get('password') or '').strip()
         next_url = request.POST.get('next', '/game-admin/dashboard/')
         
         if username and password:
             from django.contrib.auth import authenticate, login
             user = authenticate(request, username=username, password=password)
+            # If exact username failed, try case-insensitive lookup (e.g. "Sai" vs "sai")
+            if user is None and username:
+                try:
+                    u = User.objects.get(username__iexact=username)
+                    if u.check_password(password):
+                        user = u
+                except User.DoesNotExist:
+                    pass
             if user is not None:
-                if is_admin(user):
+                if not user.is_active:
+                    error_message = 'This account is deactivated. Contact an administrator.'
+                elif is_admin(user):
                     # Successful login - reset all attempt counters
                     cache.delete(cache_key)
                     cache.delete(failed_logins_key)
                     login(request, user)
+                    request.session.save()
                     messages.success(request, f'Welcome, {user.username}!')
-                    return redirect(next_url)
+                    # Render dashboard in same request so session cookie is in this response (avoids redirect cookie loss)
+                    try:
+                        return admin_dashboard(request)
+                    except Exception as e:
+                        logger.exception('admin_dashboard after login: %s', e)
+                        # Fallback: redirect so user still gets session cookie; next request may succeed
+                        return redirect('/game-admin/dashboard/')
                 else:
                     error_message = 'You do not have permission to access the admin panel.'
                     # Increment failed attempt counter
@@ -237,37 +257,52 @@ def admin_dashboard(request):
     
     admin_profile = get_admin_profile(request.user)
     
-    # Get current round state using helper
+    # Get current round state using helper (guard against Redis/DB timeout or errors)
     from .utils import get_current_round_state
-    current_round, timer, status, _ = get_current_round_state(redis_client)
+    try:
+        current_round, timer, status, _ = get_current_round_state(redis_client)
+    except Exception as e:
+        logger.warning('admin_dashboard get_current_round_state: %s', e)
+        current_round, timer, status = None, 0, 'WAITING'
 
-    # Dashboard stats: cache 5 min; limit to last N days so query uses index and loads fast
-    bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
-    if bet_stats is None:
-        from django.utils import timezone
-        from datetime import timedelta
-        cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
-        bet_stats = Bet.objects.filter(created_at__gte=cutoff).aggregate(
+    effective_admin = get_effective_admin(request.user)
+
+    # Dashboard stats: franchise owners see only their players' bets; super admin uses cache
+    from django.utils import timezone
+    from datetime import timedelta
+    cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
+    bet_base = Bet.objects.filter(created_at__gte=cutoff)
+    if not is_super_admin(effective_admin):
+        bet_base = bet_base.filter(user__worker=effective_admin)
+        bet_stats = bet_base.aggregate(
             total_bets=Count('id'),
             total_amount=Sum('chip_amount'),
             total_payout=Sum('payout_amount')
         )
-        try:
-            cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
-        except Exception:
-            pass
+    else:
+        bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
+        if bet_stats is None:
+            bet_stats = bet_base.aggregate(
+                total_bets=Count('id'),
+                total_amount=Sum('chip_amount'),
+                total_payout=Sum('payout_amount')
+            )
+            try:
+                cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
+            except Exception:
+                pass
     total_bets = bet_stats.get('total_bets') or 0
     total_amount = bet_stats.get('total_amount') or 0
     total_payout = bet_stats.get('total_payout') or 0
     total_profit = total_amount - total_payout
 
-    # Actively playing = users who bet this round UNION users currently watching (WebSocket)
+    # Actively playing (this round): franchise sees only their players
     bettor_user_ids = set()
     if current_round:
-        bettor_user_ids = set(
-            str(uid) for uid in
-            Bet.objects.filter(round=current_round).values_list('user_id', flat=True).distinct()
-        )
+        round_bets = Bet.objects.filter(round=current_round)
+        if not is_super_admin(effective_admin):
+            round_bets = round_bets.filter(user__worker=effective_admin)
+        bettor_user_ids = set(str(uid) for uid in round_bets.values_list('user_id', flat=True).distinct())
     watching_user_ids = set()
     try:
         if redis_client:
@@ -285,7 +320,16 @@ def admin_dashboard(request):
         betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
         dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
         round_end_time = get_game_setting('ROUND_END_TIME', 80)
-    
+    my_franchise_balance = None
+    my_franchise_balance_display = ''
+    if not is_super_admin(effective_admin):
+        try:
+            fb = FranchiseBalance.objects.get(user=effective_admin)
+            my_franchise_balance = fb.balance
+        except FranchiseBalance.DoesNotExist:
+            my_franchise_balance = 0
+        from .utils import format_indian_int
+        my_franchise_balance_display = format_indian_int(my_franchise_balance)
     context = get_admin_context(request, {
         'current_round': current_round,
         'timer': timer,
@@ -301,6 +345,8 @@ def admin_dashboard(request):
         'dice_result_time': dice_result_time,
         'round_end_time': round_end_time,
         'stats_period_days': ADMIN_DASHBOARD_STATS_DAYS,
+        'my_franchise_balance': my_franchise_balance,
+        'my_franchise_balance_display': my_franchise_balance_display,
     })
     return render(request, 'admin/game_dashboard.html', context)
 
@@ -458,32 +504,46 @@ def toggle_dice_mode(request):
 
 @admin_required
 def admin_dashboard_data(request):
-    """API endpoint to get admin dashboard data without page reload. Cached to avoid 504 timeouts."""
-    # Serve from cache when possible (reduces DB/Redis load significantly)
-    cached = cache.get(ADMIN_DASHBOARD_DATA_CACHE_KEY)
+    """API endpoint to get admin dashboard data. Franchise owners see only their players' stats."""
+    from django.http import HttpResponse
+    effective_admin = get_effective_admin(request.user)
+    # Only super admin uses shared cache; franchise gets fresh scoped data
+    cached = None
+    if is_super_admin(effective_admin):
+        cached = cache.get(ADMIN_DASHBOARD_DATA_CACHE_KEY)
     if cached is not None:
-        from django.http import HttpResponse
         return HttpResponse(cached, content_type='application/json')
+
+    def _scope_bet(qs):
+        return qs.filter(user__worker=effective_admin) if not is_super_admin(effective_admin) else qs
+    def _scope_txn(qs):
+        return qs.filter(user__worker=effective_admin) if not is_super_admin(effective_admin) else qs
+    def _scope_user(qs):
+        return qs.filter(worker=effective_admin) if not is_super_admin(effective_admin) else qs
 
     # Get current round state using helper (fast: Redis + one GameRound lookup)
     from .utils import get_current_round_state
-    current_round, timer, status, _ = get_current_round_state(redis_client)
+    try:
+        current_round, timer, status, _ = get_current_round_state(redis_client)
+    except Exception as e:
+        logger.warning('admin_dashboard_data get_current_round_state: %s', e)
+        current_round, timer, status = None, 0, 'WAITING'
 
-    # Overall stats: reuse same cache as dashboard (time-bounded aggregate for fast load)
-    bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
-    if bet_stats is None:
-        from django.utils import timezone
-        from datetime import timedelta
-        cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
-        bet_stats = Bet.objects.filter(created_at__gte=cutoff).aggregate(
-            total_bets=Count('id'),
-            total_amount=Sum('chip_amount'),
-            total_payout=Sum('payout_amount')
-        )
-        try:
-            cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
-        except Exception:
-            pass
+    # Overall stats: franchise-scoped when not super admin
+    from django.utils import timezone
+    from datetime import timedelta
+    cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
+    bet_base = Bet.objects.filter(created_at__gte=cutoff)
+    if is_super_admin(effective_admin):
+        bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
+        if bet_stats is None:
+            bet_stats = bet_base.aggregate(total_bets=Count('id'), total_amount=Sum('chip_amount'), total_payout=Sum('payout_amount'))
+            try:
+                cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
+            except Exception:
+                pass
+    else:
+        bet_stats = _scope_bet(bet_base).aggregate(total_bets=Count('id'), total_amount=Sum('chip_amount'), total_payout=Sum('payout_amount'))
     overall_total_amount = bet_stats.get('total_amount') or 0
     overall_total_payout = bet_stats.get('total_payout') or 0
     overall_total_profit = (overall_total_amount or 0) - (overall_total_payout or 0)
@@ -493,47 +553,38 @@ def admin_dashboard_data(request):
     today_start_utc, today_end_utc, today_ist_date = _ist_day_bounds_utc(0)
     yday_start_utc, yday_end_utc, yday_ist_date = _ist_day_bounds_utc(-1)
 
-    today_bet_agg = Bet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc).aggregate(
-        bets_count=Count('id'),
-        bets_amount=Sum('chip_amount'),
-        payout_amount=Sum('payout_amount'),
+    today_bet_agg = _scope_bet(Bet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc)).aggregate(
+        bets_count=Count('id'), bets_amount=Sum('chip_amount'), payout_amount=Sum('payout_amount'),
     )
-    yday_bet_agg = Bet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc).aggregate(
-        bets_count=Count('id'),
-        bets_amount=Sum('chip_amount'),
-        payout_amount=Sum('payout_amount'),
+    yday_bet_agg = _scope_bet(Bet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc)).aggregate(
+        bets_count=Count('id'), bets_amount=Sum('chip_amount'), payout_amount=Sum('payout_amount'),
     )
-
-    today_deposit_agg = Transaction.objects.filter(
+    today_deposit_agg = _scope_txn(Transaction.objects.filter(
         created_at__gte=today_start_utc, created_at__lt=today_end_utc, transaction_type='DEPOSIT'
-    ).aggregate(count=Count('id'), amount=Sum('amount'))
-    today_withdraw_agg = Transaction.objects.filter(
+    )).aggregate(count=Count('id'), amount=Sum('amount'))
+    today_withdraw_agg = _scope_txn(Transaction.objects.filter(
         created_at__gte=today_start_utc, created_at__lt=today_end_utc, transaction_type='WITHDRAW'
-    ).aggregate(count=Count('id'), amount=Sum('amount'))
-    yday_deposit_agg = Transaction.objects.filter(
+    )).aggregate(count=Count('id'), amount=Sum('amount'))
+    yday_deposit_agg = _scope_txn(Transaction.objects.filter(
         created_at__gte=yday_start_utc, created_at__lt=yday_end_utc, transaction_type='DEPOSIT'
-    ).aggregate(count=Count('id'), amount=Sum('amount'))
-    yday_withdraw_agg = Transaction.objects.filter(
+    )).aggregate(count=Count('id'), amount=Sum('amount'))
+    yday_withdraw_agg = _scope_txn(Transaction.objects.filter(
         created_at__gte=yday_start_utc, created_at__lt=yday_end_utc, transaction_type='WITHDRAW'
-    ).aggregate(count=Count('id'), amount=Sum('amount'))
+    )).aggregate(count=Count('id'), amount=Sum('amount'))
 
-    # Active bettors (distinct users who placed at least one bet today)
-    today_active_bettors = Bet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc).aggregate(n=Count('user_id', distinct=True))['n'] or 0
-    yday_active_bettors = Bet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc).aggregate(n=Count('user_id', distinct=True))['n'] or 0
+    today_active_bettors = _scope_bet(Bet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc)).aggregate(n=Count('user_id', distinct=True))['n'] or 0
+    yday_active_bettors = _scope_bet(Bet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc)).aggregate(n=Count('user_id', distinct=True))['n'] or 0
 
-    # New users registered today (UTC timestamps, counted in IST day)
-    today_new_users = User.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc).count()
-    yday_new_users = User.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc).count()
+    today_new_users = _scope_user(User.objects.filter(is_staff=False, created_at__gte=today_start_utc, created_at__lt=today_end_utc)).count()
+    yday_new_users = _scope_user(User.objects.filter(is_staff=False, created_at__gte=yday_start_utc, created_at__lt=yday_end_utc)).count()
 
-    # Current round stats only (scoped to one round - much faster than full table)
     current_round_total_amount = 0
     current_round_total_bets = 0
     bets_by_number_list = []
-
     current_round_bettor_ids = set()
     current_round_active_bettors = 0
     if current_round:
-        current_round_bets = Bet.objects.filter(round=current_round)
+        current_round_bets = _scope_bet(Bet.objects.filter(round=current_round))
         current_round_total_bets = current_round_bets.count()
         current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
         current_round_bettor_ids = set(
@@ -1402,12 +1453,11 @@ def all_bets(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', 'all') # all, winners, losers
 
+    effective_admin = get_effective_admin(request.user)
     # Get all bets
     all_bets_list = Bet.objects.select_related('user', 'round').all().order_by('-created_at')
-
-    # If not super admin, filter by worker's clients
-    if not is_super_admin(request.user):
-        all_bets_list = all_bets_list.filter(user__worker=request.user)
+    if not is_super_admin(effective_admin):
+        all_bets_list = all_bets_list.filter(user__worker=effective_admin)
 
     # Apply search filter
     if search_query:
@@ -1438,6 +1488,7 @@ def all_bets(request):
     # Limit results for performance
     all_bets_list = list(all_bets_list[:200])
 
+    is_franchise_scope = not is_super_admin(effective_admin)
     context = get_admin_context(request, {
         'all_bets': all_bets_list,
         'total_bets_count': total_bets_count,
@@ -1447,6 +1498,8 @@ def all_bets(request):
         'search_query': search_query,
         'status_filter': status_filter,
         'page': 'all-bets',
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': 'Your franchise' if is_franchise_scope else None,
     })
 
     return render(request, 'admin/all_bets.html', context)
@@ -1457,6 +1510,11 @@ def wallets(request):
     if not has_menu_permission(request.user, 'wallets'):
         messages.error(request, 'You do not have permission to view wallets.')
         return redirect('admin_dashboard')
+
+    effective_admin = get_effective_admin(request.user)
+    base_wallets = Wallet.objects.select_related('user').all()
+    if not is_super_admin(effective_admin):
+        base_wallets = base_wallets.filter(user__worker=effective_admin)
         
     # Get filter parameters
     balance_filter = request.GET.get('balance', 'all')  # all, has_balance, zero
@@ -1467,8 +1525,7 @@ def wallets(request):
     except (ValueError, TypeError):
         page_number = 1
     
-    # Build query
-    wallets_query = Wallet.objects.select_related('user').all()
+    wallets_query = base_wallets
     
     # Apply balance filter
     if balance_filter == 'has_balance':
@@ -1496,11 +1553,11 @@ def wallets(request):
     else:
         wallets_query = wallets_query.order_by('-balance')  # default
     
-    # Calculate stats (before pagination for accurate totals)
-    total_wallets = Wallet.objects.count()
-    total_balance = Wallet.objects.aggregate(Sum('balance'))['balance__sum'] or 0
-    active_wallets = Wallet.objects.filter(balance__gt=0).count()
-    zero_balance_wallets = Wallet.objects.filter(balance=0).count()
+    # Calculate stats from same base (franchise-scoped)
+    total_wallets = base_wallets.count()
+    total_balance = base_wallets.aggregate(Sum('balance'))['balance__sum'] or 0
+    active_wallets = base_wallets.filter(balance__gt=0).count()
+    zero_balance_wallets = base_wallets.filter(balance=0).count()
     
     # Pagination - 50 wallets per page for better performance
     paginator = Paginator(wallets_query, 50)
@@ -1509,6 +1566,7 @@ def wallets(request):
     except Exception:
         page_obj = None
     
+    is_franchise_scope = not is_super_admin(effective_admin)
     context = get_admin_context(request, {
         'wallets': page_obj if page_obj else wallets_query[:50],  # Fallback to first 50 if pagination fails
         'page_obj': page_obj,
@@ -1520,6 +1578,8 @@ def wallets(request):
         'search_query': search_query,
         'sort_by': sort_by,
         'page': 'wallets',
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': 'Your franchise' if is_franchise_scope else None,
     })
     
     return render(request, 'admin/wallets.html', context)
@@ -1535,12 +1595,15 @@ def deposit_requests(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '').strip()
     
+    # Effective admin: workers see their assigned admin's queue; others see their own
+    effective_admin = get_effective_admin(request.user)
     # Base queryset for deposit requests
     deposit_requests_qs = DepositRequest.objects.select_related('user', 'processed_by').all()
-    
-    # Filter by assigned worker (if not super admin)
-    if not is_super_admin(request.user):
-        deposit_requests_qs = deposit_requests_qs.filter(user__worker=request.user)
+    # Super Admin sees only requests from players not under any franchise (worker is null). Franchise admins see only their queue.
+    if is_super_admin(effective_admin):
+        deposit_requests_qs = deposit_requests_qs.filter(user__worker__isnull=True)
+    else:
+        deposit_requests_qs = deposit_requests_qs.filter(user__worker=effective_admin)
     
     # Apply filters
     if search_query:
@@ -1568,10 +1631,11 @@ def deposit_requests(request):
         page_obj = paginator.get_page(1)
     deposit_requests_list = page_obj.object_list
     
-    # Stats (single filtered base for counts; avoid scanning full table multiple times)
     stats_base = DepositRequest.objects.all()
-    if not is_super_admin(request.user):
-        stats_base = stats_base.filter(user__worker=request.user)
+    if is_super_admin(effective_admin):
+        stats_base = stats_base.filter(user__worker__isnull=True)
+    else:
+        stats_base = stats_base.filter(user__worker=effective_admin)
     total_requests = stats_base.count()
     pending_requests = stats_base.filter(status='PENDING').count()
     approved_requests = stats_base.filter(status='APPROVED').count()
@@ -1583,6 +1647,22 @@ def deposit_requests(request):
     latest_request_id = stats_base.order_by('-id').first()
     latest_id = latest_request_id.id if latest_request_id else 0
     
+    my_franchise_balance = None
+    my_franchise_balance_display = ''
+    my_franchise_name = ''
+    balance_is_low = False
+    LOW_BALANCE_THRESHOLD = 1000
+    if not is_super_admin(effective_admin):
+        try:
+            fb = FranchiseBalance.objects.get(user=effective_admin)
+            my_franchise_balance = fb.balance
+            my_franchise_name = fb.franchise_name or ''
+            balance_is_low = my_franchise_balance < LOW_BALANCE_THRESHOLD
+        except FranchiseBalance.DoesNotExist:
+            my_franchise_balance = 0
+            balance_is_low = True
+        from .utils import format_indian_int
+        my_franchise_balance_display = format_indian_int(my_franchise_balance)
     context = get_admin_context(request, {
         'deposit_requests': deposit_requests_list,
         'page_obj': page_obj,
@@ -1596,6 +1676,10 @@ def deposit_requests(request):
         'search_query': search_query,
         'status_filter': status_filter,
         'page': 'deposit-requests',
+        'my_franchise_balance': my_franchise_balance,
+        'my_franchise_balance_display': my_franchise_balance_display,
+        'my_franchise_name': my_franchise_name,
+        'balance_is_low': balance_is_low,
     })
     
     return render(request, 'admin/deposit_requests.html', context)
@@ -1606,15 +1690,12 @@ def check_new_deposit_requests(request):
     """API endpoint to check for new deposit requests"""
     last_id = int(request.GET.get('last_id', 0))
     
-    # Get new pending requests
-    new_requests = DepositRequest.objects.filter(
-        id__gt=last_id,
-        status='PENDING'
-    )
-    
-    # Filter by assigned worker (if not super admin)
-    if not is_super_admin(request.user):
-        new_requests = new_requests.filter(user__worker=request.user)
+    effective_admin = get_effective_admin(request.user)
+    new_requests = DepositRequest.objects.filter(id__gt=last_id, status='PENDING')
+    if is_super_admin(effective_admin):
+        new_requests = new_requests.filter(user__worker__isnull=True)
+    else:
+        new_requests = new_requests.filter(user__worker=effective_admin)
         
     new_requests = new_requests.select_related('user').order_by('-id')[:10]
     
@@ -1627,10 +1708,15 @@ def check_new_deposit_requests(request):
             'created_at': req.created_at.strftime('%Y-%m-%d %H:%M:%S'),
         })
     
+    pending_qs = DepositRequest.objects.filter(status='PENDING')
+    if is_super_admin(effective_admin):
+        pending_qs = pending_qs.filter(user__worker__isnull=True)
+    else:
+        pending_qs = pending_qs.filter(user__worker=effective_admin)
     return JsonResponse({
         'new_requests': requests_data,
         'latest_id': DepositRequest.objects.order_by('-id').first().id if DepositRequest.objects.exists() else last_id,
-        'pending_count': DepositRequest.objects.filter(status='PENDING').count(),
+        'pending_count': pending_qs.count(),
     })
 
 @admin_required
@@ -1641,16 +1727,20 @@ def approve_deposit(request, pk):
         return redirect('deposit_requests')
     
     try:
+        deposit = DepositRequest.objects.select_related('user').get(pk=pk)
+        effective_admin = get_effective_admin(request.user)
+        if is_super_admin(effective_admin):
+            if getattr(deposit.user, 'worker_id', None) is not None:
+                messages.error(request, 'Super Admin can only approve deposit requests from players not under a franchise.')
+                return redirect('deposit_requests')
+        elif getattr(deposit.user, 'worker_id', None) != effective_admin.id:
+            messages.error(request, 'You can only approve deposit requests for users under your admin.')
+            return redirect('deposit_requests')
         with db_transaction.atomic():
-            # select_for_update must be inside the transaction
             deposit = DepositRequest.objects.select_for_update().get(pk=pk)
             if deposit.status != 'PENDING':
                 messages.error(request, 'Deposit request has already been processed.')
                 return redirect('deposit_requests')
-            
-            wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
-            wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
-            balance_before = wallet.balance
             
             # Calculate final amount with USDT bonus if applicable
             final_amount = deposit.amount
@@ -1658,6 +1748,20 @@ def approve_deposit(request, pk):
             if deposit.payment_method and deposit.payment_method.method_type in ['USDT_TRC20', 'USDT_BEP20']:
                 bonus_amount = deposit.amount * Decimal('0.05')
                 final_amount += bonus_amount
+            final_amount_int = int(final_amount)
+            
+            # Franchise balance: deduct from processing admin's balance (skip for superuser)
+            if not is_super_admin(request.user):
+                fb, _ = FranchiseBalance.objects.get_or_create(user=request.user, defaults={'balance': 0})
+                fb = FranchiseBalance.objects.select_for_update().get(pk=fb.pk)
+                if fb.balance < final_amount_int:
+                    messages.error(request, f'Insufficient franchise balance. Your balance: ₹{fb.balance}, required: ₹{final_amount_int}. Contact super admin for top-up.')
+                    return redirect('deposit_requests')
+                FranchiseBalance.objects.filter(pk=fb.pk).update(balance=F('balance') - final_amount_int)
+            
+            wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
+            wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
+            balance_before = wallet.balance
             
             # 1️⃣ Update DB atomically (balance + total_deposits for withdrawable rule)
             Wallet.objects.filter(pk=wallet.pk).update(
@@ -1748,8 +1852,16 @@ def reject_deposit(request, pk):
     if request.method == 'POST':
         note = request.POST.get('note', '')
         try:
+            deposit = DepositRequest.objects.select_related('user').get(pk=pk)
+            effective_admin = get_effective_admin(request.user)
+            if is_super_admin(effective_admin):
+                if getattr(deposit.user, 'worker_id', None) is not None:
+                    messages.error(request, 'Super Admin can only reject deposit requests from players not under a franchise.')
+                    return redirect('deposit_requests')
+            elif getattr(deposit.user, 'worker_id', None) != effective_admin.id:
+                messages.error(request, 'You can only reject deposit requests for users under your admin.')
+                return redirect('deposit_requests')
             with db_transaction.atomic():
-                # select_for_update must be inside the transaction
                 deposit = DepositRequest.objects.select_for_update().get(pk=pk)
                 if deposit.status != 'PENDING':
                     messages.error(request, 'Deposit request has already been processed.')
@@ -1779,8 +1891,16 @@ def edit_deposit_amount(request, pk):
         return redirect('deposit_requests')
 
     try:
+        deposit = DepositRequest.objects.select_related('user').get(pk=pk)
+        effective_admin = get_effective_admin(request.user)
+        if is_super_admin(effective_admin):
+            if getattr(deposit.user, 'worker_id', None) is not None:
+                messages.error(request, 'Super Admin can only edit deposit requests from players not under a franchise.')
+                return redirect('deposit_requests')
+        elif getattr(deposit.user, 'worker_id', None) != effective_admin.id:
+            messages.error(request, 'You can only edit deposit requests for users under your admin.')
+            return redirect('deposit_requests')
         with db_transaction.atomic():
-            # select_for_update must be inside the transaction
             deposit = DepositRequest.objects.select_for_update().get(pk=pk)
             if deposit.status != 'PENDING':
                 messages.error(request, 'Deposit request has already been processed.')
@@ -1834,12 +1954,12 @@ def withdraw_requests(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '').strip()
 
-    # Get all withdraw requests
+    effective_admin = get_effective_admin(request.user)
     withdraw_requests_list = WithdrawRequest.objects.select_related('user', 'processed_by').all()
-    
-    # Filter by assigned worker (if not super admin)
-    if not is_super_admin(request.user):
-        withdraw_requests_list = withdraw_requests_list.filter(user__worker=request.user)
+    if is_super_admin(effective_admin):
+        withdraw_requests_list = withdraw_requests_list.filter(user__worker__isnull=True)
+    else:
+        withdraw_requests_list = withdraw_requests_list.filter(user__worker=effective_admin)
     
     # Apply filters
     if search_query:
@@ -1859,8 +1979,11 @@ def withdraw_requests(request):
     # Order by most recent
     withdraw_requests_list = withdraw_requests_list.order_by('-created_at')
 
-    # Calculate stats (totals based on full dataset)
     stats_base = WithdrawRequest.objects.all()
+    if is_super_admin(effective_admin):
+        stats_base = stats_base.filter(user__worker__isnull=True)
+    else:
+        stats_base = stats_base.filter(user__worker=effective_admin)
     total_requests = stats_base.count()
     pending_requests = stats_base.filter(status='PENDING').count()
     approved_requests = stats_base.filter(status='APPROVED').count()
@@ -1872,6 +1995,16 @@ def withdraw_requests(request):
     latest_request_id = stats_base.order_by('-id').first()
     latest_id = latest_request_id.id if latest_request_id else 0
     
+    my_franchise_balance = None
+    my_franchise_balance_display = ''
+    if not is_super_admin(effective_admin):
+        try:
+            fb = FranchiseBalance.objects.get(user=effective_admin)
+            my_franchise_balance = fb.balance
+        except FranchiseBalance.DoesNotExist:
+            my_franchise_balance = 0
+        from .utils import format_indian_int
+        my_franchise_balance_display = format_indian_int(my_franchise_balance)
     context = get_admin_context(request, {
         'withdraw_requests': withdraw_requests_list,
         'total_requests': total_requests,
@@ -1884,6 +2017,8 @@ def withdraw_requests(request):
         'search_query': search_query,
         'status_filter': status_filter,
         'page': 'withdraw-requests',
+        'my_franchise_balance': my_franchise_balance,
+        'my_franchise_balance_display': my_franchise_balance_display,
     })
 
     return render(request, 'admin/withdraw_requests.html', context)
@@ -1893,17 +2028,12 @@ def withdraw_requests(request):
 def check_new_withdraw_requests(request):
     """API endpoint to check for new withdraw requests"""
     last_id = int(request.GET.get('last_id', 0))
-    
-    # Get new pending requests
-    new_requests = WithdrawRequest.objects.filter(
-        id__gt=last_id,
-        status='PENDING'
-    )
-    
-    # Filter by assigned worker (if not super admin)
-    if not is_super_admin(request.user):
-        new_requests = new_requests.filter(user__worker=request.user)
-        
+    effective_admin = get_effective_admin(request.user)
+    new_requests = WithdrawRequest.objects.filter(id__gt=last_id, status='PENDING')
+    if is_super_admin(effective_admin):
+        new_requests = new_requests.filter(user__worker__isnull=True)
+    else:
+        new_requests = new_requests.filter(user__worker=effective_admin)
     new_requests = new_requests.select_related('user').order_by('-id')[:10]
     
     requests_data = []
@@ -1915,10 +2045,15 @@ def check_new_withdraw_requests(request):
             'created_at': req.created_at.strftime('%Y-%m-%d %H:%M:%S'),
         })
     
+    pending_qs = WithdrawRequest.objects.filter(status='PENDING')
+    if is_super_admin(effective_admin):
+        pending_qs = pending_qs.filter(user__worker__isnull=True)
+    else:
+        pending_qs = pending_qs.filter(user__worker=effective_admin)
     return JsonResponse({
         'new_requests': requests_data,
         'latest_id': WithdrawRequest.objects.order_by('-id').first().id if WithdrawRequest.objects.exists() else last_id,
-        'pending_count': WithdrawRequest.objects.filter(status='PENDING').count(),
+        'pending_count': pending_qs.count(),
     })
 
 @admin_required
@@ -1929,8 +2064,16 @@ def approve_withdraw(request, pk):
         return redirect('withdraw_requests')
     
     try:
+        withdraw = WithdrawRequest.objects.select_related('user').get(pk=pk)
+        effective_admin = get_effective_admin(request.user)
+        if is_super_admin(effective_admin):
+            if getattr(withdraw.user, 'worker_id', None) is not None:
+                messages.error(request, 'Super Admin can only approve withdraw requests from players not under a franchise.')
+                return redirect('withdraw_requests')
+        elif getattr(withdraw.user, 'worker_id', None) != effective_admin.id:
+            messages.error(request, 'You can only approve withdraw requests for users under your admin.')
+            return redirect('withdraw_requests')
         with db_transaction.atomic():
-            # select_for_update must be inside the transaction
             withdraw = WithdrawRequest.objects.select_for_update().get(pk=pk)
             if withdraw.status != 'PENDING':
                 messages.error(request, 'Withdraw request has already been processed.')
@@ -1959,6 +2102,11 @@ def approve_withdraw(request, pk):
                 withdraw.utr_number = utr_number
                 
             withdraw.save()
+
+            # Franchise balance: add withdrawal amount to processing admin's balance (skip for superuser)
+            if not is_super_admin(request.user):
+                fb, _ = FranchiseBalance.objects.get_or_create(user=request.user, defaults={'balance': 0})
+                FranchiseBalance.objects.filter(pk=fb.pk).update(balance=F('balance') + withdraw.amount)
 
             logger.info(f"Withdrawal request #{withdraw.id} approved by admin {request.user.username}")
             
@@ -2035,7 +2183,15 @@ def complete_withdraw_payment(request, pk):
         return redirect('withdraw_requests')
 
     try:
-        withdraw = WithdrawRequest.objects.get(pk=pk)
+        withdraw = WithdrawRequest.objects.select_related('user').get(pk=pk)
+        effective_admin = get_effective_admin(request.user)
+        if is_super_admin(effective_admin):
+            if getattr(withdraw.user, 'worker_id', None) is not None:
+                messages.error(request, 'Super Admin can only complete payments for withdraw requests from players not under a franchise.')
+                return redirect('withdraw_requests')
+        elif getattr(withdraw.user, 'worker_id', None) != effective_admin.id:
+            messages.error(request, 'You can only complete payments for withdraw requests from users under your admin.')
+            return redirect('withdraw_requests')
         if withdraw.status != 'APPROVED':
             messages.error(request, 'Only approved requests can be marked as payment completed.')
             return redirect('withdraw_requests')
@@ -2058,8 +2214,16 @@ def reject_withdraw(request, pk):
     if request.method == 'POST':
         note = request.POST.get('note', '')
         try:
+            withdraw = WithdrawRequest.objects.select_related('user').get(pk=pk)
+            effective_admin = get_effective_admin(request.user)
+            if is_super_admin(effective_admin):
+                if getattr(withdraw.user, 'worker_id', None) is not None:
+                    messages.error(request, 'Super Admin can only reject withdraw requests from players not under a franchise.')
+                    return redirect('withdraw_requests')
+            elif getattr(withdraw.user, 'worker_id', None) != effective_admin.id:
+                messages.error(request, 'You can only reject withdraw requests for users under your admin.')
+                return redirect('withdraw_requests')
             with db_transaction.atomic():
-                # select_for_update must be inside the transaction
                 withdraw = WithdrawRequest.objects.select_for_update().get(pk=pk)
                 if withdraw.status != 'PENDING':
                     messages.error(request, 'Withdraw request has already been processed.')
@@ -2103,7 +2267,7 @@ def reject_withdraw(request, pk):
 
 @admin_required
 def transactions(request):
-    """Reports page showing financial summary statistics. Default: overall (all time). Optional: filter by custom date range."""
+    """Reports page showing financial summary. Franchise owners see only transactions of players under their franchise."""
     if not has_menu_permission(request.user, 'transactions'):
         messages.error(request, 'You do not have permission to view reports.')
         return redirect('admin_dashboard')
@@ -2111,14 +2275,16 @@ def transactions(request):
     from datetime import timedelta
     from django.db.models.functions import TruncDate
 
+    effective_admin = get_effective_admin(request.user)
+    transactions_query = Transaction.objects.all()
+    if not is_super_admin(effective_admin):
+        transactions_query = transactions_query.filter(user__worker=effective_admin)
+
     # Get filters: search and optional date range. Default = last 7 days when no params; overall=1 = all time.
     search_query = request.GET.get('search', '').strip()
     from_date_str = request.GET.get('from_date', '').strip()
     to_date_str = request.GET.get('to_date', '').strip()
     show_overall = request.GET.get('overall', '').strip().lower() in ('1', 'true', 'yes')
-
-    # Base transaction queryset
-    transactions_query = Transaction.objects.all()
 
     today = timezone.now().date()
     from_date = None
@@ -2201,6 +2367,7 @@ def transactions(request):
     chart_labels = [date.strftime('%b %d') for date in sorted(profit_data_map.keys())]
     chart_data = [float(profit_data_map[date]) for date in sorted(profit_data_map.keys())]
 
+    is_franchise_scope = not is_super_admin(effective_admin)
     context = get_admin_context(request, {
         'total_transactions': total_transactions,
         'total_deposits': total_deposits,
@@ -2215,6 +2382,8 @@ def transactions(request):
         'to_date': to_date_str,
         'date_filter_applied': date_filter_applied,
         'page': 'transactions',
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': 'Your franchise' if is_franchise_scope else None,
     })
 
     return render(request, 'admin/transactions.html', context)
@@ -2224,19 +2393,27 @@ def transactions(request):
 def admin_management(request):
     """Admin management page - Super Admin only"""
     if not is_super_admin(request.user):
-        messages.error(request, 'Only Super Admins can access Admin Management.')
+        messages.error(request, 'Only Super Admins can access Worker Management.')
         return redirect('admin_dashboard')
     
-    # Get all admin users (staff users)
-    admin_users = User.objects.filter(is_staff=True).order_by('-date_joined')
+    status_filter = request.GET.get('status', 'all')
+    # Workers only: exclude franchise-only admins (they appear only in Franchise Balance)
+    admin_users = User.objects.filter(is_staff=True, is_franchise_only=False).order_by('-date_joined')
+    if status_filter == 'active':
+        admin_users = admin_users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        admin_users = admin_users.filter(is_active=False)
     
-    # Get permissions for each admin
+    base_workers = User.objects.filter(is_staff=True, is_franchise_only=False)
+    total_admins = base_workers.count()
+    active_admins = base_workers.filter(is_active=True).count()
+    inactive_admins = base_workers.filter(is_active=False).count()
+    
     admin_list = []
     for user in admin_users:
         try:
             perms = AdminPermissions.objects.get(user=user)
         except AdminPermissions.DoesNotExist:
-            # Create default permissions if none exist
             perms = AdminPermissions.objects.create(user=user)
         admin_list.append({
             'user': user,
@@ -2246,8 +2423,155 @@ def admin_management(request):
     
     context = get_admin_context(request, {
         'admin_list': admin_list,
+        'page': 'admin-management',
+        'status_filter': status_filter,
+        'total_admins': total_admins,
+        'active_admins': active_admins,
+        'inactive_admins': inactive_admins,
     })
     return render(request, 'admin/admin_management.html', context)
+
+
+@super_admin_required
+@require_POST
+def toggle_admin_status(request, admin_id):
+    """Activate or deactivate an admin. Cannot deactivate yourself or the last superuser."""
+    try:
+        user = User.objects.get(id=admin_id, is_staff=True)
+    except User.DoesNotExist:
+        messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
+    if user.id == request.user.id:
+        messages.error(request, 'You cannot deactivate your own account.')
+        return redirect('admin_management')
+    if user.is_superuser and User.objects.filter(is_staff=True, is_superuser=True, is_active=True).count() <= 1:
+        messages.error(request, 'Cannot deactivate the last active Super Admin.')
+        return redirect('admin_management')
+    user.is_active = not user.is_active
+    user.save()
+    status = 'activated' if user.is_active else 'deactivated'
+    messages.success(request, f'Worker "{user.username}" has been {status}.')
+    next_status = request.POST.get('status') or request.GET.get('status', 'all')
+    return redirect('admin_management' + ('?status=' + next_status if next_status != 'all' else ''))
+
+
+@super_admin_required
+def franchise_balance(request):
+    """Franchise balance management - Super Admin only. List admins and allocate/top-up balance."""
+    if not is_super_admin(request.user):
+        messages.error(request, 'Only Super Admins can manage Franchise Balance.')
+        return redirect('admin_dashboard')
+    
+    # POST: add/set balance or save franchise name
+    if request.method == 'POST':
+        admin_id = request.POST.get('admin_id')
+        action = request.POST.get('action', 'add')  # 'add', 'set', or 'save_name'
+        try:
+            admin_user = User.objects.get(pk=admin_id, is_staff=True)
+        except User.DoesNotExist:
+            messages.error(request, 'Worker not found.')
+            return redirect('franchise_balance')
+        if action == 'save_name':
+            franchise_name = request.POST.get('franchise_name', '').strip()[:120]
+            with db_transaction.atomic():
+                fb, _ = FranchiseBalance.objects.get_or_create(user=admin_user, defaults={'balance': 0})
+                fb.franchise_name = franchise_name
+                fb.save()
+            messages.success(request, f"Franchise name for {admin_user.username} set to '{franchise_name or '(empty)'}'.")
+            return redirect('franchise_balance')
+        if action == 'deactivate_franchise_admin':
+            if admin_user.id == request.user.id:
+                messages.error(request, 'You cannot deactivate your own account.')
+                return redirect('franchise_balance')
+            if admin_user.is_superuser:
+                messages.error(request, 'Super Admin accounts cannot be deactivated from here.')
+                return redirect('franchise_balance')
+            with db_transaction.atomic():
+                player_count = User.objects.filter(worker=admin_user, is_staff=False).count()
+                User.objects.filter(worker=admin_user, is_staff=False).update(worker=request.user)
+                admin_user.is_active = False
+                admin_user.save()
+            messages.success(request, f'"{admin_user.username}" deactivated. {player_count} player(s) reassigned to you (Super Admin).')
+            return redirect('franchise_balance')
+        if action == 'activate_franchise_admin':
+            if admin_user.is_superuser:
+                messages.error(request, 'Super Admin is always active.')
+                return redirect('franchise_balance')
+            admin_user.is_active = True
+            admin_user.save()
+            messages.success(request, f'"{admin_user.username}" activated.')
+            return redirect('franchise_balance')
+        if action in ('add', 'set') and not admin_user.is_active:
+            messages.error(request, f'Cannot add or set balance for inactive franchise "{admin_user.username}". Activate them first from their details page.')
+            return redirect('franchise_balance')
+        amount_str = request.POST.get('amount', '').strip()
+        try:
+            amount = int(amount_str)
+            if amount < 0:
+                raise ValueError('Amount must be non-negative')
+        except (ValueError, TypeError):
+            messages.error(request, 'Enter a valid amount (whole number).')
+            return redirect('franchise_balance')
+        with db_transaction.atomic():
+            fb, _ = FranchiseBalance.objects.get_or_create(user=admin_user, defaults={'balance': 0})
+            if action == 'set':
+                fb.balance = amount
+                fb.save()
+                balance_after = amount
+                FranchiseBalanceLog.objects.create(
+                    user=admin_user,
+                    action=FranchiseBalanceLog.ACTION_SET,
+                    amount=amount,
+                    balance_after=balance_after,
+                    performed_by=request.user,
+                )
+            else:
+                balance_before = fb.balance
+                FranchiseBalance.objects.filter(pk=fb.pk).update(balance=F('balance') + amount)
+                FranchiseBalanceLog.objects.create(
+                    user=admin_user,
+                    action=FranchiseBalanceLog.ACTION_ADD,
+                    amount=amount,
+                    balance_after=balance_before + amount,
+                    performed_by=request.user,
+                )
+        if action == 'set':
+            messages.success(request, f"Franchise balance for {admin_user.username} set to ₹{amount:,}.")
+        else:
+            messages.success(request, f"Added ₹{amount:,} to {admin_user.username}'s franchise balance.")
+        return redirect('franchise_balance')
+    
+    # GET: list all staff with franchise balance and franchise name (active first, inactive last)
+    admin_users = User.objects.filter(is_staff=True).order_by('-is_active', 'username')
+    admin_list = []
+    for user in admin_users:
+        try:
+            fb = FranchiseBalance.objects.get(user=user)
+        except FranchiseBalance.DoesNotExist:
+            fb = None
+        admin_list.append({
+            'user': user,
+            'balance': fb.balance if fb else 0,
+            'franchise_name': fb.franchise_name if fb else '',
+            'is_superuser': user.is_superuser,
+        })
+    
+    context = get_admin_context(request, {
+        'page': 'franchise-balance',
+        'admin_list': admin_list,
+    })
+    return render(request, 'admin/franchise_balance.html', context)
+
+
+def _get_queue_owners():
+    """List of admins a worker can be assigned to (Super Admins + franchise admins)."""
+    owners = []
+    for u in User.objects.filter(is_superuser=True, is_staff=True).order_by('username'):
+        owners.append({'id': u.id, 'label': f'{u.username} (Super Admin)'})
+    for u in User.objects.filter(id__in=FranchiseBalance.objects.values_list('user_id', flat=True).distinct()).exclude(is_superuser=True).order_by('username'):
+        owners.append({'id': u.id, 'label': u.username})
+    return owners
+
 
 @super_admin_required
 def create_admin(request):
@@ -2266,8 +2590,12 @@ def create_admin(request):
             'can_view_wallets': request.POST.get('can_view_wallets') == 'on',
             'can_view_players': request.POST.get('can_view_players') == 'on',
             'can_view_deposit_requests': request.POST.get('can_view_deposit_requests') == 'on',
+            'can_view_withdraw_requests': request.POST.get('can_view_withdraw_requests') == 'on',
             'can_view_transactions': request.POST.get('can_view_transactions') == 'on',
+            'can_view_game_history': request.POST.get('can_view_game_history', 'on') == 'on',
             'can_view_game_settings': request.POST.get('can_view_game_settings') == 'on',
+            'can_view_help_center': request.POST.get('can_view_help_center') == 'on',
+            'can_view_white_label': request.POST.get('can_view_white_label') == 'on',
             'can_view_admin_management': request.POST.get('can_view_admin_management') == 'on',
             'can_manage_payment_methods': request.POST.get('can_manage_payment_methods') == 'on',
         }
@@ -2275,19 +2603,19 @@ def create_admin(request):
         # Validation
         if not username or not password:
             messages.error(request, 'Username and password are required.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
         
         if password != password2:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
 
         if len(password) < 4:
             messages.error(request, 'Password must be at least 4 characters long.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
         
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
         
         try:
             # Create user with is_staff=True but is_superuser=False
@@ -2304,6 +2632,15 @@ def create_admin(request):
             # Create permissions
             AdminPermissions.objects.create(user=user, **permissions)
             invalidate_admin_permissions_cache(user)
+            works_under_id = request.POST.get('works_under_id', '').strip()
+            if works_under_id:
+                try:
+                    admin_user = User.objects.get(pk=int(works_under_id), is_staff=True)
+                    if admin_user.id != user.id:
+                        user.works_under = admin_user
+                        user.save(update_fields=['works_under_id'])
+                except (ValueError, User.DoesNotExist):
+                    pass
             password_auto_generated = request.POST.get('password_auto_generated', 'false') == 'true'
             if password_auto_generated:
                 messages.success(request, f'🎉 Admin user "{username}" created successfully! 🔐 Generated Password: <strong style="font-family: monospace; background: #f0fdf4; padding: 4px 8px; border-radius: 4px; color: #166534;">{password}</strong><br><small style="color: #666;">⚠️ Save this password securely - it will only be shown once!</small>')
@@ -2312,9 +2649,323 @@ def create_admin(request):
             return redirect('admin_management')
         except Exception as e:
             messages.error(request, f'Error creating admin: {str(e)}')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
     
-    return render(request, 'admin/create_admin.html', {})
+    return render(request, 'admin/create_admin.html', {'queue_owners': _get_queue_owners()})
+
+
+@super_admin_required
+def franchise_admin_details(request, admin_id):
+    """Franchise owner user info only: username, balance, stats, balance history, franchise name. No menu permissions."""
+    try:
+        user = User.objects.get(id=admin_id, is_staff=True)
+    except User.DoesNotExist:
+        messages.error(request, 'Franchise admin not found.')
+        return redirect('franchise_balance')
+    try:
+        fb = FranchiseBalance.objects.get(user=user)
+        franchise_name = fb.franchise_name or ''
+        balance = fb.balance
+        package_name = fb.package_name or ''
+        help_whatsapp_number = fb.help_whatsapp_number or ''
+        help_telegram = fb.help_telegram or ''
+    except FranchiseBalance.DoesNotExist:
+        franchise_name = ''
+        balance = 0
+        package_name = ''
+        help_whatsapp_number = ''
+        help_telegram = ''
+    form_username = None
+    if request.method == 'POST':
+        action = request.POST.get('action', '').strip()
+        if action == 'change_password':
+            if user.is_superuser:
+                messages.error(request, 'Super Admin password cannot be changed from this page.')
+            else:
+                new_password = (request.POST.get('new_password') or '').strip()
+                new_password_confirm = (request.POST.get('new_password_confirm') or '').strip()
+                if not new_password:
+                    messages.error(request, 'New password is required.')
+                elif len(new_password) < 4:
+                    messages.error(request, 'Password must be at least 4 characters.')
+                elif new_password != new_password_confirm:
+                    messages.error(request, 'Passwords do not match.')
+                else:
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(request, f'Password updated for "{user.username}".')
+            return redirect('franchise_admin_details', admin_id=user.id)
+        if action == 'assign_player':
+            # Assign an existing player (by phone or username) to this franchise admin
+            raw_input = (request.POST.get('assign_phone') or '').strip()
+            if not raw_input:
+                messages.error(request, 'Please enter a phone number or username.')
+            else:
+                from accounts.sms_service import sms_service
+                player = None
+                clean_phone = sms_service._clean_phone_number(raw_input, for_sms=False)
+                player = User.objects.filter(
+                    Q(phone_number=clean_phone) | Q(phone_number=raw_input)
+                ).filter(is_staff=False, is_superuser=False).first()
+                if not player:
+                    digits = ''.join(c for c in raw_input if c.isdigit())
+                    if digits:
+                        player = (
+                            User.objects.filter(phone_number=digits).filter(is_staff=False, is_superuser=False).first()
+                            or User.objects.filter(phone_number__endswith=digits[-10:] if len(digits) >= 10 else digits).filter(is_staff=False, is_superuser=False).first()
+                        )
+                if not player:
+                    player = User.objects.filter(username__iexact=raw_input).filter(is_staff=False, is_superuser=False).first()
+                if not player:
+                    messages.error(request, f'No player found with phone or username "{raw_input}".')
+                elif player.worker_id == user.id:
+                    messages.info(request, f'"{player.username}" is already under this franchise.')
+                else:
+                    old_worker = getattr(player.worker, 'username', None) or 'Super Admin'
+                    player.worker = user
+                    player.save(update_fields=['worker_id'])
+                    messages.success(request, f'"{player.username}" assigned to this franchise. (Was under {old_worker})')
+            return redirect('franchise_admin_details', admin_id=user.id)
+        if action == 'deactivate_franchise_admin':
+            if user.id == request.user.id:
+                messages.error(request, 'You cannot deactivate your own account.')
+            elif user.is_superuser:
+                messages.error(request, 'Super Admin accounts cannot be deactivated from here.')
+            else:
+                with db_transaction.atomic():
+                    player_count = User.objects.filter(worker=user, is_staff=False).count()
+                    User.objects.filter(worker=user, is_staff=False).update(worker=request.user)
+                    user.is_active = False
+                    user.save()
+                messages.success(request, f'"{user.username}" deactivated. {player_count} player(s) reassigned to you (Super Admin).')
+            return redirect('franchise_admin_details', admin_id=user.id)
+        if action == 'activate_franchise_admin':
+            if user.is_superuser:
+                messages.success(request, 'Super Admin is always active.')
+            else:
+                user.is_active = True
+                user.save()
+                messages.success(request, f'"{user.username}" activated.')
+            return redirect('franchise_admin_details', admin_id=user.id)
+        # save_settings or empty: save username + Help Center (package name, WhatsApp, Telegram)
+        new_username = (request.POST.get('username') or '').strip()
+        updated = []
+        has_error = False
+        if new_username != user.username:
+            if not new_username:
+                messages.error(request, 'Username cannot be empty.')
+                has_error = True
+            elif User.objects.filter(username=new_username).exclude(pk=user.pk).exists():
+                messages.error(request, f'Username "{new_username}" is already taken.')
+                has_error = True
+            else:
+                user.username = new_username
+                user.save()
+                updated.append('username')
+        if has_error:
+            form_username = new_username
+        else:
+            if updated:
+                messages.success(request, 'Username updated.')
+            # Save Help Center package name only (WhatsApp/Telegram are set by franchise on Help Center page)
+            fb, _ = FranchiseBalance.objects.get_or_create(user=user, defaults={'balance': 0})
+            pkg = (request.POST.get('package_name') or '').strip()[:255]
+            help_saved = False
+            duplicate_pkg = False
+            if pkg != (fb.package_name or ''):
+                if pkg and FranchiseBalance.objects.filter(package_name=pkg).exclude(user=user).exists():
+                    messages.error(request, f'Package name "{pkg}" is already used by another franchise.')
+                    package_name = pkg
+                    duplicate_pkg = True
+                else:
+                    fb.package_name = pkg or None
+                    fb.save()
+                    help_saved = True
+                    if not updated:
+                        messages.success(request, 'Package name saved.')
+            if updated or help_saved:
+                return redirect('franchise_admin_details', admin_id=user.id)
+        # Re-read help fields for display after POST (keep form values when duplicate_pkg error was shown)
+        if request.method == 'POST' and not duplicate_pkg:
+            try:
+                fb = FranchiseBalance.objects.get(user=user)
+                package_name = fb.package_name or ''
+                help_whatsapp_number = fb.help_whatsapp_number or ''
+                help_telegram = fb.help_telegram or ''
+            except FranchiseBalance.DoesNotExist:
+                package_name = help_whatsapp_number = help_telegram = ''
+    clients_count = User.objects.filter(worker=user, is_staff=False).count()
+    total_deposits = (
+        DepositRequest.objects.filter(user__worker=user, status='APPROVED')
+        .aggregate(s=Coalesce(Sum('amount'), 0))['s'] or 0
+    )
+    total_withdrawals = (
+        WithdrawRequest.objects.filter(
+            user__worker=user,
+            status__in=['APPROVED', 'COMPLETED'],
+        ).aggregate(s=Coalesce(Sum('amount'), 0))['s'] or 0
+    )
+    segment_profit = total_deposits - total_withdrawals
+    balance_logs = FranchiseBalanceLog.objects.filter(user=user).select_related('performed_by').order_by('-created_at')[:200]
+    context = get_admin_context(request, {
+        'admin_user': user,
+        'franchise_name': franchise_name,
+        'balance': balance,
+        'page': 'franchise-balance',
+        'clients_count': clients_count,
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'segment_profit': segment_profit,
+        'balance_logs': balance_logs,
+        'package_name': package_name,
+        'help_whatsapp_number': help_whatsapp_number,
+        'help_telegram': help_telegram,
+    })
+    if form_username is not None:
+        context['form_username'] = form_username
+    return render(request, 'admin/franchise_admin_details.html', context)
+
+
+@super_admin_required
+def franchise_admin_players(request, admin_id):
+    """List all players under this franchise admin (worker=admin_id)."""
+    try:
+        admin_user = User.objects.get(id=admin_id, is_staff=True)
+    except User.DoesNotExist:
+        messages.error(request, 'Franchise admin not found.')
+        return redirect('franchise_balance')
+    try:
+        page_number = int(request.GET.get('pg', 1))
+    except (ValueError, TypeError):
+        page_number = 1
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('search', '')
+    players_query = User.objects.filter(worker=admin_user, is_staff=False).select_related('worker')
+    if status_filter == 'active':
+        players_query = players_query.filter(is_active=True)
+    elif status_filter == 'inactive':
+        players_query = players_query.filter(is_active=False)
+    if search_query:
+        players_query = players_query.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone_number__icontains=search_query)
+        )
+    players_query = players_query.order_by('-date_joined')
+    paginator = Paginator(players_query, 20)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except Exception:
+        page_obj = paginator.get_page(1)
+    context = get_admin_context(request, {
+        'admin_user': admin_user,
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'page': 'franchise-balance',
+    })
+    return render(request, 'admin/franchise_admin_players.html', context)
+
+
+@super_admin_required
+def edit_franchise_admin(request, admin_id):
+    """Edit franchise owner menu permissions only (from Franchise Balance → Edit privileges)."""
+    try:
+        user = User.objects.get(id=admin_id, is_staff=True)
+    except User.DoesNotExist:
+        messages.error(request, 'Franchise admin not found.')
+        return redirect('franchise_balance')
+    try:
+        permissions = AdminPermissions.objects.get(user=user)
+    except AdminPermissions.DoesNotExist:
+        permissions = AdminPermissions.objects.create(user=user)
+    if request.method == 'POST':
+        permissions.can_view_dashboard = request.POST.get('can_view_dashboard') == 'on'
+        permissions.can_control_dice = request.POST.get('can_control_dice') == 'on'
+        permissions.can_view_recent_rounds = request.POST.get('can_view_recent_rounds') == 'on'
+        permissions.can_view_all_bets = request.POST.get('can_view_all_bets') == 'on'
+        permissions.can_view_wallets = request.POST.get('can_view_wallets') == 'on'
+        permissions.can_view_players = request.POST.get('can_view_players') == 'on'
+        permissions.can_view_deposit_requests = request.POST.get('can_view_deposit_requests') == 'on'
+        permissions.can_view_withdraw_requests = request.POST.get('can_view_withdraw_requests') == 'on'
+        permissions.can_view_transactions = request.POST.get('can_view_transactions') == 'on'
+        permissions.can_view_game_history = request.POST.get('can_view_game_history', 'on') == 'on'
+        permissions.can_view_game_settings = request.POST.get('can_view_game_settings') == 'on'
+        permissions.can_view_help_center = request.POST.get('can_view_help_center') == 'on'
+        permissions.can_view_white_label = request.POST.get('can_view_white_label') == 'on'
+        permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
+        permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
+        permissions.save()
+        invalidate_admin_permissions_cache(user)
+        messages.success(request, f'Privileges for "{user.username}" updated.')
+        return redirect('franchise_balance')
+    context = get_admin_context(request, {
+        'admin_user': user,
+        'permissions': permissions,
+        'page': 'franchise-balance',
+    })
+    return render(request, 'admin/edit_franchise_admin.html', context)
+
+
+@super_admin_required
+def create_franchise_admin(request):
+    """Create a franchise owner (admin) - appears only in Franchise Balance list, not in Worker Management."""
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        password2 = request.POST.get('password2') or request.POST.get('confirm_password') or ''
+        permissions = {
+            'can_view_dashboard': request.POST.get('can_view_dashboard') == 'on',
+            'can_control_dice': request.POST.get('can_control_dice') == 'on',
+            'can_view_recent_rounds': request.POST.get('can_view_recent_rounds') == 'on',
+            'can_view_all_bets': request.POST.get('can_view_all_bets') == 'on',
+            'can_view_wallets': request.POST.get('can_view_wallets') == 'on',
+            'can_view_players': request.POST.get('can_view_players') == 'on',
+            'can_view_deposit_requests': request.POST.get('can_view_deposit_requests') == 'on',
+            'can_view_withdraw_requests': request.POST.get('can_view_withdraw_requests') == 'on',
+            'can_view_transactions': request.POST.get('can_view_transactions') == 'on',
+            'can_view_game_history': request.POST.get('can_view_game_history', 'on') == 'on',
+            'can_view_game_settings': request.POST.get('can_view_game_settings') == 'on',
+            'can_view_help_center': request.POST.get('can_view_help_center') == 'on',
+            'can_view_white_label': request.POST.get('can_view_white_label') == 'on',
+            'can_view_admin_management': request.POST.get('can_view_admin_management') == 'on',
+            'can_manage_payment_methods': request.POST.get('can_manage_payment_methods') == 'on',
+        }
+        if not username or not password:
+            messages.error(request, 'Username and password are required.')
+            return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})
+        if password != password2:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})
+        if len(password) < 4:
+            messages.error(request, 'Password must be at least 4 characters long.')
+            return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists.')
+            return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})
+        try:
+            email = f"{username}@gundu.ata"
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                is_staff=True,
+                is_superuser=False,
+                is_active=True,
+                is_franchise_only=True,
+            )
+            AdminPermissions.objects.create(user=user, **permissions)
+            invalidate_admin_permissions_cache(user)
+            if request.POST.get('password_auto_generated', 'false') == 'true':
+                messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance. 🔐 Save the password securely.')
+            else:
+                messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance.')
+            return redirect('franchise_balance')
+        except Exception as e:
+            messages.error(request, f'Error creating franchise admin: {str(e)}')
+            return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})
+    return render(request, 'admin/create_franchise_admin.html', {})
+
 
 @super_admin_required
 def edit_admin(request, admin_id):
@@ -2345,12 +2996,29 @@ def edit_admin(request, admin_id):
         permissions.can_view_wallets = request.POST.get('can_view_wallets') == 'on'
         permissions.can_view_players = request.POST.get('can_view_players') == 'on'
         permissions.can_view_deposit_requests = request.POST.get('can_view_deposit_requests') == 'on'
+        permissions.can_view_withdraw_requests = request.POST.get('can_view_withdraw_requests') == 'on'
         permissions.can_view_transactions = request.POST.get('can_view_transactions') == 'on'
+        permissions.can_view_game_history = request.POST.get('can_view_game_history', 'on') == 'on'
         permissions.can_view_game_settings = request.POST.get('can_view_game_settings') == 'on'
+        permissions.can_view_help_center = request.POST.get('can_view_help_center') == 'on'
+        permissions.can_view_white_label = request.POST.get('can_view_white_label') == 'on'
         permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
         permissions.save()
         invalidate_admin_permissions_cache(user)
+        works_under_id = request.POST.get('works_under_id', '').strip()
+        if works_under_id:
+            try:
+                admin_user = User.objects.get(pk=int(works_under_id), is_staff=True)
+                user.works_under = admin_user if admin_user.id != user.id else None
+                user.save(update_fields=['works_under_id'])
+            except (ValueError, User.DoesNotExist):
+                user.works_under = None
+                user.save(update_fields=['works_under_id'])
+        else:
+            if user.works_under_id:
+                user.works_under = None
+                user.save(update_fields=['works_under_id'])
         # Update username if provided
         new_username = request.POST.get('username')
         username_updated = False
@@ -2389,16 +3057,17 @@ def edit_admin(request, admin_id):
     context = get_admin_context(request, {
         'admin_user': user,
         'permissions': permissions,
+        'queue_owners': _get_queue_owners(),
     })
     return render(request, 'admin/edit_admin.html', context)
 
 @super_admin_required
 def delete_admin(request, admin_id):
-    """Delete admin user and redistribute their players"""
+    """Delete worker and redistribute their players"""
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
-        messages.error(request, 'Admin user not found.')
+        messages.error(request, 'Worker not found.')
         return redirect('admin_management')
     
     # Cannot delete superusers
@@ -2419,9 +3088,9 @@ def delete_admin(request, admin_id):
     user.delete()  # This will also delete AdminPermissions due to CASCADE
     
     if player_count > 0:
-        messages.success(request, f'Admin user "{username}" deleted successfully! {player_count} players redistributed among remaining admins.')
+        messages.success(request, f'Worker "{username}" deleted successfully! {player_count} players redistributed among remaining workers.')
     else:
-        messages.success(request, f'Admin user "{username}" deleted successfully!')
+        messages.success(request, f'Worker "{username}" deleted successfully!')
     return redirect('admin_management')
 
 @login_required(login_url='/game-admin/login/')
@@ -2432,15 +3101,6 @@ def manage_players(request):
         messages.error(request, 'You do not have permission to view players.')
         return redirect('admin_dashboard')
 
-    # POST: Assign unassigned players equally among admins (super admins only)
-    if request.method == 'POST' and request.POST.get('action') == 'assign_unassigned':
-        if not is_super_admin(request.user):
-            messages.error(request, 'Only Super Admins can assign unassigned players.')
-        else:
-            count = redistribute_all_players()
-            messages.success(request, f'Assigned {count} unassigned player(s) equally among admins.')
-        return redirect('manage_players')
-        
     # Get status filter from query params
     status_filter = request.GET.get('status', 'all')
     try:
@@ -2449,12 +3109,11 @@ def manage_players(request):
         page_number = 1
     search_query = request.GET.get('search', '')
     
-    # Build query - only show actual players (not staff)
-    users_query = User.objects.filter(is_staff=False)
-    
-    # If not super admin, only show assigned clients
-    if not is_super_admin(request.user):
-        users_query = users_query.filter(worker=request.user)
+    # Build query - only show actual players (not staff), prefetch worker for display
+    effective_admin = get_effective_admin(request.user)
+    users_query = User.objects.filter(is_staff=False).select_related('worker')
+    if not is_super_admin(effective_admin):
+        users_query = users_query.filter(worker=effective_admin)
     
     # Apply status filter
     if status_filter == 'active':
@@ -2480,29 +3139,15 @@ def manage_players(request):
     except Exception:
         page_obj = None
     
-    # Statistics
-    total_users = User.objects.filter(is_staff=False).count()
-    active_users = User.objects.filter(is_staff=False, is_active=True).count()
-    inactive_users = User.objects.filter(is_staff=False, is_active=False).count()
-    
-    # Get distribution statistics
-    admins = get_admins_for_distribution()
-    admin_distribution = []
-    for admin in admins:
-        client_count = User.objects.filter(worker=admin, is_staff=False).count()
-        admin_distribution.append({
-            'admin': admin,
-            'client_count': client_count
-        })
-    admin_distribution.sort(key=lambda x: x['client_count'])
-    
-    # Workers dropdown: admins only (no super admins) - players are assigned to admins
-    workers = get_admins_for_distribution().order_by('username')
-    
-    # Annotate workers with client count for display in dropdown
-    for worker in workers:
-        worker.client_count = User.objects.filter(worker=worker, is_staff=False).count()
-    
+    # Statistics (same scope as list)
+    base_players = User.objects.filter(is_staff=False)
+    if not is_super_admin(effective_admin):
+        base_players = base_players.filter(worker=effective_admin)
+    total_users = base_players.count()
+    active_users = base_players.filter(is_active=True).count()
+    inactive_users = base_players.filter(is_active=False).count()
+
+    is_franchise_scope = not is_super_admin(effective_admin)
     context = get_admin_context(request, {
         'page_obj': page_obj,
         'status_filter': status_filter,
@@ -2510,10 +3155,9 @@ def manage_players(request):
         'total_users': total_users,
         'active_users': active_users,
         'inactive_users': inactive_users,
-        'workers': workers,
-        'admin_distribution': admin_distribution,
-        'is_super_admin': is_super_admin(request.user),
         'page': 'manage-players',
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': 'Your franchise' if is_franchise_scope else None,
     })
     
     return render(request, 'admin/players_list.html', context)
@@ -2683,7 +3327,7 @@ def game_settings(request):
             'key': 'APP_FORCE_UPDATE',
             'default': False,
             'input_type': 'checkbox',
-            'description': 'If enabled, users MUST update to continue. They cannot dismiss the dialog.'
+            'description': 'When ticked: users cannot use the APK until they update. The update screen cannot be dismissed.'
         },
     ]
     
@@ -2878,56 +3522,78 @@ def game_settings(request):
     return render(request, 'admin/game_settings.html', context)
 
 
+def _normalize_help_phone(raw: str) -> str:
+    """Keep leading '+' and digits only; accept any country code."""
+    if raw is None:
+        return ''
+    s = str(raw).strip()
+    if not s:
+        return ''
+    keep_plus = s.startswith('+')
+    digits = ''.join(ch for ch in s if ch.isdigit())
+    if not digits:
+        return ''
+    return f"+{digits}" if keep_plus else digits
+
+
 @login_required(login_url='/game-admin/login/')
 @admin_required
 def help_center(request):
-    """Help Center settings (WhatsApp + Telegram phone number)"""
-    # Treat as a settings page: require game_settings permission
-    if not has_menu_permission(request.user, 'game_settings'):
+    """Help Center: Super Admin sets global defaults; franchise owners set their own (per-franchise) numbers."""
+    if not has_menu_permission(request.user, 'help_center'):
         messages.error(request, 'You do not have permission to access Help Center settings.')
         return redirect('admin_dashboard')
 
-    # Current values (GameSettings-backed, cached via get_game_setting)
-    whatsapp_number = get_game_setting('SUPPORT_WHATSAPP_NUMBER', '')
-    telegram_number = get_game_setting('SUPPORT_TELEGRAM', '')
+    effective_admin = get_effective_admin(request.user)
+    global_whatsapp = get_game_setting('SUPPORT_WHATSAPP_NUMBER', '')
+    global_telegram = get_game_setting('SUPPORT_TELEGRAM', '')
 
-    def normalize_phone_number(raw: str) -> str:
-        """
-        Keep leading '+' (if provided) and digits only; remove spaces/dashes/etc.
-        Accepts any country code (e.g. +91, +231).
-        """
-        if raw is None:
-            return ''
-        s = str(raw).strip()
-        if not s:
-            return ''
-        keep_plus = s.startswith('+')
-        digits = ''.join(ch for ch in s if ch.isdigit())
-        if not digits:
-            return ''
-        return f"+{digits}" if keep_plus else digits
+    if is_super_admin(effective_admin):
+        whatsapp_number = global_whatsapp
+        telegram_number = global_telegram
+        is_franchise_scope = False
+    else:
+        try:
+            fb = FranchiseBalance.objects.get(user=effective_admin)
+            whatsapp_number = (fb.help_whatsapp_number or '').strip() or global_whatsapp
+            telegram_number = (fb.help_telegram or '').strip() or global_telegram
+        except FranchiseBalance.DoesNotExist:
+            fb = None
+            whatsapp_number = global_whatsapp
+            telegram_number = global_telegram
+        is_franchise_scope = True
 
     if request.method == 'POST':
-        whatsapp_number = normalize_phone_number(request.POST.get('SUPPORT_WHATSAPP_NUMBER'))
-        telegram_number = normalize_phone_number(request.POST.get('SUPPORT_TELEGRAM'))
+        whatsapp_number = _normalize_help_phone(request.POST.get('SUPPORT_WHATSAPP_NUMBER'))
+        telegram_number = _normalize_help_phone(request.POST.get('SUPPORT_TELEGRAM'))
 
-        GameSettings.objects.update_or_create(
-            key='SUPPORT_WHATSAPP_NUMBER',
-            defaults={
-                'value': whatsapp_number,
-                'description': 'Help Center WhatsApp number (example: +919876543210)'
-            }
-        )
-        GameSettings.objects.update_or_create(
-            key='SUPPORT_TELEGRAM',
-            defaults={
-                'value': telegram_number,
-                'description': 'Help Center Telegram phone number (example: +919876543210)'
-            }
-        )
+        if is_super_admin(effective_admin):
+            GameSettings.objects.update_or_create(
+                key='SUPPORT_WHATSAPP_NUMBER',
+                defaults={
+                    'value': whatsapp_number,
+                    'description': 'Help Center WhatsApp number (example: +919876543210)'
+                }
+            )
+            GameSettings.objects.update_or_create(
+                key='SUPPORT_TELEGRAM',
+                defaults={
+                    'value': telegram_number,
+                    'description': 'Help Center Telegram phone number (example: +919876543210)'
+                }
+            )
+            clear_game_setting_cache(['SUPPORT_WHATSAPP_NUMBER', 'SUPPORT_TELEGRAM'])
+            messages.success(request, 'Global Help Center contacts updated successfully.')
+        else:
+            fb, _ = FranchiseBalance.objects.get_or_create(
+                user=effective_admin,
+                defaults={'balance': 0}
+            )
+            fb.help_whatsapp_number = whatsapp_number
+            fb.help_telegram = telegram_number
+            fb.save()
+            messages.success(request, 'Your franchise Help Center contacts updated. Players under your franchise will see these numbers when they use the app with your package.')
 
-        clear_game_setting_cache(['SUPPORT_WHATSAPP_NUMBER', 'SUPPORT_TELEGRAM'])
-        messages.success(request, 'Help Center contacts updated successfully.')
         return redirect('help_center')
 
     context = get_admin_context(request, {
@@ -2935,6 +3601,8 @@ def help_center(request):
         'whatsapp_number': whatsapp_number,
         'telegram_number': telegram_number,
         'admin_profile': get_admin_profile(request.user),
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': 'Your franchise' if is_franchise_scope else None,
     })
     return render(request, 'admin/help_center.html', context)
 
@@ -2943,8 +3611,7 @@ def help_center(request):
 @admin_required
 def white_label_leads(request):
     """List White Label lead submissions"""
-    # Treat as a settings page: require game_settings permission
-    if not has_menu_permission(request.user, 'game_settings'):
+    if not has_menu_permission(request.user, 'white_label'):
         messages.error(request, 'You do not have permission to access White Label leads.')
         return redirect('admin_dashboard')
 
@@ -3053,13 +3720,19 @@ def logout_all_sessions(request):
 
 @admin_required
 def payment_methods(request):
-    """List all payment methods"""
+    """List payment methods. Super admin sees global (owner=null); franchise owners see only their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
 
-    # Create default payment methods if none exist
-    if not PaymentMethod.objects.exists():
+    effective_admin = get_effective_admin(request.user)
+    if is_super_admin(effective_admin):
+        methods_qs = PaymentMethod.objects.filter(owner__isnull=True)
+    else:
+        methods_qs = PaymentMethod.objects.filter(owner=effective_admin)
+
+    # Create default payment methods only for super admin when no global methods exist
+    if is_super_admin(effective_admin) and not PaymentMethod.objects.filter(owner__isnull=True).exists():
         default_methods = [
             {
                 'name': 'Bank Account',
@@ -3106,23 +3779,27 @@ def payment_methods(request):
         ]
 
         for method_data in default_methods:
-            PaymentMethod.objects.create(**method_data)
+            PaymentMethod.objects.create(owner=None, **method_data)
 
         messages.info(request, 'Created default payment methods. Please edit them with your actual payment details.')
+        return redirect('payment_methods')
 
-    methods = PaymentMethod.objects.all().order_by('-is_active', 'method_type')
+    methods = methods_qs.order_by('-is_active', 'method_type')
 
-    # Get available method types (exclude already used ones)
+    # Get available method types (exclude already used ones within this scope)
     used_method_types = set(methods.values_list('method_type', flat=True))
     all_method_choices = PaymentMethod.METHOD_TYPES
 
     # Filter out already used method types
     available_method_types = [mt for mt in all_method_choices if mt[0] not in used_method_types]
 
+    is_franchise_scope = not is_super_admin(effective_admin)
     context = get_admin_context(request, {
         'payment_methods': methods,
         'available_method_types': available_method_types,
         'page': 'payment-methods',
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': 'Your franchise' if is_franchise_scope else None,
     })
     return render(request, 'admin/payment_methods.html', context)
 
@@ -3153,22 +3830,23 @@ def create_payment_method(request):
             messages.error(request, 'Method Type is required.')
             return redirect('payment_methods')
 
-        # Check if this method type is already used
-        if PaymentMethod.objects.filter(method_type=method_type).exists():
-            messages.error(request, 'This payment method type is already in use.')
+        effective_admin = get_effective_admin(request.user)
+        owner_for_create = None if is_super_admin(effective_admin) else effective_admin
+        scope_qs = PaymentMethod.objects.filter(owner=owner_for_create) if owner_for_create is not None else PaymentMethod.objects.filter(owner__isnull=True)
+        if scope_qs.filter(method_type=method_type).exists():
+            messages.error(request, 'This payment method type is already in use in your list.')
             return redirect('payment_methods')
 
-        # Get the display name for the method type
         method_type_display = dict(PaymentMethod.METHOD_TYPES).get(method_type, method_type)
 
         try:
-            # Clean exchange rate - remove any non-numeric characters except decimal point
             import re
             clean_rate = re.sub(r'[^\d.]', '', str(usdt_exchange_rate))
             if not clean_rate or clean_rate == '.':
                 clean_rate = '90.00'
             
             PaymentMethod.objects.create(
+                owner=owner_for_create,
                 name=method_type_display,
                 method_type=method_type,
                 upi_id=upi_id,
@@ -3193,12 +3871,16 @@ def create_payment_method(request):
 
 @admin_required
 def edit_payment_method(request, pk):
-    """Edit a payment method"""
+    """Edit a payment method. Franchise can only edit their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
 
-    method = get_object_or_404(PaymentMethod, pk=pk)
+    effective_admin = get_effective_admin(request.user)
+    if is_super_admin(effective_admin):
+        method = get_object_or_404(PaymentMethod, pk=pk, owner__isnull=True)
+    else:
+        method = get_object_or_404(PaymentMethod, pk=pk, owner=effective_admin)
 
     if request.method == 'POST':
         method.method_type = request.POST.get('method_type')
@@ -3240,13 +3922,17 @@ def edit_payment_method(request, pk):
 
 @admin_required
 def delete_payment_method(request, pk):
-    """Delete a payment method"""
+    """Delete a payment method. Franchise can only delete their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
 
     if request.method == 'POST':
-        method = get_object_or_404(PaymentMethod, pk=pk)
+        effective_admin = get_effective_admin(request.user)
+        if is_super_admin(effective_admin):
+            method = get_object_or_404(PaymentMethod, pk=pk, owner__isnull=True)
+        else:
+            method = get_object_or_404(PaymentMethod, pk=pk, owner=effective_admin)
         name = method.name
 
         try:
@@ -3260,12 +3946,16 @@ def delete_payment_method(request, pk):
 
 @admin_required
 def toggle_payment_method(request, pk):
-    """Toggle active status of a payment method"""
+    """Toggle active status of a payment method. Franchise can only toggle their own."""
     if not has_menu_permission(request.user, 'payment_methods'):
         messages.error(request, 'You do not have permission to manage payment methods.')
         return redirect('admin_dashboard')
-    
-    method = get_object_or_404(PaymentMethod, pk=pk)
+
+    effective_admin = get_effective_admin(request.user)
+    if is_super_admin(effective_admin):
+        method = get_object_or_404(PaymentMethod, pk=pk, owner__isnull=True)
+    else:
+        method = get_object_or_404(PaymentMethod, pk=pk, owner=effective_admin)
     method.is_active = not method.is_active
     method.save()
     

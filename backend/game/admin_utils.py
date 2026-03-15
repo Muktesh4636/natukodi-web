@@ -32,6 +32,24 @@ def is_super_admin(user):
     return user.is_authenticated and user.is_superuser
 
 
+def get_effective_admin(user):
+    """
+    Return the admin whose deposit/withdraw queue this user sees.
+    - If user has works_under set (worker assigned to an admin), return that admin.
+    - Otherwise return user (franchise admin sees own queue; Super Admin sees all).
+    """
+    if not user or not user.is_authenticated:
+        return user
+    works_under_id = getattr(user, 'works_under_id', None)
+    if works_under_id:
+        from accounts.models import User as UserModel
+        try:
+            return UserModel.objects.get(pk=works_under_id)
+        except UserModel.DoesNotExist:
+            pass
+    return user
+
+
 def is_admin(user):
     """Check if user is admin (staff or has admin profile)"""
     if not user.is_authenticated:
@@ -95,7 +113,10 @@ def _perms_to_dict(perms):
         'can_view_deposit_requests': getattr(perms, 'can_view_deposit_requests', False),
         'can_view_withdraw_requests': getattr(perms, 'can_view_withdraw_requests', False),
         'can_view_transactions': getattr(perms, 'can_view_transactions', False),
+        'can_view_game_history': getattr(perms, 'can_view_game_history', True),
         'can_view_game_settings': getattr(perms, 'can_view_game_settings', False),
+        'can_view_help_center': getattr(perms, 'can_view_help_center', False),
+        'can_view_white_label': getattr(perms, 'can_view_white_label', False),
         'can_view_admin_management': getattr(perms, 'can_view_admin_management', False),
         'can_manage_payment_methods': getattr(perms, 'can_manage_payment_methods', False),
     }
@@ -149,7 +170,10 @@ def has_menu_permission(user, permission_name):
         'deposit_requests': 'can_view_deposit_requests',
         'withdraw_requests': 'can_view_withdraw_requests',
         'transactions': 'can_view_transactions',
+        'game_history': 'can_view_game_history',
         'game_settings': 'can_view_game_settings',
+        'help_center': 'can_view_help_center',
+        'white_label': 'can_view_white_label',
         'admin_management': 'can_view_admin_management',
         'payment_methods': 'can_manage_payment_methods',
     }

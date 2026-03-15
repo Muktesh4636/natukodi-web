@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Management - Admin Panel</title>
+    <title>Worker Management - Admin Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -484,12 +484,12 @@
         <div class="container">
             <div class="header">
                 <div class="header-left">
-                    <h1>👑 Admin Management</h1>
-                    <p>Create and manage admin accounts</p>
+                    <h1>👑 Worker Management</h1>
+                    <p>Add and manage workers; allocate privileges</p>
                 </div>
                 <div class="header-actions">
                     <span>👤 {{ user.username }}</span>
-                    <a href="{% url 'create_admin' %}" class="action-btn">➕ Create Admin</a>
+                    <a href="{% url 'create_admin' %}" class="action-btn">➕ Add worker</a>
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>
@@ -504,7 +504,7 @@
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total Admins</h3>
+                    <h3>Total Workers</h3>
                     <p>{{ total_users }}</p>
                 </div>
                 <div class="stat-card">
@@ -597,7 +597,7 @@
                                 <td colspan="7">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">👥</div>
-                                        <p>No admins found</p>
+                                        <p>No workers found</p>
                                     </div>
                                 </td>
                             </tr>

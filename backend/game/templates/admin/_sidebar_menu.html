@@ -60,7 +60,11 @@
                 </a></li>
             {% endif %}
 
-            {% if is_super_admin or admin_permissions.can_view_admin_management %} <li><a href="{% url 'players' %}" {% if page == 'players' %}class="active" {% endif %}> <span class="menu-icon">👨‍💼</span> Admin Management
+            {% if is_super_admin or admin_permissions.can_view_admin_management %} <li><a href="{% url 'admin_management' %}" {% if page == 'players' or page == 'admin-management' %}class="active" {% endif %}> <span class="menu-icon">👨‍💼</span> Worker Management
+                </a></li>
+            {% endif %}
+
+            {% if is_super_admin %} <li><a href="{% url 'franchise_balance' %}" {% if page == 'franchise-balance' %}class="active" {% endif %}> <span class="menu-icon">💰</span> Franchise
                 </a></li>
             {% endif %}
 
@@ -68,11 +72,11 @@
                 </a></li>
             {% endif %}
 
-            {% if is_super_admin or admin_permissions.can_view_game_settings %} <li><a href="{% url 'help_center' %}" {% if page == 'help_center' %}class="active" {% endif %}> <span class="menu-icon">🆘</span> Help Center
+            {% if is_super_admin or admin_permissions.can_view_help_center %} <li><a href="{% url 'help_center' %}" {% if page == 'help_center' %}class="active" {% endif %}> <span class="menu-icon">🆘</span> Help Center
                 </a></li>
             {% endif %}
 
-            {% if is_super_admin or admin_permissions.can_view_game_settings %} <li><a href="{% url 'white_label_leads' %}" {% if page == 'white_label' %}class="active" {% endif %}> <span class="menu-icon">💬</span> White Label Messages
+            {% if is_super_admin or admin_permissions.can_view_white_label %} <li><a href="{% url 'white_label_leads' %}" {% if page == 'white_label' %}class="active" {% endif %}> <span class="menu-icon">💬</span> White Label Messages
                 </a></li>
             {% endif %}
 
@@ -396,10 +400,12 @@
                             console.log('🔔 [System] Processing admin notification');
                             
                             // Filter notifications by assigned worker (if not super admin)
-                            const currentUserId = "{{ user.id }}";
+                            const currentUserId = String("{{ user.id }}").trim();
                             const isSuperAdmin = {% if user.is_superuser %}true{% else %}false{% endif %};
-                            
-                            if (isSuperAdmin || !data.worker_id || String(data.worker_id) === String(currentUserId)) {
+                            const worksUnderId = String("{{ user_works_under_id|default:'' }}").trim();
+                            const w = data.worker_id != null ? String(data.worker_id) : '';
+                            const isForMyQueue = (isSuperAdmin && !data.worker_id) || (!isSuperAdmin && currentUserId && (w === currentUserId || (worksUnderId && w === worksUnderId)));
+                            if (isForMyQueue) {
                                 showAdminNotification(data);
 
                                 // Dispatch a custom event so specific pages can update their UI

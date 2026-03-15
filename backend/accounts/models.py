@@ -32,7 +32,18 @@ class User(AbstractUser):
         null=True,
         blank=True,
         related_name='clients',
-        limit_choices_to={'is_staff': True}
+        limit_choices_to={'is_staff': True},
+        help_text='For players: the franchise admin (or Super Admin) this user is under. Deposit/withdraw requests show to that admin.',
+    )
+    # For staff users (workers): the admin whose queue this worker sees. If set, this user sees deposit/withdraw requests of that admin.
+    works_under = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_workers',
+        limit_choices_to={'is_staff': True},
+        help_text='For workers: the admin under whom this worker is assigned. This worker will see that admin\'s deposit/withdraw requests.',
     )
     # Referral system
     referred_by = models.ForeignKey(
@@ -49,6 +60,8 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    # When True, user appears only in Franchise Balance (franchise owners list), not in Worker Management
+    is_franchise_only = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
@@ -356,6 +369,8 @@ class PaymentMethod(models.Model):
     usdt_exchange_rate = models.BigIntegerField(default=90, help_text="1 USDT = X Rupees")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # null = global (super admin); set = franchise owner's own payment methods
+    owner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='owned_payment_methods')
 
     def __str__(self):
         return f"{self.get_method_type_display()} - {self.name}"
@@ -469,5 +484,86 @@ class DeviceToken(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.platform}"
+
+
+class FranchiseBalance(models.Model):
+    """Per-admin franchise balance (float). Deducted on deposit approval, added on withdraw approval."""
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='franchise_balance',
+    )
+    franchise_name = models.CharField(
+        max_length=120,
+        blank=True,
+        help_text='Franchise / owner display name (e.g. Muktesh)',
+    )
+    balance = models.BigIntegerField(default=0, help_text='Balance in same unit as Wallet (e.g. rupees)')
+    updated_at = models.DateTimeField(auto_now=True)
+    # Per-franchise APK: package name shown in that APK's Help Center (e.g. com.franchise1.app)
+    package_name = models.CharField(
+        max_length=255,
+        blank=True,
+        unique=True,
+        null=True,
+        help_text='APK package name for this franchise; Help Center API returns this franchise\'s numbers when app sends this package.',
+    )
+    help_whatsapp_number = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text='Help Center WhatsApp number for this franchise\'s APK (e.g. +919876543210).',
+    )
+    help_telegram = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text='Help Center Telegram number/username for this franchise\'s APK.',
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(check=models.Q(balance__gte=0), name='franchise_balance_non_negative'),
+        ]
+        verbose_name = 'Franchise balance'
+        verbose_name_plural = 'Franchise balances'
+
+    def __str__(self):
+        name = self.franchise_name or self.user.username
+        return f"{name} - ₹{self.balance}"
+
+
+class FranchiseBalanceLog(models.Model):
+    """Log of every add/set balance action by super admin for a franchise."""
+    ACTION_ADD = 'ADD'
+    ACTION_SET = 'SET'
+    ACTION_CHOICES = [
+        (ACTION_ADD, 'Add'),
+        (ACTION_SET, 'Set'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='franchise_balance_logs',
+        help_text='Franchise admin who received the balance',
+    )
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    amount = models.BigIntegerField(help_text='For Add: amount added. For Set: new balance value.')
+    balance_after = models.BigIntegerField(null=True, blank=True, help_text='Balance after this action')
+    performed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='franchise_balance_actions',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Franchise balance log'
+        verbose_name_plural = 'Franchise balance logs'
+
+    def __str__(self):
+        return f"{self.user.username} {self.get_action_display()} ₹{self.amount} at {self.created_at}"
 
 

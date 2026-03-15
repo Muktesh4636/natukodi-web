@@ -74,10 +74,14 @@ def _get_maintenance_info():
         _maintenance_cache = (True, None, now)
         return True, None  # No end time for env-based
 
-    # 2. Redis (runtime toggle) — use a direct client with short timeout so slow Redis does not block site load
+    # 2. Redis (runtime toggle) — use pool when available so we don't open new TCP on every cache miss
     try:
-        if getattr(settings, 'REDIS_POOL', None):
-            import redis
+        import redis
+        r = None
+        pool = getattr(settings, 'REDIS_POOL', None)
+        if pool:
+            r = redis.Redis(connection_pool=pool)
+        else:
             host = getattr(settings, 'REDIS_HOST', 'localhost')
             port = int(getattr(settings, 'REDIS_PORT', 6379))
             db = int(getattr(settings, 'REDIS_DB', 0))
@@ -87,13 +91,14 @@ def _get_maintenance_info():
                 port=port,
                 db=db,
                 password=password,
-                socket_timeout=1.5,
-                socket_connect_timeout=1.5,
+                socket_timeout=1,
+                socket_connect_timeout=1,
                 decode_responses=True,
             )
-            if not r.get('maintenance_mode'):
-                _maintenance_cache = (False, None, now)
-                return False, None
+        if r and not r.get('maintenance_mode'):
+            _maintenance_cache = (False, None, now)
+            return False, None
+        if r:
             until_raw = r.get('maintenance_until')
             if until_raw is not None:
                 until_raw = until_raw.decode() if isinstance(until_raw, bytes) else str(until_raw)
@@ -219,6 +224,11 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        path = (request.path or '').strip()
+        # Health check must never block on Redis — skip maintenance logic so LB/Cloudflare get fast 200
+        if path == '/api/health/' or path == '/api/health':
+            return self.get_response(request)
+
         if not _is_maintenance_enabled():
             return self.get_response(request)
 

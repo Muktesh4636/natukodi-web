@@ -151,11 +151,13 @@
     <div class="main-content">
         <div class="page-header">
             <div>
-                <div class="page-title">Help Center</div>
+                <div class="page-title">Help Center{% if scope_label %} — {{ scope_label }}{% endif %}</div>
                 <div class="page-subtitle">
-                    Update the WhatsApp number and Telegram phone number shown in the app.
-                    Values are saved in <code>GameSettings</code> keys:
-                    <code>SUPPORT_WHATSAPP_NUMBER</code> and <code>SUPPORT_TELEGRAM</code>.
+                    {% if is_franchise_scope %}
+                        Set the WhatsApp and Telegram numbers shown to <strong>players under your franchise</strong> when they open Help in the app. If your APK sends your package name to the API, these numbers are used. Leave blank to use the global default.
+                    {% else %}
+                        Global default WhatsApp and Telegram numbers for the app Help Center. Franchise owners can set their own numbers in this same page (they will see &quot;Your franchise&quot; and only their franchise&#39;s numbers).
+                    {% endif %}
                 </div>
             </div>
         </div>

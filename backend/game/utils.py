@@ -1,6 +1,27 @@
 import random
 import json
 from collections import Counter
+
+
+def format_indian_int(value):
+    """Format integer with Indian-style commas (e.g. 12,34,567). Returns str."""
+    if value is None:
+        return '0'
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return '0'
+    s = str(abs(n))
+    if not s:
+        return '0'
+    if len(s) <= 3:
+        return ('-' if n < 0 else '') + s
+    groups = [s[-3:]]
+    s = s[:-3]
+    while s:
+        groups.insert(0, s[-2:])
+        s = s[:-2]
+    return ('-' if n < 0 else '') + ','.join(groups)
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.conf import settings
@@ -365,6 +386,7 @@ def get_all_game_settings():
 def get_redis_client():
     """
     Get a Redis client for the configured host.
+    Prefer REDIS_POOL from settings so we reuse connections (avoids slow new TCP per call).
 
     IMPORTANT:
     This project uses Redis as a single source of truth for game state + betting.
@@ -375,8 +397,16 @@ def get_redis_client():
     import logging
     logger = logging.getLogger('game')
 
-    host = getattr(settings, 'REDIS_HOST', '72.61.254.74')
+    try:
+        pool = getattr(settings, 'REDIS_POOL', None)
+        if pool:
+            client = redis.Redis(connection_pool=pool)
+            client.ping()
+            return client
+    except Exception as e:
+        logger.warning("Redis (pool) connection failed: %s", e)
 
+    host = getattr(settings, 'REDIS_HOST', '72.61.254.74')
     password = getattr(settings, 'REDIS_PASSWORD', 'Gunduata@123')
     port = int(getattr(settings, 'REDIS_PORT', 6379))
     db = int(getattr(settings, 'REDIS_DB', 0))
@@ -388,12 +418,11 @@ def get_redis_client():
             db=db,
             password=password,
             decode_responses=True,
-            socket_connect_timeout=5,
+            socket_connect_timeout=2,
             socket_timeout=5
         )
         client.ping()
         return client
     except Exception as e:
         logger.warning(f"Redis connection failed to {host}: {e}")
-    
     return None
