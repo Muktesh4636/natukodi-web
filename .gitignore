@@ -157,6 +157,7 @@ dmypy.json
 # Keep empty directories
 !backend/media/.gitkeep
 !backend/staticfiles/.gitkeep
+!backend/staticfiles/apks/.gitkeep
 !backend/logs/.gitkeep
 
 
@@ -189,3 +190,46 @@ unityLibrary/symbols/
 *.zip
 *.tar.gz
 *.rar
+
+# Video / screen recordings in repo root (app assets under android_app/ are kept)
+video/
+
+# Logs and debug outputs (root and android)
+big_logs.txt
+full_logs_debug.txt
+unity_raw_logs.txt
+unity_script_logs.txt
+*_logs.txt
+locust_report*.html
+bet_load_test_report.html
+
+# One-off screenshots / uploads (should live in backend/media, not repo root)
+deposit_screenshots_s1/
+deposit_screenshots_s3/
+qr_codes_s3/
+screenshot_*.jpg
+
+# Moved unused files – recover anytime from temporary_deleted/
+temporary_deleted/
+!temporary_deleted/README.md
+
+# Unused root-level copies (app uses backend/... only)
+/accounts_views_fixed.py
+/accounts_views_server.py
+/admin_views_server1.py
+/authentication.py
+/fix_case_conflicts.py
+/fix_withdraw.py
+/game_engine_v2.py
+/game_engine_v2_clean.py
+/game_engine_v2_current.py
+/game_engine_v2_final.py
+/game_engine_v2_fixed.py
+/game_engine_v2_latest.py
+/game_engine_v2_local.py
+/game_engine_v2_logic.py
+/game_engine_v2_new_types.py
+/game_engine_v2_optimized.py
+/game_engine_v2_ordered.py
+/game_engine_v2_temp.py
+/game_engine_v2_updated.py
