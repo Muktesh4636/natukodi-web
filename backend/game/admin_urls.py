@@ -4,6 +4,7 @@ from . import admin_views
 urlpatterns = [
     path('login/', admin_views.admin_login, name='admin_login'),
     path('logout/', admin_views.admin_logout, name='admin_logout'),
+    path('profile/', admin_views.admin_profile, name='admin_profile'),
     path('dashboard/', admin_views.admin_dashboard, name='admin_dashboard'),
     path('dice-control/', admin_views.dice_control, name='dice_control'),
     path('dice-controlled-rounds/', admin_views.dice_controlled_rounds, name='dice_controlled_rounds'),

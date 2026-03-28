@@ -111,6 +111,14 @@ echo "   • Hard refresh: Ctrl+Shift+R (Windows/Linux) or Cmd+Shift+R (Mac)"
 echo "   • Or open the site in an incognito/private window"
 echo "   • If using a domain (e.g. gunduata.club), ensure it points to a server that was updated"
 echo ""
-echo "Monitoring logs on 72.61.254.71 for 10 seconds..."
-sleep 10
-sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@72.61.254.71 "docker logs --tail 30 dice_game_web"
+echo "Monitoring logs (first available server)..."
+sleep 5
+for SERVER in 72.61.254.71 72.61.254.74 72.62.226.41; do
+    PW=$(get_password "$SERVER")
+    if sshpass -p "$PW" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@$SERVER "docker logs --tail 20 dice_game_web 2>/dev/null"; then
+        break
+    fi
+done 2>/dev/null || echo "   (Could not get logs; container may not be running on that server)"
+echo ""
+echo "   If one server showed 'Skip restart' or Docker 'parent snapshot does not exist':"
+echo "   SSH to that server and run: cd $REMOTE_DIR && docker builder prune -af && docker compose up -d --build"

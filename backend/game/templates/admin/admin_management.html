@@ -384,7 +384,7 @@
         <div class="container">
             <div class="header">
                 <div class="header-left">
-                    <h1>👨‍💼 Worker Management</h1>
+                    <h1>👨‍💼 Worker Management{% if scope_label %} — {{ scope_label }}{% endif %}</h1>
                 </div>
                 <div class="header-actions">
                     <a href="{% url 'create_admin' %}" class="btn btn-primary">➕ Add worker</a>

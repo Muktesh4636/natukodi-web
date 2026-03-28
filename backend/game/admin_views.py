@@ -14,7 +14,17 @@ import json
 import os
 from collections import Counter
 from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions, WhiteLabelLead
-from accounts.models import Wallet, Transaction, DepositRequest, WithdrawRequest, User, PaymentMethod, FranchiseBalance, FranchiseBalanceLog
+from accounts.models import (
+    Wallet,
+    Transaction,
+    DepositRequest,
+    WithdrawRequest,
+    User,
+    PaymentMethod,
+    FranchiseBalance,
+    FranchiseBalanceLog,
+    deposit_payment_reference_in_use,
+)
 from accounts.player_distribution import (
     redistribute_all_players,
     balance_player_distribution,
@@ -64,10 +74,15 @@ def _ist_day_bounds_utc(day_offset: int = 0):
 # Cache TTLs for admin dashboard (reduce DB load and avoid 504 timeouts)
 ADMIN_DASHBOARD_STATS_CACHE_KEY = 'admin_dashboard_bet_stats'
 ADMIN_DASHBOARD_STATS_TTL = 300  # 5 min - heavy Bet aggregate runs at most once per 5 min
+ADMIN_DASHBOARD_STATS_FRANCHISE_PREFIX = 'admin_dashboard_bet_stats_franchise_'  # + admin_id
+ADMIN_DASHBOARD_STATS_FRANCHISE_TTL = 90   # seconds - franchise stats cached to avoid slow page loads
 ADMIN_DASHBOARD_DATA_CACHE_KEY = 'admin_dashboard_data_json'
 ADMIN_DASHBOARD_DATA_TTL = 20   # seconds - dashboard-data returns cache more often
 # Dashboard shows daily overview only (today's stats)
 ADMIN_DASHBOARD_STATS_DAYS = 1
+# Cache for sidebar "worker management" check so we don't hit DB on every admin page load
+ADMIN_WORKER_MGMT_CACHE_PREFIX = 'admin_worker_mgmt_'
+ADMIN_WORKER_MGMT_CACHE_TTL = 60
 
 # Redis connection using connection pool (optimized for scalability)
 from .utils import get_redis_client
@@ -75,32 +90,279 @@ from .utils import get_redis_client
 # Redis connection with tiered failover
 redis_client = get_redis_client()
 
+# Health dashboard cache (avoid expensive full API scans on every page refresh)
+SYSTEM_HEALTH_CACHE_KEY = 'admin_system_health_snapshot'
+SYSTEM_HEALTH_CACHE_TTL = 20
+
+
+def _iter_urlpatterns(patterns, prefix=''):
+    from django.urls import URLPattern, URLResolver
+
+    for pattern in patterns:
+        if isinstance(pattern, URLResolver):
+            nested_prefix = prefix + str(pattern.pattern)
+            yield from _iter_urlpatterns(pattern.url_patterns, nested_prefix)
+        elif isinstance(pattern, URLPattern):
+            yield prefix + str(pattern.pattern), pattern.name
+
+
+def _materialize_api_path(route):
+    import re
+
+    path = route
+    path = re.sub(r'<int:[^>]+>', '1', path)
+    path = re.sub(r'<str:[^>]+>', 'sample', path)
+    path = re.sub(r'<slug:[^>]+>', 'sample-slug', path)
+    path = re.sub(r'<uuid:[^>]+>', '123e4567-e89b-12d3-a456-426614174000', path)
+    path = '/' + path.lstrip('^').lstrip('/')
+    path = path.replace('\\Z', '').replace('$', '')
+    return path
+
+
+def _discover_api_paths():
+    from django.urls import get_resolver
+
+    resolver = get_resolver()
+    discovered = []
+    seen = set()
+    for route, _ in _iter_urlpatterns(resolver.url_patterns):
+        path = _materialize_api_path(route)
+        # Skip regex catch-all/static paths we cannot safely probe.
+        if '(?!' in path or '(?P<' in path or '.*' in path:
+            continue
+        if not (path.startswith('/api/') or path.startswith('/webgl/api/')):
+            continue
+        if path not in seen:
+            discovered.append(path)
+            seen.add(path)
+    return discovered
+
+
+def _run_api_health_checks(request):
+    import time
+    from django.test import Client
+
+    start = time.perf_counter()
+    host = (request.get_host() or 'localhost').split(',')[0].strip() or 'localhost'
+    client = Client(HTTP_HOST=host)
+
+    routes = _discover_api_paths()
+    checks = []
+    failed = 0
+    warning = 0
+    healthy = 0
+
+    for path in routes:
+        route_start = time.perf_counter()
+        status_code = None
+        error = None
+        try:
+            response = client.get(path)
+            status_code = response.status_code
+        except Exception as exc:
+            error = str(exc)
+
+        elapsed_ms = round((time.perf_counter() - route_start) * 1000, 2)
+
+        if error:
+            state = 'failed'
+            failed += 1
+        elif status_code >= 500:
+            state = 'failed'
+            failed += 1
+        elif status_code >= 400:
+            state = 'warning'
+            warning += 1
+        else:
+            state = 'healthy'
+            healthy += 1
+
+        checks.append({
+            'path': path,
+            'status_code': status_code,
+            'state': state,
+            'error': error,
+            'response_ms': elapsed_ms,
+        })
+
+    total_ms = round((time.perf_counter() - start) * 1000, 2)
+    return {
+        'total_routes': len(routes),
+        'healthy': healthy,
+        'warning': warning,
+        'failed': failed,
+        'duration_ms': total_ms,
+        'checks': checks,
+    }
+
+
+def _run_websocket_health_checks():
+    import time
+    from asgiref.sync import async_to_sync
+
+    checks = []
+
+    route_start = time.perf_counter()
+    try:
+        from game.routing import websocket_urlpatterns
+        route_names = [str(pattern.pattern) for pattern in websocket_urlpatterns]
+        has_primary_route = any('ws/game' in route for route in route_names)
+        checks.append({
+            'name': 'WebSocket route mapping',
+            'state': 'healthy' if has_primary_route else 'failed',
+            'detail': ', '.join(route_names) if route_names else 'No websocket routes configured.',
+            'response_ms': round((time.perf_counter() - route_start) * 1000, 2),
+        })
+    except Exception as exc:
+        checks.append({
+            'name': 'WebSocket route mapping',
+            'state': 'failed',
+            'detail': str(exc),
+            'response_ms': round((time.perf_counter() - route_start) * 1000, 2),
+        })
+
+    layer_start = time.perf_counter()
+    try:
+        from channels.layers import get_channel_layer
+
+        channel_layer = get_channel_layer()
+        if channel_layer is None:
+            raise RuntimeError('Channel layer unavailable.')
+
+        channel_name = async_to_sync(channel_layer.new_channel)('health.dashboard.')
+        payload = {'type': 'health.ping', 'value': 'ok'}
+        async_to_sync(channel_layer.send)(channel_name, payload)
+        received = async_to_sync(channel_layer.receive)(channel_name)
+        if received.get('value') != 'ok':
+            raise RuntimeError('Unexpected channel-layer payload.')
+
+        checks.append({
+            'name': 'Channel layer round-trip',
+            'state': 'healthy',
+            'detail': 'Send/receive check passed.',
+            'response_ms': round((time.perf_counter() - layer_start) * 1000, 2),
+        })
+    except Exception as exc:
+        checks.append({
+            'name': 'Channel layer round-trip',
+            'state': 'failed',
+            'detail': str(exc),
+            'response_ms': round((time.perf_counter() - layer_start) * 1000, 2),
+        })
+
+    redis_start = time.perf_counter()
+    try:
+        ws_redis_client = get_redis_client()
+        if ws_redis_client:
+            ws_redis_client.ping()
+            checks.append({
+                'name': 'Redis connectivity (WS dependency)',
+                'state': 'healthy',
+                'detail': 'Redis ping succeeded.',
+                'response_ms': round((time.perf_counter() - redis_start) * 1000, 2),
+            })
+        else:
+            checks.append({
+                'name': 'Redis connectivity (WS dependency)',
+                'state': 'warning',
+                'detail': 'Redis client unavailable; WS may still work with in-memory layer.',
+                'response_ms': round((time.perf_counter() - redis_start) * 1000, 2),
+            })
+    except Exception as exc:
+        checks.append({
+            'name': 'Redis connectivity (WS dependency)',
+            'state': 'failed',
+            'detail': str(exc),
+            'response_ms': round((time.perf_counter() - redis_start) * 1000, 2),
+        })
+
+    return checks
+
+
+def _collect_system_health_snapshot(request):
+    api_section = _run_api_health_checks(request)
+    websocket_checks = _run_websocket_health_checks()
+    websocket_failed = sum(1 for item in websocket_checks if item['state'] == 'failed')
+    websocket_warning = sum(1 for item in websocket_checks if item['state'] == 'warning')
+    websocket_healthy = sum(1 for item in websocket_checks if item['state'] == 'healthy')
+    now_iso = timezone.now().isoformat()
+
+    return {
+        'generated_at': now_iso,
+        'api': api_section,
+        'websocket': {
+            'total_checks': len(websocket_checks),
+            'healthy': websocket_healthy,
+            'warning': websocket_warning,
+            'failed': websocket_failed,
+            'checks': websocket_checks,
+        },
+    }
+
+
+def system_health_data(request):
+    refresh = request.GET.get('refresh') == '1'
+    snapshot = None if refresh else cache.get(SYSTEM_HEALTH_CACHE_KEY)
+    if snapshot is None:
+        snapshot = _collect_system_health_snapshot(request)
+        try:
+            cache.set(SYSTEM_HEALTH_CACHE_KEY, snapshot, SYSTEM_HEALTH_CACHE_TTL)
+        except Exception:
+            pass
+    return JsonResponse(snapshot, status=200)
+
+
+def system_health_dashboard(request):
+    snapshot = cache.get(SYSTEM_HEALTH_CACHE_KEY)
+    if snapshot is None:
+        snapshot = _collect_system_health_snapshot(request)
+        try:
+            cache.set(SYSTEM_HEALTH_CACHE_KEY, snapshot, SYSTEM_HEALTH_CACHE_TTL)
+        except Exception:
+            pass
+
+    return render(request, 'system_health.html', {
+        'health_snapshot': snapshot,
+    })
+
 def get_admin_context(request, extra_context=None):
     """Helper function to get common admin context for all admin pages"""
     admin_permissions = get_admin_permissions(request.user)
-    # For super admins, create a dummy object with all permissions set to True for template
-    if is_super_admin(request.user) and admin_permissions is None:
-        class DummyPermissions:
-            can_view_dashboard = True
-            can_control_dice = True
-            can_view_recent_rounds = True
-            can_view_all_bets = True
-            can_view_wallets = True
-            can_view_players = True
-            can_view_deposit_requests = True
-            can_view_withdraw_requests = True
-            can_view_transactions = True
-            can_view_game_history = True
-            can_view_game_settings = True
-            can_view_admin_management = True
-            can_manage_payment_methods = True
-        admin_permissions = DummyPermissions()
-    
+
+    class DummyPermissions:
+        def __init__(self, all_true=False):
+            for attr in (
+                'can_view_dashboard', 'can_control_dice', 'can_view_recent_rounds', 'can_view_all_bets',
+                'can_view_wallets', 'can_view_players', 'can_view_deposit_requests', 'can_view_withdraw_requests',
+                'can_view_transactions', 'can_view_game_history', 'can_view_game_settings',
+                'can_view_admin_management', 'can_manage_payment_methods', 'can_view_help_center', 'can_view_white_label',
+            ):
+                setattr(self, attr, all_true)
+
+    # Ensure template never sees None: super admin gets all True; others get all False if perms missing
+    if admin_permissions is None:
+        admin_permissions = DummyPermissions(all_true=is_super_admin(request.user))
+
+    # Franchise owners always get Worker Management menu (they manage workers under them). Cache to avoid DB on every page.
+    cache_key = ADMIN_WORKER_MGMT_CACHE_PREFIX + str(request.user.id)
+    can_access_worker_management = cache.get(cache_key)
+    if can_access_worker_management is None:
+        can_access_worker_management = (
+            is_super_admin(request.user)
+            or (admin_permissions and getattr(admin_permissions, 'can_view_admin_management', False))
+            or getattr(request.user, 'is_franchise_only', False)
+            or (FranchiseBalance.objects.filter(user=request.user).exists() and not getattr(request.user, 'works_under_id', None))
+        )
+        try:
+            cache.set(cache_key, can_access_worker_management, ADMIN_WORKER_MGMT_CACHE_TTL)
+        except Exception:
+            pass
     context = {
         'admin_permissions': admin_permissions,
         'is_super_admin': is_super_admin(request.user),
         'user': request.user,
         'user_works_under_id': getattr(request.user, 'works_under_id', None) or '',
+        'can_access_worker_management': can_access_worker_management,
     }
     
     if extra_context:
@@ -108,54 +370,80 @@ def get_admin_context(request, extra_context=None):
     
     return context
 
+
+def _increment_admin_login_fails(cache, failed_attempts_key, lockout_until_key, lockout_cycle_key,
+                                 attempts_before_lockout, first_lockout_seconds, max_lockout_seconds):
+    """Increment failed-attempt count; if >= attempts_before_lockout, set lockout (30s, 60s, 120s, ... doubling, cap at max).
+    Returns lockout message string if lockout was applied, else None. Swallows cache errors to avoid 500."""
+    import time
+    try:
+        fails = cache.get(failed_attempts_key, 0) + 1
+        cache.set(failed_attempts_key, fails, 3600)
+        if fails < attempts_before_lockout:
+            return None
+        cycle = cache.get(lockout_cycle_key, 0) or 0
+        duration = min(first_lockout_seconds * (2 ** int(cycle)), max_lockout_seconds)
+        cache.set(lockout_cycle_key, cycle + 1, 7200)
+        cache.set(lockout_until_key, time.time() + duration, int(duration) + 60)
+        cache.delete(failed_attempts_key)
+        return f'Too many failed attempts. Please wait {int(duration)} seconds before trying again.'
+    except Exception as e:
+        logger.warning('admin_login lockout/cache: %s', e)
+        return None
+
+
+def admin_ping(request):
+    """No-auth health check for /game-admin/ routing. Returns 200 if Django is reachable."""
+    from django.http import JsonResponse
+    return JsonResponse({'ok': True, 'message': 'game-admin reachable'}, status=200)
+
+
 @ensure_csrf_cookie
 @csrf_exempt
 def admin_login(request):
-    """Custom login page for game admin panel - SECURITY: Rate limited"""
+    """Custom login page for game admin panel - SECURITY: Progressive lockout (4 tries, then 30s/60s/120s...)"""
     if request.user.is_authenticated and is_admin(request.user):
         # Already logged in and is admin, redirect to dashboard
         next_url = request.GET.get('next', '/game-admin/dashboard/')
         return redirect(next_url)
     
-    # SECURITY: Rate limiting to prevent brute force attacks
+    # SECURITY: Progressive lockout — 4 wrong attempts then wait (30s, then 60s, then 120s, doubling each time)
+    import time
     from django.core.cache import cache
     from django.conf import settings
-    
-    # Get client IP address
+
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
     if x_forwarded_for:
         client_ip = x_forwarded_for.split(',')[0].strip()
     else:
         client_ip = request.META.get('REMOTE_ADDR', '')
-    
-    cache_key = f'login_attempts_{client_ip}'
-    failed_logins_key = f'failed_logins_{client_ip}'
-    
-    # Check rate limit: max 5 attempts per 15 minutes (short-term protection)
-    login_attempts = cache.get(cache_key, 0)
-    if login_attempts >= 5:
-        error_message = 'Too many login attempts. Please try again in 15 minutes.'
+
+    failed_attempts_key = f'admin_login_fails_{client_ip}'
+    lockout_until_key = f'admin_login_lockout_until_{client_ip}'
+    lockout_cycle_key = f'admin_login_lockout_cycle_{client_ip}'
+
+    ATTEMPTS_BEFORE_LOCKOUT = 4
+    FIRST_LOCKOUT_SECONDS = 30
+    MAX_LOCKOUT_SECONDS = 900  # cap at 15 minutes
+
+    now = time.time()
+    try:
+        lockout_until = cache.get(lockout_until_key)
+    except Exception:
+        lockout_until = None
+    if lockout_until is not None:
+        try:
+            lockout_until = float(lockout_until)
+        except (TypeError, ValueError):
+            lockout_until = None
+    if lockout_until is not None and now < lockout_until:
+        seconds_left = max(1, int(lockout_until - now) + 1)
         context = {
             'next': request.GET.get('next', '/game-admin/dashboard/'),
-            'error_message': error_message,
+            'error_message': f'Too many failed attempts. Please wait {seconds_left} seconds before trying again.',
         }
         return render(request, 'admin/login.html', context)
-    
-    # Check brute force protection: 50 failed attempts = 2 hour ban (configurable)
-    import os
-    brute_force_threshold = int(os.getenv('BRUTE_FORCE_THRESHOLD', '50'))
-    brute_force_ban_time = int(os.getenv('BRUTE_FORCE_BAN_TIME', '7200'))
-    
-    failed_logins = cache.get(failed_logins_key, 0)
-    if failed_logins >= brute_force_threshold:
-        ban_hours = brute_force_ban_time // 3600
-        error_message = f'Too many failed login attempts. Your IP has been blocked for {ban_hours} hours.'
-        context = {
-            'next': request.GET.get('next', '/game-admin/dashboard/'),
-            'error_message': error_message,
-        }
-        return render(request, 'admin/login.html', context)
-    
+
     error_message = None
     if request.method == 'POST':
         username = (request.POST.get('username') or '').strip()
@@ -177,9 +465,10 @@ def admin_login(request):
                 if not user.is_active:
                     error_message = 'This account is deactivated. Contact an administrator.'
                 elif is_admin(user):
-                    # Successful login - reset all attempt counters
-                    cache.delete(cache_key)
-                    cache.delete(failed_logins_key)
+                    # Successful login - reset lockout and fail counters
+                    cache.delete(failed_attempts_key)
+                    cache.delete(lockout_until_key)
+                    cache.delete(lockout_cycle_key)
                     login(request, user)
                     request.session.save()
                     messages.success(request, f'Welcome, {user.username}!')
@@ -192,32 +481,16 @@ def admin_login(request):
                         return redirect('/game-admin/dashboard/')
                 else:
                     error_message = 'You do not have permission to access the admin panel.'
-                    # Increment failed attempt counter
-                    login_attempts = cache.get(cache_key, 0) + 1
-                    cache.set(cache_key, login_attempts, 900)  # 15 minutes
-                    # Track failed logins for firewall middleware
-                    failed_count = cache.get(failed_logins_key, 0) + 1
-                    cache.set(failed_logins_key, failed_count, 900)  # 15 minutes
-                    
-                    # SECURITY: If too many failed attempts, permanently block IP
-                    if failed_count >= brute_force_threshold:
-                        from dice_game.attack_detection import AttackDetector
-                        AttackDetector.block_ip_permanently(client_ip)
-                        error_message = 'Too many failed login attempts. Your IP has been permanently blocked.'
+                    lockout_msg = _increment_admin_login_fails(cache, failed_attempts_key, lockout_until_key, lockout_cycle_key,
+                                                               ATTEMPTS_BEFORE_LOCKOUT, FIRST_LOCKOUT_SECONDS, MAX_LOCKOUT_SECONDS)
+                    if lockout_msg:
+                        error_message = lockout_msg
             else:
                 error_message = 'Invalid username or password.'
-                # Increment failed attempt counter
-                login_attempts = cache.get(cache_key, 0) + 1
-                cache.set(cache_key, login_attempts, 900)  # 15 minutes
-                # Track failed logins for firewall middleware
-                failed_count = cache.get(failed_logins_key, 0) + 1
-                cache.set(failed_logins_key, failed_count, 900)  # 15 minutes
-                
-                # SECURITY: If too many failed attempts, permanently block IP
-                if failed_count >= brute_force_threshold:
-                    from dice_game.attack_detection import AttackDetector
-                    AttackDetector.block_ip_permanently(client_ip)
-                    error_message = 'Too many failed login attempts. Your IP has been permanently blocked.'
+                lockout_msg = _increment_admin_login_fails(cache, failed_attempts_key, lockout_until_key, lockout_cycle_key,
+                                                          ATTEMPTS_BEFORE_LOCKOUT, FIRST_LOCKOUT_SECONDS, MAX_LOCKOUT_SECONDS)
+                if lockout_msg:
+                    error_message = lockout_msg
         else:
             error_message = 'Please provide both username and password.'
     
@@ -233,6 +506,44 @@ def admin_logout(request):
     logout(request)
     messages.success(request, 'You have been successfully logged out.')
     return redirect('admin_login')
+
+
+def admin_forgot_password(request):
+    """Forgot password page: instructs admin users to contact Super Admin to reset password."""
+    return render(request, 'admin/forgot_password.html', {})
+
+
+@admin_required
+def admin_profile(request):
+    """Profile page for the logged-in admin: view info and change password."""
+    user = request.user
+    is_franchise_owner = getattr(user, 'is_franchise_only', False) or (
+        FranchiseBalance.objects.filter(user=user).exists() and not getattr(user, 'works_under_id', None)
+    )
+    role_label = 'Super Admin' if user.is_superuser else ('Franchise owner' if is_franchise_owner else 'Worker')
+    if request.method == 'POST' and request.POST.get('action') == 'change_password':
+        if user.is_superuser:
+            messages.error(request, 'Super Admin password cannot be changed from this page.')
+        else:
+            new_password = (request.POST.get('new_password') or '').strip()
+            new_password_confirm = (request.POST.get('new_password_confirm') or '').strip()
+            if not new_password:
+                messages.error(request, 'New password is required.')
+            elif len(new_password) < 4:
+                messages.error(request, 'Password must be at least 4 characters.')
+            elif new_password != new_password_confirm:
+                messages.error(request, 'Passwords do not match.')
+            else:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Your password has been updated.')
+        return redirect('admin_profile')
+    context = get_admin_context(request, {
+        'page': 'profile',
+        'profile_user': user,
+        'role_label': role_label,
+    })
+    return render(request, 'admin/profile.html', context)
 
 
 @login_required(login_url='/game-admin/login/')
@@ -267,69 +578,37 @@ def admin_dashboard(request):
 
     effective_admin = get_effective_admin(request.user)
 
-    # Dashboard stats: franchise owners see only their players' bets; super admin uses cache
-    from django.utils import timezone
-    from datetime import timedelta
-    cutoff = timezone.now() - timedelta(days=ADMIN_DASHBOARD_STATS_DAYS)
-    bet_base = Bet.objects.filter(created_at__gte=cutoff)
-    if not is_super_admin(effective_admin):
-        bet_base = bet_base.filter(user__worker=effective_admin)
-        bet_stats = bet_base.aggregate(
-            total_bets=Count('id'),
-            total_amount=Sum('chip_amount'),
-            total_payout=Sum('payout_amount')
-        )
-    else:
-        bet_stats = cache.get(ADMIN_DASHBOARD_STATS_CACHE_KEY)
-        if bet_stats is None:
-            bet_stats = bet_base.aggregate(
-                total_bets=Count('id'),
-                total_amount=Sum('chip_amount'),
-                total_payout=Sum('payout_amount')
-            )
-            try:
-                cache.set(ADMIN_DASHBOARD_STATS_CACHE_KEY, bet_stats, ADMIN_DASHBOARD_STATS_TTL)
-            except Exception:
-                pass
-    total_bets = bet_stats.get('total_bets') or 0
-    total_amount = bet_stats.get('total_amount') or 0
-    total_payout = bet_stats.get('total_payout') or 0
-    total_profit = total_amount - total_payout
-
-    # Actively playing (this round): franchise sees only their players
-    bettor_user_ids = set()
-    if current_round:
-        round_bets = Bet.objects.filter(round=current_round)
-        if not is_super_admin(effective_admin):
-            round_bets = round_bets.filter(user__worker=effective_admin)
-        bettor_user_ids = set(str(uid) for uid in round_bets.values_list('user_id', flat=True).distinct())
-    watching_user_ids = set()
-    try:
-        if redis_client:
-            watching_user_ids = redis_client.smembers('game_watching_users') or set()
-    except Exception:
-        pass
-    current_round_active_bettors = len(bettor_user_ids | watching_user_ids)
-
-    # Get game timing settings for display (use current round settings if available)
-    if current_round:
-        betting_close_time = current_round.betting_close_seconds
-        dice_result_time = current_round.dice_result_seconds
-        round_end_time = current_round.round_end_seconds
-    else:
-        betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-        dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
-        round_end_time = get_game_setting('ROUND_END_TIME', 80)
+    # Fast first paint: do not run heavy Bet aggregates here. Stats show 0 initially; JS fetches dashboard-data and updates.
+    total_bets = 0
+    total_amount = 0
+    total_payout = 0
+    total_profit = 0
+    current_round_active_bettors = 0
+    betting_close_time = 30
+    dice_result_time = 51
+    round_end_time = 80
     my_franchise_balance = None
     my_franchise_balance_display = ''
-    if not is_super_admin(effective_admin):
-        try:
-            fb = FranchiseBalance.objects.get(user=effective_admin)
-            my_franchise_balance = fb.balance
-        except FranchiseBalance.DoesNotExist:
-            my_franchise_balance = 0
-        from .utils import format_indian_int
-        my_franchise_balance_display = format_indian_int(my_franchise_balance)
+    try:
+        if current_round:
+            betting_close_time = current_round.betting_close_seconds
+            dice_result_time = current_round.dice_result_seconds
+            round_end_time = current_round.round_end_seconds
+        else:
+            betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
+            dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
+            round_end_time = get_game_setting('ROUND_END_TIME', 80)
+        if not is_super_admin(effective_admin):
+            try:
+                fb = FranchiseBalance.objects.get(user=effective_admin)
+                my_franchise_balance = fb.balance
+            except FranchiseBalance.DoesNotExist:
+                my_franchise_balance = 0
+            from .utils import format_indian_int
+            my_franchise_balance_display = format_indian_int(my_franchise_balance)
+    except Exception as e:
+        logger.warning('admin_dashboard timing/balance: %s', e)
+
     context = get_admin_context(request, {
         'current_round': current_round,
         'timer': timer,
@@ -590,14 +869,10 @@ def admin_dashboard_data(request):
         current_round_bettor_ids = set(
             str(uid) for uid in current_round_bets.values_list('user_id', flat=True).distinct()
         )
-        try:
-            if redis_client:
-                watching_ids = redis_client.smembers('game_watching_users') or set()
-                current_round_active_bettors = len(current_round_bettor_ids | watching_ids)
-            else:
-                current_round_active_bettors = len(current_round_bettor_ids)
-        except Exception:
-            current_round_active_bettors = len(current_round_bettor_ids)
+        # "Actively playing" = distinct users with at least one bet in this round (scoped for franchise).
+        # Do not union Redis game_watching_users: it includes spectators, other franchises, and stale WS
+        # entries after disconnect, which made the dashboard count wrong.
+        current_round_active_bettors = len(current_round_bettor_ids)
         per_number = current_round_bets.values('number').annotate(
             amount=Sum('chip_amount'),
             count=Count('id')
@@ -779,10 +1054,10 @@ def set_individual_dice_view(request):
                                 
                                 redis_client.set('current_round', json.dumps(round_data))
                             
-                            # 2. Update manual_dice_result for the engine to pick up
-                            # Format: "1,2,3,4,5,6"
-                            if all(d is not None for d in complete_dice):
-                                manual_dice_str = ",".join([str(d) for d in complete_dice])
+                            # 2. Update manual_dice_result for the engine to pick up (see game_engine_v3 run_game_loop)
+                            # Format: "1,2,3,4,5,6" — when present at result time, engine skips smart/random dice.
+                            if len(dice_values_list) == 6 and all(1 <= d <= 6 for d in dice_values_list):
+                                manual_dice_str = ",".join(str(d) for d in dice_values_list)
                                 redis_client.set("manual_dice_result", manual_dice_str, ex=300)
                         except Exception:
                             pass
@@ -971,7 +1246,25 @@ def recent_rounds(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '')
     controlled_only = request.GET.get('controlled_only') == '1'
-    
+    date_range = request.GET.get('date_range', '').strip()  # '', 'last_7_days', 'last_30_days', 'last_month'
+
+    # Date range filter for round start_time
+    from datetime import timedelta, date
+    today = timezone.now().date()
+    date_from = date_to = None
+    if date_range == 'last_7_days':
+        date_from = today - timedelta(days=7)
+        date_to = today
+    elif date_range == 'last_30_days':
+        date_from = today - timedelta(days=30)
+        date_to = today
+    elif date_range == 'last_month':
+        # Previous calendar month
+        first_this_month = today.replace(day=1)
+        last_last_month = first_this_month - timedelta(days=1)
+        date_from = last_last_month.replace(day=1)
+        date_to = last_last_month
+
     # Get recent rounds with per-round bet count/sum from Bet table (use distinct names to avoid conflict with model fields)
     recent_rounds_list = GameRound.objects.annotate(
         round_bets_count=Count('bets'),
@@ -994,9 +1287,23 @@ def recent_rounds(request):
     # Apply status filter
     if status_filter:
         recent_rounds_list = recent_rounds_list.filter(status=status_filter)
-    
-    # Limit results and order by most recent
-    recent_rounds_list = list(recent_rounds_list.order_by('-start_time')[:50])
+
+    # Apply date range filter
+    if date_from is not None:
+        recent_rounds_list = recent_rounds_list.filter(start_time__date__gte=date_from)
+    if date_to is not None:
+        recent_rounds_list = recent_rounds_list.filter(start_time__date__lte=date_to)
+
+    # Paginate so older history is accessible (page 2, 3, ...)
+    recent_rounds_list = recent_rounds_list.order_by('-start_time')
+    paginator = Paginator(recent_rounds_list, 50)
+    page_number = request.GET.get('page', 1)
+    try:
+        page_number = max(1, min(int(page_number), 999))
+    except (ValueError, TypeError):
+        page_number = 1
+    page_obj = paginator.get_page(page_number)
+    recent_rounds_list = list(page_obj.object_list)
     
     # Set of round IDs that were manually controlled (for "Controlled" badge in table)
     controlled_round_ids_set = set(DiceResult.objects.filter(set_by__isnull=False).values_list('round_id', flat=True))
@@ -1020,6 +1327,7 @@ def recent_rounds(request):
     
     context = get_admin_context(request, {
         'recent_rounds': recent_rounds_list,
+        'page_obj': page_obj,
         'controlled_round_ids': controlled_round_ids_set,
         'controlled_only': controlled_only,
         'recent_bets': recent_bets,
@@ -1029,9 +1337,12 @@ def recent_rounds(request):
         'total_bets_amount': total_bets_amount,
         'search_query': search_query,
         'status_filter': status_filter,
+        'date_range': date_range,
+        'date_from': date_from,
+        'date_to': date_to,
         'page': 'rounds',
     })
-    
+
     return render(request, 'admin/recent_rounds.html', context)
 
 @admin_required
@@ -1140,6 +1451,13 @@ def user_details(request, user_id):
             messages.error(request, f'UTR number is mandatory for {action}.')
             return redirect(request.get_full_path())
 
+        if action == 'deposit' and deposit_payment_reference_in_use(utr_number):
+            messages.error(
+                request,
+                'This UTR is already used by another pending or approved deposit. Each UTR must be unique.',
+            )
+            return redirect(request.get_full_path())
+
         try:
             amount = Decimal(amount)
             if amount <= 0:
@@ -1160,6 +1478,7 @@ def user_details(request, user_id):
                     total_deposits=F('total_deposits') + int(amount_decimal),
                 )
                 wallet.refresh_from_db()
+                Wallet.apply_deposit_rotation_credit(wallet.pk, int(amount_decimal))
                 
                 transaction_type = 'DEPOSIT'
                 description = f"deposited by support_team (UTR: {utr_number})"
@@ -1599,10 +1918,9 @@ def deposit_requests(request):
     effective_admin = get_effective_admin(request.user)
     # Base queryset for deposit requests
     deposit_requests_qs = DepositRequest.objects.select_related('user', 'processed_by').all()
-    # Super Admin sees only requests from players not under any franchise (worker is null). Franchise admins see only their queue.
-    if is_super_admin(effective_admin):
-        deposit_requests_qs = deposit_requests_qs.filter(user__worker__isnull=True)
-    else:
+    # Super Admin sees ALL requests (same data as user detail /tab=deposits). Approve still blocks franchise players for super.
+    # Franchise admins see only their queue.
+    if not is_super_admin(effective_admin):
         deposit_requests_qs = deposit_requests_qs.filter(user__worker=effective_admin)
     
     # Apply filters
@@ -1632,9 +1950,7 @@ def deposit_requests(request):
     deposit_requests_list = page_obj.object_list
     
     stats_base = DepositRequest.objects.all()
-    if is_super_admin(effective_admin):
-        stats_base = stats_base.filter(user__worker__isnull=True)
-    else:
+    if not is_super_admin(effective_admin):
         stats_base = stats_base.filter(user__worker=effective_admin)
     total_requests = stats_base.count()
     pending_requests = stats_base.filter(status='PENDING').count()
@@ -1692,9 +2008,7 @@ def check_new_deposit_requests(request):
     
     effective_admin = get_effective_admin(request.user)
     new_requests = DepositRequest.objects.filter(id__gt=last_id, status='PENDING')
-    if is_super_admin(effective_admin):
-        new_requests = new_requests.filter(user__worker__isnull=True)
-    else:
+    if not is_super_admin(effective_admin):
         new_requests = new_requests.filter(user__worker=effective_admin)
         
     new_requests = new_requests.select_related('user').order_by('-id')[:10]
@@ -1709,9 +2023,7 @@ def check_new_deposit_requests(request):
         })
     
     pending_qs = DepositRequest.objects.filter(status='PENDING')
-    if is_super_admin(effective_admin):
-        pending_qs = pending_qs.filter(user__worker__isnull=True)
-    else:
+    if not is_super_admin(effective_admin):
         pending_qs = pending_qs.filter(user__worker=effective_admin)
     return JsonResponse({
         'new_requests': requests_data,
@@ -1729,17 +2041,25 @@ def approve_deposit(request, pk):
     try:
         deposit = DepositRequest.objects.select_related('user').get(pk=pk)
         effective_admin = get_effective_admin(request.user)
-        if is_super_admin(effective_admin):
-            if getattr(deposit.user, 'worker_id', None) is not None:
-                messages.error(request, 'Super Admin can only approve deposit requests from players not under a franchise.')
-                return redirect('deposit_requests')
-        elif getattr(deposit.user, 'worker_id', None) != effective_admin.id:
+        # Super Admin may approve any deposit (franchise balance is not deducted for superuser).
+        if not is_super_admin(effective_admin) and getattr(deposit.user, 'worker_id', None) != effective_admin.id:
             messages.error(request, 'You can only approve deposit requests for users under your admin.')
             return redirect('deposit_requests')
         with db_transaction.atomic():
             deposit = DepositRequest.objects.select_for_update().get(pk=pk)
             if deposit.status != 'PENDING':
                 messages.error(request, 'Deposit request has already been processed.')
+                return redirect('deposit_requests')
+
+            utr = request.POST.get('utr', '').strip()
+            if not utr:
+                messages.error(request, 'UTR number is compulsory for approving deposits.')
+                return redirect('deposit_requests')
+            if deposit_payment_reference_in_use(utr, exclude_pk=deposit.pk):
+                messages.error(
+                    request,
+                    'This UTR is already used by another pending or approved deposit. Each UTR must be unique.',
+                )
                 return redirect('deposit_requests')
             
             # Calculate final amount with USDT bonus if applicable
@@ -1769,17 +2089,11 @@ def approve_deposit(request, pk):
                 total_deposits=F('total_deposits') + int(final_amount),
             )
             wallet.refresh_from_db()
+            Wallet.apply_deposit_rotation_credit(wallet.pk, int(final_amount))
             
             deposit.status = 'APPROVED'
             deposit.processed_by = request.user
             deposit.processed_at = timezone.now()
-            
-            # Compulsory UTR verification
-            utr = request.POST.get('utr', '').strip()
-            if not utr:
-                messages.error(request, 'UTR number is compulsory for approving deposits.')
-                return redirect('deposit_requests')
-            
             deposit.payment_reference = utr
             
             # If there's a note from the approval process, save it
@@ -1819,6 +2133,7 @@ def approve_deposit(request, pk):
                     ref_wallet.add(referral_bonus, is_bonus=True)
                     Wallet.objects.filter(pk=ref_wallet.pk).update(total_deposits=F('total_deposits') + int(referral_bonus))
                     ref_wallet.refresh_from_db()
+                    Wallet.apply_deposit_rotation_credit(ref_wallet.pk, int(referral_bonus))
 
                     Transaction.objects.create(
                         user=referrer,
@@ -1854,11 +2169,7 @@ def reject_deposit(request, pk):
         try:
             deposit = DepositRequest.objects.select_related('user').get(pk=pk)
             effective_admin = get_effective_admin(request.user)
-            if is_super_admin(effective_admin):
-                if getattr(deposit.user, 'worker_id', None) is not None:
-                    messages.error(request, 'Super Admin can only reject deposit requests from players not under a franchise.')
-                    return redirect('deposit_requests')
-            elif getattr(deposit.user, 'worker_id', None) != effective_admin.id:
+            if not is_super_admin(effective_admin) and getattr(deposit.user, 'worker_id', None) != effective_admin.id:
                 messages.error(request, 'You can only reject deposit requests for users under your admin.')
                 return redirect('deposit_requests')
             with db_transaction.atomic():
@@ -1893,11 +2204,7 @@ def edit_deposit_amount(request, pk):
     try:
         deposit = DepositRequest.objects.select_related('user').get(pk=pk)
         effective_admin = get_effective_admin(request.user)
-        if is_super_admin(effective_admin):
-            if getattr(deposit.user, 'worker_id', None) is not None:
-                messages.error(request, 'Super Admin can only edit deposit requests from players not under a franchise.')
-                return redirect('deposit_requests')
-        elif getattr(deposit.user, 'worker_id', None) != effective_admin.id:
+        if not is_super_admin(effective_admin) and getattr(deposit.user, 'worker_id', None) != effective_admin.id:
             messages.error(request, 'You can only edit deposit requests for users under your admin.')
             return redirect('deposit_requests')
         with db_transaction.atomic():
@@ -2081,10 +2388,10 @@ def approve_withdraw(request, pk):
             
             wallet, _ = Wallet.objects.get_or_create(user=withdraw.user)
             wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
-            
-            if wallet.balance < withdraw.amount:
-                messages.error(request, f'Insufficient balance in {withdraw.user.username}\'s wallet.')
-                return redirect('withdraw_requests')
+
+            # Money is already deducted from Redis and DB when the user created the withdraw request
+            # (initiate_withdraw). So we do NOT check wallet.balance here — it would fail because
+            # balance was already reduced (e.g. user had 2500, requested 2500, balance is now 0).
 
             # 1️⃣ Money is already deducted from Redis and DB during initiation
             # We just update the status to COMPLETED
@@ -2102,6 +2409,14 @@ def approve_withdraw(request, pk):
                 withdraw.utr_number = utr_number
                 
             withdraw.save()
+
+            # Snapshot wallet; reset deposit rotation (new cycle after completed withdrawal)
+            Wallet.objects.filter(pk=wallet.pk).update(
+                total_deposits_at_last_withdraw=wallet.total_deposits,
+                turnover_at_last_withdraw=wallet.turnover,
+                deposit_rotation_lock=0,
+                deposit_rotation_baseline_turnover=wallet.turnover,
+            )
 
             # Franchise balance: add withdrawal amount to processing admin's balance (skip for superuser)
             if not is_super_admin(request.user):
@@ -2388,23 +2703,40 @@ def transactions(request):
 
     return render(request, 'admin/transactions.html', context)
 
-@super_admin_required
+def _can_access_worker_management(user):
+    """Super Admin, or has can_view_admin_management, or is a franchise owner (they manage their own workers)."""
+    if is_super_admin(user):
+        return True
+    if has_menu_permission(user, 'admin_management'):
+        return True
+    if getattr(user, 'is_franchise_only', False):
+        return True
+    # Only treat as franchise owner if not assigned under someone else.
+    if FranchiseBalance.objects.filter(user=user).exists() and not getattr(user, 'works_under_id', None):
+        return True
+    return False
+
+
 @admin_required
 def admin_management(request):
-    """Admin management page - Super Admin only"""
-    if not is_super_admin(request.user):
-        messages.error(request, 'Only Super Admins can access Worker Management.')
+    """Worker management: Super Admin sees all workers; franchise owners see only workers under them."""
+    if not _can_access_worker_management(request.user):
+        messages.error(request, 'You do not have permission to access Worker Management.')
         return redirect('admin_dashboard')
     
     status_filter = request.GET.get('status', 'all')
-    # Workers only: exclude franchise-only admins (they appear only in Franchise Balance)
-    admin_users = User.objects.filter(is_staff=True, is_franchise_only=False).order_by('-date_joined')
+    is_franchise_scope = not is_super_admin(request.user)
+    # Super Admin: all workers (exclude franchise-only). Franchise owner: only workers who work under them.
+    if is_super_admin(request.user):
+        base_workers = User.objects.filter(is_staff=True, is_franchise_only=False)
+    else:
+        base_workers = User.objects.filter(is_staff=True, works_under=request.user)
+    admin_users = base_workers.order_by('-date_joined')
     if status_filter == 'active':
         admin_users = admin_users.filter(is_active=True)
     elif status_filter == 'inactive':
         admin_users = admin_users.filter(is_active=False)
     
-    base_workers = User.objects.filter(is_staff=True, is_franchise_only=False)
     total_admins = base_workers.count()
     active_admins = base_workers.filter(is_active=True).count()
     inactive_admins = base_workers.filter(is_active=False).count()
@@ -2421,6 +2753,7 @@ def admin_management(request):
             'is_superuser': user.is_superuser,
         })
     
+    scope_label = 'Your workers' if is_franchise_scope else ''
     context = get_admin_context(request, {
         'admin_list': admin_list,
         'page': 'admin-management',
@@ -2428,18 +2761,26 @@ def admin_management(request):
         'total_admins': total_admins,
         'active_admins': active_admins,
         'inactive_admins': inactive_admins,
+        'is_franchise_scope': is_franchise_scope,
+        'scope_label': scope_label,
     })
     return render(request, 'admin/admin_management.html', context)
 
 
-@super_admin_required
+@admin_required
 @require_POST
 def toggle_admin_status(request, admin_id):
-    """Activate or deactivate an admin. Cannot deactivate yourself or the last superuser."""
+    """Activate or deactivate a worker. Franchise owners can only toggle workers under them."""
+    if not _can_access_worker_management(request.user):
+        messages.error(request, 'You do not have permission to access Worker Management.')
+        return redirect('admin_dashboard')
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
         messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
+    if not is_super_admin(request.user) and getattr(user, 'works_under_id', None) != request.user.id:
+        messages.error(request, 'You can only activate/deactivate workers assigned to you.')
         return redirect('admin_management')
     if user.id == request.user.id:
         messages.error(request, 'You cannot deactivate your own account.')
@@ -2541,8 +2882,21 @@ def franchise_balance(request):
             messages.success(request, f"Added ₹{amount:,} to {admin_user.username}'s franchise balance.")
         return redirect('franchise_balance')
     
-    # GET: list all staff with franchise balance and franchise name (active first, inactive last)
-    admin_users = User.objects.filter(is_staff=True).order_by('-is_active', 'username')
+    # GET: list franchise owners only (exclude workers assigned under a franchise owner).
+    # A franchise owner is:
+    # - Super Admin, OR
+    # - explicitly marked is_franchise_only, OR
+    # - has a FranchiseBalance row AND is not assigned under another admin (works_under is null)
+    franchise_owner_ids = list(FranchiseBalance.objects.values_list('user_id', flat=True).distinct())
+    admin_users = (
+        User.objects.filter(is_staff=True)
+        .filter(
+            Q(is_superuser=True)
+            | Q(is_franchise_only=True)
+            | (Q(id__in=franchise_owner_ids) & Q(works_under_id__isnull=True))
+        )
+        .order_by('-is_active', 'username')
+    )
     admin_list = []
     for user in admin_users:
         try:
@@ -2568,14 +2922,29 @@ def _get_queue_owners():
     owners = []
     for u in User.objects.filter(is_superuser=True, is_staff=True).order_by('username'):
         owners.append({'id': u.id, 'label': f'{u.username} (Super Admin)'})
-    for u in User.objects.filter(id__in=FranchiseBalance.objects.values_list('user_id', flat=True).distinct()).exclude(is_superuser=True).order_by('username'):
+    franchise_owner_ids = list(FranchiseBalance.objects.values_list('user_id', flat=True).distinct())
+    for u in (
+        User.objects.filter(is_staff=True, is_superuser=False, works_under_id__isnull=True)
+        .filter(Q(is_franchise_only=True) | Q(id__in=franchise_owner_ids))
+        .order_by('username')
+    ):
         owners.append({'id': u.id, 'label': u.username})
     return owners
 
 
-@super_admin_required
+def _get_queue_owners_for_request(request):
+    """For Super Admin: all queue owners. For franchise owner: only themselves (workers they create work under them)."""
+    if is_super_admin(request.user):
+        return _get_queue_owners()
+    return [{'id': request.user.id, 'label': request.user.username}]
+
+
+@admin_required
 def create_admin(request):
-    """Create a new admin user with permissions"""
+    """Create a new worker. Super Admin can assign to any queue; franchise owner can only create workers under themselves."""
+    if not _can_access_worker_management(request.user):
+        messages.error(request, 'You do not have permission to access Worker Management.')
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
@@ -2603,19 +2972,19 @@ def create_admin(request):
         # Validation
         if not username or not password:
             messages.error(request, 'Username and password are required.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
         
         if password != password2:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
 
         if len(password) < 4:
             messages.error(request, 'Password must be at least 4 characters long.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
         
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
         
         try:
             # Create user with is_staff=True but is_superuser=False
@@ -2632,15 +3001,20 @@ def create_admin(request):
             # Create permissions
             AdminPermissions.objects.create(user=user, **permissions)
             invalidate_admin_permissions_cache(user)
-            works_under_id = request.POST.get('works_under_id', '').strip()
-            if works_under_id:
-                try:
-                    admin_user = User.objects.get(pk=int(works_under_id), is_staff=True)
-                    if admin_user.id != user.id:
-                        user.works_under = admin_user
-                        user.save(update_fields=['works_under_id'])
-                except (ValueError, User.DoesNotExist):
-                    pass
+            # Super Admin can assign worker to any queue; franchise owner can only assign to themselves
+            if is_super_admin(request.user):
+                works_under_id = request.POST.get('works_under_id', '').strip()
+                if works_under_id:
+                    try:
+                        admin_user = User.objects.get(pk=int(works_under_id), is_staff=True)
+                        if admin_user.id != user.id:
+                            user.works_under = admin_user
+                            user.save(update_fields=['works_under_id'])
+                    except (ValueError, User.DoesNotExist):
+                        pass
+            else:
+                user.works_under = request.user
+                user.save(update_fields=['works_under_id'])
             password_auto_generated = request.POST.get('password_auto_generated', 'false') == 'true'
             if password_auto_generated:
                 messages.success(request, f'🎉 Admin user "{username}" created successfully! 🔐 Generated Password: <strong style="font-family: monospace; background: #f0fdf4; padding: 4px 8px; border-radius: 4px; color: #166534;">{password}</strong><br><small style="color: #666;">⚠️ Save this password securely - it will only be shown once!</small>')
@@ -2649,9 +3023,9 @@ def create_admin(request):
             return redirect('admin_management')
         except Exception as e:
             messages.error(request, f'Error creating admin: {str(e)}')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners()})
+            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
     
-    return render(request, 'admin/create_admin.html', {'queue_owners': _get_queue_owners()})
+    return render(request, 'admin/create_admin.html', {'queue_owners': _get_queue_owners_for_request(request)})
 
 
 @super_admin_required
@@ -2967,15 +3341,21 @@ def create_franchise_admin(request):
     return render(request, 'admin/create_franchise_admin.html', {})
 
 
-@super_admin_required
+@admin_required
 def edit_admin(request, admin_id):
-    """Edit admin user permissions"""
+    """Edit worker permissions. Franchise owners can only edit workers under them."""
+    if not _can_access_worker_management(request.user):
+        messages.error(request, 'You do not have permission to access Worker Management.')
+        return redirect('admin_dashboard')
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
         messages.error(request, 'Admin user not found.')
         return redirect('admin_management')
-    
+    # Franchise owner can only edit workers who work under them
+    if not is_super_admin(request.user) and getattr(user, 'works_under_id', None) != request.user.id:
+        messages.error(request, 'You can only edit workers assigned to you.')
+        return redirect('admin_management')
     # Super users cannot be edited through this interface
     if user.is_superuser:
         messages.error(request, 'Super Admin accounts cannot be edited through this interface.')
@@ -3006,19 +3386,21 @@ def edit_admin(request, admin_id):
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
         permissions.save()
         invalidate_admin_permissions_cache(user)
-        works_under_id = request.POST.get('works_under_id', '').strip()
-        if works_under_id:
-            try:
-                admin_user = User.objects.get(pk=int(works_under_id), is_staff=True)
-                user.works_under = admin_user if admin_user.id != user.id else None
-                user.save(update_fields=['works_under_id'])
-            except (ValueError, User.DoesNotExist):
-                user.works_under = None
-                user.save(update_fields=['works_under_id'])
-        else:
-            if user.works_under_id:
-                user.works_under = None
-                user.save(update_fields=['works_under_id'])
+        # Only Super Admin can change works_under; franchise owner's workers stay under them
+        if is_super_admin(request.user):
+            works_under_id = request.POST.get('works_under_id', '').strip()
+            if works_under_id:
+                try:
+                    admin_user = User.objects.get(pk=int(works_under_id), is_staff=True)
+                    user.works_under = admin_user if admin_user.id != user.id else None
+                    user.save(update_fields=['works_under_id'])
+                except (ValueError, User.DoesNotExist):
+                    user.works_under = None
+                    user.save(update_fields=['works_under_id'])
+            else:
+                if user.works_under_id:
+                    user.works_under = None
+                    user.save(update_fields=['works_under_id'])
         # Update username if provided
         new_username = request.POST.get('username')
         username_updated = False
@@ -3057,19 +3439,25 @@ def edit_admin(request, admin_id):
     context = get_admin_context(request, {
         'admin_user': user,
         'permissions': permissions,
-        'queue_owners': _get_queue_owners(),
+        'queue_owners': _get_queue_owners_for_request(request),
     })
     return render(request, 'admin/edit_admin.html', context)
 
-@super_admin_required
+
+@admin_required
 def delete_admin(request, admin_id):
-    """Delete worker and redistribute their players"""
+    """Delete worker and redistribute their players. Franchise owners can only delete workers under them."""
+    if not _can_access_worker_management(request.user):
+        messages.error(request, 'You do not have permission to access Worker Management.')
+        return redirect('admin_dashboard')
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
         messages.error(request, 'Worker not found.')
         return redirect('admin_management')
-    
+    if not is_super_admin(request.user) and getattr(user, 'works_under_id', None) != request.user.id:
+        messages.error(request, 'You can only delete workers assigned to you.')
+        return redirect('admin_management')
     # Cannot delete superusers
     if user.is_superuser:
         messages.error(request, 'Cannot delete Super Admin accounts.')

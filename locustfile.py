@@ -76,17 +76,22 @@ class GameUser(HttpUser):
             return
         self._last_round_fetch_ts = now
 
-        with self.client.get("/api/game/round/", catch_response=True) as response:
+        # Authenticated: full round payload. Anonymous: public round/start-time/ only.
+        url = "/api/game/round/" if self.token else "/api/game/round/start-time/"
+        with self.client.get(url, catch_response=True) as response:
             if response.status_code == 200:
                 try:
                     data = response.json()
                 except Exception:
-                    response.failure("current_round returned invalid JSON")
+                    response.failure("round endpoint returned invalid JSON")
                     return
-                self.current_status = data.get("status", self.current_status)
                 self.round_id = data.get("round_id") or data.get("RoundId") or self.round_id
+                if self.token:
+                    self.current_status = data.get("status", self.current_status)
+            elif response.status_code == 404:
+                # No active round — normal for start-time when idle
+                response.success()
             else:
-                # If the site is up, this should be 200; record failures.
                 response.failure(f"Failed to get round: {response.status_code}")
 
     def refresh_wallet_balance(self):
@@ -124,7 +129,14 @@ class GameUser(HttpUser):
 
     @task(3)
     def game_timer_settings(self):
-        self.client.get("/api/game/settings/timer/")
+        # Requires Django admin (IsAdminUser); skip unless explicitly enabled.
+        if not self.enable_admin:
+            return
+        with self.client.get("/api/game/settings/timer/", catch_response=True) as response:
+            if response.status_code in (200, 401, 403):
+                response.success()
+            else:
+                response.failure(f"timer settings: {response.status_code}")
 
     @task(3)
     def game_version(self):

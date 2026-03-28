@@ -2,13 +2,9 @@
 URL configuration for dice_game project.
 All URLs consolidated into a single file.
 """
-from django.contrib import admin
 from django.urls import path, re_path, include
 
-# Clear Django admin branding so it's obvious this is the database admin
-admin.site.site_header = "Gundu Ata — Database Admin"
-admin.site.site_title = "Gundu Ata Admin"
-admin.site.index_title = "Database tables & models"
+# Django admin (/admin/) is disabled at this URL — see django_admin_disabled_message in views.
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -37,15 +33,19 @@ urlpatterns = [
     path('download-apk', project_views.download_apk, name='download_apk_dash'),
     path('download-apk/', project_views.download_apk, name='download_apk_dash_slash'),
     
-    # Admin (must come before catch-all)
-    path('admin/', admin.site.urls),
+    # /admin/ — no Django DB admin here (no redirect; static message only)
+    re_path(r'^admin(?:/.*)?$', project_views.django_admin_disabled_message),
     # Media files (explicit so uploads like deposit_screenshots are always served by Django)
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path('api/', project_views.api_root, name='api_root'),
     path('api/health/', project_views.health, name='health'),
+    path('api/status/', project_views.api_status, name='api_status'),
     path('api/time/', project_views.time_now, name='time_now'),
     # Maintenance status (public; works even when maintenance is on)
     path('api/maintenance/status/', project_views.maintenance_status, name='maintenance_status'),
+    # Standalone system health dashboard (separate from admin panel UI)
+    path('system-health/', game_admin_views.system_health_dashboard, name='system_health_dashboard'),
+    path('system-health/data/', game_admin_views.system_health_data, name='system_health_data'),
     
     # Loading time endpoint (no authentication)
     path('api/loading-time/', accounts_views.loading_time, name='loading_time'),
@@ -100,12 +100,19 @@ urlpatterns = [
     path('api/game/settings', game_views.game_settings_api, name='game_settings_api_direct_no_slash'),
     # Game endpoints (api/game/)
     path('api/game/', include('game.urls')),
+    # Same game API under /webgl/api/game/ for WebGL clients that resolve relative URLs from /webgl/
+    path('webgl/api/game/', include('game.urls')),
     
     # Game admin endpoints (game-admin/)
+    # No trailing slash must redirect before React catch-all (otherwise SPA loads)
+    path('game-admin', RedirectView.as_view(url='/game-admin/', permanent=False), name='game_admin_root_noslash'),
     # Base game-admin path - redirect to login or dashboard based on auth status
     path('game-admin/', game_admin_views.admin_login, name='game_admin_root'),
     path('game-admin/login/', game_admin_views.admin_login, name='admin_login'),
     path('game-admin/logout/', game_admin_views.admin_logout, name='admin_logout'),
+    path('game-admin/profile/', game_admin_views.admin_profile, name='admin_profile'),
+    path('game-admin/forgot-password/', game_admin_views.admin_forgot_password, name='admin_forgot_password'),
+    path('game-admin/ping/', game_admin_views.admin_ping, name='admin_ping'),
     # Redirect game-admin/admin/ -> Django admin (view DB tables)
     path('game-admin/admin/', RedirectView.as_view(url='/admin/', permanent=False), name='game_admin_to_django_admin'),
     path('game-admin/dashboard/', game_admin_views.admin_dashboard, name='admin_dashboard'),
@@ -132,6 +139,8 @@ urlpatterns = [
     path('game-admin/withdraw-requests/<int:pk>/reject/', game_admin_views.reject_withdraw, name='reject_withdraw'),
     path('game-admin/reports/', game_admin_views.transactions, name='admin_transactions'),
     path('game-admin/dashboard-data/', game_admin_views.admin_dashboard_data, name='admin_dashboard_data'),
+    path('game-admin/system-health/', RedirectView.as_view(url='/system-health/', permanent=False), name='system_health_dashboard_admin_redirect'),
+    path('game-admin/system-health/data/', RedirectView.as_view(url='/system-health/data/', permanent=False), name='system_health_data_admin_redirect'),
     path('game-admin/set-dice/', game_admin_views.set_dice_result_view, name='set_dice_result_view'),
     path('game-admin/set-individual-dice/', game_admin_views.set_individual_dice_view, name='set_individual_dice_view'),
     path('game-admin/toggle-dice-mode/', game_admin_views.toggle_dice_mode, name='toggle_dice_mode'),
@@ -172,7 +181,12 @@ urlpatterns = [
     # Updated regex to properly match all paths except API/admin/static/media/ws/assets/apk/download paths
     # Handles potential double slashes and varying prefixes
     # Explicitly exclude download paths and .apk files
-    re_path(r'^(?!/?api/|/?admin/|/?game-admin/|/?static/|/?media/|/?ws/|/?assets/|^apk$|^download-apk$|.*\.apk$).*', project_views.serve_react_app, name='react_app'),
+    # Exclude game-admin with or without trailing slash so /game-admin never hits the SPA
+    re_path(
+        r'^(?!/?api/)(?!/?webgl/api/)(?!/?admin(?:/|$))(?!/?game-admin(?:/|$))(?!/?static/)(?!/?media/)(?!/?ws/)(?!/?assets/)(?!apk$)(?!download-apk$)(?!.*\.apk$).*$',
+        project_views.serve_react_app,
+        name='react_app',
+    ),
 ]
 
 # Serve static and media files (always in development, only static in production)

@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.response import Response
 import os
+from urllib.parse import quote
 from game.utils import get_game_setting
 from .maintenance_middleware import _get_maintenance_info
 from accounts.models import FranchiseBalance
@@ -21,25 +22,229 @@ def health(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+@never_cache
+def api_status(request):
+    """
+    Deep health: PostgreSQL, Redis, and in-process GET probes to public API routes.
+
+    Returns 200 with ok=true only if every check passes; otherwise 503 with details.
+    Use for monitoring (e.g. UptimeRobot) — point one monitor at /api/status/.
+    Does not exercise authenticated routes (login, wallet, etc.).
+    """
+    import time
+    from django.db import connection
+    from django.test import Client
+
+    checked_at = time.time()
+    checks = {}
+    routes = {}
+    all_ok = True
+
+    db_start = time.perf_counter()
+    try:
+        connection.ensure_connection()
+        checks['database'] = {'ok': True, 'ms': round((time.perf_counter() - db_start) * 1000, 2)}
+    except Exception as e:
+        checks['database'] = {'ok': False, 'error': str(e)}
+        all_ok = False
+
+    redis_start = time.perf_counter()
+    try:
+        from game.utils import get_redis_client
+
+        r = get_redis_client()
+        if r:
+            r.ping()
+            checks['redis'] = {'ok': True, 'ms': round((time.perf_counter() - redis_start) * 1000, 2)}
+        else:
+            checks['redis'] = {'ok': False, 'error': 'client unavailable'}
+            all_ok = False
+    except Exception as e:
+        checks['redis'] = {'ok': False, 'error': str(e)}
+        all_ok = False
+
+    # Synthetic GETs: full middleware + URL resolution (same process as production).
+    # Only paths that bypass maintenance mode — otherwise this endpoint would 503 whenever
+    # maintenance is on even if DB/Redis are fine.
+    client = Client()
+    # (path, acceptable HTTP status codes)
+    probe_paths = [
+        ('/api/health/', (200,)),
+        ('/api/maintenance/status/', (200,)),
+        ('/api/time/', (200,)),
+        ('/api/game/settings/', (200,)),
+        ('/webgl/api/game/settings/', (200,)),
+    ]
+
+    for path, acceptable in probe_paths:
+        try:
+            resp = client.get(path)
+            code = resp.status_code
+            ok = code in acceptable
+            routes[path] = {'ok': ok, 'status_code': code}
+            if not ok:
+                all_ok = False
+        except Exception as e:
+            routes[path] = {'ok': False, 'error': str(e)}
+            all_ok = False
+
+    issues = []
+    if not checks.get('database', {}).get('ok'):
+        issues.append(f"database: {checks.get('database', {}).get('error', 'failed')}")
+    if not checks.get('redis', {}).get('ok'):
+        issues.append(f"redis: {checks.get('redis', {}).get('error', 'failed')}")
+    for path, info in routes.items():
+        if not info.get('ok'):
+            err = info.get('error')
+            code = info.get('status_code')
+            if err:
+                issues.append(f"{path}: {err}")
+            else:
+                issues.append(f"{path}: HTTP {code}")
+
+    from datetime import datetime, timezone
+
+    checked_iso = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+    n_infra = 2  # database + redis
+    n_routes = len(routes)
+    total = n_infra + n_routes
+    passed = sum(1 for c in (checks.get('database'), checks.get('redis')) if c and c.get('ok'))
+    passed += sum(1 for r in routes.values() if r.get('ok'))
+
+    body = {
+        'ok': all_ok,
+        'checked_at': checked_at,
+        'checked_at_iso': checked_iso,
+        'summary': {
+            'total': total,
+            'passed': passed,
+            'failed': total - passed,
+        },
+        'issues': issues,
+        'checks': checks,
+        'routes': routes,
+    }
+    status_http = 200 if all_ok else 503
+    return JsonResponse(body, status=status_http)
+
+
+@never_cache
+def django_admin_disabled_message(request):
+    """
+    Django's /admin/ (database UI) is not offered at this URL.
+    No redirect — same response for /admin/, /admin/login/, etc.
+    """
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Take Franchise — Gundu Ata</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #000000;
+      color: #FFEB3B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+      text-align: center;
+    }
+    p {
+      font-size: clamp(1.125rem, 4vw, 1.5rem);
+      font-weight: 700;
+      line-height: 1.5;
+      margin: 0;
+      max-width: 36rem;
+    }
+    a.back {
+      display: inline-block;
+      margin-top: 1.75rem;
+      font-size: clamp(1rem, 3vw, 1.125rem);
+      font-weight: 600;
+      color: #FFEB3B;
+      text-decoration: underline;
+    }
+    a.back:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div>
+    <p>Take franchise</p>
+    <a class="back" href="/">← Back to Game</a>
+  </div>
+</body>
+</html>"""
+    return HttpResponse(html, content_type='text/html; charset=utf-8', status=200)
+
+
+def _get_round_start_info():
+    """Return current round start data: round_id, start_time_ist (IST with ms)."""
+    import json
+    from game.utils import get_redis_client
+    from game.models import GameRound
+    from django.utils import timezone as dj_tz
+    import pytz
+
+    start_dt = None
+    round_id = None
+    redis_client = get_redis_client()
+    if redis_client:
+        try:
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+                round_id = state.get('round_id')
+                start_str = state.get('start_time')
+                if start_str and round_id:
+                    from datetime import datetime
+                    start_dt = datetime.fromisoformat(start_str.replace('Z', '+00:00'))
+                    if start_dt.tzinfo is None:
+                        start_dt = dj_tz.make_aware(start_dt)
+        except Exception:
+            pass
+    if start_dt is None:
+        round_obj = GameRound.objects.order_by('-start_time').first()
+        if round_obj:
+            round_id = round_obj.round_id
+            start_dt = round_obj.start_time
+    if not start_dt or not round_id:
+        return {'round_id': None, 'start_time_ist': None}
+
+    ist_tz = pytz.timezone('Asia/Kolkata')
+    if start_dt.tzinfo is None:
+        start_dt = dj_tz.make_aware(start_dt)
+    start_ist = start_dt.astimezone(ist_tz)
+    # IST string with milliseconds, no timezone suffix (e.g. 2026-03-20T12:10:00.123)
+    ms = int(start_ist.microsecond / 1000)
+    start_time_ist = start_ist.strftime('%Y-%m-%dT%H:%M:%S.') + f'{ms:03d}'
+    return {'round_id': round_id, 'start_time_ist': start_time_ist}
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def time_now(request):
-    """Public current server time (UTC + IST) for clients."""
+    """Public current server time in IST + current round start time (same as round/start-time/)."""
     import time
     from datetime import datetime
     import pytz
 
-    now_utc = datetime.now(pytz.UTC)
-    ist = pytz.timezone('Asia/Kolkata')
-    now_ist = now_utc.astimezone(ist)
-    epoch = int(time.time())
+    # Use epoch so we get true UTC even if server TZ is set to IST or wrong
+    now_utc = datetime.fromtimestamp(time.time(), tz=pytz.UTC)
+    ist_tz = pytz.timezone('Asia/Kolkata')
+    now_ist = now_utc.astimezone(ist_tz)
+    ms = int(now_ist.microsecond / 1000)
+    ist_str = now_ist.strftime('%Y-%m-%dT%H:%M:%S.') + f'{ms:03d}'
 
-    return JsonResponse(
-        {
-            'utc': now_utc.isoformat(),
-            'ist': now_ist.isoformat(),
-            'epoch': epoch,
-        },
-        status=200,
-    )
+    round_start = _get_round_start_info()
+    return JsonResponse({
+        'ist': ist_str,
+        'round_started': round_start,
+    }, status=200)
 
 
 def api_root(request):
@@ -690,6 +895,10 @@ def root_maintenance(request):
     return HttpResponse(html, content_type='text/html', status=503)
 
 
+# Filename shown in the browser download dialog (RFC 5987 filename* for UTF-8 / spaces).
+APK_DOWNLOAD_DISPLAY_NAME = "Gundu ata.apk"
+
+
 @never_cache
 def download_apk(request):
     """Serve the latest APK file for download"""
@@ -761,8 +970,11 @@ def download_apk(request):
             content_type='application/vnd.android.package-archive'
         )
         
-        # Set headers to force download
-        response['Content-Disposition'] = 'attachment; filename="gundu_ata_latest.apk"'
+        # Set headers to force download (display name; on-disk file may still be gundu_ata_latest.apk)
+        fn = APK_DOWNLOAD_DISPLAY_NAME
+        response['Content-Disposition'] = (
+            f'attachment; filename="{fn}"; filename*=UTF-8\'\'{quote(fn)}'
+        )
         response['Content-Length'] = str(file_size)
         response['Content-Type'] = 'application/vnd.android.package-archive'
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate'

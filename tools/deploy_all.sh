@@ -99,6 +99,19 @@ for SERVER in "${APP_SERVERS[@]}"; do
     "$REPO_ROOT/docker-compose.yml" \
     root@$SERVER:$REMOTE_DIR/ 2>/dev/null || true
 
+  echo "  frontend (main site at /)..."
+  sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$SERVER "mkdir -p /var/www/gunduata.club/frontend" 2>/dev/null || true
+  sshpass -p "$PASSWORD" rsync -az -e "ssh -o StrictHostKeyChecking=no" \
+    "$REPO_ROOT/frontend/" \
+    root@$SERVER:/var/www/gunduata.club/frontend/ 2>/dev/null || true
+  sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$SERVER "chown -R www-data:www-data /var/www/gunduata.club/frontend 2>/dev/null || true" 2>/dev/null || true
+  echo "  website (WebGL at /webgl/)..."
+  sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$SERVER "mkdir -p /var/www/gunduata.club/website" 2>/dev/null || true
+  sshpass -p "$PASSWORD" rsync -az -e "ssh -o StrictHostKeyChecking=no" \
+    "$REPO_ROOT/website/web_gl/DiceGame/Builds/WebGL/" \
+    root@$SERVER:/var/www/gunduata.club/website/ 2>/dev/null || true
+  sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$SERVER "chown -R www-data:www-data /var/www/gunduata.club/website 2>/dev/null || true" 2>/dev/null || true
+
   echo "  nginx (gunduata.club.conf on app server)..."
   sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no \
     "$REPO_ROOT/nginx/gunduata.club.conf" \
@@ -123,12 +136,21 @@ for SERVER in "${APP_SERVERS[@]}"; do
 done
 
 echo ""
-echo "=== Load balancer: deploy load_balancer.conf and reload nginx ==="
+echo "=== Load balancer: deploy frontend + website + load_balancer.conf and reload nginx ==="
+sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$LB_SERVER "mkdir -p /var/www/gunduata.club/frontend /var/www/gunduata.club/website" 2>/dev/null || true
+sshpass -p "$PASSWORD" rsync -az -e "ssh -o StrictHostKeyChecking=no" \
+  "$REPO_ROOT/frontend/" \
+  root@$LB_SERVER:/var/www/gunduata.club/frontend/ 2>/dev/null || true
+sshpass -p "$PASSWORD" rsync -az -e "ssh -o StrictHostKeyChecking=no" \
+  "$REPO_ROOT/website/web_gl/DiceGame/Builds/WebGL/" \
+  root@$LB_SERVER:/var/www/gunduata.club/website/ 2>/dev/null || true
+sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$LB_SERVER "chown -R www-data:www-data /var/www/gunduata.club/frontend /var/www/gunduata.club/website 2>/dev/null; chmod 755 /var/www/gunduata.club /var/www/gunduata.club/frontend /var/www/gunduata.club/website 2>/dev/null" 2>/dev/null || true
 sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no \
   "$REPO_ROOT/nginx/load_balancer.conf" \
   "root@$LB_SERVER:/tmp/load_balancer.conf" 2>/dev/null || true
-sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no "root@$LB_SERVER" \
-  "cp /tmp/load_balancer.conf /etc/nginx/sites-available/gunduata.club 2>/dev/null || cp /tmp/load_balancer.conf /etc/nginx/conf.d/load_balancer.conf 2>/dev/null || true; nginx -t && systemctl reload nginx && echo 'LB nginx reloaded.'" 2>/dev/null || echo "  (LB nginx skipped or failed)"
+# LB uses conf.d/gunduata.club.conf (not sites-available); update the file that is actually loaded
+sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no root@$LB_SERVER \
+  "cp /tmp/load_balancer.conf /etc/nginx/conf.d/gunduata.club.conf 2>/dev/null || true; cp /tmp/load_balancer.conf /etc/nginx/sites-available/gunduata.club 2>/dev/null || true; nginx -t && systemctl reload nginx && echo 'LB nginx reloaded.'" 2>/dev/null || echo "  (LB nginx skipped or failed)"
 
 echo ""
 echo "=== Health check ==="

@@ -89,6 +89,7 @@ TESSERACT_CMD = os.getenv('TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'dice_game.normalize_slashes_middleware.NormalizeSlashesMiddleware',  # Normalize // to /
+    'dice_game.webgl_api_prefix_middleware.WebglApiPrefixMiddleware',  # /webgl/api/* -> /api/* (WebGL relative URLs)
     'dice_game.maintenance_middleware.MaintenanceModeMiddleware',  # Early: APK download bypass
     # 'dice_game.cloudflare_middleware.CloudflareOnlyMiddleware',  # SECURITY: Block direct IP access
     # 'dice_game.anonymization_middleware.AnonymizationMiddleware',  # SECURITY: Prevent tracing

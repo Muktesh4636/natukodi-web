@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>System Health Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .page-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+        }
+        .page-subtitle {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            background: #0ea5e9;
+            color: #fff;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .metric-value {
+            margin-top: 8px;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .muted {
+            color: #64748b;
+            font-size: 12px;
+        }
+        .section-title {
+            margin: 16px 0 10px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .table-wrap {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #f8fafc;
+            font-size: 12px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        tr:last-child td { border-bottom: none; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge.healthy { background: #dcfce7; color: #166534; }
+        .badge.warning { background: #fef9c3; color: #854d0e; }
+        .badge.failed { background: #fee2e2; color: #991b1b; }
+        .path-cell {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        @media (max-width: 1000px) {
+            .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+            .container { padding: 14px; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">System Health Dashboard</h1>
+                <div class="page-subtitle">
+                    Standalone monitoring for API and WebSocket checks.
+                    Last updated: <span id="generated-at">{{ health_snapshot.generated_at }}</span>
+                </div>
+            </div>
+            <button class="btn" id="refresh-btn" type="button">Refresh now</button>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="metric-label">API Routes</div>
+                <div class="metric-value" id="api-total">{{ health_snapshot.api.total_routes }}</div>
+                <div class="muted">Scanned in <span id="api-duration">{{ health_snapshot.api.duration_ms }}</span> ms</div>
+            </div>
+            <div class="card">
+                <div class="metric-label">API Failed (5xx/exception)</div>
+                <div class="metric-value" id="api-failed">{{ health_snapshot.api.failed }}</div>
+            </div>
+            <div class="card">
+                <div class="metric-label">API Warnings (4xx)</div>
+                <div class="metric-value" id="api-warning">{{ health_snapshot.api.warning }}</div>
+            </div>
+            <div class="card">
+                <div class="metric-label">WebSocket Failed</div>
+                <div class="metric-value" id="ws-failed">{{ health_snapshot.websocket.failed }}</div>
+            </div>
+        </div>
+
+        <div class="section-title">WebSocket Checks</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Check</th>
+                        <th>Status</th>
+                        <th>Detail</th>
+                        <th>Latency</th>
+                    </tr>
+                </thead>
+                <tbody id="ws-table-body">
+                    {% for item in health_snapshot.websocket.checks %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td><span class="badge {{ item.state }}">{{ item.state }}</span></td>
+                        <td>{{ item.detail }}</td>
+                        <td>{{ item.response_ms }} ms</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-title">API Route Checks</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Status</th>
+                        <th>HTTP</th>
+                        <th>Latency</th>
+                        <th>Error</th>
+                    </tr>
+                </thead>
+                <tbody id="api-table-body">
+                    {% for item in health_snapshot.api.checks %}
+                    <tr>
+                        <td class="path-cell">{{ item.path }}</td>
+                        <td><span class="badge {{ item.state }}">{{ item.state }}</span></td>
+                        <td>{{ item.status_code|default:'-' }}</td>
+                        <td>{{ item.response_ms }} ms</td>
+                        <td>{{ item.error|default:'-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function rowHtmlForWebsocket(check) {
+            return `
+                <tr>
+                    <td>${check.name || '-'}</td>
+                    <td><span class="badge ${check.state || 'warning'}">${check.state || 'unknown'}</span></td>
+                    <td>${check.detail || '-'}</td>
+                    <td>${check.response_ms ?? '-'} ms</td>
+                </tr>
+            `;
+        }
+
+        function rowHtmlForApi(check) {
+            const statusCode = check.status_code ?? '-';
+            const error = check.error || '-';
+            return `
+                <tr>
+                    <td class="path-cell">${check.path || '-'}</td>
+                    <td><span class="badge ${check.state || 'warning'}">${check.state || 'unknown'}</span></td>
+                    <td>${statusCode}</td>
+                    <td>${check.response_ms ?? '-'} ms</td>
+                    <td>${error}</td>
+                </tr>
+            `;
+        }
+
+        async function refreshHealth() {
+            const btn = document.getElementById('refresh-btn');
+            btn.disabled = true;
+            btn.textContent = 'Refreshing...';
+            try {
+                const response = await fetch('{% url "system_health_data" %}?refresh=1', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                });
+                const data = await response.json();
+
+                document.getElementById('generated-at').textContent = data.generated_at || '-';
+                document.getElementById('api-total').textContent = data.api.total_routes ?? 0;
+                document.getElementById('api-duration').textContent = data.api.duration_ms ?? 0;
+                document.getElementById('api-failed').textContent = data.api.failed ?? 0;
+                document.getElementById('api-warning').textContent = data.api.warning ?? 0;
+                document.getElementById('ws-failed').textContent = data.websocket.failed ?? 0;
+
+                document.getElementById('ws-table-body').innerHTML = (data.websocket.checks || [])
+                    .map(rowHtmlForWebsocket)
+                    .join('');
+                document.getElementById('api-table-body').innerHTML = (data.api.checks || [])
+                    .map(rowHtmlForApi)
+                    .join('');
+            } catch (err) {
+                alert('Failed to refresh health data: ' + err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Refresh now';
+            }
+        }
+
+        document.getElementById('refresh-btn').addEventListener('click', refreshHealth);
+        setInterval(refreshHealth, 60000);
+    </script>
+</body>
+</html>

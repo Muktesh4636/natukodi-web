@@ -606,13 +606,23 @@
                             <option value="">All Rounds</option>
                             <option value="1" {% if controlled_only %}selected{% endif %}>Controlled only</option>
                         </select>
+                        <select 
+                            name="date_range" 
+                            style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
+                        >
+                            <option value="">All time</option>
+                            <option value="last_7_days" {% if date_range == 'last_7_days' %}selected{% endif %}>Last 7 days</option>
+                            <option value="last_30_days" {% if date_range == 'last_30_days' %}selected{% endif %}>Last 30 days</option>
+                            <option value="last_month" {% if date_range == 'last_month' %}selected{% endif %}>Last month</option>
+                        </select>
+                        <input type="hidden" name="page" value="1">
                         <button 
                             type="submit" 
                             style="padding: 8px 16px; background: #a0c4ff; color: #1a202c; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;"
                         >
                             🔍 Search
                         </button>
-                        {% if search_query or status_filter or controlled_only %}
+                        {% if search_query or status_filter or controlled_only or date_range %}
                         <a 
                             href="{% url 'recent_rounds' %}" 
                             style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
@@ -622,7 +632,7 @@
                         {% endif %}
                     </form>
                 </div>
-                {% if search_query or status_filter or controlled_only %}
+                {% if search_query or status_filter or controlled_only or date_range %}
                 <div style="margin-bottom: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #a0c4ff;">
                     <p style="margin: 0; color: #4a5568; font-size: 14px;">
                         <strong>Filtered results:</strong>
@@ -630,7 +640,11 @@
                         {% if search_query and status_filter %} | {% endif %}
                         {% if status_filter %}Status: {{ status_filter }}{% endif %}
                         {% if controlled_only %}Manually controlled only{% endif %}
-                        <span style="color: #718096;">({{ recent_rounds|length }} rounds found)</span>
+                        {% if date_range %} | {% if date_range == 'last_month' %}Last month{% elif date_range == 'last_7_days' %}Last 7 days{% elif date_range == 'last_30_days' %}Last 30 days{% else %}{{ date_range }}{% endif %}{% endif %}
+                        <span style="color: #718096;">({{ page_obj.paginator.count }} rounds total)</span>
+                        {% if page_obj.paginator.num_pages > 1 %}
+                            <span style="color: #718096;"> — Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                        {% endif %}
                     </p>
                 </div>
                 {% endif %}
@@ -699,6 +713,19 @@
                         </tbody>
                     </table>
                 </div>
+                {% if page_obj.paginator.num_pages > 1 %}
+                <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <span style="color: #64748b; font-size: 14px;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        {% if page_obj.has_previous %}
+                            <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}{% if controlled_only %}&controlled_only=1{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}&page={{ page_obj.previous_page_number }}" style="padding: 8px 14px; background: #e2e8f0; color: #334155; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">← Previous</a>
+                        {% endif %}
+                        {% if page_obj.has_next %}
+                            <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}{% if controlled_only %}&controlled_only=1{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}&page={{ page_obj.next_page_number }}" style="padding: 8px 14px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Next →</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
             
             {% if not search_query %}

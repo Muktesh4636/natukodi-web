@@ -4,6 +4,22 @@ These files are **not referenced** by the running app, URLs, or deploy scripts. 
 
 ---
 
+## Backend duplicate/unused (moved to temporary_deleted/backend_duplicates/)
+
+| File | Reason |
+|------|--------|
+| `backend/game/admin_views_server.py` | Duplicate of `admin_views.py`; URLs use `admin_views` only |
+| `backend/game_engine.py` | Legacy engine; app uses `game_engine_v2.py` or `game_engine_v3.py` |
+| `backend/websocket_server.py` | Unused; WebSockets use Django Channels `game/consumers.py` |
+| `backend/test_migrate.py` | One-off test script |
+| Root `settings.py` | Duplicate; Django uses `backend/dice_game/settings.py` |
+
+**Note:** `backend/game/consumers_v2.py` is still in the repo because `tools/deploy_all.sh` copies it; the app’s routing uses `consumers.py` only. If you stop using that deploy script, you can move `consumers_v2.py` to `temporary_deleted/backend_duplicates/` too.
+
+**Templates (moved to temporary_deleted/backend_duplicates/templates_admin/):** `withdraw_requests_server.html`, `transactions_server.html`, `_sidebar_menu_server.html` — views render `withdraw_requests.html`, `transactions.html`, and include `_sidebar_menu.html`; the `_server` variants were never used.
+
+---
+
 ## Root directory – unused (safe to untrack/delete)
 
 | File | Reason |

@@ -527,7 +527,7 @@
                 </div>
                 <div class="stat-card stat-card-profit {% if admin_profit >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
                     <h3>Admin Profit</h3>
-                    <p class="profit-amount">₹{{ admin_profit|floatformat:2 }}</p>
+                    <p class="profit-amount">{% if admin_profit >= 0 %}₹+{{ admin_profit|floatformat:2 }}{% else %}₹{{ admin_profit|floatformat:2 }}{% endif %}</p>
                     <small style="font-size: 11px; opacity: 0.8;">(Total Bets - Total Wins)</small>
                 </div>
             </div>
@@ -558,17 +558,19 @@
     </div>
 
     <script>
-        // Initialize Profit Chart
+        // Initialize Profit Chart — all bars upside (absolute values), green = profit, red = loss
         document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('profitChart').getContext('2d');
-            
-            // Create gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, '#10B981'); // Dark green
-            gradient.addColorStop(1, '#A7F3D0'); // Light green
 
             const labels = {{ chart_labels|safe }};
-            const data = {{ chart_data|safe }};
+            const rawData = {{ chart_data|safe }};
+            // Bar lengths: always positive so all bars go upward (upside only)
+            const data = rawData.map(function(v) { return Math.abs(v); });
+            const dataMax = Math.max.apply(null, data);
+            // Add headroom so value label above tallest bar is not clipped
+            const yMax = dataMax > 0 ? Math.ceil(dataMax * 1.15) : 100;
+            const barColors = rawData.map(function(v) { return v >= 0 ? '#10B981' : '#dc3545'; });
+            const borderColors = rawData.map(function(v) { return v >= 0 ? '#059669' : '#c82333'; });
 
             new Chart(ctx, {
                 type: 'bar',
@@ -577,17 +579,20 @@
                     datasets: [{
                         label: 'Profit (₹)',
                         data: data,
-                        backgroundColor: gradient,
-                        borderColor: '#059669',
+                        backgroundColor: barColors,
+                        borderColor: borderColors,
                         borderWidth: 1,
                         borderRadius: 8,
                         borderSkipped: false,
-                        hoverBackgroundColor: '#059669',
+                        hoverBackgroundColor: barColors,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: { top: 20 }
+                    },
                     plugins: {
                         legend: {
                             display: false
@@ -595,7 +600,8 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'Profit: ₹' + context.parsed.y.toFixed(2);
+                                    var val = rawData[context.dataIndex];
+                                    return 'Profit: ₹' + (val >= 0 ? '+' : '') + val.toFixed(2);
                                 }
                             }
                         }
@@ -603,6 +609,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            max: yMax,
                             grid: {
                                 color: '#f3f4f6'
                             },
@@ -641,15 +648,14 @@
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'bottom';
                         ctx.font = 'bold 10px sans-serif';
-                        ctx.fillStyle = '#374151';
 
                         data.datasets[0].data.forEach((value, index) => {
+                            if (value === 0) return;
                             const bar = chart.getDatasetMeta(0).data[index];
-                            if (value !== 0) {
-                                // Show value on top of bar (handle positive and negative)
-                                const yPos = value >= 0 ? bar.y - 5 : bar.y + 15;
-                                ctx.fillText('₹' + Math.round(value), bar.x, yPos);
-                            }
+                            const realVal = rawData[index];
+                            const displayText = (realVal >= 0 ? '₹+' : '₹-') + Math.round(Math.abs(realVal));
+                            ctx.fillStyle = realVal >= 0 ? '#28a745' : '#dc3545';
+                            ctx.fillText(displayText, bar.x, bar.y - 5);
                         });
                         ctx.restore();
                     }

@@ -30,7 +30,20 @@ try:
 except ImportError:
     TESSERACT_AVAILABLE = False
 
-from .models import User, Wallet, Transaction, DepositRequest, WithdrawRequest, PaymentMethod, UserBankDetail, DailyReward, LuckyDraw, DeviceToken, FranchiseBalance
+from .models import (
+    User,
+    Wallet,
+    Transaction,
+    DepositRequest,
+    WithdrawRequest,
+    PaymentMethod,
+    UserBankDetail,
+    DailyReward,
+    LuckyDraw,
+    DeviceToken,
+    FranchiseBalance,
+    deposit_payment_reference_in_use,
+)
 from game.models import MegaSpinProbability
 from .serializers import (
     UserRegistrationSerializer,
@@ -69,24 +82,29 @@ def _initialise_player_journey(user, deposit_amount, redis_client=None):
         today = tz.now().date()
 
     # ── Journey ──────────────────────────────────────────────────────────────
+    # Calendar day progression for the 30-day chart is driven by `daily_journey_reset` (IST midnight).
+    # Deposits only: create chart, fix gaps, refresh today's floors — do NOT increment active_days here
+    # (that used to double-advance with cron and kept Redis/DB out of sync).
     journey, created = PlayerJourney.objects.get_or_create(user=user)
     if created or not journey.chart:
         journey.first_deposit_date = today
         journey.initialise_chart()
-
-    # Advance active day if playing on a new calendar date
-    if journey.last_play_date != today:
+        journey.active_days = 1
+        journey.last_play_date = today
+        journey.save(
+            update_fields=[
+                'chart_json', 'first_deposit_date', 'active_days', 'last_play_date', 'updated_at',
+            ]
+        )
+    elif journey.last_play_date != today:
         # Check gap for re-hook logic
         if journey.last_play_date:
             gap = (today - journey.last_play_date).days
             if gap >= 30:
-                # Full reset — treat as new player
-                journey.active_days = 0
+                journey.active_days = 1
                 journey.initialise_chart()
             elif gap >= 7:
-                # Re-hook: step back to day 5 and give 3 WIN days
                 journey.active_days = max(1, journey.active_days - 3)
-        journey.active_days = journey.active_days + 1
         journey.last_play_date = today
         journey.save(update_fields=['active_days', 'last_play_date', 'first_deposit_date', 'updated_at'])
 
@@ -352,6 +370,11 @@ def _extract_utr_from_deposit_async(deposit_id):
                 if gpay_match:
                     extracted_utr = gpay_match.group(1).replace(' ', '')
             if extracted_utr:
+                if deposit_payment_reference_in_use(extracted_utr, exclude_pk=deposit_id):
+                    logger.warning(
+                        f"Background OCR: UTR {extracted_utr} already in use; skipping auto-fill for deposit {deposit_id}"
+                    )
+                    return
                 DepositRequest.objects.filter(id=deposit_id).update(payment_reference=extracted_utr)
                 logger.info(f"Background OCR: updated deposit {deposit_id} with UTR {extracted_utr}")
         except Exception as e:
@@ -556,7 +579,9 @@ def login(request):
             )
             is_flagged = IPTracker.register_login(ip, user.id)
             if is_flagged:
-                # Silently flag in Redis — no error to user
+                # Persist so daily_journey_reset does not overwrite Redis with is_flagged=False
+                from game.models import PlayerJourney
+                PlayerJourney.objects.filter(user_id=user.id).update(is_flagged=True)
                 if redis_client:
                     import json as _json
                     ps_key = f"player_state:{user.id}"
@@ -1027,6 +1052,16 @@ class WalletView(APIView):
     """Redis-first Wallet balance check"""
     permission_classes = [IsAuthenticated]
 
+    _WALLET_UNAV_FIELDS = (
+        'balance',
+        'total_deposits',
+        'turnover',
+        'total_deposits_at_last_withdraw',
+        'turnover_at_last_withdraw',
+        'deposit_rotation_lock',
+        'deposit_rotation_baseline_turnover',
+    )
+
     def get(self, request, format=None):
         user_id = request.user.id
         
@@ -1036,10 +1071,11 @@ class WalletView(APIView):
                 realtime_balance = redis_client.get(f"user_balance:{user_id}")
                 if realtime_balance is not None:
                     wallet, _ = Wallet.objects.get_or_create(user=request.user)
-                    bal = Decimal(realtime_balance)
-                    turnover = Decimal(str(wallet.turnover))
-                    total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
-                    unav = max(Decimal('0.00'), total_deposits - turnover)
+                    # Always re-read deposit/turnover columns from DB (not cached on instance;
+                    # otherwise unavailable_balance stays 0 right after a deposit is approved).
+                    wallet.refresh_from_db(fields=self._WALLET_UNAV_FIELDS)
+                    bal = Decimal(str(realtime_balance))
+                    unav = wallet.computed_unavailable_balance
                     withdrawable = max(Decimal('0.00'), bal - unav)
                     wallet_data = {
                         'id': wallet.id,
@@ -1053,6 +1089,7 @@ class WalletView(APIView):
 
         # 2. Fallback to DB if not in Redis
         wallet, created = Wallet.objects.get_or_create(user=request.user)
+        wallet.refresh_from_db(fields=self._WALLET_UNAV_FIELDS)
         
         balance = None
         if redis_client:
@@ -1069,18 +1106,14 @@ class WalletView(APIView):
                     redis_client.set(f"user_balance:{user_id}", balance, ex=86400)
                 except: pass
 
-        # unavailable = max(0, total_deposits - turnover); withdrawable = balance - unavailable
+        # unavailable = deposits_since_last_withdraw - turnover_since_last_withdraw; withdrawable = balance - unavailable
         try:
             bal = Decimal(str(balance))
-            turnover = Decimal(str(wallet.turnover))
-            total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
-            unav = max(Decimal('0.00'), total_deposits - turnover)
+            unav = wallet.computed_unavailable_balance
             withdrawable = str(max(Decimal('0.00'), bal - unav))
         except Exception:
             bal = Decimal('0.00')
-            turnover = Decimal(str(wallet.turnover or 0))
-            total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
-            unav = max(Decimal('0.00'), total_deposits - turnover)
+            unav = wallet.computed_unavailable_balance
             withdrawable = str(max(Decimal('0.00'), bal - unav))
 
         wallet_response = {
@@ -1412,6 +1445,14 @@ def submit_utr(request):
     if amount < 100:
         return Response({'error': 'Minimum deposit amount is ₹100'}, status=status.HTTP_400_BAD_REQUEST)
 
+    if deposit_payment_reference_in_use(utr):
+        return Response(
+            {
+                'error': 'This UTR has already been used on another deposit request. Each UTR must be unique.',
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     # Check for existing pending deposit request
     existing_pending = DepositRequest.objects.filter(user=request.user, status='PENDING').exists()
     if existing_pending:
@@ -1485,14 +1526,31 @@ def approve_deposit_request(request, pk):
                 logger.warning(f"Admin {request.user.username} failed to approve deposit {pk}: Already processed (Status: {deposit.status})")
                 return Response({'error': 'Deposit request already processed'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Franchise balance: deduct from processing admin's balance (skip for superuser)
-            if not request.user.is_superuser:
-                fb, _ = FranchiseBalance.objects.get_or_create(user=request.user, defaults={'balance': 0})
-                fb = FranchiseBalance.objects.select_for_update().get(pk=fb.pk)
-                if fb.balance < deposit.amount:
-                    logger.warning(f"Admin {request.user.username} insufficient franchise balance: {fb.balance} < {deposit.amount}")
-                    return Response({'error': 'Insufficient franchise balance. Contact super admin for top-up.'}, status=status.HTTP_400_BAD_REQUEST)
-                FranchiseBalance.objects.filter(pk=fb.pk).update(balance=F('balance') - deposit.amount)
+            # Franchise balance:
+            # - If a worker is assigned under a franchise admin (works_under), approvals should deduct from the franchise admin,
+            #   not from the worker (otherwise workers incorrectly become "franchise admins" by getting a FranchiseBalance row).
+            # - Super Admin has no franchise balance deduction.
+            payer_admin = request.user
+            if getattr(request.user, 'works_under_id', None):
+                payer_admin = request.user.works_under
+
+            if payer_admin and not payer_admin.is_superuser:
+                payer_is_franchise_owner = (
+                    getattr(payer_admin, 'is_franchise_only', False)
+                    or (FranchiseBalance.objects.filter(user=payer_admin).exists() and not getattr(payer_admin, 'works_under_id', None))
+                )
+                if payer_is_franchise_owner:
+                    fb, _ = FranchiseBalance.objects.get_or_create(user=payer_admin, defaults={'balance': 0})
+                    fb = FranchiseBalance.objects.select_for_update().get(pk=fb.pk)
+                    if fb.balance < deposit.amount:
+                        logger.warning(
+                            f"Admin {request.user.username} insufficient franchise balance (payer={payer_admin.username}): {fb.balance} < {deposit.amount}"
+                        )
+                        return Response(
+                            {'error': 'Insufficient franchise balance. Contact super admin for top-up.'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    FranchiseBalance.objects.filter(pk=fb.pk).update(balance=F('balance') - deposit.amount)
 
             wallet, _ = Wallet.objects.get_or_create(user=deposit.user)
             wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
@@ -1501,12 +1559,10 @@ def approve_deposit_request(request, pk):
             wallet.add(deposit.amount, is_bonus=True)
             Wallet.objects.filter(pk=wallet.pk).update(total_deposits=F('total_deposits') + deposit.amount)
             wallet.refresh_from_db()
+            Wallet.apply_deposit_rotation_credit(wallet.pk, int(deposit.amount))
 
-            # Update Redis balance (CRITICAL for Redis-First betting)
-            if redis_client:
-                try:
-                    redis_client.incrbyfloat(f"user_balance:{deposit.user.id}", float(deposit.amount))
-                except: pass
+            # Redis balance: post_save on Wallet already syncs user_balance from DB after wallet.add().
+            # Do not incrbyfloat here — that double-counted balance vs Postgres.
 
             Transaction.objects.create(
                 user=deposit.user,
@@ -1549,6 +1605,7 @@ def approve_deposit_request(request, pk):
                     referrer_wallet.add(bonus_amount, is_bonus=True)
                     Wallet.objects.filter(pk=referrer_wallet.pk).update(total_deposits=F('total_deposits') + int(bonus_amount))
                     referrer_wallet.refresh_from_db()
+                    Wallet.apply_deposit_rotation_credit(referrer_wallet.pk, int(bonus_amount))
 
                     # Update Redis balance for referrer
                     if redis_client:
@@ -1652,15 +1709,20 @@ def initiate_withdraw(request):
         logger.warning(f"Withdrawal failed for user {request.user.username}: Amount {amount} below minimum ₹200")
         return Response({'error': 'Minimum withdrawal amount is ₹200'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Check if user has sufficient withdrawable balance: withdrawable = balance - max(0, total_deposits - turnover)
+    # Check if user has sufficient withdrawable balance: withdrawable = balance - unavailable (unavailable = deposits_since_last_withdraw - turnover_since_last_withdraw)
     wallet, created = Wallet.objects.get_or_create(user=request.user)
+    wallet.refresh_from_db(
+        fields=[
+            'balance', 'total_deposits', 'turnover',
+            'total_deposits_at_last_withdraw', 'turnover_at_last_withdraw',
+            'deposit_rotation_lock', 'deposit_rotation_baseline_turnover',
+        ]
+    )
     balance_for_withdrawable = redis_client.get(f"user_balance:{request.user.id}") if redis_client else None
     if balance_for_withdrawable is None:
         balance_for_withdrawable = str(wallet.balance)
     bal = Decimal(str(balance_for_withdrawable))
-    turnover = Decimal(str(wallet.turnover))
-    total_deposits = Decimal(str(getattr(wallet, 'total_deposits', 0) or 0))
-    unav = max(Decimal('0.00'), total_deposits - turnover)
+    unav = wallet.computed_unavailable_balance
     withdrawable = max(Decimal('0.00'), bal - unav)
     
     # Check Redis balance and exposure for real-time validation
@@ -2298,6 +2360,26 @@ def lucky_draw(request):
         })
 
 
+def _leaderboard_display_name(user):
+    """
+    Label shown on the daily leaderboard. Prefer username, then full name, then masked phone.
+    Raw username alone can be empty for some legacy rows or whitespace-only values.
+    """
+    u = (getattr(user, 'username', None) or '').strip()
+    if u:
+        return u
+    fn = (getattr(user, 'first_name', None) or '').strip()
+    ln = (getattr(user, 'last_name', None) or '').strip()
+    combined = f'{fn} {ln}'.strip()
+    if combined:
+        return combined
+    phone = getattr(user, 'phone_number', None) or ''
+    digits = ''.join(filter(str.isdigit, str(phone)))
+    if len(digits) >= 4:
+        return f'••••{digits[-4:]}'
+    return f'Player {user.pk}'
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):
@@ -2344,7 +2426,7 @@ def leaderboard(request):
             .order_by('-turnover', 'user_id')[:10]
         leaderboard_list = [
             {
-                'username': (row.user.username or ''),
+                'username': _leaderboard_display_name(row.user),
                 'turnover': float(row.turnover),
             }
             for row in ranked_top10

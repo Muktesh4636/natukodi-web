@@ -147,6 +147,16 @@ class Wallet(models.Model):
     unavaliable_balance = models.BigIntegerField(default=0, help_text="Amount currently locked or unavaliable for withdrawal")
     turnover = models.BigIntegerField(default=0, help_text="Total amount wagered. Unavailable = max(0, total_deposits - turnover).")
     total_deposits = models.BigIntegerField(default=0, help_text="Cumulative deposits (and bonuses) credited. Unavailable = max(0, total_deposits - turnover).")
+    total_deposits_at_last_withdraw = models.BigIntegerField(default=0, help_text="Snapshot of total_deposits when last withdrawal was approved. Unavailable = max(0, (total_deposits - this) - (turnover - turnover_at_last_withdraw)).")
+    turnover_at_last_withdraw = models.BigIntegerField(default=0, help_text="Snapshot of turnover when last withdrawal was approved.")
+    deposit_rotation_lock = models.BigIntegerField(
+        default=0,
+        help_text="Amount (deposits/bonuses) still requiring 1x turnover since baseline; see apply_deposit_rotation_credit.",
+    )
+    deposit_rotation_baseline_turnover = models.BigIntegerField(
+        default=0,
+        help_text="Turnover snapshot: unavailable lock decreases by (turnover - baseline).",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -188,6 +198,46 @@ class Wallet(models.Model):
         self.save(update_fields=['balance', 'updated_at'])
         return True
 
+    @classmethod
+    def apply_deposit_rotation_credit(cls, wallet_pk, amount_int):
+        """
+        After balance/total_deposits increased by a deposit or bonus credit:
+        - Consume any existing lock with turnover since baseline.
+        - Add `amount_int` to the rotation lock (needs 1x new turnover from current T).
+        So a user with turnover 2000 who deposits 100 gets lock=100 at baseline T=2000 → unavailable 100.
+        """
+        amount_int = int(amount_int)
+        if amount_int <= 0:
+            return
+        from django.db import connection, transaction
+
+        def _do():
+            w = cls.objects.select_for_update().get(pk=wallet_pk)
+            T = int(w.turnover or 0)
+            lock = int(w.deposit_rotation_lock or 0)
+            b = int(w.deposit_rotation_baseline_turnover or 0)
+            if lock > 0:
+                progress = T - b
+                if progress >= lock:
+                    lock = 0
+                    b = T
+                else:
+                    lock = lock - progress
+                    b = T
+            else:
+                b = T
+            lock += amount_int
+            cls.objects.filter(pk=wallet_pk).update(
+                deposit_rotation_lock=lock,
+                deposit_rotation_baseline_turnover=b,
+            )
+
+        if connection.in_atomic_block:
+            _do()
+        else:
+            with transaction.atomic():
+                _do()
+
     @property
     def withdrawable_balance(self):
         """Withdrawable = balance - unavailable; unavailable = max(0, total_deposits - turnover). So user can withdraw winnings + released deposit."""
@@ -200,11 +250,13 @@ class Wallet(models.Model):
 
     @property
     def computed_unavailable_balance(self):
-        """Unavailable = max(0, total_deposits - turnover). Deposit is released for withdrawal as user wagers."""
+        """Unavailable = deposit_rotation_lock minus turnover since baseline (1x playthrough per credit)."""
         try:
-            td = Decimal(str(getattr(self, 'total_deposits', 0) or 0))
-            t = Decimal(str(self.turnover))
-            return max(Decimal('0.00'), td - t)
+            lock = int(getattr(self, 'deposit_rotation_lock', 0) or 0)
+            b = int(getattr(self, 'deposit_rotation_baseline_turnover', 0) or 0)
+            T = int(self.turnover or 0)
+            remaining = lock - max(0, T - b)
+            return max(Decimal('0.00'), Decimal(str(max(0, remaining))))
         except Exception:
             return Decimal('0.00')
 
@@ -303,6 +355,26 @@ class DepositRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - ₹{self.amount} - {self.status}"
+
+
+def normalize_deposit_utr(utr):
+    return (utr or '').strip()
+
+
+def deposit_payment_reference_in_use(utr, exclude_pk=None):
+    """
+    True if this UTR is already stored on another PENDING or APPROVED deposit.
+    Case-insensitive; empty UTR never conflicts. REJECTED rows do not block reuse.
+    """
+    norm = normalize_deposit_utr(utr)
+    if not norm:
+        return False
+    qs = DepositRequest.objects.filter(
+        status__in=['PENDING', 'APPROVED'],
+    ).exclude(payment_reference='').filter(payment_reference__iexact=norm)
+    if exclude_pk is not None:
+        qs = qs.exclude(pk=exclude_pk)
+    return qs.exists()
 
 
 class WithdrawRequest(models.Model):

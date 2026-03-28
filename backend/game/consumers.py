@@ -107,6 +107,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.room_group_name = 'game_room'
         self.redis_task = None
         self.heartbeat_task = None
+        self.journey_time_task = None
         self._is_connected = False
 
         try:
@@ -158,12 +159,46 @@ class GameConsumer(AsyncWebsocketConsumer):
                 logger.debug(f"Heartbeat send failed: {e}")
                 break
 
+    async def player_journey_time_tick(self):
+        """
+        Every 60s while connected, increment time_played_seconds in player_state:{user_id}.
+        When it reaches time_target_seconds, set time_target_reached so smart_dice_engine can award wins.
+        """
+        user_id = self._watching_user_id
+        if not user_id:
+            return
+        try:
+            while self._is_connected:
+                await asyncio.sleep(60)
+                if not self._is_connected:
+                    break
+                try:
+                    ps_key = f"player_state:{user_id}"
+                    raw = await redis_client.get(ps_key)
+                    if not raw:
+                        continue
+                    state = json.loads(raw)
+                    played = int(state.get('time_played_seconds', 0)) + 60
+                    state['time_played_seconds'] = played
+                    target = int(state.get('time_target_seconds', 3600))
+                    if played >= target and not state.get('time_target_reached'):
+                        state['time_target_reached'] = True
+                        logger.info(f"User {user_id} reached journey time target ({target}s played)")
+                    await redis_client.set(ps_key, json.dumps(state), ex=86400)
+                except Exception as he:
+                    logger.debug(f"player_journey_time_tick user={user_id}: {he}")
+        except asyncio.CancelledError:
+            pass
+
     async def disconnect(self, close_code):
         self._is_connected = False
         if self.redis_task:
             self.redis_task.cancel()
         if self.heartbeat_task:
             self.heartbeat_task.cancel()
+        if self.journey_time_task:
+            self.journey_time_task.cancel()
+            self.journey_time_task = None
         try:
             if getattr(self, '_watching_user_id', None) is not None:
                 await redis_client.srem(GAME_WATCHING_USERS_KEY, str(self._watching_user_id))

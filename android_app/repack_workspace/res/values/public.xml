@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <public type="string" name="app_name" id="0x7f0d0021" />
-    <public type="string" name="FreeformWindowOrientation_landscape" id="0x7f0d0000" />
-    <public type="string" name="FreeformWindowSize_maximize" id="0x7f0d0002" />
-    <public type="style" name="BaseUnityGameActivityTheme" id="0x7f0e00a1" />
-</resources>

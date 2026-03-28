@@ -51,7 +51,7 @@ def get_effective_admin(user):
 
 
 def is_admin(user):
-    """Check if user is admin (staff or has admin profile)"""
+    """Check if user is admin: superuser, staff, has AdminProfile (legacy), or has AdminPermissions (franchise owner / worker)."""
     if not user.is_authenticated:
         return False
     if user.is_superuser or user.is_staff:
@@ -61,7 +61,14 @@ def is_admin(user):
             admin_profile = AdminProfile.objects.get(user=user)
             return admin_profile.is_active
         except AdminProfile.DoesNotExist:
-            return False
+            pass
+    # Franchise owners and workers have AdminPermissions; treat them as admin so they can access dashboard
+    try:
+        from .models import AdminPermissions
+        AdminPermissions.objects.get(user=user)
+        return True
+    except Exception:
+        pass
     return False
 
 
@@ -137,7 +144,15 @@ def get_admin_permissions(user):
     try:
         perms = AdminPermissions.objects.get(user=user)
     except AdminPermissions.DoesNotExist:
-        if user.is_staff:
+        # Staff users and franchise owners (FranchiseBalance or is_franchise_only) get a record
+        is_franchise_owner = getattr(user, 'is_franchise_only', False)
+        if not is_franchise_owner:
+            try:
+                from accounts.models import FranchiseBalance
+                is_franchise_owner = FranchiseBalance.objects.filter(user=user).exists()
+            except Exception:
+                pass
+        if user.is_staff or is_franchise_owner:
             perms = AdminPermissions.objects.create(user=user)
         else:
             return None

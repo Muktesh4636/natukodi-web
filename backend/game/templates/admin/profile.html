@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Profile - Admin Panel</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .container { max-width: 640px; margin: 0 auto; }
+        .profile-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .profile-card h2 { font-size: 16px; color: #64748b; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .profile-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .profile-row:last-child { border-bottom: none; }
+        .profile-label { font-weight: 600; color: #64748b; min-width: 140px; }
+        .profile-value { color: #334155; }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: #c82333; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
+        .alert { padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; color: #334155; margin-bottom: 6px; }
+        .form-group input { padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 100%; max-width: 280px; }
+        .btn-primary { background: #00CED1; color: white; padding: 10px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-primary:hover { background: #00B8B8; }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">🎲🎲</span><span>Gundu ata</span></div>
+            <div class="subtitle">Game control</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <div class="header" style="margin-bottom: 24px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
+                <div class="header-left">
+                    <h1 style="font-size: 28px; color: #334155; margin: 0;">Profile</h1>
+                </div>
+                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                    <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
+                </div>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="profile-card">
+                <h2>Account info</h2>
+                <div class="profile-row">
+                    <span class="profile-label">Username</span>
+                    <span class="profile-value">{{ profile_user.username }}</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Email</span>
+                    <span class="profile-value">{{ profile_user.email|default:"—" }}</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Role</span>
+                    <span class="profile-value">{{ role_label }}</span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Status</span>
+                    <span class="profile-value">{% if profile_user.is_active %}Active{% else %}Inactive{% endif %}</span>
+                </div>
+            </div>
+
+            {% if not profile_user.is_superuser %}
+            <div class="profile-card">
+                <h2>Change password</h2>
+                <form method="post" action="{% url 'admin_profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="form-group">
+                        <label for="new_password">New password</label>
+                        <input type="password" name="new_password" id="new_password" minlength="4" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password_confirm">Confirm new password</label>
+                        <input type="password" name="new_password_confirm" id="new_password_confirm" minlength="4" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Update password</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="profile-card">
+                <p style="color: #64748b; font-size: 14px;">Super Admin password cannot be changed from this page.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

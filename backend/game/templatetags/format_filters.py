@@ -14,8 +14,6 @@ def indian_int(value):
     except (TypeError, ValueError):
         return '0'
     s = str(abs(n))
-    if not s:
-        return '0'
     if len(s) <= 3:
         return ('-' if n < 0 else '') + s
     groups = [s[-3:]]

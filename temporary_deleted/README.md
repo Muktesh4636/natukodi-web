@@ -10,6 +10,7 @@ These files were moved here so they are no longer in the main project or in git.
 - **Screenshots / uploads**: `deposit_screenshots_s1/`, `deposit_screenshots_s3/`, `qr_codes_s3/`, `screenshot_*.jpg`.
 - **Docs**: `Message_Central_SDK_Verify_Now_Doc.pdf`.
 - **Android APK & Unity**: `backend_apks/` (built APKs from `backend/staticfiles/apks` and `assets`), `unityLibrary/` (Unity export at repo root). If you moved `android_app/` (full Android + Unity project), it will be here as `android_app/`.
+- **Backend duplicate/unused code**: `backend_duplicates/` — `admin_views_server.py` (duplicate of `admin_views.py`, not used in URLs), `game_engine.py` (legacy; app uses `game_engine_v2`/`game_engine_v3`), `websocket_server.py` (unused; WebSockets use Django Channels `consumers.py`), `test_migrate.py` (one-off test). Root `settings.py` (duplicate; app uses `backend/dice_game/settings.py`) is also here. `templates_admin/` contains unused `_server` templates: `withdraw_requests_server.html`, `transactions_server.html`, `_sidebar_menu_server.html` (views use the non-`_server` versions).
 
 ## To restore a file
 
@@ -24,6 +25,10 @@ mv temporary_deleted/unityLibrary ./
 cp temporary_deleted/backend_apks/gundu_ata_latest.apk backend/staticfiles/apks/
 # Restore full android_app (Android + Unity project) to repo root:
 mv temporary_deleted/android_app ./
+
+# Restore a backend duplicate (e.g. if a script expects it):
+mv temporary_deleted/backend_duplicates/admin_views_server.py backend/game/
+mv temporary_deleted/settings.py ./
 ```
 
 This folder is in `.gitignore`, so it is not committed. Keep it locally if you want to retrieve files later.

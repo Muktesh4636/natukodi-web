@@ -20,11 +20,14 @@ logger = logging.getLogger('django')
 MAINTENANCE_ALLOWED_PREFIXES = (
     '/api/maintenance/',  # Status check — always reachable so app can show maintenance UI
     '/api/health/',       # Health check — no deps; for load balancer / 502 debugging
+    '/api/status/',       # Aggregate DB + Redis + public-route probes — for external monitoring
     '/api/time/',         # Public time endpoint — useful for clients
     '/api/whitelabel/',   # White-label lead capture — public form so leads still work during maintenance
     '/api/game/settings', # Read-only game config (timers, chips, payouts) — app needs this to render UI
+    '/webgl/api/game/settings',  # WebGL-relative alias for game settings
     '/static/',
     '/media/',
+    '/admin/',  # Franchise / access message (Django admin not exposed here)
     '/game-admin/',  # Admin can access to turn off maintenance
     '/ws/',          # WebSocket so game timer/state still works
 )
@@ -235,7 +238,9 @@ class MaintenanceModeMiddleware:
         path = request.path
         # During maintenance, keep read-only game endpoints working so clients can
         # still load state/config. All write operations remain blocked.
-        if request.method in ('GET', 'HEAD', 'OPTIONS') and path.startswith('/api/game/'):
+        if request.method in ('GET', 'HEAD', 'OPTIONS') and (
+            path.startswith('/api/game/') or path.startswith('/webgl/api/game/')
+        ):
             return self.get_response(request)
 
         if _is_maintenance_allowed(path):

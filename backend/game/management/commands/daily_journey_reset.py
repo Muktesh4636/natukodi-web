@@ -15,6 +15,8 @@ import logging
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from django.db.models import F
+
 from game.models import PlayerJourney, PlayerDailyState, get_time_target
 from game.utils import get_redis_client
 
@@ -52,7 +54,12 @@ class Command(BaseCommand):
                     continue
 
                 user = journey.user
-                active_day = journey.active_days + 1  # next day
+                # Advance journey day in Postgres (was missing — Redis used active_days+1 forever)
+                PlayerJourney.objects.filter(pk=journey.pk).update(
+                    active_days=F('active_days') + 1,
+                )
+                journey.refresh_from_db(fields=['active_days'])
+                active_day = journey.active_days
                 day_type = journey.get_day_type(active_day)
 
                 # Estimate deposit from last daily state

@@ -23,10 +23,78 @@ from .serializers import (
     RoundPredictionSerializer, CreatePredictionSerializer, UserSoundSettingSerializer,
     MegaSpinProbabilitySerializer, DailyRewardProbabilitySerializer
 )
-from .utils import get_game_setting, get_all_game_settings, calculate_current_timer, get_redis_client
+from .utils import get_game_setting, get_all_game_settings, calculate_current_timer, get_redis_client, get_current_round_state
 
 # Redis connection with tiered failover
 redis_client = get_redis_client()
+
+
+def _build_current_round_payload_dict():
+    """
+    Same JSON object as GET /api/game/round/ (for embedding in prediction API and reuse).
+    Returns dict or None when no round exists (matches 404 case of current_round).
+    """
+    cache_key = "api_cache:current_round"
+    if redis_client:
+        try:
+            cached_response = redis_client.get(cache_key)
+            if cached_response:
+                return json.loads(cached_response)
+
+            state_json = redis_client.get('current_game_state')
+            if state_json:
+                state = json.loads(state_json)
+
+                now = int(timezone.now().timestamp())
+                end_time = state.get('end_time', 0)
+                state['timer'] = max(0, end_time - now)
+
+                try:
+                    raw_result = state.get('result') or state.get('dice_result')
+                    if isinstance(raw_result, str) and raw_result:
+                        state['result'] = raw_result
+                    elif raw_result is not None:
+                        state['result'] = str(raw_result)
+
+                    dice_values = state.get('dice_values')
+                    primary_winner = None
+                    if isinstance(dice_values, list) and dice_values:
+                        from collections import Counter
+                        counts = Counter([int(x) for x in dice_values if x is not None])
+                        winners = [(num, cnt) for num, cnt in counts.items() if cnt >= 2]
+                        if winners:
+                            winners.sort(key=lambda t: (-t[1], t[0]))
+                            primary_winner = int(winners[0][0])
+                    if primary_winner is None and isinstance(raw_result, str):
+                        first = raw_result.split(',', 1)[0].strip()
+                        if first.isdigit():
+                            primary_winner = int(first)
+                    if primary_winner is not None:
+                        state['dice_result'] = primary_winner
+                except Exception:
+                    pass
+
+                redis_client.set(cache_key, json.dumps(state), px=200)
+                return state
+        except Exception as e:
+            logger.error(f"Redis error in _build_current_round_payload_dict: {e}")
+
+    round_obj = GameRound.objects.order_by('-start_time').first()
+    if not round_obj:
+        return None
+
+    round_end_time = get_game_setting('ROUND_END_TIME', 80)
+    end_timestamp = int(round_obj.start_time.timestamp() + round_end_time)
+    remaining_timer = max(0, int(end_timestamp - timezone.now().timestamp()))
+
+    return {
+        'round_id': round_obj.round_id,
+        'status': round_obj.status,
+        'end_time': end_timestamp,
+        'timer': remaining_timer,
+        'server_time': int(timezone.now().timestamp()),
+        'is_rolling': round_obj.status == 'ROLLING',
+    }
 
 
 def get_dice_mode():
@@ -58,85 +126,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 @csrf_exempt
 def current_round(request):
     """Get current game round status from Redis (High Performance)"""
-    cache_key = "api_cache:current_round"
-    if redis_client:
-        try:
-            # 1. Check for 200ms cached response
-            cached_response = redis_client.get(cache_key)
-            if cached_response:
-                return Response(json.loads(cached_response))
-
-            state_json = redis_client.get('current_game_state')
-            if state_json:
-                state = json.loads(state_json)
-                
-                # Add legacy timer field for Unity compatibility
-                now = int(timezone.now().timestamp())
-                end_time = state.get('end_time', 0)
-                state['timer'] = max(0, end_time - now)
-
-                # Unity compatibility:
-                # - `/api/game/round/` is deserialized into `RoundData` where `dice_result` is `int?`
-                # - Engine may publish multiple winners as a string like "4,5" in `dice_result`
-                # If we return that string here, Json.NET can fail and the APK can show a stale/wrong result.
-                # So we normalize:
-                # - `result`: raw winner string (e.g. "4,5") if present
-                # - `dice_result`: primary winner as int (or null if not available)
-                try:
-                    raw_result = state.get('result') or state.get('dice_result')
-                    if isinstance(raw_result, str) and raw_result:
-                        state['result'] = raw_result
-                    elif raw_result is not None:
-                        state['result'] = str(raw_result)
-
-                    dice_values = state.get('dice_values')
-                    primary_winner = None
-                    if isinstance(dice_values, list) and dice_values:
-                        from collections import Counter
-                        counts = Counter([int(x) for x in dice_values if x is not None])
-                        winners = [(num, cnt) for num, cnt in counts.items() if cnt >= 2]
-                        if winners:
-                            # Pick highest frequency winner; tie-break by smallest number for stability
-                            winners.sort(key=lambda t: (-t[1], t[0]))
-                            primary_winner = int(winners[0][0])
-                    if primary_winner is None and isinstance(raw_result, str):
-                        # Fallback: parse first number from "4,5" or "4"
-                        first = raw_result.split(',', 1)[0].strip()
-                        if first.isdigit():
-                            primary_winner = int(first)
-                    # Only set dice_result when we actually have a number
-                    if primary_winner is not None:
-                        state['dice_result'] = primary_winner
-                except Exception:
-                    # Never fail current_round for result formatting
-                    pass
-                
-                # 2. Cache the response for 200ms
-                redis_client.set(cache_key, json.dumps(state), px=200)
-                
-                return Response(state)
-        except Exception as e:
-            logger.error(f"Redis error in current_round: {e}")
-    
-    # Fallback to database if Redis fails
-    round_obj = GameRound.objects.order_by('-start_time').first()
-    if not round_obj:
+    payload = _build_current_round_payload_dict()
+    if payload is None:
         return Response({'status': 'WAITING', 'message': 'No rounds found'}, status=404)
-        
-    # Calculate absolute end_time for fallback
-    # Assuming 80s total round duration
-    round_end_time = get_game_setting('ROUND_END_TIME', 80)
-    end_timestamp = int(round_obj.start_time.timestamp() + round_end_time)
-    remaining_timer = max(0, int(end_timestamp - timezone.now().timestamp()))
-
-    return Response({
-        'round_id': round_obj.round_id,
-        'status': round_obj.status,
-        'end_time': end_timestamp,
-        'timer': remaining_timer,
-        'server_time': int(timezone.now().timestamp()),
-        'is_rolling': round_obj.status == 'ROLLING'
-    })
+    return Response(payload)
 
 
 @api_view(['GET'])
@@ -2818,32 +2811,19 @@ def submit_prediction(request):
     number = serializer.validated_data['number']
     logger.info(f"Prediction attempt by user {request.user.username} (ID: {request.user.id}): Number {number}")
 
-    # Get current round
-    round_obj = None
-    timer = 0
-    
-    if redis_client:
-        try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                timer = int(redis_client.get('round_timer') or '0')
-                try:
-                    round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                except GameRound.DoesNotExist:
-                    pass
-        except Exception as e:
-            logger.error(f"Redis error in submit_prediction: {e}")
-    
-    # Fallback to latest round
-    if not round_obj:
-        round_obj = GameRound.objects.order_by('-start_time').first()
-        if not round_obj:
-            logger.warning(f"Prediction failed for user {request.user.username}: No active round")
-            return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
+    # Resolve current round the same way as dashboard/engine (no round_id in request body)
+    try:
+        round_obj, timer, _status_engine, _rd = get_current_round_state(redis_client)
+    except Exception as e:
+        logger.error(f"get_current_round_state in submit_prediction: {e}")
+        round_obj, timer = None, 0
 
-    # Calculate timer from start time if Redis not available or timer seems wrong
-    if not redis_client or timer == 0:
+    if not round_obj:
+        logger.warning(f"Prediction failed for user {request.user.username}: No active round")
+        return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Backup timer if helper left it at 0 but we have start_time
+    if timer == 0 and round_obj.start_time:
         timer = calculate_current_timer(round_obj.start_time)
     
     # Check if betting has closed (predictions only allowed after betting closes)
@@ -2882,9 +2862,18 @@ def submit_prediction(request):
         existing_prediction.save()
         logger.info(f"Prediction updated: User {request.user.username}, Round {round_obj.round_id}, Num {number}")
         serializer = RoundPredictionSerializer(existing_prediction)
+        round_payload = _build_current_round_payload_dict()
+        if round_payload is None:
+            round_payload = {
+                'round_id': round_obj.round_id,
+                'status': round_obj.status,
+                'timer': timer,
+                'server_time': int(timezone.now().timestamp()),
+            }
         return Response({
             'message': 'Prediction updated',
-            'prediction': serializer.data
+            'prediction': serializer.data,
+            'round': round_payload,
         }, status=status.HTTP_200_OK)
     
     # Create new prediction
@@ -2900,10 +2889,19 @@ def submit_prediction(request):
         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     serializer = RoundPredictionSerializer(prediction)
+    round_payload = _build_current_round_payload_dict()
+    if round_payload is None:
+        round_payload = {
+            'round_id': round_obj.round_id,
+            'status': round_obj.status,
+            'timer': timer,
+            'server_time': int(timezone.now().timestamp()),
+        }
     return Response({
         'message': 'Prediction submitted successfully',
-        'prediction': serializer.data
-    }, status=status.HTTP_201_CREATED)
+        'prediction': serializer.data,
+        'round': round_payload,
+    }, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -2913,12 +2911,11 @@ def round_predictions(request, round_id=None):
     Get all predictions for a specific round.
     Shows how many users predicted each number.
     
-    Query params:
-    - round_id: (optional) Specific round ID. If not provided, uses current/latest round.
+    Path/query round_id is optional — omit it to use the **current** round (same resolution as submit_prediction).
     """
     logger.info(f"User {request.user.username} fetching predictions for round {round_id or 'current'}")
     
-    # Get round by ID or use current round
+    # Get round by ID or use current round (engine-aligned, no client round_id required)
     if round_id:
         try:
             round_obj = GameRound.objects.get(round_id=round_id)
@@ -2926,23 +2923,13 @@ def round_predictions(request, round_id=None):
             logger.warning(f"Round {round_id} not found for user {request.user.username}")
             return Response({'error': 'Round not found'}, status=status.HTTP_404_NOT_FOUND)
     else:
-        # Get current/latest round
-        round_obj = None
-        if redis_client:
-            try:
-                round_data = redis_client.get('current_round')
-                if round_data:
-                    round_data = json.loads(round_data)
-                    try:
-                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                    except GameRound.DoesNotExist:
-                        pass
-            except Exception as e:
-                logger.error(f"Redis error in round_predictions: {e}")
-        
+        try:
+            round_obj, _t, _s, _rd = get_current_round_state(redis_client)
+        except Exception as e:
+            logger.error(f"get_current_round_state in round_predictions: {e}")
+            round_obj = None
         if not round_obj:
             round_obj = GameRound.objects.order_by('-start_time').first()
-        
         if not round_obj:
             logger.warning(f"No rounds found for user {request.user.username}")
             return Response({'error': 'No round found'}, status=status.HTTP_404_NOT_FOUND)

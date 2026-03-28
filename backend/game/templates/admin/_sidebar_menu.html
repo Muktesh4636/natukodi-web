@@ -12,7 +12,6 @@
             {% if is_super_admin or admin_permissions.can_view_dashboard %} <li><a href="{% url 'admin_dashboard' %}" {% if page == 'dashboard' %}class="active" {% endif %}> <span class="menu-icon">🏠</span> Dashboard
                 </a></li>
             {% endif %}
-
             {% if is_super_admin or admin_permissions.can_control_dice %} <li><a href="{% url 'dice_control' %}" {% if page == 'dice-control' %}class="active" {% endif %}> <span class="menu-icon">🎯</span> Dice Control
                 </a></li>
             {% endif %}
@@ -52,7 +51,7 @@
     </div>
     {% endif %}
 
-    {% if is_super_admin or admin_permissions.can_view_players or admin_permissions.can_view_admin_management or admin_permissions.can_view_game_settings %}
+    {% if is_super_admin or admin_permissions.can_view_players or admin_permissions.can_view_admin_management or can_access_worker_management or admin_permissions.can_view_game_settings %}
     <div class="menu-section">
         <div class="menu-section-title">SYSTEM</div>
         <ul class="sidebar-menu">
@@ -60,7 +59,7 @@
                 </a></li>
             {% endif %}
 
-            {% if is_super_admin or admin_permissions.can_view_admin_management %} <li><a href="{% url 'admin_management' %}" {% if page == 'players' or page == 'admin-management' %}class="active" {% endif %}> <span class="menu-icon">👨‍💼</span> Worker Management
+            {% if is_super_admin or admin_permissions.can_view_admin_management or can_access_worker_management %} <li><a href="{% url 'admin_management' %}" {% if page == 'players' or page == 'admin-management' %}class="active" {% endif %}> <span class="menu-icon">👨‍💼</span> Worker Management
                 </a></li>
             {% endif %}
 
@@ -86,6 +85,14 @@
         </ul>
     </div>
     {% endif %}
+
+    <div class="menu-section">
+        <div class="menu-section-title">ACCOUNT</div>
+        <ul class="sidebar-menu">
+            <li><a href="{% url 'admin_profile' %}" {% if page == 'profile' %}class="active" {% endif %}> <span class="menu-icon">👤</span> Profile
+                </a></li>
+        </ul>
+    </div>
 </div>
 
 <!-- Admin Real-time Notifications -->
