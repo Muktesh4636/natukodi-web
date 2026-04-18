@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Stream</title>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0a0a0f;color:white;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+        .topbar{padding:14px 24px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:14px;}
+        .brand{font-size:18px;font-weight:800;color:white;letter-spacing:-.02em;}
+        .live-pill{background:#ef4444;color:white;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:700;letter-spacing:.06em;display:none;align-items:center;gap:5px;}
+        .live-pill.show{display:flex;}
+        .live-dot{width:7px;height:7px;background:white;border-radius:50%;animation:blink 1s infinite;}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+        .main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+        .video-wrap{width:100%;max-width:1080px;aspect-ratio:16/9;background:#111827;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 30px 60px rgba(0,0,0,.6);}
+        #liveVideo{width:100%;height:100%;object-fit:cover;display:block;}
+        .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(10,10,15,.85);}
+        .overlay-icon{font-size:56px;}
+        .overlay-title{font-size:22px;font-weight:700;}
+        .overlay-sub{font-size:14px;color:#94a3b8;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#ef4444;border-radius:50%;animation:spin .8s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .quality-badge{position:absolute;bottom:14px;right:14px;background:rgba(0,0,0,.6);color:#94a3b8;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;display:none;}
+        .quality-badge.show{display:block;}
+        .footer{text-align:center;padding:16px;color:#475569;font-size:13px;}
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="brand">🐓 Fight Live</div>
+        <div class="live-pill" id="livePill"><span class="live-dot"></span> LIVE</div>
+    </div>
+
+    <div class="main">
+        <div class="video-wrap">
+            <video id="liveVideo" autoplay playsinline controls muted></video>
+            <div class="overlay" id="overlay">
+                <div class="overlay-icon" id="overlayIcon">📡</div>
+                <div class="overlay-title" id="overlayTitle">Waiting for stream…</div>
+                <div class="overlay-sub" id="overlaySub">Stream will appear automatically</div>
+                <div class="spinner" id="spinner"></div>
+            </div>
+            <div class="quality-badge" id="qualityBadge">HD 720p</div>
+        </div>
+    </div>
+
+    <div class="footer">Powered by svs_exch</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+    <script>
+        const HLS_URL = '/hls/live/stream/index.m3u8';
+        let hls = null;
+        let connected = false;
+        let retryTimer = null;
+
+        function setOverlay(icon, title, sub, showSpinner) {
+            document.getElementById('overlayIcon').textContent = icon;
+            document.getElementById('overlayTitle').textContent = title;
+            document.getElementById('overlaySub').textContent = sub;
+            document.getElementById('spinner').style.display = showSpinner ? 'block' : 'none';
+        }
+
+        function hideOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('livePill').classList.add('show');
+            document.getElementById('qualityBadge').classList.add('show');
+        }
+
+        function showOverlay() {
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('livePill').classList.remove('show');
+            document.getElementById('qualityBadge').classList.remove('show');
+        }
+
+        function startHLS() {
+            const video = document.getElementById('liveVideo');
+            if (hls) { hls.destroy(); hls = null; }
+
+            if (Hls.isSupported()) {
+                hls = new Hls({
+                    liveSyncDurationCount: 3,
+                    liveMaxLatencyDurationCount: 8,
+                    maxBufferLength: 30,
+                    maxMaxBufferLength: 60,
+                    maxBufferHole: 1,
+                    lowLatencyMode: false,
+                    manifestLoadingTimeOut: 10000,
+                    manifestLoadingMaxRetry: 5,
+                    levelLoadingTimeOut: 10000,
+                    levelLoadingMaxRetry: 5,
+                    fragLoadingTimeOut: 20000,
+                    fragLoadingMaxRetry: 5,
+                });
+                hls.loadSource(HLS_URL + '?t=' + Date.now());
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(() => {
+                        // Autoplay blocked — unmute and try
+                        video.muted = true;
+                        video.play().catch(() => {});
+                    });
+                    hideOverlay();
+                    connected = true;
+                });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        connected = false;
+                        showOverlay();
+                        setOverlay('📡', 'Stream not available', 'Retrying in 5 seconds…', true);
+                        hls.destroy(); hls = null;
+                        clearTimeout(retryTimer);
+                        retryTimer = setTimeout(startHLS, 5000);
+                    }
+                });
+
+                video.addEventListener('waiting', () => {
+                    if (connected) {
+                        document.getElementById('overlay').style.display = 'flex';
+                        setOverlay('⏳', 'Buffering…', 'Loading video…', true);
+                    }
+                });
+                video.addEventListener('playing', hideOverlay);
+
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Safari native HLS
+                video.src = HLS_URL + '?t=' + Date.now();
+                video.addEventListener('loadedmetadata', () => {
+                    video.play().catch(() => {});
+                    hideOverlay();
+                    connected = true;
+                });
+                video.addEventListener('error', () => {
+                    connected = false;
+                    showOverlay();
+                    setOverlay('📡', 'Stream not available', 'Retrying in 5 seconds…', true);
+                    clearTimeout(retryTimer);
+                    retryTimer = setTimeout(startHLS, 5000);
+                });
+            } else {
+                setOverlay('⚠️', 'Browser not supported', 'Please use Chrome or Safari', false);
+            }
+        }
+
+        // Start trying immediately
+        startHLS();
+    </script>
+</body>
+</html>

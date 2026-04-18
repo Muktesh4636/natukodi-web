@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Stream — Broadcast</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .stream-container { max-width: 960px; margin: 0 auto; }
+        .video-wrap {
+            position: relative;
+            background: #0f172a;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+        }
+        #localVideo { width:100%; height:100%; object-fit:cover; display:block; }
+        .live-badge {
+            position:absolute; top:16px; left:16px;
+            background:#ef4444; color:white;
+            padding:6px 14px; border-radius:9999px;
+            font-size:13px; font-weight:700; letter-spacing:.05em;
+            display:none; align-items:center; gap:6px;
+        }
+        .live-badge.show { display:flex; }
+        .live-dot { width:8px; height:8px; background:white; border-radius:50%; animation:blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .controls { display:flex; gap:12px; margin-top:24px; flex-wrap:wrap; align-items:center; }
+        .btn {
+            padding:12px 24px; border-radius:12px; font-weight:700;
+            font-size:15px; cursor:pointer; border:none;
+            display:inline-flex; align-items:center; gap:8px;
+            transition:all .2s; text-decoration:none;
+        }
+        .btn-red { background:#ef4444; color:white; }
+        .btn-red:hover { background:#dc2626; }
+        .btn-red:disabled { background:#94a3b8; cursor:not-allowed; }
+        .btn-dark { background:#1e293b; color:white; }
+        .btn-dark:hover { background:#0f172a; }
+        .btn-dark:disabled { background:#94a3b8; cursor:not-allowed; }
+        .share-box { margin-top:24px; padding:16px 20px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; display:none; }
+        .share-box.show { display:block; }
+        .share-url { font-family:monospace; font-size:14px; color:#166534; word-break:break-all; }
+        .copy-btn { margin-top:8px; padding:6px 14px; background:#166534; color:white; border:none; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; }
+        .status-msg { margin-top:16px; padding:12px 16px; border-radius:10px; font-size:14px; font-weight:500; display:none; }
+        .s-info { background:#f0f9ff; color:#0c4a6e; border:1px solid #bae6fd; }
+        .s-success { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+        .s-error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+        .quality-select { padding:10px 14px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; background:white; cursor:pointer; }
+        .stats { margin-top:12px; font-size:13px; color:#64748b; }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            {% include 'admin/_admin_brand.html' %}
+            <div class="subtitle">Game control</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="stream-container">
+            <div class="header" style="margin-bottom:32px; border-bottom:1px solid #f1f5f9; padding-bottom:20px;">
+                <div class="header-left">
+                    <h1 style="font-size:26px; color:#0f172a; margin-bottom:6px;">🎥 Live Stream — Broadcast</h1>
+                    <p style="color:#64748b; font-size:14px;">Start your camera and go live. Viewers watch at <strong>/live/</strong></p>
+                </div>
+            </div>
+
+            <div class="video-wrap">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <div class="live-badge" id="liveBadge"><span class="live-dot"></span> LIVE</div>
+            </div>
+
+            <div class="controls">
+                <select id="qualitySelect" class="quality-select">
+                    <option value="1280x720">720p HD</option>
+                    <option value="1920x1080">1080p Full HD</option>
+                    <option value="640x480">480p</option>
+                </select>
+                <button id="btnStart" class="btn btn-red" onclick="startCamera()">📷 Start Camera</button>
+                <button id="btnLive" class="btn btn-red" onclick="goLive()" disabled>🔴 Go Live</button>
+                <button id="btnStop" class="btn btn-dark" onclick="stopStream()" disabled>⏹ Stop Stream</button>
+            </div>
+
+            <div id="statusMsg" class="status-msg s-info"></div>
+            <div class="stats" id="stats"></div>
+
+            <div class="share-box" id="shareBox">
+                <p style="margin:0 0 6px; font-weight:600; color:#166534;">Share this link with viewers:</p>
+                <div class="share-url" id="shareUrl"></div>
+                <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CSRF = '{{ csrf_token }}';
+        const VIEW_URL = window.location.origin + '/live/';
+        const START_URL = '{% url "livestream_start" %}';
+        const STOP_URL = '{% url "livestream_stop" %}';
+        const CHUNK_URL = '{% url "livestream_chunk" %}';
+
+        let localStream = null;
+        let mediaRecorder = null;
+        let chunkCount = 0;
+        let isLive = false;
+
+        function setStatus(msg, type='info') {
+            const el = document.getElementById('statusMsg');
+            el.style.display = 'block';
+            el.className = 'status-msg s-' + type;
+            el.textContent = msg;
+        }
+
+        async function startCamera() {
+            const [w, h] = document.getElementById('qualitySelect').value.split('x').map(Number);
+            setStatus('Requesting camera access…', 'info');
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: 30 } },
+                    audio: true
+                });
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('btnStart').disabled = true;
+                document.getElementById('btnLive').disabled = false;
+                document.getElementById('qualitySelect').disabled = true;
+                setStatus('Camera ready. Click "Go Live" to start broadcasting.', 'success');
+            } catch(e) {
+                setStatus('Camera error: ' + e.message, 'error');
+            }
+        }
+
+        async function goLive() {
+            if (!localStream) return;
+            document.getElementById('btnLive').disabled = true;
+            document.getElementById('btnStop').disabled = false;
+            setStatus('Starting stream…', 'info');
+
+            // Tell server to start (clears old HLS segments)
+            const startForm = new FormData();
+            startForm.append('csrfmiddlewaretoken', CSRF);
+            await fetch(START_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF },
+                body: startForm
+            });
+
+            // Pick best supported MIME type
+            const mimeType = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m)) || 'video/webm';
+
+            chunkCount = 0;
+            mediaRecorder = new MediaRecorder(localStream, { mimeType, videoBitsPerSecond: 2500000 });
+
+            mediaRecorder.ondataavailable = async (e) => {
+                if (!e.data || e.data.size < 100) return; // skip empty
+                const form = new FormData();
+                form.append('chunk', e.data, 'chunk.webm');
+                form.append('csrfmiddlewaretoken', CSRF);
+                try {
+                    const res = await fetch(CHUNK_URL, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': CSRF },
+                        body: form
+                    });
+                    if (!res.ok) {
+                        const txt = await res.text();
+                        document.getElementById('stats').textContent = `⚠️ Server error ${res.status}: ${txt.slice(0,100)}`;
+                        return;
+                    }
+                    const d = await res.json();
+                    chunkCount = d.chunk || chunkCount + 1;
+                    const segs = d.segments || 0;
+                    const ready = d.hls_ready ? '✅ HLS ready — viewers can watch!' : `⏳ buffering (${segs}/2)…`;
+                    document.getElementById('stats').textContent =
+                        `Chunks: ${chunkCount} | Segments: ${segs} | ${ready} | ${(e.data.size/1024).toFixed(1)}KB`;
+                } catch(err) {
+                    document.getElementById('stats').textContent = '⚠️ Upload error: ' + err.message;
+                }
+            };
+
+            // 4-second chunks → ~8-10s lag for viewers
+            mediaRecorder.start(4000);
+            isLive = true;
+
+            document.getElementById('liveBadge').classList.add('show');
+            document.getElementById('shareBox').classList.add('show');
+            document.getElementById('shareUrl').textContent = VIEW_URL;
+            setStatus('🔴 You are LIVE! Viewers can watch at the link below.', 'success');
+        }
+
+        async function stopStream() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            document.getElementById('localVideo').srcObject = null;
+            isLive = false;
+
+            const stopForm = new FormData();
+            stopForm.append('csrfmiddlewaretoken', CSRF);
+            await fetch(STOP_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF },
+                body: stopForm
+            });
+
+            document.getElementById('liveBadge').classList.remove('show');
+            document.getElementById('shareBox').classList.remove('show');
+            document.getElementById('btnStop').disabled = true;
+            document.getElementById('btnLive').disabled = true;
+            document.getElementById('btnStart').disabled = false;
+            document.getElementById('qualitySelect').disabled = false;
+            document.getElementById('stats').textContent = '';
+            setStatus('Stream stopped.', 'info');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(VIEW_URL).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy Link', 2000);
+            });
+        }
+    </script>
+</body>
+</html>
