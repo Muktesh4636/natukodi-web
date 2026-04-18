@@ -18,9 +18,8 @@ SERVER_PASS="Gunduata@123"
 PROJECT_DIR_ON_SERVER="/root/apk_of_ata"
 SERVERS=("72.61.254.71" "72.61.254.74" "72.62.226.41")
 # Gundu_ata_apk-1 (primary source for present)
-LOCAL_APK="/Users/pradyumna/Gundu_ata_apk-1/out/Sikwin_UnityUpdate_v49_signed.apk"
-LOCAL_APK_LEGACY="/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean_signed.apk"
-LOCAL_APK_ALT="/Users/pradyumna/Gundu_ata_apk-1/out/Sikwin_UnityUpdate_v49.apk"
+LOCAL_APK="/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean_signed.apk"
+LOCAL_APK_LEGACY="/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean.apk"
 LOCAL_APK_DEBUG="/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean.apk"
 LOCAL_APK_LEGACY2="./backend/staticfiles/assets/gundu_ata_latest.apk"
 LOCAL_APK_LEGACY3="./android_app/Gundu_ata_apk/Gundu Ata 3.apk"
@@ -34,9 +33,6 @@ if [ -f "$LOCAL_APK" ]; then
     echo -e "${GREEN}Found APK: $APK_FILE${NC}"
 elif [ -f "$LOCAL_APK_LEGACY" ]; then
     APK_FILE="$LOCAL_APK_LEGACY"
-    echo -e "${GREEN}Found APK: $APK_FILE${NC}"
-elif [ -f "$LOCAL_APK_ALT" ]; then
-    APK_FILE="$LOCAL_APK_ALT"
     echo -e "${GREEN}Found APK: $APK_FILE${NC}"
 elif [ -f "$LOCAL_APK_DEBUG" ]; then
     APK_FILE="$LOCAL_APK_DEBUG"
@@ -52,7 +48,6 @@ else
     echo "Looking for:"
     echo "  - $LOCAL_APK"
     echo "  - $LOCAL_APK_LEGACY"
-    echo "  - $LOCAL_APK_ALT"
     echo "  - $LOCAL_APK_DEBUG"
     echo "  - $LOCAL_APK_LEGACY2"
     echo "  - $LOCAL_APK_LEGACY3"

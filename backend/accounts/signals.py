@@ -4,8 +4,6 @@ Django signals for automatic player distribution and notifications
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from .models import User, DepositRequest, WithdrawRequest, Wallet
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from .player_distribution import (
     assign_player_to_admin,
     redistribute_players_from_deleted_admin,
@@ -14,81 +12,18 @@ from .player_distribution import (
 import json
 
 
-def _deposit_notification_user_info(deposit):
-    """Resolve worker_id and username from DB so franchise admin notifications use committed user."""
-    try:
-        user = User.objects.only('worker_id', 'username').get(pk=deposit.user_id)
-        worker_id = None
-        if getattr(user, 'worker_id', None) is not None:
-            worker_id = int(user.worker_id)
-        return worker_id, getattr(user, 'username', '') or ''
-    except User.DoesNotExist:
-        return None, ''
-
-
 @receiver(post_save, sender=DepositRequest)
 def notify_admin_deposit_request(sender, instance, created, **kwargs):
-    """Notify admins when a new deposit request is created"""
+    """Deposit created (real-time WebSocket notifications removed)."""
     if created:
-        channel_layer = get_channel_layer()
-        screenshot_url = None
-        try:
-            if instance.screenshot:
-                screenshot_url = instance.screenshot.url
-        except Exception:
-            pass
-        # Use DB-fetched worker_id so franchise admin (e.g. muktesh1) gets the notification
-        worker_id, username = _deposit_notification_user_info(instance)
-        async_to_sync(channel_layer.group_send)(
-            'admin_notifications',
-            {
-                'type': 'admin_notification',
-                'notification_type': 'deposit',
-                'id': instance.id,
-                'user_id': instance.user_id,
-                'worker_id': worker_id,
-                'user': username,
-                'amount': float(instance.amount),
-                'screenshot_url': screenshot_url,
-                'payment_reference': instance.payment_reference or '',
-                'created_at': instance.created_at.strftime("%b %d, %H:%M"),
-            }
-        )
-
-
-def _withdraw_notification_user_info(withdraw):
-    """Resolve worker_id and username from DB so franchise admin notifications use committed user."""
-    try:
-        user = User.objects.only('worker_id', 'username').get(pk=withdraw.user_id)
-        worker_id = None
-        if getattr(user, 'worker_id', None) is not None:
-            worker_id = int(user.worker_id)
-        return worker_id, getattr(user, 'username', '') or ''
-    except User.DoesNotExist:
-        return None, ''
+        pass
 
 
 @receiver(post_save, sender=WithdrawRequest)
 def notify_admin_withdraw_request(sender, instance, created, **kwargs):
-    """Notify admins when a new withdraw request is created"""
+    """Withdraw created (real-time WebSocket notifications removed)."""
     if created:
-        channel_layer = get_channel_layer()
-        worker_id, username = _withdraw_notification_user_info(instance)
-        async_to_sync(channel_layer.group_send)(
-            'admin_notifications',
-            {
-                'type': 'admin_notification',
-                'notification_type': 'withdraw',
-                'id': instance.id,
-                'user_id': instance.user_id,
-                'worker_id': worker_id,
-                'user': username,
-                'amount': float(instance.amount),
-                'method': instance.withdrawal_method or '',
-                'details': instance.withdrawal_details or '',
-                'created_at': instance.created_at.strftime("%b %d, %H:%M"),
-            }
-        )
+        pass
 
 
 @receiver(post_save, sender=Wallet)

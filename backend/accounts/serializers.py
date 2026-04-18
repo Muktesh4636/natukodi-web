@@ -189,6 +189,37 @@ class WithdrawRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'status', 'created_at', 'updated_at', 'user', 'processed_by_name')
 
 
+class WithdrawRequestAppSerializer(serializers.ModelSerializer):
+    """Minimal withdraw payload for mobile clients (no nested ``user``)."""
+
+    processed_by_name = serializers.ReadOnlyField(source='processed_by.username')
+
+    class Meta:
+        model = WithdrawRequest
+        fields = (
+            'id',
+            'amount',
+            'status',
+            'withdrawal_method',
+            'withdrawal_details',
+            'admin_note',
+            'processed_by_name',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = (
+            'id',
+            'amount',
+            'status',
+            'withdrawal_method',
+            'withdrawal_details',
+            'admin_note',
+            'processed_by_name',
+            'created_at',
+            'updated_at',
+        )
+
+
 class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentMethod

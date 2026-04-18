@@ -100,8 +100,6 @@ urlpatterns = [
     path('api/game/settings', game_views.game_settings_api, name='game_settings_api_direct_no_slash'),
     # Game endpoints (api/game/)
     path('api/game/', include('game.urls')),
-    # Same game API under /webgl/api/game/ for WebGL clients that resolve relative URLs from /webgl/
-    path('webgl/api/game/', include('game.urls')),
     
     # Game admin endpoints (game-admin/)
     # No trailing slash must redirect before React catch-all (otherwise SPA loads)
@@ -116,8 +114,6 @@ urlpatterns = [
     # Redirect game-admin/admin/ -> Django admin (view DB tables)
     path('game-admin/admin/', RedirectView.as_view(url='/admin/', permanent=False), name='game_admin_to_django_admin'),
     path('game-admin/dashboard/', game_admin_views.admin_dashboard, name='admin_dashboard'),
-    path('game-admin/dice-control/', game_admin_views.dice_control, name='dice_control'),
-    path('game-admin/dice-controlled-rounds/', game_admin_views.dice_controlled_rounds, name='dice_controlled_rounds'),
     path('game-admin/recent-rounds/', game_admin_views.recent_rounds, name='recent_rounds'),
     path('game-admin/round/<str:round_id>/', game_admin_views.round_details, name='round_details'),
     path('game-admin/user/<int:user_id>/', game_admin_views.user_details, name='user_details'),
@@ -141,9 +137,6 @@ urlpatterns = [
     path('game-admin/dashboard-data/', game_admin_views.admin_dashboard_data, name='admin_dashboard_data'),
     path('game-admin/system-health/', RedirectView.as_view(url='/system-health/', permanent=False), name='system_health_dashboard_admin_redirect'),
     path('game-admin/system-health/data/', RedirectView.as_view(url='/system-health/data/', permanent=False), name='system_health_data_admin_redirect'),
-    path('game-admin/set-dice/', game_admin_views.set_dice_result_view, name='set_dice_result_view'),
-    path('game-admin/set-individual-dice/', game_admin_views.set_individual_dice_view, name='set_individual_dice_view'),
-    path('game-admin/toggle-dice-mode/', game_admin_views.toggle_dice_mode, name='toggle_dice_mode'),
     path('game-admin/players-list/', game_admin_views.manage_players, name='manage_players'),
     path('game-admin/players/', game_admin_views.players, name='players'),
     path('game-admin/players/assign-worker/', game_admin_views.assign_worker, name='assign_worker'),
@@ -183,7 +176,7 @@ urlpatterns = [
     # Explicitly exclude download paths and .apk files
     # Exclude game-admin with or without trailing slash so /game-admin never hits the SPA
     re_path(
-        r'^(?!/?api/)(?!/?webgl/api/)(?!/?admin(?:/|$))(?!/?game-admin(?:/|$))(?!/?static/)(?!/?media/)(?!/?ws/)(?!/?assets/)(?!apk$)(?!download-apk$)(?!.*\.apk$).*$',
+        r'^(?!/?api/)(?!/?admin(?:/|$))(?!/?game-admin(?:/|$))(?!/?static/)(?!/?media/)(?!/?ws/)(?!/?assets/)(?!apk$)(?!download-apk$)(?!.*\.apk$).*$',
         project_views.serve_react_app,
         name='react_app',
     ),

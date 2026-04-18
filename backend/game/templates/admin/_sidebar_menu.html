@@ -1,5 +1,5 @@
 <div class="sidebar-menu-wrapper">
-    {% if is_super_admin or admin_permissions.can_view_dashboard or admin_permissions.can_control_dice or admin_permissions.can_view_recent_rounds or admin_permissions.can_view_all_bets %}
+    {% if is_super_admin or admin_permissions.can_view_dashboard or admin_permissions.can_view_recent_rounds or admin_permissions.can_view_all_bets %}
     <div class="menu-section">
         <div style="padding: 0 20px 10px 20px; display: flex; align-items: center; justify-content: space-between;">
             <span class="menu-section-title" style="padding: 0; margin: 0;">MAIN</span>
@@ -10,9 +10,6 @@
         </div>
         <ul class="sidebar-menu">
             {% if is_super_admin or admin_permissions.can_view_dashboard %} <li><a href="{% url 'admin_dashboard' %}" {% if page == 'dashboard' %}class="active" {% endif %}> <span class="menu-icon">🏠</span> Dashboard
-                </a></li>
-            {% endif %}
-            {% if is_super_admin or admin_permissions.can_control_dice %} <li><a href="{% url 'dice_control' %}" {% if page == 'dice-control' %}class="active" {% endif %}> <span class="menu-icon">🎯</span> Dice Control
                 </a></li>
             {% endif %}
 

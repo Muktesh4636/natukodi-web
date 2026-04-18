@@ -13,7 +13,7 @@ import redis
 import json
 import os
 from collections import Counter
-from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions, WhiteLabelLead, LiveStream, CricketBet, CockFightBet
+from .models import GameRound, Bet, GameSettings, AdminPermissions, WhiteLabelLead, LiveStream, CricketBet, CockFightBet
 from accounts.models import (
     Wallet,
     Transaction,
@@ -30,13 +30,12 @@ from accounts.player_distribution import (
     balance_player_distribution,
     get_admins_for_distribution
 )
-from django.db.models import Count, Sum, Q, F, Value
+from django.db.models import Count, Sum, Q, F, Value, Max
 from django.db.models.functions import Coalesce
 try:
     from accounts.models import AdminProfile
 except ImportError:
     AdminProfile = None
-from .views import get_dice_mode, set_dice_mode
 from .admin_utils import (
     is_super_admin, is_admin, has_permission, get_admin_profile,
     super_admin_required, admin_required, permission_required,
@@ -130,7 +129,7 @@ def _discover_api_paths():
         # Skip regex catch-all/static paths we cannot safely probe.
         if '(?!' in path or '(?P<' in path or '.*' in path:
             continue
-        if not (path.startswith('/api/') or path.startswith('/webgl/api/')):
+        if not path.startswith('/api/'):
             continue
         if path not in seen:
             discovered.append(path)
@@ -196,107 +195,13 @@ def _run_api_health_checks(request):
     }
 
 
-def _run_websocket_health_checks():
-    import time
-    from asgiref.sync import async_to_sync
-
-    checks = []
-
-    route_start = time.perf_counter()
-    try:
-        from game.routing import websocket_urlpatterns
-        route_names = [str(pattern.pattern) for pattern in websocket_urlpatterns]
-        has_primary_route = any('ws/game' in route for route in route_names)
-        checks.append({
-            'name': 'WebSocket route mapping',
-            'state': 'healthy' if has_primary_route else 'failed',
-            'detail': ', '.join(route_names) if route_names else 'No websocket routes configured.',
-            'response_ms': round((time.perf_counter() - route_start) * 1000, 2),
-        })
-    except Exception as exc:
-        checks.append({
-            'name': 'WebSocket route mapping',
-            'state': 'failed',
-            'detail': str(exc),
-            'response_ms': round((time.perf_counter() - route_start) * 1000, 2),
-        })
-
-    layer_start = time.perf_counter()
-    try:
-        from channels.layers import get_channel_layer
-
-        channel_layer = get_channel_layer()
-        if channel_layer is None:
-            raise RuntimeError('Channel layer unavailable.')
-
-        channel_name = async_to_sync(channel_layer.new_channel)('health.dashboard.')
-        payload = {'type': 'health.ping', 'value': 'ok'}
-        async_to_sync(channel_layer.send)(channel_name, payload)
-        received = async_to_sync(channel_layer.receive)(channel_name)
-        if received.get('value') != 'ok':
-            raise RuntimeError('Unexpected channel-layer payload.')
-
-        checks.append({
-            'name': 'Channel layer round-trip',
-            'state': 'healthy',
-            'detail': 'Send/receive check passed.',
-            'response_ms': round((time.perf_counter() - layer_start) * 1000, 2),
-        })
-    except Exception as exc:
-        checks.append({
-            'name': 'Channel layer round-trip',
-            'state': 'failed',
-            'detail': str(exc),
-            'response_ms': round((time.perf_counter() - layer_start) * 1000, 2),
-        })
-
-    redis_start = time.perf_counter()
-    try:
-        ws_redis_client = get_redis_client()
-        if ws_redis_client:
-            ws_redis_client.ping()
-            checks.append({
-                'name': 'Redis connectivity (WS dependency)',
-                'state': 'healthy',
-                'detail': 'Redis ping succeeded.',
-                'response_ms': round((time.perf_counter() - redis_start) * 1000, 2),
-            })
-        else:
-            checks.append({
-                'name': 'Redis connectivity (WS dependency)',
-                'state': 'warning',
-                'detail': 'Redis client unavailable; WS may still work with in-memory layer.',
-                'response_ms': round((time.perf_counter() - redis_start) * 1000, 2),
-            })
-    except Exception as exc:
-        checks.append({
-            'name': 'Redis connectivity (WS dependency)',
-            'state': 'failed',
-            'detail': str(exc),
-            'response_ms': round((time.perf_counter() - redis_start) * 1000, 2),
-        })
-
-    return checks
-
-
 def _collect_system_health_snapshot(request):
     api_section = _run_api_health_checks(request)
-    websocket_checks = _run_websocket_health_checks()
-    websocket_failed = sum(1 for item in websocket_checks if item['state'] == 'failed')
-    websocket_warning = sum(1 for item in websocket_checks if item['state'] == 'warning')
-    websocket_healthy = sum(1 for item in websocket_checks if item['state'] == 'healthy')
     now_iso = timezone.now().isoformat()
 
     return {
         'generated_at': now_iso,
         'api': api_section,
-        'websocket': {
-            'total_checks': len(websocket_checks),
-            'healthy': websocket_healthy,
-            'warning': websocket_warning,
-            'failed': websocket_failed,
-            'checks': websocket_checks,
-        },
     }
 
 
@@ -332,7 +237,7 @@ def get_admin_context(request, extra_context=None):
     class DummyPermissions:
         def __init__(self, all_true=False):
             for attr in (
-                'can_view_dashboard', 'can_control_dice', 'can_view_recent_rounds', 'can_view_all_bets',
+                'can_view_dashboard', 'can_view_recent_rounds', 'can_view_all_bets',
                 'can_view_wallets', 'can_view_players', 'can_view_deposit_requests', 'can_view_withdraw_requests',
                 'can_view_transactions', 'can_view_game_history', 'can_view_game_settings',
                 'can_view_admin_management', 'can_manage_payment_methods', 'can_view_help_center', 'can_view_white_label',
@@ -591,158 +496,6 @@ def admin_dashboard(request):
         'my_franchise_balance_display': my_franchise_balance_display,
     })
     return render(request, 'admin/game_dashboard.html', context)
-
-@admin_required
-def set_dice_result_view(request):
-    """Admin view to set dice result (1-6)"""
-    if not request.session.get('dice_control_verified'):
-        messages.error(request, 'Please verify your PIN first.')
-        return redirect('dice_control')
-
-    if request.method == 'POST':
-        try:
-            # Get current round state using helper
-            from .utils import get_current_round_state, get_game_setting
-            
-            # Enforce local fallback for redis_client if global is missing/None
-            local_redis = None
-            try:
-                 local_redis = redis_client
-            except NameError:
-                 pass
-                 
-            round_obj, timer, status, _ = get_current_round_state(local_redis)
-
-            # Get dice result time (needed for restriction check and finalization logic)
-            dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
-            
-            # Check timer: Cannot set result after dice_result_time (51s)
-            if timer >= dice_result_time:
-                messages.error(request, f'Cannot set dice result after {dice_result_time} seconds. Use Manual Adjust mode to override.')
-                return redirect('dice_control')
-
-            if not round_obj:
-                messages.error(request, 'No active round')
-                return redirect('dice_control')
-            
-            dice_result = request.POST.get('result')
-            if dice_result:
-                try:
-                    result_value = int(dice_result)
-                    if not (1 <= result_value <= 6):
-                        messages.error(request, 'Dice result must be between 1 and 6')
-                        return redirect('dice_control')
-                except ValueError:
-                    messages.error(request, 'Invalid dice result value')
-                    return redirect('dice_control')
-
-                # Set result on round object
-                round_obj.dice_result = str(result_value)
-                # For compatibility, set all dice to this value (simplified legacy behavior)
-                for i in range(1, 7):
-                    setattr(round_obj, f'dice_{i}', result_value)
-                
-                # Only finalize the round (status, payouts, broadcast) if we are at or past result time
-                should_finalize = timer >= dice_result_time
-                
-                if should_finalize:
-                    round_obj.status = 'RESULT'
-                    if not round_obj.result_time:
-                        round_obj.result_time = timezone.now()
-                
-                round_obj.save()
-                
-                # Create or update dice result record
-                DiceResult.objects.update_or_create(
-                    round=round_obj,
-                    defaults={
-                        'result': str(result_value),
-                        'set_by': request.user
-                    }
-                )
-                
-                # Update Redis
-                if local_redis:
-                    try:
-                        # 1. Update legacy current_round key
-                        round_data = local_redis.get('current_round')
-                        if round_data:
-                            round_data = json.loads(round_data)
-                            round_data['dice_result'] = str(result_value)
-                            # Update all dice values
-                            for i in range(1, 7):
-                                round_data[f'dice_{i}'] = result_value
-                            
-                            if should_finalize:
-                                round_data['status'] = 'RESULT'
-                            
-                            local_redis.set('current_round', json.dumps(round_data))
-                        
-                        # 2. Update manual_dice_result for the engine to pick up
-                        # Format: "1,1,1,1,1,1"
-                        manual_dice_str = ",".join([str(result_value)] * 6)
-                        local_redis.set("manual_dice_result", manual_dice_str, ex=300)
-                    except Exception:
-                        pass
-                
-                # ONLY calculate payouts and broadcast if finalizing
-                if should_finalize:
-                    # Calculate payouts
-                    from .views import calculate_payouts
-                    # Legacy mode: all dice same
-                    dice_values = [result_value] * 6
-                    calculate_payouts(round_obj, dice_result=str(result_value), dice_values=dice_values)
-                    
-                    # Broadcast to WebSocket
-                    from channels.layers import get_channel_layer
-                    from asgiref.sync import async_to_sync
-                    channel_layer = get_channel_layer()
-                    if channel_layer:
-                        try:
-                            async_to_sync(channel_layer.group_send)(
-                                'game_room',
-                                {
-                                    'type': 'dice_result',
-                                    'result': str(result_value),
-                                    'dice_values': dice_values,
-                                    'round_id': round_obj.round_id,
-                                }
-                            )
-                        except Exception:
-                            pass
-                
-                mode_text = " (Pre-set)" if not should_finalize else ""
-                messages.success(request, f'Dice result set{mode_text}: {result_value}')
-            else:
-                messages.error(request, 'Dice result is required')
-
-        except Exception as e:
-            import traceback
-            error_trace = traceback.format_exc()
-            from django.http import HttpResponse
-            return HttpResponse(f"<html><body><h1>Error setting dice result</h1><pre>{error_trace}</pre><br><a href='/game-admin/dice-control/'>Back to Dice Control</a></body></html>")
-            
-    referer = request.META.get('HTTP_REFERER', '')
-    if 'dice-control' in referer:
-        return redirect('dice_control')
-    return redirect('admin_dashboard')
-
-@admin_required
-def toggle_dice_mode(request):
-    """Toggle dice mode between manual and random"""
-    if not request.session.get('dice_control_verified'):
-        messages.error(request, 'Please verify your PIN first.')
-        return redirect('dice_control')
-
-    if request.method == 'POST':
-        current_mode = get_dice_mode()
-        new_mode = 'manual' if current_mode == 'random' else 'random'
-        set_dice_mode(new_mode)
-        messages.success(request, f'Dice mode changed to {new_mode}')
-    referer = request.META.get('HTTP_REFERER', '')
-    if 'dice-control' in referer:
-        return redirect('dice_control')
-    return redirect('admin_dashboard')
 
 @admin_required
 def admin_dashboard_data(request):
@@ -1035,270 +788,6 @@ def admin_dashboard_data(request):
     return JsonResponse(data)
 
 @admin_required
-def set_individual_dice_view(request):
-    """Admin view to set individual dice values (1-6 for each of 6 dice)
-    All dice values must be provided and time restrictions are enforced
-    """
-    if request.method == 'POST':
-        try:
-            # Get current round state using helper
-            from .utils import get_current_round_state, get_game_setting
-            
-            # Enforce local fallback for redis_client if global is missing/None
-            local_redis = None
-            try:
-                 local_redis = redis_client
-            except NameError:
-                 pass
-            
-            round_obj, timer, status, _ = get_current_round_state(local_redis)
-
-            # Get dice result time (needed for restriction check and finalization logic)
-            dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
-
-            # Check timer restriction
-            if timer >= dice_result_time:
-                    messages.error(request, f'Cannot set dice values after {dice_result_time} seconds. Use Manual Adjust mode to override.')
-                    return redirect('dice_control')
-            
-            if not round_obj:
-                messages.error(request, 'No active round')
-                return redirect('dice_control')
-            
-            # Collect dice values (all dice required)
-            dice_values_list = []  # For calculating result
-
-            for i in range(1, 7):
-                dice_value = request.POST.get(f'dice_{i}', '').strip()
-                if dice_value:
-                    try:
-                        value = int(dice_value)
-                        if 1 <= value <= 6:
-                            dice_values_list.append(value)
-                        else:
-                            messages.error(request, f'Dice {i} value must be between 1-6')
-                            return redirect('dice_control')
-                    except ValueError:
-                        messages.error(request, f'Invalid value for dice {i}')
-                        return redirect('dice_control')
-                else:
-                    messages.error(request, f'Dice {i} value is required')
-                    return redirect('dice_control')
-            else:
-                # Normal mode - must have all 6 values
-                if len(dice_values_list) != 6:
-                    messages.error(request, 'All 6 dice values are required')
-                    return redirect('dice_control')
-            
-            # Apply updates to round object
-            for i, value in enumerate(dice_values_list):
-                setattr(round_obj, f'dice_{i+1}', value)
-            
-            # If we have at least some dice values, calculate result
-            if dice_values_list:
-                # Filter out None values for calculation
-                valid_dice = [d for d in dice_values_list if d is not None]
-                if valid_dice:
-                    from .utils import determine_winning_number
-                    most_common = determine_winning_number(valid_dice)
-                    
-                    round_obj.dice_result = most_common
-                    
-                    # Only finalize the round (status, payouts, broadcast) if we are at or past result time
-                    should_finalize = timer >= dice_result_time
-                    
-                    if should_finalize:
-                        round_obj.status = 'RESULT'
-                        if not round_obj.result_time:
-                            round_obj.result_time = timezone.now()
-                    
-                    round_obj.save()
-                    
-                    # Create or update dice result record
-                    DiceResult.objects.update_or_create(
-                        round=round_obj,
-                        defaults={
-                            'result': most_common,
-                            'set_by': request.user
-                        }
-                    )
-                    
-                    # Update Redis with all current dice values
-                    if redis_client:
-                        try:
-                            # 1. Update legacy current_round key
-                            round_data = redis_client.get('current_round')
-                            if round_data:
-                                round_data = json.loads(round_data)
-                                round_data['dice_result'] = most_common
-                                # Update all dice values (use current from DB)
-                                for i in range(1, 7):
-                                    dice_val = getattr(round_obj, f'dice_{i}', None)
-                                    if dice_val is not None:
-                                        round_data[f'dice_{i}'] = dice_val
-                                
-                                if should_finalize:
-                                    round_data['status'] = 'RESULT'
-                                
-                                redis_client.set('current_round', json.dumps(round_data))
-                            
-                            # 2. Update manual_dice_result for the engine to pick up (see game_engine_v3 run_game_loop)
-                            # Format: "1,2,3,4,5,6" — when present at result time, engine skips smart/random dice.
-                            if len(dice_values_list) == 6 and all(1 <= d <= 6 for d in dice_values_list):
-                                manual_dice_str = ",".join(str(d) for d in dice_values_list)
-                                redis_client.set("manual_dice_result", manual_dice_str, ex=300)
-                        except Exception:
-                            pass
-                    
-                    # ONLY calculate payouts and broadcast if finalizing
-                    if should_finalize:
-                        # Calculate payouts based on dice values (frequency-based)
-                        from .views import calculate_payouts
-                        # Get complete dice values from round object
-                        complete_dice = [
-                            round_obj.dice_1, round_obj.dice_2, round_obj.dice_3,
-                            round_obj.dice_4, round_obj.dice_5, round_obj.dice_6
-                        ]
-                        # Only calculate if we have all 6 dice values
-                        if all(d is not None for d in complete_dice):
-                            calculate_payouts(round_obj, dice_result=most_common, dice_values=complete_dice)
-                        
-                        # Broadcast to WebSocket
-                        from channels.layers import get_channel_layer
-                        from asgiref.sync import async_to_sync
-                        channel_layer = get_channel_layer()
-                        if channel_layer:
-                            try:
-                                async_to_sync(channel_layer.group_send)(
-                                    'game_room',
-                                    {
-                                        'type': 'dice_result',
-                                        'result': most_common,
-                                        'dice_values': complete_dice if all(d is not None for d in complete_dice) else valid_dice,
-                                        'round_id': round_obj.round_id,
-                                    }
-                                )
-                            except Exception:
-                                pass
-                    
-                    mode_text = " (Pre-set)" if not should_finalize else ""
-                    
-                    updated_text = ", ".join([f"D{i+1}:{v}" for i, v in enumerate(dice_values_list)])
-                    messages.success(request, f'Dice values updated{mode_text}: {updated_text} | Result: {most_common}')
-                else:
-                    messages.error(request, 'At least one valid dice value is required')
-            else:
-                messages.error(request, 'No dice values provided')
-
-        except Exception as e:
-            import traceback
-            error_trace = traceback.format_exc()
-            from django.http import HttpResponse
-            return HttpResponse(f"<html><body><h1>Error setting dice values</h1><pre>{error_trace}</pre><br><a href='/game-admin/dice-control/'>Back to Dice Control</a></body></html>")
-    
-    return redirect('dice_control')
-
-@admin_required
-def dice_control(request):
-    """Dice control page with PIN protection"""
-    try:
-
-        if not has_menu_permission(request.user, 'dice_control'):
-            messages.error(request, 'You do not have permission to access dice control.')
-            return redirect('admin_dashboard')
-
-        # PIN protection
-        if request.method == 'POST' and 'pin' in request.POST:
-            pin = request.POST.get('pin')
-            if pin == getattr(settings, 'DICE_CONTROL_PIN', '1234'):
-                request.session['dice_control_verified'] = True
-                request.session.modified = True
-                # Continue to GET logic
-            else:
-                return render(request, 'admin/dice_control_pin.html', {'error': 'Invalid PIN'})
-
-        # Check if they are trying to perform an action (POST) without verification
-        if request.method == 'POST' and not request.session.get('dice_control_verified'):
-            # This handles cases where they might try to submit a dice control form directly
-            return render(request, 'admin/dice_control_pin.html', {'error': 'Please verify your PIN first.'})
-
-        if not request.session.get('dice_control_verified'):
-            return render(request, 'admin/dice_control_pin.html')
-            
-        # Get current round state using helper
-        from .utils import get_current_round_state, get_game_setting
-        
-        # Enforce local fallback for redis_client if global is missing/None
-        local_redis = None
-        try:
-                local_redis = redis_client
-        except NameError:
-                pass
-                
-        current_round, timer, status, _ = get_current_round_state(local_redis)
-        
-        # Get stats for current round
-        current_round_total_amount = 0
-        current_round_total_bets = 0
-        bets_by_number_list = []
-        
-        if current_round:
-            current_round_bets = Bet.objects.filter(round=current_round)
-            current_round_total_bets = current_round_bets.count()
-            current_round_total_amount = current_round_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-            
-            # Calculate bets by number
-            for number in range(1, 7):
-                number_bets = current_round_bets.filter(number=number)
-                amount = number_bets.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-                count = number_bets.count()
-                bets_by_number_list.append({
-                    'number': number,
-                    'amount': amount,
-                    'count': count
-                })
-        
-        # Get dice mode
-        from .views import get_dice_mode
-        dice_mode = get_dice_mode()
-        
-        # Get timing settings for current round
-        betting_close_time = current_round.betting_close_seconds if current_round else get_game_setting('BETTING_CLOSE_TIME', 30)
-        dice_result_time = current_round.dice_result_seconds if current_round else get_game_setting('DICE_RESULT_TIME', 51)
-        round_end_time = current_round.round_end_seconds if current_round else get_game_setting('ROUND_END_TIME', 80)
-
-        context = get_admin_context(request, {
-            'current_round': current_round,
-            'timer': timer,
-            'status': status,
-            'dice_mode': dice_mode,
-            'current_round_total_bets': current_round_total_bets,
-            'current_round_total_amount': current_round_total_amount,
-            'bets_by_number_list': bets_by_number_list,
-            'betting_close_time': betting_close_time,
-            'dice_result_time': dice_result_time,
-            'round_end_time': round_end_time,
-            'page': 'dice-control',
-        })
-        
-        return render(request, 'admin/dice_control.html', context)
-
-    except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        from django.http import HttpResponse
-        return HttpResponse(f"<html><body><h1>Error loading Dice Control Page</h1><pre>{error_trace}</pre><br><a href='/game-admin/dashboard/'>Back to Dashboard</a></body></html>")
-
-@admin_required
-def dice_controlled_rounds(request):
-    """Redirect to Recent Rounds with controlled-only filter (controlled dice are shown there only)."""
-    if not has_menu_permission(request.user, 'dice_control'):
-        messages.error(request, 'You do not have permission to view this page.')
-        return redirect('admin_dashboard')
-    from django.urls import reverse
-    return redirect(reverse('recent_rounds') + '?controlled_only=1')
-
-@admin_required
 def recent_rounds(request):
     """Recent rounds page with search and filter"""
     if not has_menu_permission(request.user, 'recent_rounds'):
@@ -1333,8 +822,10 @@ def recent_rounds(request):
     # Get search query and filters
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '')
-    controlled_only = request.GET.get('controlled_only') == '1'
     date_range = request.GET.get('date_range', '').strip()  # '', 'last_7_days', 'last_30_days', 'last_month'
+    game = (request.GET.get('game') or 'gunduata').strip().lower()
+    if game not in ('gunduata', 'cricket'):
+        game = 'gunduata'
 
     # Date range filter for round start_time
     from datetime import timedelta, date
@@ -1353,81 +844,113 @@ def recent_rounds(request):
         date_from = last_last_month.replace(day=1)
         date_to = last_last_month
 
-    # Get recent rounds with per-round bet count/sum from Bet table (use distinct names to avoid conflict with model fields)
-    recent_rounds_list = GameRound.objects.annotate(
-        round_bets_count=Count('bets'),
-        round_bets_amount=Coalesce(Sum('bets__chip_amount'), Value(0)),
-    )
-    
-    # Apply "controlled only" filter: only rounds where dice was set by an admin
-    if controlled_only:
-        controlled_round_ids = DiceResult.objects.filter(set_by__isnull=False).values_list('round_id', flat=True)
-        recent_rounds_list = recent_rounds_list.filter(pk__in=controlled_round_ids)
-    
-    # Apply search filter
-    if search_query:
-        # Search by round_id or dice_result
-        recent_rounds_list = recent_rounds_list.filter(
-            Q(round_id__icontains=search_query) | 
-            Q(dice_result__icontains=search_query)
-        )
-    
-    # Apply status filter
-    if status_filter:
-        recent_rounds_list = recent_rounds_list.filter(status=status_filter)
+    effective_admin = get_effective_admin(request.user)
+    recent_bets = []
+    total_rounds = 0
+    total_bets_count = 0
+    total_bets_amount = 0
 
-    # Apply date range filter
-    if date_from is not None:
-        recent_rounds_list = recent_rounds_list.filter(start_time__date__gte=date_from)
-    if date_to is not None:
-        recent_rounds_list = recent_rounds_list.filter(start_time__date__lte=date_to)
+    if game == 'cricket':
+        cricket_qs = CricketBet.objects.all()
+        if not is_super_admin(effective_admin):
+            cricket_qs = cricket_qs.filter(user__worker=effective_admin)
+        if search_query:
+            cq = (
+                Q(event_name__icontains=search_query)
+                | Q(market_name__icontains=search_query)
+                | Q(outcome_name__icontains=search_query)
+            )
+            if search_query.isdigit():
+                try:
+                    sid = int(search_query)
+                    cq |= Q(event_id=sid) | Q(market_id=sid)
+                except (ValueError, OverflowError):
+                    pass
+            cricket_qs = cricket_qs.filter(cq)
+        if date_from is not None:
+            cricket_qs = cricket_qs.filter(created_at__date__gte=date_from)
+        if date_to is not None:
+            cricket_qs = cricket_qs.filter(created_at__date__lte=date_to)
 
-    # Paginate so older history is accessible (page 2, 3, ...)
-    recent_rounds_list = recent_rounds_list.order_by('-start_time')
-    paginator = Paginator(recent_rounds_list, 50)
-    page_number = request.GET.get('page', 1)
-    try:
-        page_number = max(1, min(int(page_number), 999))
-    except (ValueError, TypeError):
-        page_number = 1
-    page_obj = paginator.get_page(page_number)
-    recent_rounds_list = list(page_obj.object_list)
-    
-    # Set of round IDs that were manually controlled (for "Controlled" badge in table)
-    controlled_round_ids_set = set(DiceResult.objects.filter(set_by__isnull=False).values_list('round_id', flat=True))
-    
-    # Get recent bets (also with search if provided)
-    recent_bets = Bet.objects.select_related('user', 'round').all()
-    if search_query:
-        recent_bets = recent_bets.filter(
-            Q(round__round_id__icontains=search_query) |
-            Q(user__username__icontains=search_query)
+        total_bets_count = cricket_qs.count()
+        total_bets_amount = cricket_qs.aggregate(s=Sum('stake'))['s'] or 0
+        total_rounds = cricket_qs.values('event_id').distinct().count()
+
+        aggregated = cricket_qs.values('event_id', 'event_name').annotate(
+            round_bets_count=Count('id'),
+            round_bets_amount=Coalesce(Sum('stake'), Value(0)),
+            last_time=Max('created_at'),
+        ).order_by('-last_time')
+        paginator = Paginator(aggregated, 50)
+        page_number = request.GET.get('page', 1)
+        try:
+            page_number = max(1, min(int(page_number), 999))
+        except (ValueError, TypeError):
+            page_number = 1
+        page_obj = paginator.get_page(page_number)
+        recent_rounds_list = list(page_obj.object_list)
+    else:
+        # Gundu ata — dice rounds
+        recent_rounds_list = GameRound.objects.annotate(
+            round_bets_count=Count('bets'),
+            round_bets_amount=Coalesce(Sum('bets__chip_amount'), Value(0)),
         )
-    recent_bets = recent_bets.order_by('-created_at')[:20]
-    
-    # Calculate stats
-    total_rounds = GameRound.objects.count()
-    total_bets_count = Bet.objects.count()
-    total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-    
-    # Dice control history: only rounds manually controlled by admin (set_by not null)
-    dice_control_history = DiceResult.objects.filter(set_by__isnull=False).select_related('round', 'set_by').order_by('-set_at')[:50]
-    
+
+        # Apply search filter
+        if search_query:
+            recent_rounds_list = recent_rounds_list.filter(
+                Q(round_id__icontains=search_query) |
+                Q(dice_result__icontains=search_query)
+            )
+
+        # Apply status filter (dice rounds only)
+        if status_filter:
+            recent_rounds_list = recent_rounds_list.filter(status=status_filter)
+
+        # Apply date range filter
+        if date_from is not None:
+            recent_rounds_list = recent_rounds_list.filter(start_time__date__gte=date_from)
+        if date_to is not None:
+            recent_rounds_list = recent_rounds_list.filter(start_time__date__lte=date_to)
+
+        recent_rounds_list = recent_rounds_list.order_by('-start_time')
+        paginator = Paginator(recent_rounds_list, 50)
+        page_number = request.GET.get('page', 1)
+        try:
+            page_number = max(1, min(int(page_number), 999))
+        except (ValueError, TypeError):
+            page_number = 1
+        page_obj = paginator.get_page(page_number)
+        recent_rounds_list = list(page_obj.object_list)
+
+        recent_bets = Bet.objects.select_related('user', 'round').all()
+        if search_query:
+            recent_bets = recent_bets.filter(
+                Q(round__round_id__icontains=search_query) |
+                Q(user__username__icontains=search_query)
+            )
+        recent_bets = recent_bets.order_by('-created_at')[:20]
+
+        total_rounds = GameRound.objects.count()
+        total_bets_count = Bet.objects.count()
+        total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
+
+    # Cricket stakes are stored in paise — stats card shows rupees
+    total_bets_amount_display = (total_bets_amount or 0) / 100.0 if game == 'cricket' else (total_bets_amount or 0)
+
     context = get_admin_context(request, {
         'recent_rounds': recent_rounds_list,
         'page_obj': page_obj,
-        'controlled_round_ids': controlled_round_ids_set,
-        'controlled_only': controlled_only,
         'recent_bets': recent_bets,
-        'dice_control_history': dice_control_history,
         'total_rounds': total_rounds,
         'total_bets_count': total_bets_count,
-        'total_bets_amount': total_bets_amount,
+        'total_bets_amount': total_bets_amount_display,
         'search_query': search_query,
         'status_filter': status_filter,
         'date_range': date_range,
         'date_from': date_from,
         'date_to': date_to,
+        'game': game,
         'page': 'rounds',
     })
 
@@ -1858,42 +1381,77 @@ def all_bets(request):
 
     # Get filter parameters
     search_query = request.GET.get('search', '').strip()
-    status_filter = request.GET.get('status', 'all') # all, winners, losers
+    status_filter = request.GET.get('status', 'all')  # all, winners, losers
+    game = (request.GET.get('game') or 'gunduata').strip().lower()
+    if game not in ('gunduata', 'cricket'):
+        game = 'gunduata'
 
     effective_admin = get_effective_admin(request.user)
-    # Get all bets
-    all_bets_list = Bet.objects.select_related('user', 'round').all().order_by('-created_at')
-    if not is_super_admin(effective_admin):
-        all_bets_list = all_bets_list.filter(user__worker=effective_admin)
 
-    # Apply search filter
-    if search_query:
-        all_bets_list = all_bets_list.filter(
-            Q(user__username__icontains=search_query) |
-            Q(user__phone_number__icontains=search_query) |
-            Q(round__round_id__icontains=search_query)
+    if game == 'cricket':
+        all_bets_list = CricketBet.objects.select_related('user').order_by('-created_at')
+        if not is_super_admin(effective_admin):
+            all_bets_list = all_bets_list.filter(user__worker=effective_admin)
+        if search_query:
+            cq = (
+                Q(user__username__icontains=search_query)
+                | Q(user__phone_number__icontains=search_query)
+                | Q(event_name__icontains=search_query)
+                | Q(market_name__icontains=search_query)
+            )
+            if search_query.isdigit():
+                try:
+                    sid = int(search_query)
+                    cq |= Q(event_id=sid) | Q(market_id=sid)
+                except (ValueError, OverflowError):
+                    pass
+            all_bets_list = all_bets_list.filter(cq)
+        if status_filter == 'winners':
+            all_bets_list = all_bets_list.filter(status='WON')
+        elif status_filter == 'losers':
+            all_bets_list = all_bets_list.filter(status='LOST')
+
+        stats = all_bets_list.aggregate(
+            total_bets_count=Count('id'),
+            total_bets_amount=Sum('stake'),
+            total_payouts=Sum('payout_amount'),
+            total_winners=Count('id', filter=Q(status='WON')),
         )
+        total_bets_count = stats.get('total_bets_count') or 0
+        raw_stake = stats.get('total_bets_amount') or 0
+        raw_payout = stats.get('total_payouts') or 0
+        total_bets_amount = float(raw_stake) / 100.0
+        total_payouts = float(raw_payout) / 100.0
+        total_winners = stats.get('total_winners') or 0
+        all_bets_list = list(all_bets_list[:200])
+    else:
+        all_bets_list = Bet.objects.select_related('user', 'round').all().order_by('-created_at')
+        if not is_super_admin(effective_admin):
+            all_bets_list = all_bets_list.filter(user__worker=effective_admin)
 
-    # Apply status filter
-    if status_filter == 'winners':
-        all_bets_list = all_bets_list.filter(is_winner=True)
-    elif status_filter == 'losers':
-        all_bets_list = all_bets_list.filter(is_winner=False)
+        if search_query:
+            all_bets_list = all_bets_list.filter(
+                Q(user__username__icontains=search_query) |
+                Q(user__phone_number__icontains=search_query) |
+                Q(round__round_id__icontains=search_query)
+            )
 
-    # Single aggregate for all stats (avoids 4 separate queries)
-    stats = all_bets_list.aggregate(
-        total_bets_count=Count('id'),
-        total_bets_amount=Sum('chip_amount'),
-        total_payouts=Sum('payout_amount'),
-        total_winners=Count('id', filter=Q(is_winner=True))
-    )
-    total_bets_count = stats.get('total_bets_count') or 0
-    total_bets_amount = stats.get('total_bets_amount') or 0
-    total_payouts = stats.get('total_payouts') or 0
-    total_winners = stats.get('total_winners') or 0
+        if status_filter == 'winners':
+            all_bets_list = all_bets_list.filter(is_winner=True)
+        elif status_filter == 'losers':
+            all_bets_list = all_bets_list.filter(is_winner=False)
 
-    # Limit results for performance
-    all_bets_list = list(all_bets_list[:200])
+        stats = all_bets_list.aggregate(
+            total_bets_count=Count('id'),
+            total_bets_amount=Sum('chip_amount'),
+            total_payouts=Sum('payout_amount'),
+            total_winners=Count('id', filter=Q(is_winner=True)),
+        )
+        total_bets_count = stats.get('total_bets_count') or 0
+        total_bets_amount = stats.get('total_bets_amount') or 0
+        total_payouts = stats.get('total_payouts') or 0
+        total_winners = stats.get('total_winners') or 0
+        all_bets_list = list(all_bets_list[:200])
 
     is_franchise_scope = not is_super_admin(effective_admin)
     context = get_admin_context(request, {
@@ -1904,6 +1462,7 @@ def all_bets(request):
         'total_winners': total_winners,
         'search_query': search_query,
         'status_filter': status_filter,
+        'game': game,
         'page': 'all-bets',
         'is_franchise_scope': is_franchise_scope,
         'scope_label': 'Your franchise' if is_franchise_scope else None,
@@ -3041,7 +2600,7 @@ def create_admin(request):
         # Get permission checkboxes
         permissions = {
             'can_view_dashboard': request.POST.get('can_view_dashboard') == 'on',
-            'can_control_dice': request.POST.get('can_control_dice') == 'on',
+            'can_control_dice': False,
             'can_view_recent_rounds': request.POST.get('can_view_recent_rounds') == 'on',
             'can_view_all_bets': request.POST.get('can_view_all_bets') == 'on',
             'can_view_wallets': request.POST.get('can_view_wallets') == 'on',
@@ -3343,7 +2902,7 @@ def edit_franchise_admin(request, admin_id):
         permissions = AdminPermissions.objects.create(user=user)
     if request.method == 'POST':
         permissions.can_view_dashboard = request.POST.get('can_view_dashboard') == 'on'
-        permissions.can_control_dice = request.POST.get('can_control_dice') == 'on'
+        permissions.can_control_dice = False
         permissions.can_view_recent_rounds = request.POST.get('can_view_recent_rounds') == 'on'
         permissions.can_view_all_bets = request.POST.get('can_view_all_bets') == 'on'
         permissions.can_view_wallets = request.POST.get('can_view_wallets') == 'on'
@@ -3378,7 +2937,7 @@ def create_franchise_admin(request):
         password2 = request.POST.get('password2') or request.POST.get('confirm_password') or ''
         permissions = {
             'can_view_dashboard': request.POST.get('can_view_dashboard') == 'on',
-            'can_control_dice': request.POST.get('can_control_dice') == 'on',
+            'can_control_dice': False,
             'can_view_recent_rounds': request.POST.get('can_view_recent_rounds') == 'on',
             'can_view_all_bets': request.POST.get('can_view_all_bets') == 'on',
             'can_view_wallets': request.POST.get('can_view_wallets') == 'on',
@@ -3458,7 +3017,7 @@ def edit_admin(request, admin_id):
     if request.method == 'POST':
         # Update permissions
         permissions.can_view_dashboard = request.POST.get('can_view_dashboard') == 'on'
-        permissions.can_control_dice = request.POST.get('can_control_dice') == 'on'
+        permissions.can_control_dice = False
         permissions.can_view_recent_rounds = request.POST.get('can_view_recent_rounds') == 'on'
         permissions.can_view_all_bets = request.POST.get('can_view_all_bets') == 'on'
         permissions.can_view_wallets = request.POST.get('can_view_wallets') == 'on'

@@ -134,7 +134,7 @@
             <div>
                 <h1 class="page-title">System Health Dashboard</h1>
                 <div class="page-subtitle">
-                    Standalone monitoring for API and WebSocket checks.
+                    Standalone monitoring for API checks.
                     Last updated: <span id="generated-at">{{ health_snapshot.generated_at }}</span>
                 </div>
             </div>
@@ -155,34 +155,6 @@
                 <div class="metric-label">API Warnings (4xx)</div>
                 <div class="metric-value" id="api-warning">{{ health_snapshot.api.warning }}</div>
             </div>
-            <div class="card">
-                <div class="metric-label">WebSocket Failed</div>
-                <div class="metric-value" id="ws-failed">{{ health_snapshot.websocket.failed }}</div>
-            </div>
-        </div>
-
-        <div class="section-title">WebSocket Checks</div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Check</th>
-                        <th>Status</th>
-                        <th>Detail</th>
-                        <th>Latency</th>
-                    </tr>
-                </thead>
-                <tbody id="ws-table-body">
-                    {% for item in health_snapshot.websocket.checks %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td><span class="badge {{ item.state }}">{{ item.state }}</span></td>
-                        <td>{{ item.detail }}</td>
-                        <td>{{ item.response_ms }} ms</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
 
         <div class="section-title">API Route Checks</div>
@@ -213,17 +185,6 @@
     </div>
 
     <script>
-        function rowHtmlForWebsocket(check) {
-            return `
-                <tr>
-                    <td>${check.name || '-'}</td>
-                    <td><span class="badge ${check.state || 'warning'}">${check.state || 'unknown'}</span></td>
-                    <td>${check.detail || '-'}</td>
-                    <td>${check.response_ms ?? '-'} ms</td>
-                </tr>
-            `;
-        }
-
         function rowHtmlForApi(check) {
             const statusCode = check.status_code ?? '-';
             const error = check.error || '-';
@@ -254,11 +215,7 @@
                 document.getElementById('api-duration').textContent = data.api.duration_ms ?? 0;
                 document.getElementById('api-failed').textContent = data.api.failed ?? 0;
                 document.getElementById('api-warning').textContent = data.api.warning ?? 0;
-                document.getElementById('ws-failed').textContent = data.websocket.failed ?? 0;
 
-                document.getElementById('ws-table-body').innerHTML = (data.websocket.checks || [])
-                    .map(rowHtmlForWebsocket)
-                    .join('');
                 document.getElementById('api-table-body').innerHTML = (data.api.checks || [])
                     .map(rowHtmlForApi)
                     .join('');

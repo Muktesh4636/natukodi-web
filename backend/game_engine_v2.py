@@ -29,7 +29,6 @@ REDIS_URL = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
 if settings.REDIS_PASSWORD:
     REDIS_URL = f"redis://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/0"
 
-GAME_ROOM_CHANNEL = "game_room"
 ROUND_EVENTS_STREAM = "round_events_stream"
 GAME_STATE_KEY = "current_game_state"
 CURRENT_ROUND_ID_KEY = "current_round_id"
@@ -209,8 +208,6 @@ class GameEngine:
         pipe.set(CURRENT_ROUND_ID_KEY, str(self.round_id), ex=60)
         pipe.set(CURRENT_STATUS_KEY, str(self.status), ex=60)
         await pipe.execute()
-        
-        await self.redis.publish(GAME_ROOM_CHANNEL, payload)
 
     async def run(self):
         await self.connect_redis()
@@ -261,7 +258,7 @@ class GameEngine:
                     self.last_dice_values = dice_values
 
                     # Cache last round dice values in Redis immediately.
-                    # The Unity client bottom bar uses /api/game/last-round-results/ which prefers this key.
+                    # Mobile client bottom bar uses /api/game/last-round-results/ which prefers this key.
                     # Writing here avoids showing stale results when DB write-back lags under load.
                     try:
                         last_payload = {

@@ -12,7 +12,6 @@ ADMIN_TEMPLATES_DIR = BASE_DIR / "backend" / "game" / "templates" / "admin"
 # All admin template files
 ADMIN_FILES = [
     "game_dashboard.html",
-    "dice_control.html",
     "all_bets.html",
     "deposit_requests.html",
     "players.html",

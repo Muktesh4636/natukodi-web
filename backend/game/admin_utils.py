@@ -86,8 +86,6 @@ def has_permission(user, permission_name):
             # Check specific permissions based on permission_name
             if permission_name == 'view_dashboard':
                 return admin_profile.can_view_dashboard
-            elif permission_name == 'control_dice':
-                return admin_profile.can_control_dice
             elif permission_name == 'manage_users':
                 return admin_profile.can_manage_users
             elif permission_name == 'manage_deposits':
@@ -177,7 +175,6 @@ def has_menu_permission(user, permission_name):
     # Map permission names to model fields
     permission_map = {
         'dashboard': 'can_view_dashboard',
-        'dice_control': 'can_control_dice',
         'recent_rounds': 'can_view_recent_rounds',
         'all_bets': 'can_view_all_bets',
         'wallets': 'can_view_wallets',

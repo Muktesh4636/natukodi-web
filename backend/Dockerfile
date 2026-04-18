@@ -37,5 +37,5 @@ RUN mkdir -p /app/media /app/staticfiles /app/logs
 EXPOSE 8080
 
 # Default command (can be overridden in docker-compose)
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8080", "dice_game.asgi:application"]
+CMD ["gunicorn", "dice_game.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8080", "--workers", "2"]
 

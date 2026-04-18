@@ -4,7 +4,6 @@ from django.test import RequestFactory, SimpleTestCase
 
 from accounts.validators import AdminPasswordValidator, admin_password_validator
 from dice_game.normalize_slashes_middleware import NormalizeSlashesMiddleware
-from dice_game.webgl_api_prefix_middleware import WebglApiPrefixMiddleware
 from game.templatetags.format_filters import indian_int
 
 
@@ -83,48 +82,3 @@ class NormalizeSlashesMiddlewareTests(SimpleTestCase):
         self.assertEqual(response.content, b"ok")
 
 
-class WebglApiPrefixMiddlewareTests(SimpleTestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-    def test_rewrites_webgl_api_path_info_to_api_prefix(self):
-        seen = {}
-
-        def get_response(request):
-            seen["path_info"] = request.path_info
-            seen["path"] = request.path
-            seen["resolver_match"] = request.resolver_match
-            return HttpResponse("ok")
-
-        middleware = WebglApiPrefixMiddleware(get_response)
-        request = self.factory.get("/webgl/api/game/settings/")
-        request.META["PATH_INFO"] = "/webgl/api/game/settings/"
-        request.path_info = "/webgl/api/game/settings/"
-        request.resolver_match = object()
-
-        response = middleware(request)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(seen["path_info"], "/api/game/settings/")
-        self.assertEqual(seen["path"], "/api/game/settings/")
-        self.assertIsNone(seen["resolver_match"])
-        self.assertEqual(request.META["PATH_INFO"], "/api/game/settings/")
-
-    def test_leaves_non_webgl_paths_unchanged(self):
-        seen = {}
-
-        def get_response(request):
-            seen["path_info"] = request.path_info
-            seen["path"] = request.path
-            return HttpResponse("ok")
-
-        middleware = WebglApiPrefixMiddleware(get_response)
-        request = self.factory.get("/api/game/settings/")
-        request.META["PATH_INFO"] = "/api/game/settings/"
-        request.path_info = "/api/game/settings/"
-
-        response = middleware(request)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(seen["path_info"], "/api/game/settings/")
-        self.assertEqual(seen["path"], "/api/game/settings/")

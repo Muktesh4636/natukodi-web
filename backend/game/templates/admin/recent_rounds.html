@@ -560,7 +560,7 @@
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total Rounds</h3>
+                    <h3>{% if game == 'cricket' %}Cricket events{% else %}Total Rounds{% endif %}</h3>
                     <p>{{ total_rounds }}</p>
                 </div>
                 <div class="stat-card">
@@ -581,13 +581,21 @@
                         <span>Recent Rounds</span>
                     </h2>
                     <form method="get" action="{% url 'recent_rounds' %}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select
+                            name="game"
+                            style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; font-weight: 600;"
+                        >
+                            <option value="gunduata" {% if game == 'gunduata' %}selected{% endif %}>Gundu ata (dice)</option>
+                            <option value="cricket" {% if game == 'cricket' %}selected{% endif %}>Cricket</option>
+                        </select>
                         <input 
                             type="text" 
                             name="search" 
                             value="{{ search_query }}" 
-                            placeholder="Search by Round ID or Dice Result..." 
+                            placeholder="{% if game == 'cricket' %}Search event, market, outcome, ID…{% else %}Search by Round ID or Dice Result…{% endif %}" 
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; min-width: 250px;"
                         />
+                        {% if game == 'gunduata' %}
                         <select 
                             name="status" 
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
@@ -599,13 +607,7 @@
                             <option value="RESULT" {% if status_filter == 'RESULT' %}selected{% endif %}>Result</option>
                             <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>Completed</option>
                         </select>
-                        <select 
-                            name="controlled_only" 
-                            style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
-                        >
-                            <option value="">All Rounds</option>
-                            <option value="1" {% if controlled_only %}selected{% endif %}>Controlled only</option>
-                        </select>
+                        {% endif %}
                         <select 
                             name="date_range" 
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
@@ -622,7 +624,7 @@
                         >
                             🔍 Search
                         </button>
-                        {% if search_query or status_filter or controlled_only or date_range %}
+                        {% if search_query or status_filter or date_range or game != 'gunduata' %}
                         <a 
                             href="{% url 'recent_rounds' %}" 
                             style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
@@ -632,16 +634,15 @@
                         {% endif %}
                     </form>
                 </div>
-                {% if search_query or status_filter or controlled_only or date_range %}
+                {% if search_query or status_filter or date_range or game != 'gunduata' %}
                 <div style="margin-bottom: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #a0c4ff;">
                     <p style="margin: 0; color: #4a5568; font-size: 14px;">
                         <strong>Filtered results:</strong>
-                        {% if search_query %}Search: "{{ search_query }}"{% endif %}
-                        {% if search_query and status_filter %} | {% endif %}
-                        {% if status_filter %}Status: {{ status_filter }}{% endif %}
-                        {% if controlled_only %}Manually controlled only{% endif %}
+                        Game: {% if game == 'cricket' %}Cricket{% else %}Gundu ata{% endif %}
+                        {% if search_query %} | Search: "{{ search_query }}"{% endif %}
+                        {% if game == 'gunduata' and status_filter %} | Status: {{ status_filter }}{% endif %}
                         {% if date_range %} | {% if date_range == 'last_month' %}Last month{% elif date_range == 'last_7_days' %}Last 7 days{% elif date_range == 'last_30_days' %}Last 30 days{% else %}{{ date_range }}{% endif %}{% endif %}
-                        <span style="color: #718096;">({{ page_obj.paginator.count }} rounds total)</span>
+                        <span style="color: #718096;">({{ page_obj.paginator.count }} {% if game == 'cricket' %}events{% else %}rounds{% endif %} total)</span>
                         {% if page_obj.paginator.num_pages > 1 %}
                             <span style="color: #718096;"> — Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
                         {% endif %}
@@ -650,12 +651,43 @@
                 {% endif %}
                 <div class="table-wrapper">
                     <table>
+                        {% if game == 'cricket' %}
+                        <thead>
+                            <tr>
+                                <th>Event ID</th>
+                                <th>Event</th>
+                                <th>Bets</th>
+                                <th>Total stake</th>
+                                <th>Last activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in recent_rounds %}
+                            <tr>
+                                <td><span class="round-id">#{{ row.event_id }}</span></td>
+                                <td>{{ row.event_name|default:"—" }}</td>
+                                <td><strong>{{ row.round_bets_count }}</strong></td>
+                                <td><span class="amount">₹{% widthratio row.round_bets_amount 100 1 %}</span></td>
+                                <td><span class="time-badge">{{ row.last_time|date:"M d, Y H:i:s" }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">🏏</div>
+                                        <p>No cricket bets yet</p>
+                                        <p style="font-size: 14px; margin-top: 4px;">Events appear when users place cricket bets</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% else %}
                         <thead>
                             <tr>
                                 <th>Round ID</th>
                                 <th>Status</th>
                                 <th>Dice Result</th>
-                                <th>Controlled</th>
                                 <th>Total Bets</th>
                                 <th>Total Amount</th>
                                 <th>Start Time</th>
@@ -683,34 +715,23 @@
                                         <span style="color: #a0aec0;">-</span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    {% if round.pk in controlled_round_ids %}
-                                    <span style="display: inline-block; padding: 4px 10px; background: #c6f6d5; color: #22543d; border-radius: 6px; font-size: 12px; font-weight: 600;">🎯 Controlled</span>
-                                    {% else %}
-                                    <span style="color: #a0aec0;">—</span>
-                                    {% endif %}
-                                </td>
                                 <td><strong>{{ round.round_bets_count }}</strong></td>
                                 <td><span class="amount">₹{{ round.round_bets_amount|floatformat:2 }}</span></td>
                                 <td><span class="time-badge">{{ round.start_time|date:"M d, Y H:i:s" }}</span></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7">
+                                <td colspan="6">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">🎲</div>
-                                        {% if controlled_only %}
-                                        <p>No manually controlled rounds yet</p>
-                                        <p style="font-size: 14px; margin-top: 4px;">Use Dice Control to set the result for a round</p>
-                                        {% else %}
                                         <p>No rounds yet</p>
                                         <p style="font-size: 14px; margin-top: 4px;">Rounds will appear here once the game starts</p>
-                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
+                        {% endif %}
                     </table>
                 </div>
                 {% if page_obj.paginator.num_pages > 1 %}
@@ -718,77 +739,17 @@
                     <span style="color: #64748b; font-size: 14px;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         {% if page_obj.has_previous %}
-                            <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}{% if controlled_only %}&controlled_only=1{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}&page={{ page_obj.previous_page_number }}" style="padding: 8px 14px; background: #e2e8f0; color: #334155; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">← Previous</a>
+                            <a href="?game={{ game }}&search={{ search_query|urlencode }}{% if game == 'gunduata' %}&status={{ status_filter }}{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}&page={{ page_obj.previous_page_number }}" style="padding: 8px 14px; background: #e2e8f0; color: #334155; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">← Previous</a>
                         {% endif %}
                         {% if page_obj.has_next %}
-                            <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}{% if controlled_only %}&controlled_only=1{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}&page={{ page_obj.next_page_number }}" style="padding: 8px 14px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Next →</a>
+                            <a href="?game={{ game }}&search={{ search_query|urlencode }}{% if game == 'gunduata' %}&status={{ status_filter }}{% endif %}{% if date_range %}&date_range={{ date_range }}{% endif %}&page={{ page_obj.next_page_number }}" style="padding: 8px 14px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Next →</a>
                         {% endif %}
                     </div>
                 </div>
                 {% endif %}
             </div>
             
-            {% if not search_query %}
-            <!-- Dice Control History -->
-            <div class="control-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                    <h2 style="margin: 0;">
-                        <span>🎮</span>
-                        <span>Dice Control History</span>
-                    </h2>
-                </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Round ID</th>
-                                <th>Result</th>
-                                <th>Dice Values</th>
-                                <th>Set By</th>
-                                <th>Set At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for history in dice_control_history %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'round_details' history.round.round_id %}" style="color: #5a9fd4; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                                        <span class="round-id">#{{ history.round.round_id }}</span>
-                                    </a>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                        {% for res in history.round.dice_result_list %}
-                                            <span class="dice-result">{{ res }}</span>
-                                        {% endfor %}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="time-badge">
-                                        {{ history.round.dice_1 }}, {{ history.round.dice_2 }}, {{ history.round.dice_3 }}, 
-                                        {{ history.round.dice_4 }}, {{ history.round.dice_5 }}, {{ history.round.dice_6 }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="amount">{{ history.set_by.username|default:"System" }}</span>
-                                </td>
-                                <td><span class="time-badge">{{ history.set_at|date:"M d, Y H:i:s" }}</span></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">🎮</div>
-                                        <p>No dice control history yet</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
+            {% if game == 'gunduata' and not search_query %}
             <!-- Recent Bets Table -->
             <div class="control-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">

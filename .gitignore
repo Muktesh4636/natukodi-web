@@ -174,18 +174,6 @@ local.properties
 proguard/
 *.idsig
 
-# Unity
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ibrary/
-unityLibrary/src/main/Il2CppOutputProject/
-unityLibrary/src/main/jniLibs/
-unityLibrary/.cxx/
-unityLibrary/build/
-unityLibrary/symbols/
-
 # Large Files
 *.zip
 *.tar.gz
@@ -197,8 +185,6 @@ video/
 # Logs and debug outputs (root and android)
 big_logs.txt
 full_logs_debug.txt
-unity_raw_logs.txt
-unity_script_logs.txt
 *_logs.txt
 locust_report*.html
 bet_load_test_report.html

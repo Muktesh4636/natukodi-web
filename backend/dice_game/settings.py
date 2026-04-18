@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 USE_REDIS = True # Global setting for Redis usage
-USE_REDIS_CHANNELS = True # Global setting for Redis Channels usage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +22,13 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production'
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Security: Only allow specific hosts
-# Primary domains: gunduata.club (+ legacy gunduata.online)
+# Primary domains: gunduata.club (+ legacy gunduata.online) + white-label host fight.pravoo.in
 ALLOWED_HOSTS_STR = os.getenv(
     'ALLOWED_HOSTS',
     'localhost,127.0.0.1,'
     'gunduata.club,www.gunduata.club,'
     'gunduata.online,www.gunduata.online,'
+    'fight.pravoo.in,www.fight.pravoo.in,'
     '72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41'
 )
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
@@ -46,6 +46,8 @@ else:
         'www.gunduata.club',
         'gunduata.online',
         'www.gunduata.online',
+        'fight.pravoo.in',
+        'www.fight.pravoo.in',
         '72.61.254.71',
         '72.61.255.231',
         '72.61.254.74',
@@ -58,7 +60,6 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,7 +70,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'channels',
     # Local apps
     'accounts',
     'game',
@@ -89,7 +89,6 @@ TESSERACT_CMD = os.getenv('TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'dice_game.normalize_slashes_middleware.NormalizeSlashesMiddleware',  # Normalize // to /
-    'dice_game.webgl_api_prefix_middleware.WebglApiPrefixMiddleware',  # /webgl/api/* -> /api/* (WebGL relative URLs)
     'dice_game.maintenance_middleware.MaintenanceModeMiddleware',  # Early: APK download bypass
     # 'dice_game.cloudflare_middleware.CloudflareOnlyMiddleware',  # SECURITY: Block direct IP access
     # 'dice_game.anonymization_middleware.AnonymizationMiddleware',  # SECURITY: Prevent tracing
@@ -118,6 +117,10 @@ _default_csrf_origins = [
     'http://gunduata.online',
     'https://www.gunduata.online',
     'http://www.gunduata.online',
+    'https://fight.pravoo.in',
+    'http://fight.pravoo.in',
+    'https://www.fight.pravoo.in',
+    'http://www.fight.pravoo.in',
     'http://72.61.254.71:8080',
     'http://72.61.254.71',
     'http://localhost:8080',
@@ -340,7 +343,6 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static' / 'react',
-    BASE_DIR / 'static' / 'unity',
 ]
 MEDIA_URL = '/media/'
 # Allow override so production can use a shared path (e.g. /var/www/gunduata.club/media or mounted volume)
@@ -493,59 +495,7 @@ except Exception as e:
     logger = logging.getLogger(__name__)
     logger.warning(f"Redis not available: {e}")
     USE_REDIS = False
-    USE_REDIS_CHANNELS = False
     REDIS_POOL = None
-
-# Channels (WebSocket)
-if USE_REDIS_CHANNELS:
-    if USE_REDIS_SENTINEL:
-        sentinel_hosts = [
-            (h.split(':')[0], int(h.split(':')[1])) 
-            for h in REDIS_SENTINEL_HOSTS.split(',')
-        ]
-        channel_config = {
-            "hosts": sentinel_hosts,
-            "master_name": REDIS_SENTINEL_MASTER,
-            "redis_kwargs": {"password": REDIS_PASSWORD},
-            "capacity": 5000,
-            "expiry": 60,
-        }
-        CHANNEL_LAYERS = {
-            'default': {
-                'BACKEND': 'channels_redis.sentinel.SentinelRedisChannelLayer',
-                'CONFIG': channel_config,
-            },
-        }
-    else:
-        if REDIS_PASSWORD:
-            redis_url = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-            channel_config = {
-                "hosts": [redis_url],
-                "capacity": 5000,
-                "expiry": 60,
-                "group_expiry": 31536000,
-            }
-        else:
-            channel_config = {
-                "hosts": [(REDIS_HOST, REDIS_PORT)],
-                "capacity": 5000,
-                "expiry": 60,
-                "group_expiry": 31536000,
-                "symmetric_encryption_keys": [os.getenv('CHANNEL_LAYER_SECRET', 'change-this-in-production')],
-            }
-        
-        CHANNEL_LAYERS = {
-            'default': {
-                'BACKEND': 'channels_redis.core.RedisChannelLayer',
-                'CONFIG': channel_config,
-            },
-        }
-else:
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels.layers.InMemoryChannelLayer',
-        },
-    }
 
 # Game Settings
 GAME_SETTINGS = {

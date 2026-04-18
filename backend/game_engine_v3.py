@@ -25,12 +25,10 @@ REDIS_DB = int(os.environ.get("REDIS_DB", "0"))
 STANDBY_MODE = os.environ.get("STANDBY_MODE", "").lower() in ("1", "true", "yes")
 STALE_THRESHOLD_SEC = 15  # If no state update for this long, consider primary dead and take over.
 
-GAME_UPDATE_CHANNEL = "game_updates"
-GAME_ROOM_CHANNEL = "game_room"  # WebSocket consumer subscribes to this
 SETTLE_STREAM = "settle_stream"
 ROUND_EVENTS_STREAM = "round_events_stream"
 GAME_STATE_KEY = "current_game_state"
-# Legacy hot keys used by high-performance bet placement endpoints (views.py / consumers.py)
+# Legacy hot keys used by high-performance bet placement endpoints (views.py)
 CURRENT_ROUND_ID_KEY = "current_round_id"
 CURRENT_STATUS_KEY = "current_status"
 CURRENT_END_TIME_KEY = "current_end_time"
@@ -145,11 +143,6 @@ class GameEngine:
         self.instance_id = str(uuid.uuid4())
         self.is_leader = False
         self.settings = get_round_settings()  # betting_close_time, dice_roll_time, dice_result_time, round_end_time
-        # Per-round one-shot WS events (avoid spamming on every tick)
-        self._sent_dice_roll = False
-        self._sent_dice_result = False
-        self._sent_game_end = False
-        self._sent_game_start = False
 
     async def connect_redis(self):
         """Connect to Redis. On the Redis host (e.g. 74), container→host IP often fails; fallback to Docker service name 'redis'."""
@@ -226,10 +219,6 @@ class GameEngine:
         self.status = "BETTING"
         self.dice_result = None
         self.dice_values = None
-        self._sent_dice_roll = False
-        self._sent_dice_result = False
-        self._sent_game_end = False
-        self._sent_game_start = False
         logger.info(f"New Round Started: {self.round_id} (round_end={round_end}s, betting_close={self.settings['betting_close_time']}s, dice_result={self.settings['dice_result_time']}s)")
 
         # Persist the round start event so DB-backed APIs (frequency, recent results, etc.) keep updating.
@@ -255,74 +244,8 @@ class GameEngine:
         except Exception as e:
             logger.warning(f"Failed to publish round_start to {ROUND_EVENTS_STREAM}: {e}")
 
-    async def publish_ws_event(self, event_type: str, timer_count_up: int):
-        """
-        Publish a one-off WS event (JSON) to the WS channel.
-        Consumers forward this directly to clients.
-        """
-        if not self.redis:
-            return
-        try:
-            round_end = int(self.settings.get("round_end_time", DEFAULT_ROUND_END_TIME))
-            betting_close = int(self.settings.get("betting_close_time", DEFAULT_BETTING_CLOSE_TIME))
-            dice_roll_time = int(self.settings.get("dice_roll_time", DEFAULT_DICE_ROLL_TIME))
-            dice_result_time = int(self.settings.get("dice_result_time", DEFAULT_DICE_RESULT_TIME))
-        except Exception:
-            round_end = DEFAULT_ROUND_END_TIME
-            betting_close = DEFAULT_BETTING_CLOSE_TIME
-            dice_roll_time = DEFAULT_DICE_ROLL_TIME
-            dice_result_time = DEFAULT_DICE_RESULT_TIME
-
-        payload = {
-            "type": event_type,
-            "round_id": self.round_id,
-            "timer": int(timer_count_up),
-            "status": (self.status or "").lower(),
-            "server_time": int(time.time()),
-            # Keep parity with /api/game/settings/
-            "round_end_time": round_end,
-            "betting_close_time": betting_close,
-            "dice_roll_time": dice_roll_time,
-            "dice_result_time": dice_result_time,
-            "BETTING_CLOSE_TIME": betting_close,
-            "DICE_ROLL_TIME": dice_roll_time,
-            "DICE_RESULT_TIME": dice_result_time,
-            "ROUND_END_TIME": round_end,
-        }
-
-        # Only include dice fields once they exist
-        if self.dice_values is not None:
-            payload["dice_values"] = self.dice_values
-        if self.dice_result is not None:
-            payload["dice_result"] = self.dice_result
-
-        # Keep last round results API fresh even if DB settlement lags.
-        # Update cache when result is known, or at game end.
-        if event_type in ("dice_result", "game_end") and self.dice_values is not None:
-            try:
-                dv = list(self.dice_values) if isinstance(self.dice_values, (list, tuple)) else []
-                if len(dv) == 6:
-                    last_payload = {
-                        "round_id": self.round_id,
-                        "dice_1": int(dv[0]),
-                        "dice_2": int(dv[1]),
-                        "dice_3": int(dv[2]),
-                        "dice_4": int(dv[3]),
-                        "dice_5": int(dv[4]),
-                        "dice_6": int(dv[5]),
-                        "dice_result": self.dice_result,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                    }
-                    await self.redis.set("last_round_results_cache", json.dumps(last_payload), ex=120)
-            except Exception:
-                pass
-
-        await self.redis.publish(GAME_ROOM_CHANNEL, json.dumps(payload))
-
-    async def publish_state(self, publish_channels: bool = True):
-        """Publish game state to Redis (both JSON and MessagePack).
-        Timer is count-UP 1..round_end_time to match frontend and GameSettings (when to close bets, result, round end).
-        """
+    async def publish_state(self):
+        """Publish game state to Redis (JSON + MessagePack). Timer is count-up 1..round_end_time."""
         round_end = self.settings["round_end_time"]
         dice_roll_time = self.settings.get("dice_roll_time") or DEFAULT_DICE_ROLL_TIME
         # Engine counts down round_end→0; UI expects count-up 1→round_end
@@ -351,7 +274,7 @@ class GameEngine:
             "dice_values": self.dice_values,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "server_time": int(time.time()),
-            # Game settings (same as /api/game/settings/) so WebSocket follows API
+            # Game settings (same as /api/game/settings/)
             "round_end_time": round_end,
             "betting_close_time": betting_close,
             "dice_roll_time": dice_roll_time,
@@ -370,9 +293,9 @@ class GameEngine:
             # JSON for compatibility
             state_json = json.dumps(state)
             # Keep Redis hot-keys updated for betting APIs (single pipeline round-trip)
-            # NOTE: These keys are relied upon by REST `POST /api/game/bet/` and WS `place_bet`.
+            # NOTE: These keys are relied upon by REST `POST /api/game/bet/`.
             now_ts = int(time.time())
-            # Round end epoch (updated each tick; consumers use it as a safety guard)
+            # Round end epoch (updated each tick)
             end_time_epoch = now_ts + max(0, int(round_end) - int(timer_count_up))
 
             pipe = self.redis.pipeline()
@@ -382,18 +305,30 @@ class GameEngine:
             pipe.set(CURRENT_END_TIME_KEY, str(end_time_epoch), ex=120)
             await pipe.execute()
 
-            if publish_channels:
-                await self.redis.publish(GAME_UPDATE_CHANNEL, state_json)
-                # WebSocket consumer (consumers.py) subscribes to "game_room" — must publish here for timer in UI
-                await self.redis.publish(GAME_ROOM_CHANNEL, state_json)
-            
+            # Cache last results for REST API (same as former WS dice_result/game_end side effect)
+            try:
+                dv = list(self.dice_values) if self.dice_values is not None else []
+                if len(dv) == 6 and self.dice_result is not None:
+                    last_payload = {
+                        "round_id": self.round_id,
+                        "dice_1": int(dv[0]),
+                        "dice_2": int(dv[1]),
+                        "dice_3": int(dv[2]),
+                        "dice_4": int(dv[3]),
+                        "dice_5": int(dv[4]),
+                        "dice_6": int(dv[5]),
+                        "dice_result": self.dice_result,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    }
+                    await self.redis.set("last_round_results_cache", json.dumps(last_payload), ex=120)
+            except Exception:
+                pass
+
             # MessagePack for performance (binary)
             try:
                 import msgpack
                 state_msgpack = msgpack.packb(state)
                 await self.redis.set(f"{GAME_STATE_KEY}_msgpack", state_msgpack, ex=120)
-                if publish_channels:
-                    await self.redis.publish(f"{GAME_UPDATE_CHANNEL}_msgpack", state_msgpack)
             except ImportError:
                 logger.warning("msgpack not installed, skipping binary format")
             
@@ -425,7 +360,6 @@ class GameEngine:
             try:
                 await self.start_new_round()
                 betting_close = self.settings["betting_close_time"]
-                dice_roll_time = int(self.settings.get("dice_roll_time", DEFAULT_DICE_ROLL_TIME))
                 dice_result_time = self.settings["dice_result_time"]
                 round_end = self.settings["round_end_time"]
                 
@@ -434,16 +368,6 @@ class GameEngine:
                     timer_count_up = (round_end - self.timer) + 1 if self.timer > 0 else round_end
                     timer_count_up = max(1, min(round_end, timer_count_up))
 
-                    # Emit game start event on the first second of the round.
-                    if (not self._sent_game_start) and timer_count_up == 1:
-                        self._sent_game_start = True
-                        await self.publish_ws_event("game_start", timer_count_up)
-
-                    # Emit dice roll warning event at exact DICE_ROLL_TIME
-                    if (not self._sent_dice_roll) and timer_count_up == dice_roll_time and dice_roll_time < dice_result_time:
-                        self._sent_dice_roll = True
-                        await self.publish_ws_event("dice_roll", timer_count_up)
-                    
                     # Status from GameSettings: same as start_game_timer and frontend
                     if timer_count_up <= betting_close:
                         self.status = "BETTING"
@@ -452,9 +376,7 @@ class GameEngine:
                     else:
                         if self.status != "RESULT":
                             self.status = "RESULT"
-                            # Admin dice control: if a manual dice result was pre-set, use it.
-                            # This is written by `admin_views.set_individual_dice_view` / `set_dice_result_view`
-                            # as a comma-separated string like "1,2,3,4,5,6" or "1,1,1,1,1,1".
+                            # If manual dice were pre-set in Redis, use them (comma-separated "1,2,3,4,5,6").
                             manual_dice = None
                             try:
                                 raw = await self.redis.get("manual_dice_result")
@@ -483,10 +405,6 @@ class GameEngine:
                                 )
                             await self.push_settlement(self.dice_values, self.dice_result)
                             logger.info(f"Dice rolled: {self.dice_values} -> Result: {self.dice_result}")
-                            # Emit dice result event exactly at DICE_RESULT_TIME (once per round)
-                            if not self._sent_dice_result:
-                                self._sent_dice_result = True
-                                await self.publish_ws_event("dice_result", timer_count_up)
 
                             # Persist round result for DB-backed APIs.
                             try:
@@ -517,13 +435,7 @@ class GameEngine:
                 
                 if self.is_leader:
                     self.status = "COMPLETED"
-                    # Avoid publishing a second "timer=ROUND_END" tick at end-of-round.
-                    # Instead, send a single explicit game_end event at ROUND_END_TIME.
-                    if not self._sent_game_end:
-                        self._sent_game_end = True
-                        await self.publish_ws_event("game_end", round_end)
-                    # Still update Redis keys so REST consumers see COMPLETED, but don't re-publish on WS.
-                    await self.publish_state(publish_channels=False)
+                    await self.publish_state()
                     logger.info(f"Round {self.round_id} completed")
                     await asyncio.sleep(1)
                     

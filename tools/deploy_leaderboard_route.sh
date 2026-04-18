@@ -40,9 +40,7 @@ for SERVER in "${SERVERS[@]}"; do
   sshpass -p "$PASSWORD" scp -o StrictHostKeyChecking=no \
     "$REPO_ROOT/backend/game/templates/admin/game_settings.html" \
     "$REPO_ROOT/backend/game/templates/admin/game_dashboard.html" \
-    "$REPO_ROOT/backend/game/templates/admin/dice_control.html" \
     "$REPO_ROOT/backend/game/templates/admin/deposit_requests.html" \
-    "$REPO_ROOT/backend/game/templates/admin/dice_controlled_rounds.html" \
     "$REPO_ROOT/backend/game/templates/admin/white_label_leads.html" \
     "$REPO_ROOT/backend/game/templates/admin/help_center.html" \
     "$REPO_ROOT/backend/game/templates/admin/user_details.html" \

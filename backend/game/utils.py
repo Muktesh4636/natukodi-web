@@ -239,7 +239,7 @@ def extract_dice_values(round_obj, round_data=None, fallback=None):
 def calculate_current_timer(start_time, round_end_time=None):
     """
     Calculate current timer value (1-indexed, capped at round_end_time).
-    Consistent with start_game_timer.py and consumers.py.
+    Consistent with start_game_timer.py and game_engine_v3.
     """
     if not start_time:
         return 1

@@ -2031,7 +2031,7 @@ def max_bet(request):
         # Use JWT authentication for POST if available
         user = request.user
         if not user.is_authenticated:
-            # Try to authenticate manually if needed (for Unity/manual calls)
+            # Try to authenticate manually if needed (for manual/API calls)
             from rest_framework_simplejwt.authentication import JWTAuthentication
             try:
                 auth_res = JWTAuthentication().authenticate(request)

@@ -73,7 +73,6 @@ def api_status(request):
         ('/api/maintenance/status/', (200,)),
         ('/api/time/', (200,)),
         ('/api/game/settings/', (200,)),
-        ('/webgl/api/game/settings/', (200,)),
     ]
 
     for path, acceptable in probe_paths:
@@ -531,7 +530,7 @@ def serve_react_app(request, path=''):
 @never_cache
 def home(request):
     """Public landing website for gunduata.club (royal 3D landing like http://gunduata.site/)."""
-    # Lightweight single response. WebGL is optional; page still looks good without it.
+    # Lightweight single response. Three.js 3D accent is optional; CSS fallback still looks good.
     html = """<!doctype html>
 <html lang="en">
 <head>
@@ -677,7 +676,7 @@ def home(request):
           <div id="gameplay" class="videoFrame">
             <div class="label">LIVE GAMEPLAY</div>
             <canvas id="gameplay3d"></canvas>
-            <div class="fallback">Your browser does not support WebGL.</div>
+            <div class="fallback">Your browser does not support 3D graphics.</div>
           </div>
           <div class="section" style="margin-top:12px">
             <div class="pill">DOWNLOAD NOW • Requires Android 8.0+ • Version 1.0.4</div>
@@ -727,10 +726,10 @@ def home(request):
   <script>
   (function(){
     try { if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {}
-    function hasWebGL(c){ try { return !!(c && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch(e){ return false; } }
+    function hasWebGLContext(c){ try { return !!(c && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch(e){ return false; } }
     var bg = document.getElementById('bg3d');
     var gp = document.getElementById('gameplay3d');
-    if (!hasWebGL(bg) && !hasWebGL(gp)) return;
+    if (!hasWebGLContext(bg) && !hasWebGLContext(gp)) return;
 
     var script = document.createElement('script');
     script.src = 'https://unpkg.com/three@0.160.0/build/three.min.js';
@@ -920,8 +919,6 @@ def download_apk(request):
         str(settings.BASE_DIR / 'static' / 'apks' / 'gundu_ata_latest.apk'),
         str(settings.BASE_DIR / 'static' / 'assets' / 'gundu_ata_latest.apk'),
         # Gundu_ata_apk-1 (primary source for present)
-        '/Users/pradyumna/Gundu_ata_apk-1/out/Sikwin_UnityUpdate_v49_signed.apk',
-        '/Users/pradyumna/Gundu_ata_apk-1/out/Sikwin_UnityUpdate_v49.apk',
         '/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean_signed.apk',
         '/Users/pradyumna/Gundu_ata_apk-1/kotlin/Sikwin_GunduAta_Final_Clean.apk',
         '/Users/pradyumna/Gundu_ata_apk-1/gundu_ata/extracted_8/Gundu Ata.apk',

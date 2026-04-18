@@ -141,7 +141,6 @@ class AdminPermissions(models.Model):
         """Return permissions as dictionary"""
         return {
             'dashboard': self.can_view_dashboard,
-            'dice_control': self.can_control_dice,
             'recent_rounds': self.can_view_recent_rounds,
             'all_bets': self.can_view_all_bets,
             'wallets': self.can_view_wallets,

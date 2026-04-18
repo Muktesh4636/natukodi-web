@@ -53,6 +53,7 @@ from .serializers import (
     DepositRequestSerializer,
     DepositRequestAdminSerializer,
     WithdrawRequestSerializer,
+    WithdrawRequestAppSerializer,
     PaymentMethodSerializer,
     UserBankDetailSerializer,
 )
@@ -61,6 +62,14 @@ from game.utils import get_redis_client
 
 # Redis connection with tiered failover
 redis_client = get_redis_client()
+
+
+def _api_error(message, status_code=status.HTTP_400_BAD_REQUEST, **extra):
+    """Return JSON with ``error`` and ``detail`` (same string) for clients that check either key."""
+    body = {'error': message, 'detail': message}
+    if extra:
+        body.update(extra)
+    return Response(body, status=status_code)
 
 
 def _initialise_player_journey(user, deposit_amount, redis_client=None):
@@ -1684,7 +1693,17 @@ def reject_deposit_request(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def initiate_withdraw(request):
-    """Create a withdraw request with PENDING status - requires admin approval"""
+    """
+    Create a withdraw request (PENDING). Admin approves later.
+
+    Request JSON:
+        amount (number) — rupees; whole or up to 2 decimal places stored consistently with wallet.
+        withdrawal_method — e.g. ``UPI``, ``BANK``.
+        withdrawal_details — UPI VPA, or bank string ``"<account> | <IFSC>"``.
+
+    Success ``201``: ``{ id, amount, status, withdrawal_method, withdrawal_details, ... }`` (no nested user).
+    Errors ``400``/``500``: both ``error`` and ``detail`` with the same message where applicable.
+    """
     amount_raw = request.data.get('amount')
     withdrawal_method = request.data.get('withdrawal_method', '').strip()
     withdrawal_details = request.data.get('withdrawal_details', '').strip()
@@ -1693,21 +1712,21 @@ def initiate_withdraw(request):
 
     if not withdrawal_method:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Missing method")
-        return Response({'error': 'Withdrawal method is required'}, status=status.HTTP_400_BAD_REQUEST)
+        return _api_error('Withdrawal method is required')
 
     if not withdrawal_details:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Missing details")
-        return Response({'error': 'Withdrawal details are required'}, status=status.HTTP_400_BAD_REQUEST)
+        return _api_error('Withdrawal details are required')
 
     try:
         amount = _parse_amount(amount_raw)
     except ValueError as exc:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Invalid amount {amount_raw} - {exc}")
-        return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return _api_error(str(exc))
 
     if amount < 200:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Amount {amount} below minimum ₹200")
-        return Response({'error': 'Minimum withdrawal amount is ₹200'}, status=status.HTTP_400_BAD_REQUEST)
+        return _api_error('Minimum withdrawal amount is ₹200')
 
     # Check if user has sufficient withdrawable balance: withdrawable = balance - unavailable (unavailable = deposits_since_last_withdraw - turnover_since_last_withdraw)
     wallet, created = Wallet.objects.get_or_create(user=request.user)
@@ -1739,17 +1758,21 @@ def initiate_withdraw(request):
             available_realtime = redis_balance - exposure
             if amount > available_realtime:
                 logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient real-time balance (Redis: {redis_balance}, Exposure: {exposure}, Available: {available_realtime}, Requested: {amount})")
-                return Response({
-                    'error': f'Insufficient available balance. Your current balance is ₹{redis_balance:.2f} and you have ₹{exposure:.2f} in active bets. Available for withdrawal: ₹{max(0, available_realtime):.2f}.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+                msg = (
+                    f'Insufficient available balance. Your current balance is ₹{redis_balance:.2f} and you have ₹{exposure:.2f} '
+                    f'in active bets. Available for withdrawal: ₹{max(0, available_realtime):.2f}.'
+                )
+                return _api_error(msg)
         except Exception as re_err:
             logger.error(f"Error checking real-time balance for withdrawal: {re_err}")
 
     if withdrawable < amount:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient withdrawable balance (Withdrawable: {withdrawable}, Requested: {amount}, Total Balance: {wallet.balance})")
-        return Response({
-            'error': f'Insufficient withdrawable balance. You have ₹{withdrawable} available for withdrawal (Total balance: ₹{wallet.balance}). You must rotate deposited/bonus money by betting it at least once.'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        msg = (
+            f'Insufficient withdrawable balance. You have ₹{withdrawable} available for withdrawal (Total balance: ₹{wallet.balance}). '
+            f'You must rotate deposited/bonus money by betting it at least once.'
+        )
+        return _api_error(msg)
 
     # Check for existing pending withdraw request
     existing_pending = WithdrawRequest.objects.filter(
@@ -1759,9 +1782,7 @@ def initiate_withdraw(request):
 
     if existing_pending:
         logger.warning(f"Withdrawal failed for user {request.user.username}: Already has a pending request")
-        return Response({
-            'error': 'You already have a pending withdraw request. Please wait for it to be processed.'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return _api_error('You already have a pending withdraw request. Please wait for it to be processed.')
 
     # Create withdraw request with PENDING status
     try:
@@ -1811,41 +1832,101 @@ def initiate_withdraw(request):
 
         # Return user-friendly error message
         if 'InvalidOperation' in error_type or 'decimal' in error_details.lower():
-            return Response({
-                'error': f'Invalid amount value: {amount_raw}. Please provide a valid number with up to 2 decimal places.',
-                'details': error_details
-            }, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({
+            return _api_error(
+                f'Invalid amount value: {amount_raw}. Please provide a valid number with up to 2 decimal places.',
+                details=error_details,
+            )
+        return Response(
+            {
                 'error': 'Failed to create withdraw request. Please check your input and try again.',
-                'details': error_details
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                'detail': 'Failed to create withdraw request. Please check your input and try again.',
+                'details': error_details,
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     notify_user(request.user, f"Your withdraw request of ₹{amount} has been submitted and is pending admin approval.")
-    serializer = WithdrawRequestSerializer(withdraw, context={'request': request})
+    serializer = WithdrawRequestAppSerializer(withdraw, context={'request': request})
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_withdraw_requests(request):
-    """List the authenticated user's withdraw requests"""
+    """
+    List the authenticated user's withdraw requests.
+
+    Default: JSON **array** of objects
+    ``{ id, amount, status, withdrawal_method, withdrawal_details, admin_note, processed_by_name, created_at, updated_at }``.
+
+    Query ``format`` / ``response``:
+    - ``array`` (default): top-level array.
+    - ``wrapped`` / ``object`` / ``data``: same list under ``results``, ``data``, ``withdraws``, and ``withdrawals``
+      so clients can read any of those keys.
+    """
     logger.info(f"Fetching withdrawal requests for user: {request.user.username} (ID: {request.user.id})")
     withdraws = WithdrawRequest.objects.filter(user=request.user).order_by('-created_at')
-    serializer = WithdrawRequestSerializer(withdraws, many=True, context={'request': request})
-    return Response(serializer.data)
+    serializer = WithdrawRequestAppSerializer(withdraws, many=True, context={'request': request})
+    data = serializer.data
+    fmt = (request.GET.get('format') or request.GET.get('response') or 'array').strip().lower()
+    if fmt in ('wrapped', 'object', 'data'):
+        return Response(
+            {
+                'results': data,
+                'data': data,
+                'withdraws': data,
+                'withdrawals': data,
+            }
+        )
+    return Response(data)
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_payment_methods(request):
-    """List active payment methods for deposits. Global (owner=null) + franchise's own if user has worker."""
-    methods = PaymentMethod.objects.filter(is_active=True)
+    """
+    List active payment methods for deposits. Global (owner=null) + franchise's own if user has worker.
+
+    Query ``format`` (alias: ``response``):
+    - Omit or ``default``: DRF ``PaymentMethod`` objects (backward compatible).
+    - ``legacy`` / ``simple`` / ``list``: Top-level JSON array — simple method list with
+      ``name``, ``type``, ``upi_id``, ``deep_link``, ``url``, ``link``, ``package``, etc.
+      (aliases: ``title``, ``label``, ``vpa``, ``package_name``, ``android_package``, …).
+    - ``details`` / ``payment_details``: Top-level array with ``method_type``, ``id``,
+      ``is_active``, plus QR / BANK / USDT fields as applicable.
+    - ``wrapped`` / ``data`` / ``object``: ``{ "data": { "upi_id", "balance", "payment_methods",
+      "payment_details", "wallet", "results" } }``. Balance uses authenticated user's wallet
+      when logged in; otherwise ``0.00``.
+
+    Examples::
+        GET /api/auth/payment-methods/?format=legacy
+        GET /api/auth/payment-methods/?format=details
+        GET /api/auth/payment-methods/?format=wrapped
+    """
+    from .payment_method_formats import (
+        payment_methods_to_details_list,
+        payment_methods_to_legacy_list,
+        payment_methods_wrapped_payload,
+    )
+
+    methods_qs = PaymentMethod.objects.filter(is_active=True)
     if request.user.is_authenticated and getattr(request.user, 'worker_id', None):
-        methods = methods.filter(Q(owner__isnull=True) | Q(owner_id=request.user.worker_id))
+        methods_qs = methods_qs.filter(Q(owner__isnull=True) | Q(owner_id=request.user.worker_id))
     else:
-        methods = methods.filter(owner__isnull=True)
-    serializer = PaymentMethodSerializer(methods, many=True, context={'request': request})
+        methods_qs = methods_qs.filter(owner__isnull=True)
+    methods_qs = methods_qs.order_by('id')
+    methods_list = list(methods_qs)
+
+    fmt = (request.GET.get('format') or request.GET.get('response') or 'default').strip().lower()
+    if fmt in ('legacy', 'simple', 'list'):
+        return Response(payment_methods_to_legacy_list(methods_list, request))
+    if fmt in ('details', 'payment_details'):
+        return Response(payment_methods_to_details_list(methods_list, request))
+    if fmt in ('wrapped', 'data', 'object'):
+        user = request.user if getattr(request.user, 'is_authenticated', False) else None
+        return Response(payment_methods_wrapped_payload(methods_list, request, user))
+
+    serializer = PaymentMethodSerializer(methods_list, many=True, context={'request': request})
     return Response(serializer.data)
 
 
