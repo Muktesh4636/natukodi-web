@@ -13,7 +13,7 @@ import redis
 import json
 import os
 from collections import Counter
-from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions, WhiteLabelLead
+from .models import GameRound, Bet, DiceResult, GameSettings, AdminPermissions, WhiteLabelLead, LiveStream, CricketBet, CockFightBet
 from accounts.models import (
     Wallet,
     Transaction,
@@ -76,7 +76,7 @@ ADMIN_DASHBOARD_STATS_CACHE_KEY = 'admin_dashboard_bet_stats'
 ADMIN_DASHBOARD_STATS_TTL = 300  # 5 min - heavy Bet aggregate runs at most once per 5 min
 ADMIN_DASHBOARD_STATS_FRANCHISE_PREFIX = 'admin_dashboard_bet_stats_franchise_'  # + admin_id
 ADMIN_DASHBOARD_STATS_FRANCHISE_TTL = 90   # seconds - franchise stats cached to avoid slow page loads
-ADMIN_DASHBOARD_DATA_CACHE_KEY = 'admin_dashboard_data_json'
+ADMIN_DASHBOARD_DATA_CACHE_KEY = 'admin_dashboard_data_json_v6'
 ADMIN_DASHBOARD_DATA_TTL = 20   # seconds - dashboard-data returns cache more often
 # Dashboard shows daily overview only (today's stats)
 ADMIN_DASHBOARD_STATS_DAYS = 1
@@ -567,37 +567,12 @@ def admin_dashboard(request):
         return redirect('admin_login')
     
     admin_profile = get_admin_profile(request.user)
-    
-    # Get current round state using helper (guard against Redis/DB timeout or errors)
-    from .utils import get_current_round_state
-    try:
-        current_round, timer, status, _ = get_current_round_state(redis_client)
-    except Exception as e:
-        logger.warning('admin_dashboard get_current_round_state: %s', e)
-        current_round, timer, status = None, 0, 'WAITING'
-
     effective_admin = get_effective_admin(request.user)
 
-    # Fast first paint: do not run heavy Bet aggregates here. Stats show 0 initially; JS fetches dashboard-data and updates.
-    total_bets = 0
-    total_amount = 0
-    total_payout = 0
-    total_profit = 0
-    current_round_active_bettors = 0
-    betting_close_time = 30
-    dice_result_time = 51
-    round_end_time = 80
+    # Dashboard template only shows franchise chips + games overview (JSON from admin_dashboard_data).
     my_franchise_balance = None
     my_franchise_balance_display = ''
     try:
-        if current_round:
-            betting_close_time = current_round.betting_close_seconds
-            dice_result_time = current_round.dice_result_seconds
-            round_end_time = current_round.round_end_seconds
-        else:
-            betting_close_time = get_game_setting('BETTING_CLOSE_TIME', 30)
-            dice_result_time = get_game_setting('DICE_RESULT_TIME', 51)
-            round_end_time = get_game_setting('ROUND_END_TIME', 80)
         if not is_super_admin(effective_admin):
             try:
                 fb = FranchiseBalance.objects.get(user=effective_admin)
@@ -607,23 +582,11 @@ def admin_dashboard(request):
             from .utils import format_indian_int
             my_franchise_balance_display = format_indian_int(my_franchise_balance)
     except Exception as e:
-        logger.warning('admin_dashboard timing/balance: %s', e)
+        logger.warning('admin_dashboard franchise balance: %s', e)
 
     context = get_admin_context(request, {
-        'current_round': current_round,
-        'timer': timer,
-        'status': status,
-        'total_bets': total_bets,
-        'total_amount': total_amount,
-        'total_payout': total_payout,
-        'total_profit': total_profit,
-        'current_round_active_bettors': current_round_active_bettors,
         'page': 'dashboard',
         'admin_profile': admin_profile,
-        'betting_close_time': betting_close_time,
-        'dice_result_time': dice_result_time,
-        'round_end_time': round_end_time,
-        'stats_period_days': ADMIN_DASHBOARD_STATS_DAYS,
         'my_franchise_balance': my_franchise_balance,
         'my_franchise_balance_display': my_franchise_balance_display,
     })
@@ -857,6 +820,130 @@ def admin_dashboard_data(request):
     today_new_users = _scope_user(User.objects.filter(is_staff=False, created_at__gte=today_start_utc, created_at__lt=today_end_utc)).count()
     yday_new_users = _scope_user(User.objects.filter(is_staff=False, created_at__gte=yday_start_utc, created_at__lt=yday_end_utc)).count()
 
+    # Per-game aggregates (API + dashboard three-card overview)
+    period_days = 90
+    period_start_utc = timezone.now() - _dt.timedelta(days=period_days)
+
+    def _scope_cricket_cf(qs):
+        if is_super_admin(effective_admin):
+            return qs
+        return qs.filter(user__worker=effective_admin)
+
+    def _bet_metric_block(qs):
+        agg = qs.aggregate(
+            bets_count=Count('id'),
+            stake_amount=Sum('chip_amount'),
+            payout_amount=Sum('payout_amount'),
+        )
+        stake = float(agg.get('stake_amount') or 0)
+        payout = float(agg.get('payout_amount') or 0)
+        return {
+            'bets_count': int(agg.get('bets_count') or 0),
+            'stake_amount': stake,
+            'payout_amount': payout,
+            'profit': stake - payout,
+        }
+
+    def _cricket_cf_metric_block(qs):
+        agg = qs.aggregate(
+            bets_count=Count('id'),
+            stake_amount=Sum('stake'),
+            payout_amount=Sum('payout_amount'),
+        )
+        stake = float(agg.get('stake_amount') or 0)
+        payout = float(agg.get('payout_amount') or 0)
+        return {
+            'bets_count': int(agg.get('bets_count') or 0),
+            'stake_amount': stake,
+            'payout_amount': payout,
+            'profit': stake - payout,
+        }
+
+    gund_period_qs = _scope_bet(Bet.objects.filter(created_at__gte=period_start_utc))
+
+    cq_today = _scope_cricket_cf(CricketBet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc))
+    cq_yday = _scope_cricket_cf(CricketBet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc))
+    cq_period = _scope_cricket_cf(CricketBet.objects.filter(created_at__gte=period_start_utc))
+
+    cf_today = _scope_cricket_cf(CockFightBet.objects.filter(created_at__gte=today_start_utc, created_at__lt=today_end_utc))
+    cf_yday = _scope_cricket_cf(CockFightBet.objects.filter(created_at__gte=yday_start_utc, created_at__lt=yday_end_utc))
+    cf_period = _scope_cricket_cf(CockFightBet.objects.filter(created_at__gte=period_start_utc))
+
+    cricket_today_agg = cq_today.aggregate(
+        bets_count=Count('id'), stake_amount=Sum('stake'), payout_amount=Sum('payout_amount'),
+    )
+    cricket_yday_agg = cq_yday.aggregate(
+        bets_count=Count('id'), stake_amount=Sum('stake'), payout_amount=Sum('payout_amount'),
+    )
+    cf_today_agg = cf_today.aggregate(
+        bets_count=Count('id'), stake_amount=Sum('stake'), payout_amount=Sum('payout_amount'),
+    )
+    cf_yday_agg = cf_yday.aggregate(
+        bets_count=Count('id'), stake_amount=Sum('stake'), payout_amount=Sum('payout_amount'),
+    )
+
+    cricket_today_active = cq_today.aggregate(n=Count('user_id', distinct=True))['n'] or 0
+    cricket_yday_active = cq_yday.aggregate(n=Count('user_id', distinct=True))['n'] or 0
+    cf_today_active = cf_today.aggregate(n=Count('user_id', distinct=True))['n'] or 0
+    cf_yday_active = cf_yday.aggregate(n=Count('user_id', distinct=True))['n'] or 0
+
+    games = {
+        'gunduata': {
+            'label': 'Gunduata (Dice)',
+            'period': _bet_metric_block(gund_period_qs),
+            'today': {
+                'bets_count': int(today_bet_agg.get('bets_count') or 0),
+                'stake_amount': float(today_bet_agg.get('bets_amount') or 0),
+                'payout_amount': float(today_bet_agg.get('payout_amount') or 0),
+                'profit': float((today_bet_agg.get('bets_amount') or 0) - (today_bet_agg.get('payout_amount') or 0)),
+                'active_bettors': int(today_active_bettors),
+            },
+            'yesterday': {
+                'bets_count': int(yday_bet_agg.get('bets_count') or 0),
+                'stake_amount': float(yday_bet_agg.get('bets_amount') or 0),
+                'payout_amount': float(yday_bet_agg.get('payout_amount') or 0),
+                'profit': float((yday_bet_agg.get('bets_amount') or 0) - (yday_bet_agg.get('payout_amount') or 0)),
+                'active_bettors': int(yday_active_bettors),
+            },
+        },
+        'cricket': {
+            'label': 'Cricket',
+            'period': _cricket_cf_metric_block(cq_period),
+            'today': {
+                'bets_count': int(cricket_today_agg.get('bets_count') or 0),
+                'stake_amount': float(cricket_today_agg.get('stake_amount') or 0),
+                'payout_amount': float(cricket_today_agg.get('payout_amount') or 0),
+                'profit': float((cricket_today_agg.get('stake_amount') or 0) - (cricket_today_agg.get('payout_amount') or 0)),
+                'active_bettors': int(cricket_today_active),
+            },
+            'yesterday': {
+                'bets_count': int(cricket_yday_agg.get('bets_count') or 0),
+                'stake_amount': float(cricket_yday_agg.get('stake_amount') or 0),
+                'payout_amount': float(cricket_yday_agg.get('payout_amount') or 0),
+                'profit': float((cricket_yday_agg.get('stake_amount') or 0) - (cricket_yday_agg.get('payout_amount') or 0)),
+                'active_bettors': int(cricket_yday_active),
+            },
+        },
+        'cockfight': {
+            'label': 'Cock fight',
+            'period': _cricket_cf_metric_block(cf_period),
+            'today': {
+                'bets_count': int(cf_today_agg.get('bets_count') or 0),
+                'stake_amount': float(cf_today_agg.get('stake_amount') or 0),
+                'payout_amount': float(cf_today_agg.get('payout_amount') or 0),
+                'profit': float((cf_today_agg.get('stake_amount') or 0) - (cf_today_agg.get('payout_amount') or 0)),
+                'active_bettors': int(cf_today_active),
+            },
+            'yesterday': {
+                'bets_count': int(cf_yday_agg.get('bets_count') or 0),
+                'stake_amount': float(cf_yday_agg.get('stake_amount') or 0),
+                'payout_amount': float(cf_yday_agg.get('payout_amount') or 0),
+                'profit': float((cf_yday_agg.get('stake_amount') or 0) - (cf_yday_agg.get('payout_amount') or 0)),
+                'active_bettors': int(cf_yday_active),
+            },
+        },
+    }
+
     current_round_total_amount = 0
     current_round_total_bets = 0
     bets_by_number_list = []
@@ -939,6 +1026,7 @@ def admin_dashboard_data(request):
                 'new_users': int(yday_new_users or 0),
             },
         },
+        'games': games,
     }
     try:
         cache.set(ADMIN_DASHBOARD_DATA_CACHE_KEY, json.dumps(data), ADMIN_DASHBOARD_DATA_TTL)
@@ -4350,3 +4438,189 @@ def toggle_payment_method(request, pk):
     status = "activated" if method.is_active else "deactivated"
     messages.success(request, f'Payment method "{method.name}" {status} successfully!')
     return redirect('payment_methods')
+
+
+# ─── Live Stream (HLS via MediaRecorder chunks → ffmpeg) ─────────────────────
+
+import subprocess
+import os as _os
+
+
+def _get_hls_dir():
+    from django.conf import settings as _s
+    d = _os.path.join(_s.MEDIA_ROOT, 'hls')
+    _os.makedirs(d, exist_ok=True)
+    return d
+
+
+def _kill_ffmpeg():
+    hls_dir = _get_hls_dir()
+    pid_file = _os.path.join(hls_dir, 'ffmpeg.pid')
+    if _os.path.exists(pid_file):
+        try:
+            with open(pid_file) as f:
+                pid = int(f.read().strip())
+            _os.kill(pid, 9)
+        except Exception:
+            pass
+        try:
+            _os.remove(pid_file)
+        except Exception:
+            pass
+
+
+@admin_required
+def livestream_broadcast(request):
+    stream, _ = LiveStream.objects.get_or_create(id=1, defaults={'title': 'Live Stream'})
+    context = get_admin_context(request)
+    context['stream'] = stream
+    return render(request, 'admin/livestream_broadcast.html', context)
+
+
+def livestream_watch(request):
+    stream = LiveStream.objects.filter(id=1).first()
+    return render(request, 'admin/livestream_watch.html', {'stream': stream})
+
+
+def users_live(request):
+    return render(request, 'admin/users_live.html')
+
+
+@csrf_exempt
+@admin_required
+@require_POST
+def livestream_start(request):
+    """Clear HLS dir, mark stream live."""
+    hls_dir = _get_hls_dir()
+    _kill_ffmpeg()
+    for f in _os.listdir(hls_dir):
+        try:
+            _os.remove(_os.path.join(hls_dir, f))
+        except Exception:
+            pass
+    stream, _ = LiveStream.objects.get_or_create(id=1)
+    stream.is_live = True
+    stream.offer_sdp = '0'
+    stream.save()
+    return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+@admin_required
+@require_POST
+def livestream_stop(request):
+    _kill_ffmpeg()
+    stream = LiveStream.objects.filter(id=1).first()
+    if stream:
+        stream.is_live = False
+        stream.save()
+    hls_dir = _get_hls_dir()
+    playlist_path = _os.path.join(hls_dir, 'stream.m3u8')
+    if _os.path.exists(playlist_path):
+        with open(playlist_path, 'a') as f:
+            f.write('#EXT-X-ENDLIST\n')
+    return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+@admin_required
+@require_POST
+def livestream_chunk(request):
+    chunk_file = request.FILES.get('chunk') or request.FILES.get('video')
+    if not chunk_file:
+        return JsonResponse({'error': 'no chunk'}, status=400)
+
+    hls_dir = _get_hls_dir()
+    stream = LiveStream.objects.filter(id=1).first()
+    if not stream or not stream.is_live:
+        return JsonResponse({'error': 'not live'}, status=400)
+
+    try:
+        n = int(stream.offer_sdp or '0')
+    except ValueError:
+        n = 0
+    n += 1
+    stream.offer_sdp = str(n)
+    stream.save(update_fields=['offer_sdp'])
+
+    chunk_path = _os.path.join(hls_dir, f'chunk_{n:05d}.webm')
+    with open(chunk_path, 'wb') as f:
+        for part in chunk_file.chunks():
+            f.write(part)
+
+    ts_path = _os.path.join(hls_dir, f'seg{n:05d}.ts')
+    cmd = [
+        'ffmpeg', '-y',
+        '-i', chunk_path,
+        '-c:v', 'libx264', '-preset', 'ultrafast', '-tune', 'zerolatency',
+        '-crf', '23',
+        '-c:a', 'aac', '-b:a', '128k', '-ar', '44100', '-ac', '2',
+        '-f', 'mpegts',
+        ts_path,
+    ]
+    result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=30)
+
+    try:
+        _os.remove(chunk_path)
+    except Exception:
+        pass
+
+    if result.returncode != 0:
+        err = result.stderr.decode()[-400:]
+        return JsonResponse({'error': 'ffmpeg failed', 'detail': err}, status=500)
+
+    ts_files = sorted(f for f in _os.listdir(hls_dir) if f.endswith('.ts'))
+    if len(ts_files) > 6:
+        for old in ts_files[:-6]:
+            try:
+                _os.remove(_os.path.join(hls_dir, old))
+            except Exception:
+                pass
+        ts_files = ts_files[-6:]
+
+    dur_result = subprocess.run(
+        ['ffprobe', '-v', 'quiet', '-show_entries', 'format=duration',
+         '-of', 'csv=p=0', ts_path],
+        capture_output=True, text=True
+    )
+    try:
+        seg_duration = float(dur_result.stdout.strip())
+    except Exception:
+        seg_duration = 8.0
+
+    seq = max(0, n - len(ts_files))
+    playlist_path = _os.path.join(hls_dir, 'stream.m3u8')
+    lines = [
+        '#EXTM3U',
+        '#EXT-X-VERSION:3',
+        f'#EXT-X-TARGETDURATION:{int(seg_duration) + 2}',
+        f'#EXT-X-MEDIA-SEQUENCE:{seq}',
+    ]
+    for ts in ts_files:
+        lines.append(f'#EXTINF:{seg_duration:.3f},')
+        lines.append(f'/media/hls/{ts}')
+    tmp = playlist_path + '.tmp'
+    with open(tmp, 'w') as f:
+        f.write('\n'.join(lines) + '\n')
+    _os.replace(tmp, playlist_path)
+
+    hls_ready = len(ts_files) >= 2
+    return JsonResponse({'ok': True, 'chunk': n, 'segments': len(ts_files), 'hls_ready': hls_ready})
+
+
+def livestream_status(request):
+    stream = LiveStream.objects.filter(id=1).first()
+    is_live = bool(stream and stream.is_live)
+    hls_dir = _get_hls_dir()
+    playlist = _os.path.join(hls_dir, 'stream.m3u8')
+    ts_count = len([f for f in _os.listdir(hls_dir) if f.endswith('.ts')]) if _os.path.exists(hls_dir) else 0
+    hls_ready = _os.path.exists(playlist) and ts_count >= 2
+    return JsonResponse({'live': is_live, 'hls_ready': hls_ready and is_live, 'segments': ts_count})
+
+
+def livestream_signal(request):
+    return JsonResponse({'ok': True})
+
+
+def livestream_viewer_signal(request):
+    return JsonResponse({'live': False})

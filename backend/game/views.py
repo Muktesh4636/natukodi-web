@@ -16,7 +16,11 @@ import logging
 
 logger = logging.getLogger('game')
 
-from .models import GameRound, Bet, DiceResult, GameSettings, RoundPrediction, UserSoundSetting, MegaSpinProbability, DailyRewardProbability
+from .models import (
+    GameRound, Bet, DiceResult, GameSettings, RoundPrediction,
+    UserSoundSetting, MegaSpinProbability, DailyRewardProbability,
+    CricketBet, CockFightBet, CockFightSession,
+)
 from accounts.models import User, Wallet, Transaction # Added User, Wallet, Transaction for exposure API and other uses
 from .serializers import (
     GameRoundSerializer, BetSerializer, CreateBetSerializer, DiceResultSerializer,
@@ -3093,3 +3097,227 @@ def ending_payment_for_user(request, user_id):
         'username': user.username,
         'ending_payment': str(ending_payment),
     })
+
+# ─── Cricket Betting Views ────────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cricket_live(request):
+    """Return current live cricket events cached by the cricket poller."""
+    try:
+        r = redis.Redis(
+            host=getattr(settings, 'REDIS_HOST', '127.0.0.1'),
+            port=int(getattr(settings, 'REDIS_PORT', 6379)),
+            password=getattr(settings, 'REDIS_PASSWORD', None) or None,
+            decode_responses=True,
+        )
+        raw = r.get('cricket:live_events')
+        events = json.loads(raw) if raw else []
+    except Exception:
+        events = []
+    return Response({'events': events})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def place_cricket_bet(request):
+    from .models import CricketBet
+    from accounts.models import Wallet, Transaction
+    data = request.data
+    required = ['event_id', 'event_name', 'market_id', 'market_name',
+                'outcome_id', 'outcome_name', 'odds', 'stake']
+    for field in required:
+        if field not in data:
+            return Response({'error': f'Missing field: {field}'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        stake = int(data['stake'])
+        odds = Decimal(str(data['odds']))
+    except (ValueError, TypeError):
+        return Response({'error': 'Invalid stake or odds'}, status=status.HTTP_400_BAD_REQUEST)
+    if stake <= 0:
+        return Response({'error': 'Stake must be positive'}, status=status.HTTP_400_BAD_REQUEST)
+
+    with transaction.atomic():
+        wallet = Wallet.objects.select_for_update().get(user=request.user)
+        if wallet.balance < stake:
+            return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+        wallet.balance -= stake
+        wallet.save()
+        potential_payout = int(stake * odds)
+        bet = CricketBet.objects.create(
+            user=request.user,
+            event_id=data['event_id'],
+            event_name=data['event_name'],
+            market_id=data['market_id'],
+            market_name=data['market_name'],
+            outcome_id=data['outcome_id'],
+            outcome_name=data['outcome_name'],
+            odds=odds,
+            stake=stake,
+            potential_payout=potential_payout,
+        )
+        Transaction.objects.create(
+            user=request.user,
+            transaction_type='DEBIT',
+            amount=stake,
+            description=f'Cricket bet #{bet.pk}',
+        )
+    return Response({'bet_id': bet.pk, 'stake': stake, 'potential_payout': potential_payout},
+                    status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_cricket_bets(request):
+    from .models import CricketBet
+    bets = CricketBet.objects.filter(user=request.user).order_by('-created_at')[:50]
+    data = [
+        {
+            'id': b.pk,
+            'event_name': b.event_name,
+            'market_name': b.market_name,
+            'outcome_name': b.outcome_name,
+            'odds': str(b.odds),
+            'stake': b.stake,
+            'potential_payout': b.potential_payout,
+            'status': b.status,
+            'payout_amount': b.payout_amount,
+            'created_at': b.created_at.isoformat(),
+        }
+        for b in bets
+    ]
+    return Response(data)
+
+
+# ─── Cock Fight Views ─────────────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cock_fight_info(request):
+    from .models import CockFightSession
+    session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
+    if not session:
+        return Response({'session': None, 'open': False})
+    return Response({
+        'session': session.pk,
+        'open': True,
+        'created_at': session.created_at.isoformat(),
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def place_cock_fight_bet(request):
+    from .models import CockFightSession, CockFightBet
+    from accounts.models import Wallet, Transaction
+    side = request.data.get('side', '').upper()
+    if side not in ('RED', 'BLUE'):
+        return Response({'error': 'side must be RED or BLUE'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        stake = int(request.data['stake'])
+    except (KeyError, ValueError, TypeError):
+        return Response({'error': 'Invalid stake'}, status=status.HTTP_400_BAD_REQUEST)
+    if stake <= 0:
+        return Response({'error': 'Stake must be positive'}, status=status.HTTP_400_BAD_REQUEST)
+
+    session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
+    if not session:
+        return Response({'error': 'No open session'}, status=status.HTTP_400_BAD_REQUEST)
+
+    odds = Decimal('9.00')
+    with transaction.atomic():
+        wallet = Wallet.objects.select_for_update().get(user=request.user)
+        if wallet.balance < stake:
+            return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+        wallet.balance -= stake
+        wallet.save()
+        potential_payout = int(stake * odds)
+        bet = CockFightBet.objects.create(
+            user=request.user,
+            session=session,
+            side=side,
+            stake=stake,
+            odds=odds,
+            potential_payout=potential_payout,
+        )
+        Transaction.objects.create(
+            user=request.user,
+            transaction_type='DEBIT',
+            amount=stake,
+            description=f'Cock fight bet #{bet.pk}',
+        )
+    return Response({'bet_id': bet.pk, 'stake': stake, 'side': side, 'potential_payout': potential_payout},
+                    status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_cock_fight_bets(request):
+    from .models import CockFightBet
+    bets = CockFightBet.objects.filter(user=request.user).order_by('-created_at')[:50]
+    data = [
+        {
+            'id': b.pk,
+            'session': b.session_id,
+            'side': b.side,
+            'stake': b.stake,
+            'odds': str(b.odds),
+            'potential_payout': b.potential_payout,
+            'status': b.status,
+            'payout_amount': b.payout_amount,
+            'created_at': b.created_at.isoformat(),
+        }
+        for b in bets
+    ]
+    return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def settle_cock_fight(request):
+    from .models import CockFightSession, CockFightBet
+    from accounts.models import Wallet, Transaction
+    from django.contrib.auth import get_user_model
+    User_ = get_user_model()
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response({'error': 'Admin only'}, status=status.HTTP_403_FORBIDDEN)
+    winner = request.data.get('winner', '').upper()
+    if winner not in ('RED', 'BLUE'):
+        return Response({'error': 'winner must be RED or BLUE'}, status=status.HTTP_400_BAD_REQUEST)
+    session_id = request.data.get('session_id')
+    if session_id:
+        session = get_object_or_404(CockFightSession, pk=session_id, status='OPEN')
+    else:
+        session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
+        if not session:
+            return Response({'error': 'No open session'}, status=status.HTTP_400_BAD_REQUEST)
+
+    with transaction.atomic():
+        session.status = 'SETTLED'
+        session.winner = winner
+        session.settled_at = timezone.now()
+        session.save()
+        bets = CockFightBet.objects.select_for_update().filter(session=session, status='PENDING')
+        won_count = lost_count = 0
+        for bet in bets:
+            if bet.side == winner:
+                bet.status = 'WON'
+                bet.payout_amount = bet.potential_payout
+                bet.settled_at = timezone.now()
+                bet.save()
+                wallet = Wallet.objects.select_for_update().get(user=bet.user)
+                wallet.balance += bet.payout_amount
+                wallet.save()
+                Transaction.objects.create(
+                    user=bet.user,
+                    transaction_type='CREDIT',
+                    amount=bet.payout_amount,
+                    description=f'Cock fight win #{bet.pk}',
+                )
+                won_count += 1
+            else:
+                bet.status = 'LOST'
+                bet.settled_at = timezone.now()
+                bet.save()
+                lost_count += 1
+    return Response({'session': session.pk, 'winner': winner, 'won': won_count, 'lost': lost_count})

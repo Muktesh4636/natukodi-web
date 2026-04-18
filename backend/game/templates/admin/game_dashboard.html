@@ -236,6 +236,90 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
+
+        /* Three-game overview */
+        .games-overview-section {
+            margin-bottom: 28px;
+        }
+        .games-overview-section > h2 {
+            color: #1a202c;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .games-overview-section .hint {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 18px;
+        }
+        .games-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 8px;
+        }
+        .game-overview-card {
+            border-radius: 14px;
+            padding: 20px 18px;
+            border: 2px solid #e2e8f0;
+            background: linear-gradient(160deg, #fafafa 0%, #fff 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .game-overview-card.gunduata {
+            border-color: #818cf8;
+            background: linear-gradient(160deg, #eef2ff 0%, #ffffff 55%);
+        }
+        .game-overview-card.cricket {
+            border-color: #48bb78;
+            background: linear-gradient(160deg, #ecfdf5 0%, #ffffff 55%);
+        }
+        .game-overview-card.cockfight {
+            border-color: #ed8936;
+            background: linear-gradient(160deg, #fffaf0 0%, #ffffff 55%);
+        }
+        .game-overview-card .game-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .game-overview-card .emoji {
+            font-size: 28px;
+            line-height: 1;
+        }
+        .game-overview-card .game-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1a202c;
+        }
+        .game-overview-stats .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 13px;
+        }
+        .game-overview-stats .stat-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .game-overview-stats .stat-label {
+            color: #718096;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .game-overview-stats .stat-val {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a202c;
+            text-align: right;
+        }
         .chips-display {
             display: inline-flex;
             align-items: center;
@@ -259,119 +343,6 @@
             flex-shrink: 0;
         }
         
-        /* Game Admin Dashboard Section */
-        .dashboard-section {
-            margin-bottom: 32px;
-        }
-        
-        .dashboard-section h2 {
-            color: #1a202c;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-        
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .dashboard-card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-        }
-        
-        .dashboard-card-label {
-            font-size: 12px;
-            color: #718096;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .dashboard-card-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a202c;
-        }
-        
-        .dashboard-card-value.status {
-            font-size: 18px;
-        }
-        
-        /* Game Time Settings */
-        .settings-section {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-        }
-        
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .settings-header h2 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #1a202c;
-            font-size: 20px;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .settings-header .clock-icon {
-            font-size: 20px;
-        }
-        
-        .settings-btn {
-            padding: 10px 20px;
-            background: #00CED1;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        
-        .settings-btn:hover {
-            background: #00B8B8;
-        }
-        
-        .settings-content {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        
-        .settings-content p {
-            margin: 8px 0;
-            color: #4a5568;
-            font-size: 14px;
-        }
-        
-        .settings-content p strong {
-            color: #1a202c;
-        }
-        
-        .settings-instruction {
-            margin-top: 12px;
-            font-size: 13px;
-            color: #718096;
-        }
-        
         /* Alerts */
         .alert {
             padding: 12px 16px;
@@ -393,8 +364,8 @@
         
         /* Responsive */
         @media (max-width: 1200px) {
-            .dashboard-cards {
-                grid-template-columns: repeat(3, 1fr);
+            .games-overview-grid {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -413,10 +384,6 @@
                 width: 100%;
             }
             
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-            
             .header {
                 flex-direction: column;
                 gap: 16px;
@@ -427,10 +394,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">🎲🎲</span>
-                <span>Gundu ata</span>
-            </div>
+            {% include 'admin/_admin_brand.html' %}
             <div class="subtitle">Game control</div>
         </div>
         {% include 'admin/_sidebar_menu.html' %}
@@ -462,288 +426,90 @@
                 {% endfor %}
             {% endif %}
 
-            <!-- Game Admin Dashboard Section -->
-            <div class="dashboard-section">
-                <h2>Game Admin Dashboard</h2>
-                <div class="dashboard-cards">
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">CURRENT ROUND</div>
-                        <div class="dashboard-card-value" id="current-round">{{ current_round.round_id|default:"N/A" }}</div>
+            <!-- Three games overview (today IST) -->
+            <div class="games-overview-section">
+                <h2>Games overview — today (IST)</h2>
+                <p class="hint">Separate stats per game — today (IST).</p>
+                <div class="games-overview-grid">
+                    <div class="game-overview-card gunduata">
+                        <div class="game-title-row">
+                            <span class="emoji">🎲</span>
+                            <span class="game-title">Gunduata (Dice)</span>
+                        </div>
+                        <div class="game-overview-stats">
+                            <div class="stat-row"><span class="stat-label">Bets</span><span class="stat-val" id="game-gunduata-bets">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Stake</span><span class="stat-val" id="game-gunduata-stake">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Payout</span><span class="stat-val" id="game-gunduata-payout">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Profit</span><span class="stat-val" id="game-gunduata-profit">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Active bettors</span><span class="stat-val" id="game-gunduata-active">—</span></div>
+                        </div>
                     </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">TIMER</div>
-                        <div class="dashboard-card-value" id="timer">{{ timer }}s</div>
+                    <div class="game-overview-card cricket">
+                        <div class="game-title-row">
+                            <span class="emoji">🏏</span>
+                            <span class="game-title">Cricket</span>
+                        </div>
+                        <div class="game-overview-stats">
+                            <div class="stat-row"><span class="stat-label">Bets</span><span class="stat-val" id="game-cricket-bets">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Stake</span><span class="stat-val" id="game-cricket-stake">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Payout</span><span class="stat-val" id="game-cricket-payout">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Profit</span><span class="stat-val" id="game-cricket-profit">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Active bettors</span><span class="stat-val" id="game-cricket-active">—</span></div>
+                        </div>
                     </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">STATUS</div>
-                        <div class="dashboard-card-value status" id="status">{{ status }}</div>
+                    <div class="game-overview-card cockfight">
+                        <div class="game-title-row">
+                            <span class="emoji">🐓</span>
+                            <span class="game-title">Cock fight</span>
+                        </div>
+                        <div class="game-overview-stats">
+                            <div class="stat-row"><span class="stat-label">Bets</span><span class="stat-val" id="game-cockfight-bets">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Stake</span><span class="stat-val" id="game-cockfight-stake">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Payout</span><span class="stat-val" id="game-cockfight-payout">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Profit</span><span class="stat-val" id="game-cockfight-profit">—</span></div>
+                            <div class="stat-row"><span class="stat-label">Active bettors</span><span class="stat-val" id="game-cockfight-active">—</span></div>
+                        </div>
                     </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL BETS <span style="font-weight:400;opacity:0.8;font-size:11px;">(daily overview)</span></div>
-                        <div class="dashboard-card-value" id="total-bets">{{ total_bets }}</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL AMOUNT <span style="font-weight:400;opacity:0.8;font-size:11px;">(daily overview)</span></div>
-                        <div class="dashboard-card-value" id="total-amount">₹{{ total_amount|floatformat:2 }}</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL PAYOUT <span style="font-weight:400;opacity:0.8;font-size:11px;">(daily overview)</span></div>
-                        <div class="dashboard-card-value" id="total-payout">₹{{ total_payout|floatformat:2 }}</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">TOTAL PROFIT TODAY</div>
-                        <div class="dashboard-card-value" id="total-profit">₹{{ total_profit|floatformat:2 }}</div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="dashboard-card-label">ACTIVELY PLAYING</div>
-                        <div class="dashboard-card-value" id="active-players">{{ current_round_active_bettors }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Game Time Settings -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <h2>
-                        <span class="clock-icon">🕐</span>
-                        Game Time Settings
-                    </h2>
-                    <a href="{% url 'game_settings' %}" class="settings-btn">Configure Settings →</a>
-                </div>
-                <div class="settings-content">
-                    <p><strong>Betting Close Time:</strong> {{ betting_close_time }} seconds</p>
-                    <p><strong>Dice Result Time:</strong> {{ dice_result_time }} seconds</p>
-                    <p><strong>Round End Time:</strong> {{ round_end_time }} seconds</p>
-                    <p class="settings-instruction">
-                        Click "Configure Settings" to modify these timing values. Changes take effect immediately.
-                    </p>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
-        let currentTimer = {{ timer|default:1 }}; // Default to 1 if no timer value
-        let clientSideTimer = null; // Client-side timer for continuous countdown
-        let gameSocket = null;
-        let wsReconnectAttempts = 0;
-        const maxReconnectAttempts = 5;
-
-        // Start client-side timer for continuous countdown
-        function startClientSideTimer() {
-            if (clientSideTimer) {
-                return; // Already running
-            }
-            const roundEndTime = {{ round_end_time|default:80 }};
-            clientSideTimer = setInterval(function() {
-                // Always increment timer (it will wrap around at round end)
-                currentTimer++;
-                if (currentTimer > roundEndTime) {
-                    currentTimer = 1; // Reset to start of next round
-                }
-                updateTimerDisplay();
-            }, 1000); // Update every second
-        }
-
-        // Stop client-side timer
-        function stopClientSideTimer() {
-            if (clientSideTimer) {
-                clearInterval(clientSideTimer);
-                clientSideTimer = null;
-            }
-        }
-
-        // WebSocket connection setup
-        function connectWebSocket() {
-            // Use current hostname for WebSocket connection (works for local dev and production)
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws/game/`;
-            
-            console.log('🔌 Connecting to WebSocket:', wsUrl);
-            
-            try {
-                gameSocket = new WebSocket(wsUrl);
-                
-                gameSocket.onopen = function(event) {
-                    console.log('✅ WebSocket connected');
-                    wsReconnectAttempts = 0;
-                    gameSocket.send(JSON.stringify({ type: 'get_state' }));
-                    // Don't start client-side timer here - let it run continuously
-                };
-                
-                gameSocket.onmessage = function(event) {
-                    try {
-                        const data = JSON.parse(event.data);
-                        handleWebSocketMessage(data);
-                    } catch (e) {
-                        console.error('Error parsing WebSocket message:', e);
-                    }
-                };
-                
-                gameSocket.onerror = function(error) {
-                    console.error('❌ WebSocket error:', error);
-                };
-                
-                gameSocket.onclose = function(event) {
-                    console.log('🔌 WebSocket closed, attempting to reconnect...');
-                    // Don't stop client-side timer - let AJAX fallback handle it
-                    if (wsReconnectAttempts < maxReconnectAttempts) {
-                        wsReconnectAttempts++;
-                        setTimeout(connectWebSocket, 2000 * wsReconnectAttempts);
-                    } else {
-                        console.error('❌ Max reconnection attempts reached, relying on AJAX polling');
-                        // AJAX polling is already running via setInterval
-                    }
-                };
-            } catch (e) {
-                console.error('Failed to create WebSocket:', e);
-                // AJAX polling is already running via setInterval
-            }
-        }
-        
-        // Handle WebSocket messages
-        function handleWebSocketMessage(data) {
-            if (data.type === 'timer' || data.type === 'game_state' || data.type === 'game_start' || data.type === 'dice_result' || data.type === 'game_end') {
-                if (data.timer !== undefined) {
-                    const newTimer = parseInt(data.timer) || 1;
-                    // Only update if timer changed significantly (to avoid jitter)
-                    if (Math.abs(currentTimer - newTimer) > 2 || newTimer < currentTimer || !clientSideTimer) {
-                        currentTimer = newTimer;
-                        updateTimerDisplay();
-                        // Ensure client-side timer is running
-                        startClientSideTimer();
-                        console.log('🔄 Timer synced via WebSocket:', currentTimer);
-                    }
-                }
-                
-                if (data.status) {
-                    document.getElementById('status').textContent = data.status;
-                }
-                
-                if (data.round_id) {
-                    document.getElementById('current-round').textContent = data.round_id;
-                }
-            }
-        }
-        
-        // Update timer display
-        function updateTimerDisplay() {
-            const timerElement = document.getElementById('timer');
-            if (timerElement) {
-                timerElement.textContent = currentTimer + 's';
-            }
-        }
-        
-        // AJAX polling function (called by interval)
         function updateDashboardData() {
             fetch('/game-admin/dashboard-data/')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.timer !== undefined) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        // Only update if timer changed significantly (to avoid jitter)
-                        if (Math.abs(currentTimer - newTimer) > 3 || !clientSideTimer) {
-                            currentTimer = newTimer;
-                            // Restart client-side timer to sync with server
-                            startClientSideTimer();
-                            console.log('🔄 Timer synced via AJAX:', currentTimer);
-                        }
+                    if (!data.games) return;
+                    const g = data.games;
+                    function ru(x) {
+                        const n = parseFloat(x || 0);
+                        return '₹' + n.toFixed(2);
                     }
-                    if (data.status) {
-                        document.getElementById('status').textContent = data.status;
+                    function set(gameKey, prefix) {
+                        const t = g[gameKey] && g[gameKey].today;
+                        if (!t) return;
+                        const el = (id) => document.getElementById(id);
+                        const b = el('game-' + prefix + '-bets');
+                        if (b) b.textContent = t.bets_count != null ? String(t.bets_count) : '—';
+                        const stake = el('game-' + prefix + '-stake');
+                        if (stake) stake.textContent = ru(t.stake_amount);
+                        const pay = el('game-' + prefix + '-payout');
+                        if (pay) pay.textContent = ru(t.payout_amount);
+                        const profit = el('game-' + prefix + '-profit');
+                        if (profit) profit.textContent = ru(t.profit);
+                        const act = el('game-' + prefix + '-active');
+                        if (act) act.textContent = t.active_bettors != null ? String(t.active_bettors) : '—';
                     }
-                    if (data.round_id) {
-                        document.getElementById('current-round').textContent = data.round_id;
-                    }
-                    if (data.total_bets !== undefined) {
-                        document.getElementById('total-bets').textContent = data.total_bets;
-                    }
-                    if (data.total_amount !== undefined) {
-                        document.getElementById('total-amount').textContent = '₹' + parseFloat(data.total_amount).toFixed(2);
-                    }
-                    if (data.total_payout !== undefined) {
-                        const payoutElement = document.getElementById('total-payout');
-                        if (payoutElement) {
-                            payoutElement.textContent = '₹' + parseFloat(data.total_payout).toFixed(2);
-                        }
-                    }
-                    if (data.total_profit !== undefined) {
-                        const profitEl = document.getElementById('total-profit');
-                        if (profitEl) profitEl.textContent = '₹' + parseFloat(data.total_profit).toFixed(2);
-                    }
-                    if (data.current_round_active_bettors !== undefined) {
-                        const activeEl = document.getElementById('active-players');
-                        if (activeEl) activeEl.textContent = data.current_round_active_bettors;
-                    }
-
-                    // Daily section (IST)
-                    if (data.daily && data.daily.today) {
-                        const today = data.daily.today;
-                        const dateEl = document.getElementById('daily-date-ist');
-                        if (dateEl && today.date) dateEl.textContent = today.date;
-
-                        const depositsEl = document.getElementById('today-deposits');
-                        if (depositsEl && today.deposits_amount !== undefined) depositsEl.textContent = '₹' + parseFloat(today.deposits_amount).toFixed(2);
-
-                        const withdrawsEl = document.getElementById('today-withdraws');
-                        if (withdrawsEl && today.withdraws_amount !== undefined) withdrawsEl.textContent = '₹' + parseFloat(today.withdraws_amount).toFixed(2);
-
-                        const betsEl = document.getElementById('today-bets');
-                        if (betsEl && today.bets_amount !== undefined) betsEl.textContent = '₹' + parseFloat(today.bets_amount).toFixed(2);
-
-                        const payoutEl = document.getElementById('today-payout');
-                        if (payoutEl && today.payout_amount !== undefined) payoutEl.textContent = '₹' + parseFloat(today.payout_amount).toFixed(2);
-
-                        const profitEl = document.getElementById('today-profit');
-                        if (profitEl && today.profit !== undefined) profitEl.textContent = '₹' + parseFloat(today.profit).toFixed(2);
-
-                        const activeEl = document.getElementById('today-active-bettors');
-                        if (activeEl && today.active_bettors !== undefined) activeEl.textContent = today.active_bettors;
-
-                        const newUsersEl = document.getElementById('today-new-users');
-                        if (newUsersEl && today.new_users !== undefined) newUsersEl.textContent = today.new_users;
-                    }
+                    set('gunduata', 'gunduata');
+                    set('cricket', 'cricket');
+                    set('cockfight', 'cockfight');
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));
         }
-        
-        // Connect to WebSocket for real-time timer updates
-        connectWebSocket();
 
-        // Always run AJAX updates to ensure timer stays synced (WebSocket or not)
-        setInterval(updateDashboardData, 10000); // Every 10s to reduce server load and 504 risk
-
-        // Update immediately on page load
-        setTimeout(function() {
-            fetch('/game-admin/dashboard-data/')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.timer !== undefined) {
-                        const newTimer = parseInt(data.timer) || 1;
-                        currentTimer = newTimer;
-                        updateTimerDisplay();
-                    }
-                    if (data.status) {
-                        document.getElementById('status').textContent = data.status;
-                    }
-                    if (data.round_id) {
-                        document.getElementById('current-round').textContent = data.round_id;
-                    }
-                })
-                .catch(error => console.error('Error fetching initial data:', error));
-        }, 1000);
-
-        // Start client-side timer regardless of WebSocket status
-        startClientSideTimer();
-        console.log('🚀 Client-side timer started (will sync with server data)');
-
-        // Clean up WebSocket and client-side timer on page unload
-        window.addEventListener('beforeunload', function() {
-            stopClientSideTimer(); // Stop client-side timer
-            if (gameSocket) {
-                gameSocket.close();
-            }
-        });
+        setInterval(updateDashboardData, 10000);
+        setTimeout(updateDashboardData, 400);
 
         // Sidebar scroll position preservation
         const sidebarWrapper = document.querySelector('.sidebar-menu-wrapper');

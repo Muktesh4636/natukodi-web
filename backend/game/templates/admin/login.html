@@ -215,16 +215,87 @@
         .password-toggle:hover {
             color: #4a5568;
         }
+
+        .games-banner {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+            justify-content: center;
+        }
+
+        .game-card {
+            flex: 1;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+        .game-card.gunduata {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #ebf4ff, #e8eaff);
+        }
+
+        .game-card.cricket {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #e6ffed, #f0fff4);
+        }
+
+        .game-card.cockfight {
+            border-color: #ed8936;
+            background: linear-gradient(135deg, #fff8f0, #fffaf0);
+        }
+
+        .game-card .game-icon {
+            font-size: 26px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .game-card .game-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .game-card.gunduata .game-name { color: #553c9a; }
+        .game-card.cricket .game-name  { color: #276749; }
+        .game-card.cockfight .game-name { color: #c05621; }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
             <h1>
-                <span class="icon">🎲</span>
+                <span class="icon">🐓</span>
                 <span>Admin Login</span>
             </h1>
-            <p>Game Admin Panel</p>
+            <p>Game Admin Dashboard</p>
+        </div>
+
+        <!-- Game cards -->
+        <div class="games-banner">
+            <div class="game-card gunduata">
+                <span class="game-icon">🎲</span>
+                <span class="game-name">Gunduata</span>
+            </div>
+            <div class="game-card cricket">
+                <span class="game-icon">🏏</span>
+                <span class="game-name">Cricket</span>
+            </div>
+            <div class="game-card cockfight">
+                <span class="game-icon">🐓</span>
+                <span class="game-name">Cock Fight</span>
+            </div>
         </div>
 
         {% if messages %}
