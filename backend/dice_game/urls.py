@@ -95,9 +95,7 @@ urlpatterns = [
     path('api/whitelabel/lead/', project_views.white_label_lead, name='white_label_lead'),
     # Client payments: ending payment (pending commission) per user — for client-payments app
     path('api/client-payments/ending-payment/<int:user_id>/', game_views.ending_payment_for_user, name='ending_payment_for_user'),
-    # Game settings API (explicit so it always resolves even if include order or proxy differs)
-    path('api/game/settings/', game_views.game_settings_api, name='game_settings_api_direct'),
-    path('api/game/settings', game_views.game_settings_api, name='game_settings_api_direct_no_slash'),
+    # Game settings API temporarily removed — see temporary_deleted/
     # Game endpoints (api/game/)
     path('api/game/', include('game.urls')),
     

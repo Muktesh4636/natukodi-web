@@ -116,7 +116,6 @@ class AdminPermissions(models.Model):
     
     # Menu permissions
     can_view_dashboard = models.BooleanField(default=True)
-    can_control_dice = models.BooleanField(default=True)
     can_view_recent_rounds = models.BooleanField(default=True)
     can_view_all_bets = models.BooleanField(default=True)
     can_view_wallets = models.BooleanField(default=True)

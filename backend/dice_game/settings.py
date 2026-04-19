@@ -21,38 +21,15 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Security: Only allow specific hosts
-# Primary domains: gunduata.club (+ legacy gunduata.online) + white-label host fight.pravoo.in
-ALLOWED_HOSTS_STR = os.getenv(
-    'ALLOWED_HOSTS',
-    'localhost,127.0.0.1,'
-    'gunduata.club,www.gunduata.club,'
-    'gunduata.online,www.gunduata.online,'
-    'fight.pravoo.in,www.fight.pravoo.in,'
-    '72.61.254.71,72.61.255.231,72.61.254.74,72.62.226.41'
-)
+# Security: set ALLOWED_HOSTS via env for production (comma-separated).
+ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
 
 # For local development, allow all hosts if DEBUG is True
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    # Safety: prevent a too-strict ALLOWED_HOSTS env/.env from breaking the site (causes 400 everywhere).
-    # Always allow loopback + primary domains + known server IPs.
-    _required_hosts = {
-        'localhost',
-        '127.0.0.1',
-        'gunduata.club',
-        'www.gunduata.club',
-        'gunduata.online',
-        'www.gunduata.online',
-        'fight.pravoo.in',
-        'www.fight.pravoo.in',
-        '72.61.254.71',
-        '72.61.255.231',
-        '72.61.254.74',
-        '72.62.226.41',
-    }
+    _required_hosts = {'localhost', '127.0.0.1'}
     if '*' not in ALLOWED_HOSTS:
         ALLOWED_HOSTS = sorted(set(ALLOWED_HOSTS) | _required_hosts)
 
@@ -105,30 +82,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CSRF Settings — required for form POSTs (e.g. game-admin login/dice-control) when using HTTPS
+# CSRF Settings — required for form POSTs (e.g. game-admin login) when using HTTPS
 # When behind a proxy, ensure Nginx sends: proxy_set_header X-Forwarded-Proto $scheme;
 # and SECURE_PROXY_SSL_HEADER is set (see production block below)
 _default_csrf_origins = [
-    'https://gunduata.club',
-    'http://gunduata.club',
-    'https://www.gunduata.club',
-    'http://www.gunduata.club',
-    'https://gunduata.online',
-    'http://gunduata.online',
-    'https://www.gunduata.online',
-    'http://www.gunduata.online',
-    'https://fight.pravoo.in',
-    'http://fight.pravoo.in',
-    'https://www.fight.pravoo.in',
-    'http://www.fight.pravoo.in',
-    'http://72.61.254.71:8080',
-    'http://72.61.254.71',
     'http://localhost:8080',
     'http://127.0.0.1:8080',
-    'http://192.168.29.147:8080',
-    'http://192.168.29.147',
-    'http://0.0.0.0:8080',
-    'http://0.0.0.0',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
 ]
 _csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '').strip()
 if _csrf_origins_env:
@@ -296,11 +257,11 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'dice_game'),
-            'USER': os.getenv('DB_USER', 'muktesh'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'Gunduata@123'),
-            'HOST': os.getenv('DB_HOST', '72.61.255.231'),
-            'PORT': os.getenv('DB_PORT', '6432'),  # PgBouncer port
-            'CONN_MAX_AGE': 0,  # Disable persistent connections at Django level to let PgBouncer handle it
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+            'CONN_MAX_AGE': 0,  # Use 0 with PgBouncer; set DB_PORT (e.g. 6432) when using a pooler
             'CONN_HEALTH_CHECKS': True,
             'OPTIONS': {
                 'connect_timeout': 5,
@@ -345,7 +306,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static' / 'react',
 ]
 MEDIA_URL = '/media/'
-# Allow override so production can use a shared path (e.g. /var/www/gunduata.club/media or mounted volume)
+# Allow override so production can use a shared path (see MEDIA_ROOT env)
 _media_root_env = os.getenv('MEDIA_ROOT', '').strip()
 if _media_root_env:
     MEDIA_ROOT = Path(_media_root_env) if os.path.isabs(_media_root_env) else BASE_DIR / _media_root_env
@@ -364,11 +325,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SMS Settings
 SMS_PROVIDER = os.getenv('SMS_PROVIDER', 'MESSAGE_CENTRAL')  # Options: MSG91, TWILIO, TEXTLOCAL, MESSAGE_CENTRAL
-SMS_API_KEY = os.getenv('SMS_API_KEY', 'C-8B852AEF1042406')
-SMS_SENDER_ID = os.getenv('SMS_SENDER_ID', 'Gundu Ata')
+SMS_API_KEY = os.getenv('SMS_API_KEY', '')
+SMS_SENDER_ID = os.getenv('SMS_SENDER_ID', '')
 SMS_TEMPLATE_ID = os.getenv('SMS_TEMPLATE_ID', '')
-SMS_AUTH_TOKEN = os.getenv('SMS_AUTH_TOKEN', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDLThCODUyQUVGMTA0MjQwNiIsImlhdCI6MTc3MDYyNTY0MSwiZXhwIjoxOTI4MzA1NjQxfQ.vR6ovuKMq1XRAH_Gt4DlOAE65LpgAnWv9DWEqmECWBqgUmUqL0tg28WxM1ZEsb673oO2aONMhezgr7Hmo2N0Jg')
-SMS_CUSTOMER_ID = os.getenv('SMS_CUSTOMER_ID', 'C-8B852AEF1042406')
+SMS_AUTH_TOKEN = os.getenv('SMS_AUTH_TOKEN', '')
+SMS_CUSTOMER_ID = os.getenv('SMS_CUSTOMER_ID', '')
 
 # Twilio settings (if using Twilio)
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
@@ -427,7 +388,6 @@ SINGLE_SESSION_PER_USER = os.getenv('SINGLE_SESSION_PER_USER', 'False') == 'True
 # CORS Settings - SECURITY: Restrict to specific origins
 CORS_ALLOWED_ORIGINS_STR = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'https://gunduata.club,https://www.gunduata.club,'
     'http://localhost:5173,http://localhost:3000'
 )
 CORS_ALLOWED_ORIGINS = [
@@ -444,11 +404,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 REDIS_HOST = os.getenv('REDIS_HOST', 'dice_game_redis')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
-REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'Gunduata@123')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', '')
 
 # Redis Sentinel Configuration
 USE_REDIS_SENTINEL = os.getenv('USE_REDIS_SENTINEL', 'False') == 'True'
-REDIS_SENTINEL_HOSTS = os.getenv('REDIS_SENTINEL_HOSTS', '72.61.254.71:26379,72.61.254.74:26379,72.62.226.41:26379')
+REDIS_SENTINEL_HOSTS = os.getenv('REDIS_SENTINEL_HOSTS', '')
 REDIS_SENTINEL_MASTER = os.getenv('REDIS_SENTINEL_MASTER', 'mymaster')
 
 # Redis Connection Pool (for efficient connection reuse)
@@ -458,10 +418,10 @@ try:
     
     REDIS_POOL_SIZE = int(os.getenv('REDIS_POOL_SIZE', '5000'))
     
-    if USE_REDIS_SENTINEL:
+    if USE_REDIS_SENTINEL and REDIS_SENTINEL_HOSTS.strip():
         sentinel_hosts = [
-            (h.split(':')[0], int(h.split(':')[1])) 
-            for h in REDIS_SENTINEL_HOSTS.split(',')
+            (h.split(':')[0], int(h.split(':')[1]))
+            for h in REDIS_SENTINEL_HOSTS.split(',') if h.strip()
         ]
         sentinel = Sentinel(sentinel_hosts, socket_timeout=0.1)
         REDIS_POOL = sentinel.master_for(
@@ -517,6 +477,3 @@ GAME_SETTINGS = {
         6: 6.0,
     },
 }
-
-# Dice Control PIN
-DICE_CONTROL_PIN = os.getenv('DICE_CONTROL_PIN', '1234')

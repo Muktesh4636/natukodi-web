@@ -155,20 +155,6 @@ class GameEngine:
     async def generate_dice_result(self):
         import random
         from collections import Counter
-        from game.models import GameRound
-        
-        try:
-            manual_result_raw = await self.redis.get("manual_dice_result")
-            if manual_result_raw:
-                manual_dice = [int(x.strip()) for x in manual_result_raw.split(",")]
-                if len(manual_dice) == 6:
-                    await self.redis.delete("manual_dice_result")
-                    counts = Counter(manual_dice)
-                    winners = sorted([num for num, count in counts.items() if count >= 2])
-                    result_str = ",".join(map(str, winners)) if winners else "0"
-                    return manual_dice, result_str
-        except Exception as e:
-            logger.error(f"Error checking manual result: {e}")
 
         dice_values = [random.randint(1, 6) for _ in range(6)]
         counts = Counter(dice_values)

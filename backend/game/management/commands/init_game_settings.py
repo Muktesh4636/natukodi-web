@@ -36,7 +36,7 @@ class Command(BaseCommand):
             {'key': 'MAX_BET', 'value': '50000', 'description': 'Maximum bet amount per number'},
             {'key': 'APP_VERSION_CODE', 'value': '1', 'description': 'Version code of latest APK. Bump when releasing new APK.'},
             {'key': 'APP_VERSION_NAME', 'value': '1.0', 'description': 'Display version name shown in update dialog.'},
-            {'key': 'APP_DOWNLOAD_URL', 'value': 'https://gunduata.club/gundu-ata.apk', 'description': 'Direct URL to download the latest APK.'},
+            {'key': 'APP_DOWNLOAD_URL', 'value': '/api/download/apk/', 'description': 'Direct URL to download the latest APK.'},
             {'key': 'APP_FORCE_UPDATE', 'value': 'false', 'description': 'If true, users must update to continue using the app.'},
         ]
         

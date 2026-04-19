@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Game Settings - Admin Panel</title>
+    <title>Game Settings — Admin</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -310,21 +310,6 @@
             color: #742a2a;
             border: 1px solid #fc8181;
         }
-        .info-box {
-            background: #edf2f7;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            border-left: 3px solid #667eea;
-        }
-        .info-box p {
-            margin: 4px 0;
-            color: #4a5568;
-            font-size: 14px;
-        }
-        .info-box strong {
-            color: #1a202c;
-        }
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -344,10 +329,7 @@
 <body>
     <div class="sidebar">
                 <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">🎲🎲</span>
-                <span>Gundu ata</span>
-            </div>
+            {% include 'admin/_admin_brand.html' %}
             <div class="subtitle">Game control</div>
         </div>
         {% include 'admin/_sidebar_menu.html' %}
@@ -357,7 +339,7 @@
         <div class="container">
             <div class="header">
                 <div class="header-left">
-                    <h1>⏱️ Game Time Settings</h1>
+                    <h1>⚙️ Game Settings</h1>
                 </div>
                 <div class="header-actions">
                     <a href="{% url 'admin_dashboard' %}" class="action-btn">← Back to Dashboard</a>
@@ -373,54 +355,9 @@
                 {% endfor %}
             {% endif %}
 
-            <div class="info-box">
-                <p><strong>⚠️ Important:</strong> Changes to these settings will only affect the next round. The current round will continue with its original timing settings.</p>
-                <p><strong>Timing Rules:</strong></p>
-                <p>• Betting Close Time must be less than Dice Result Time</p>
-                <p>• Dice Rolling Time must be less than Dice Result Time</p>
-                <p>• Dice Result Time must be less than Round End Time</p>
-                <p>• All values must be positive numbers (in seconds)</p>
-            </div>
-
             <form method="post" action="{% url 'game_settings' %}">
                 {% csrf_token %}
                 <div class="control-panel">
-                    <h2>Configure Game Timing</h2>
-                    
-                    {% for setting in settings_list %}
-                    <div class="form-group">
-                        <label for="{{ setting.key }}">
-                            {% if setting.key == 'BETTING_CLOSE_TIME' %}
-                                Betting Close Time (When betting closes)
-                            {% elif setting.key == 'DICE_ROLL_TIME' %}
-                                Dice Rolling Time (Seconds before dice result when warning is sent)
-                            {% elif setting.key == 'DICE_RESULT_TIME' %}
-                                Dice Result Time (When dice result is announced)
-                            {% elif setting.key == 'ROUND_END_TIME' %}
-                                Round End Time (Total round duration)
-                            {% elif setting.key == 'MAX_BET' %}
-                                Maximum Bet Amount (Per number)
-                            {% else %}
-                                {{ setting.key }}
-                            {% endif %}
-                        </label>
-                        <input 
-                            type="number" 
-                            id="{{ setting.key }}" 
-                            name="{{ setting.key }}" 
-                            value="{{ setting.value }}"
-                            min="1"
-                            required
-                            step="1"
-                        >
-                        <div class="description">
-                            {{ setting.description }}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <div class="control-panel" style="margin-top: 32px;">
                     <h2>📱 App Version (APK Update Prompt)</h2>
                     <p style="color: #718096; font-size: 14px; margin-bottom: 20px;">When you release a new APK, update these values. Users with older versions will see an update prompt to download the latest APK.</p>
                     
@@ -466,7 +403,7 @@
                             id="app_{{ setting.key }}" 
                             name="{{ setting.key }}" 
                             value="{{ setting.value }}"
-                            {% if setting.key == 'APP_DOWNLOAD_URL' %}placeholder="https://gunduata.club/gundu-ata.apk"{% endif %}
+                            {% if setting.key == 'APP_DOWNLOAD_URL' %}placeholder="https://example.com/path/to/app.apk"{% endif %}
                             style="width: 100%;"
                         >
                         {% endif %}

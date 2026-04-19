@@ -10,7 +10,7 @@ class NormalizeSlashesMiddleware:
     Redirect paths containing multiple consecutive slashes to a normalized path.
 
     This prevents hard-to-debug 404s from clients that accidentally build URLs like:
-    https://gunduata.club//api/game/settings/
+    https://example.com//api/game/settings/
     """
 
     def __init__(self, get_response):

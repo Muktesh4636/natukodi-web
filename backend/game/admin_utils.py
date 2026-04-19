@@ -110,7 +110,6 @@ def _perms_to_dict(perms):
     """Build a dict of permission flags for caching."""
     return {
         'can_view_dashboard': getattr(perms, 'can_view_dashboard', False),
-        'can_control_dice': getattr(perms, 'can_control_dice', False),
         'can_view_recent_rounds': getattr(perms, 'can_view_recent_rounds', False),
         'can_view_all_bets': getattr(perms, 'can_view_all_bets', False),
         'can_view_wallets': getattr(perms, 'can_view_wallets', False),

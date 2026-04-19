@@ -101,28 +101,6 @@ def _build_current_round_payload_dict():
     }
 
 
-def get_dice_mode():
-    """Get dice result mode: 'manual' or 'random'"""
-    try:
-        setting = GameSettings.objects.get(key='dice_mode')
-        return setting.value
-    except GameSettings.DoesNotExist:
-        # Default to 'random' if not set
-        GameSettings.objects.create(key='dice_mode', value='random', description='Dice result mode: manual or random')
-        return 'random'
-
-
-def set_dice_mode(mode):
-    """Set dice result mode: 'manual' or 'random'"""
-    if mode not in ['manual', 'random']:
-        return False
-    GameSettings.objects.update_or_create(
-        key='dice_mode',
-        defaults={'value': mode, 'description': 'Dice result mode: manual or random'}
-    )
-    return True
-
-
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 @api_view(['GET'])
@@ -1231,177 +1209,6 @@ def round_results_api(request, round_id=None):
     })
 
 
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
-def set_dice_result(request):
-    """Admin: Set dice result for current round"""
-    result = request.data.get('result')
-    logger.info(f"Admin {request.user.username} setting dice result: {result}")
-    if not result or result < 1 or result > 6:
-        logger.warning(f"Admin {request.user.username} provided invalid result: {result}")
-        return Response({'error': 'Invalid dice result (1-6)'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Get current round
-    round_obj = None
-    if redis_client:
-        try:
-            round_data = redis_client.get('current_round')
-            if round_data:
-                round_data = json.loads(round_data)
-                
-                # Check for staleness even if in Redis
-                is_stale = False
-                if 'start_time' in round_data:
-                    from django.utils import timezone
-                    from datetime import datetime
-                    try:
-                        start_time = datetime.fromisoformat(round_data['start_time'])
-                        # Ensure timezone awareness if needed
-                        if timezone.is_aware(timezone.now()) and not timezone.is_aware(start_time):
-                            start_time = timezone.make_aware(start_time)
-                        
-                        elapsed = (timezone.now() - start_time).total_seconds()
-                        round_end_time = get_game_setting('ROUND_END_TIME', 80)
-                        if elapsed > round_end_time + 10:  # 10s buffer
-                            is_stale = True
-                    except (ValueError, TypeError):
-                        pass
-                
-                if not is_stale:
-                    try:
-                        round_obj = GameRound.objects.get(round_id=round_data['round_id'])
-                    except GameRound.DoesNotExist:
-                        pass
-                else:
-                    # Clear stale Redis data
-                    redis_client.delete('current_round')
-                    redis_client.delete('round_timer')
-        except Exception:
-            pass
-    
-    # Fallback to latest round
-    if not round_obj:
-        round_obj = GameRound.objects.order_by('-start_time').first()
-    
-    if not round_obj:
-        logger.warning(f"Admin {request.user.username} failed to set result: No active round")
-        return Response({'error': 'No active round'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Check if individual dice values are set - if so, recalculate result from them
-    dice_values = [round_obj.dice_1, round_obj.dice_2, round_obj.dice_3, 
-                   round_obj.dice_4, round_obj.dice_5, round_obj.dice_6]
-    
-    valid_dice = [v for v in dice_values if v is not None]
-    if valid_dice:
-        # Some or all individual dice values are set - recalculate result from them
-        from .utils import determine_winning_number
-        result = determine_winning_number(valid_dice)
-    
-    try:
-        with transaction.atomic():
-            # Set dice result (either from parameter or recalculated from dice values)
-            round_obj.dice_result = result
-            round_obj.status = 'RESULT'
-            round_obj.result_time = timezone.now()
-            round_obj.save()
-
-            # Create dice result record
-            DiceResult.objects.update_or_create(
-                round=round_obj,
-                defaults={
-                    'result': result,
-                    'set_by': request.user
-                }
-            )
-
-            # Update Redis if available
-            if redis_client:
-                try:
-                    round_data = redis_client.get('current_round')
-                    if round_data:
-                        round_data = json.loads(round_data)
-                        round_data['dice_result'] = result
-                        round_data['status'] = 'RESULT'
-                        redis_client.set('current_round', json.dumps(round_data))
-                    
-                    # CRITICAL: Clear the last_round_results_cache so the API shows fresh manual data
-                    redis_client.delete('last_round_results_cache')
-                    logger.info("Cleared last_round_results_cache after manual result set")
-                except Exception as e:
-                    logger.error(f"Redis sync error in set_dice_result: {e}")
-
-            # Calculate payouts - get dice values from round
-            dice_values = [
-                round_obj.dice_1, round_obj.dice_2, round_obj.dice_3,
-                round_obj.dice_4, round_obj.dice_5, round_obj.dice_6
-            ]
-            calculate_payouts(round_obj, dice_result=result, dice_values=dice_values)
-            
-            # Mark correct predictions
-            mark_correct_predictions(round_obj, dice_values=dice_values)
-            
-            logger.info(f"Result {result} set successfully for round {round_obj.round_id} and payouts calculated")
-    except Exception as e:
-        logger.exception(f"Unexpected error in set_dice_result by admin {request.user.username}: {e}")
-        return Response({'error': 'Internal server error setting result'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    serializer = GameRoundSerializer(round_obj)
-    data = serializer.data
-    
-    # Add dynamic timer to response
-    timer = 0
-    if redis_client:
-        try:
-            redis_timer = redis_client.get('round_timer')
-            if redis_timer:
-                timer = int(redis_timer)
-        except Exception:
-            pass
-            
-    if timer <= 0:
-        timer = calculate_current_timer(round_obj.start_time, round_obj.round_end_seconds)
-        
-    data['timer'] = timer
-    
-    # Fetch real-time totals from Redis if available
-    if redis_client:
-        try:
-            total_bets_val = redis_client.get(f"round_total_bets:{round_obj.round_id}")
-            if total_bets_val:
-                data['total_bets'] = int(total_bets_val)
-            
-            total_amount_val = redis_client.get(f"round_total_amount:{round_obj.round_id}")
-            if total_amount_val:
-                data['total_amount'] = "{:.2f}".format(float(total_amount_val))
-        except Exception as redis_err:
-            logger.error(f"Error fetching totals from Redis: {redis_err}")
-    
-    # Add is_rolling flag to ensure animation state is synced
-    rolling_start = get_game_setting('DICE_ROLL_TIME', 19)
-    result_start = get_game_setting('DICE_RESULT_TIME', 51)
-    data['is_rolling'] = (rolling_start <= timer < result_start)
-    
-    return Response(data)
-
-
-@api_view(['GET', 'POST'])
-@permission_classes([IsAdminUser])
-def dice_mode(request):
-    """Get or set dice mode (manual/random)"""
-    if request.method == 'GET':
-        mode = get_dice_mode()
-        logger.info(f"Admin {request.user.username} fetched dice mode: {mode}")
-        return Response({'mode': mode})
-    else:
-        mode = request.data.get('mode')
-        logger.info(f"Admin {request.user.username} setting dice mode to: {mode}")
-        if set_dice_mode(mode):
-            logger.info(f"Dice mode updated successfully to: {mode}")
-            return Response({'mode': mode, 'message': f'Dice mode set to {mode}'})
-        logger.warning(f"Admin {request.user.username} provided invalid dice mode: {mode}")
-        return Response({'error': 'Invalid mode. Use "manual" or "random"'}, status=status.HTTP_400_BAD_REQUEST)
-
-
 def mark_correct_predictions(round_obj, dice_values=None):
     """
     Mark predictions as correct based on dice results.
@@ -1652,7 +1459,7 @@ def app_version(request):
         # Get settings from database/Redis
         version_code = int(get_game_setting('APP_VERSION_CODE', 1))
         version_name = get_game_setting('APP_VERSION_NAME', '1.0.0')
-        download_url = get_game_setting('APP_DOWNLOAD_URL', 'https://gunduata.club/download/')
+        download_url = get_game_setting('APP_DOWNLOAD_URL', '/api/download/apk/')
         force_update = get_game_setting('APP_FORCE_UPDATE', 'false').lower() == 'true'
         
         return Response({
@@ -1916,104 +1723,12 @@ def game_stats(request):
         'total_rounds': GameRound.objects.count(),
         'total_bets': Bet.objects.count(),
         'total_amount': Bet.objects.aggregate(models.Sum('chip_amount'))['chip_amount__sum'] or 0,
-        'dice_mode': get_dice_mode(),
     }
 
     return Response(stats)
 
 
-@api_view(['GET'])
-@authentication_classes([])  # Disable authentication
-@permission_classes([AllowAny])  # Public endpoint - no authentication required
-def game_settings_api(request):
-    """API endpoint to get current game settings (public)"""
-    logger.info("Public settings API access")
-    from .utils import get_game_setting
-    
-    # Get values from DB with correct defaults matching the engine
-    betting_close_time = int(get_game_setting('BETTING_CLOSE_TIME', 30))
-    dice_roll_time = int(get_game_setting('DICE_ROLL_TIME', 35))
-    dice_result_time = int(get_game_setting('DICE_RESULT_TIME', 45))
-    round_end_time = int(get_game_setting('ROUND_END_TIME', 70))
-
-    def _parse_chip_values(val):
-        # Prefer list/tuple, then JSON string, then comma-separated
-        if val is None:
-            return None
-        if isinstance(val, (list, tuple)):
-            try:
-                return [int(x) for x in val]
-            except Exception:
-                return None
-        if isinstance(val, str):
-            s = val.strip()
-            if not s:
-                return None
-            try:
-                if s.startswith('['):
-                    parsed = json.loads(s)
-                    if isinstance(parsed, list):
-                        return [int(x) for x in parsed]
-            except Exception:
-                pass
-            if ',' in s:
-                out = []
-                for part in s.split(','):
-                    part = part.strip()
-                    if not part:
-                        continue
-                    try:
-                        out.append(int(part))
-                    except Exception:
-                        return None
-                return out or None
-            try:
-                return [int(s)]
-            except Exception:
-                return None
-        return None
-
-    def _parse_payout_ratios(val):
-        if val is None:
-            return None
-        parsed = val
-        if isinstance(val, str):
-            s = val.strip()
-            if not s:
-                return None
-            try:
-                parsed = json.loads(s)
-            except Exception:
-                return None
-        if not isinstance(parsed, dict):
-            return None
-        out = {}
-        try:
-            for k, v in parsed.items():
-                out[str(k)] = float(v)
-        except Exception:
-            return None
-        return out or None
-
-    defaults = getattr(settings, 'GAME_SETTINGS', {}) or {}
-    chip_values = _parse_chip_values(get_game_setting('CHIP_VALUES', None)) or defaults.get('CHIP_VALUES') or [10, 20, 50, 100]
-    payout_ratios_raw = _parse_payout_ratios(get_game_setting('PAYOUT_RATIOS', None)) or defaults.get('PAYOUT_RATIOS') or {1: 6.0, 2: 6.0, 3: 6.0, 4: 6.0, 5: 6.0, 6: 6.0}
-    payout_ratios = {str(k): float(v) for k, v in payout_ratios_raw.items()}
-    
-    settings_data = {
-        'BETTING_DURATION': betting_close_time,
-        'RESULT_SELECTION_DURATION': dice_roll_time - betting_close_time,
-        'RESULT_DISPLAY_DURATION': dice_result_time - dice_roll_time,
-        'TOTAL_ROUND_DURATION': round_end_time,
-        'DICE_ROLL_TIME': dice_roll_time,
-        'BETTING_CLOSE_TIME': betting_close_time,
-        'DICE_RESULT_TIME': dice_result_time,
-        'RESULT_ANNOUNCE_TIME': dice_result_time,
-        'ROUND_END_TIME': round_end_time,
-        'CHIP_VALUES': chip_values,
-        'PAYOUT_RATIOS': payout_ratios,
-    }
-    return Response(settings_data, content_type='application/json')
+# NOTE: game_settings_api removed temporarily — see temporary_deleted/game_settings_api_views.py
 
 
 @api_view(['GET', 'POST'])
@@ -2062,51 +1777,7 @@ def max_bet(request):
         return Response({'max_bet': max_bet_val})
 
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAdminUser])
-def game_timer_settings(request):
-    """Admin: Get or set game timer settings"""
-    timer_keys = [
-        'BETTING_CLOSE_TIME', 
-        'DICE_ROLL_TIME', 
-        'DICE_RESULT_TIME', 
-        'ROUND_END_TIME'
-    ]
-    
-    if request.method == 'GET':
-        settings_data = {}
-        for key in timer_keys:
-            settings_data[key] = get_game_setting(key)
-        return Response(settings_data)
-    
-    elif request.method == 'POST':
-        updated_settings = {}
-        for key in timer_keys:
-            if key in request.data:
-                value = request.data[key]
-                try:
-                    # Validate as integer
-                    int_value = int(value)
-                    GameSettings.objects.update_or_create(
-                        key=key,
-                        defaults={'value': str(int_value)}
-                    )
-                    updated_settings[key] = int_value
-                    
-                    # Clear in-memory cache in utils
-                    from .utils import _SETTINGS_CACHE
-                    if key in _SETTINGS_CACHE:
-                        del _SETTINGS_CACHE[key]
-                except (ValueError, TypeError):
-                    return Response(
-                        {'error': f'Invalid value for {key}. Must be an integer.'}, 
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-        
-        return Response({
-            'message': 'Timer settings updated successfully',
-            'updated_settings': updated_settings
-        })
+# NOTE: game_timer_settings removed temporarily — see temporary_deleted/game_settings_api_views.py
 
 
 @api_view(['GET'])

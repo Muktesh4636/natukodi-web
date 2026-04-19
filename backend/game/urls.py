@@ -31,13 +31,9 @@ urlpatterns = [
     path('winning-results/<str:round_id>/', views.winning_results, name='winning_results'),
     path('winning-results/<str:round_id>', views.winning_results, name='winning_results_no_slash'),
     path('results/<str:round_id>/', views.round_results, name='winning_results_alias'),
-    path('set-dice/', views.set_dice_result, name='set_dice_result'),
-    path('dice-mode/', views.dice_mode, name='dice_mode'),
     path('stats/', views.game_stats, name='game_stats'),
-    path('settings/', views.game_settings_api, name='game_settings_api'),
-    path('settings', views.game_settings_api, name='game_settings_api_no_slash'),
+    # game settings API temporarily removed — see temporary_deleted/
     path('max-bet/', views.max_bet, name='max_bet'),
-    path('settings/timer/', views.game_timer_settings, name='game_timer_settings'),
     path('settings/sound/', views.user_sound_settings, name='user_sound_settings'),
     
     # Admin Probability Settings

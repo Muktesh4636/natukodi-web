@@ -14,14 +14,12 @@ except ImportError:
     RedisConnectionError = ConnectionError
     RedisTimeoutError = TimeoutError
 
-# Configuration - use env so all servers point to Redis on 74
-REDIS_HOST = os.environ.get("REDIS_HOST", "72.61.254.74")
+REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
-REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "Gunduata@123")
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 REDIS_DB = int(os.environ.get("REDIS_DB", "0"))
 
-# Standby mode: when True, only try to become leader when primary's state is stale (primary on 74 stopped).
-# Set STANDBY_MODE=1 on servers 71 and 41; leave unset on 74 so 74 is the primary.
+# Standby mode: when True, only try to become leader when primary's state is stale.
 STANDBY_MODE = os.environ.get("STANDBY_MODE", "").lower() in ("1", "true", "yes")
 STALE_THRESHOLD_SEC = 15  # If no state update for this long, consider primary dead and take over.
 
@@ -145,8 +143,13 @@ class GameEngine:
         self.settings = get_round_settings()  # betting_close_time, dice_roll_time, dice_result_time, round_end_time
 
     async def connect_redis(self):
-        """Connect to Redis. On the Redis host (e.g. 74), container→host IP often fails; fallback to Docker service name 'redis'."""
-        redis_url = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+        """Connect to Redis; if host is a raw IP and connection fails, retry using the Docker service name 'redis'."""
+        def _url(host: str) -> str:
+            if REDIS_PASSWORD:
+                return f"redis://:{REDIS_PASSWORD}@{host}:{REDIS_PORT}/{REDIS_DB}"
+            return f"redis://{host}:{REDIS_PORT}/{REDIS_DB}"
+
+        redis_url = _url(REDIS_HOST)
         try:
             self.redis = redis.from_url(redis_url, decode_responses=True, socket_connect_timeout=5)
             await self.redis.ping()
@@ -161,7 +164,7 @@ class GameEngine:
             if REDIS_HOST and REDIS_HOST.replace(".", "").isdigit():
                 fallback = "redis"
                 logger.warning(f"Redis connect to {REDIS_HOST} failed ({e}), trying Docker service name '{fallback}'")
-                redis_url_fallback = f"redis://:{REDIS_PASSWORD}@{fallback}:{REDIS_PORT}/{REDIS_DB}"
+                redis_url_fallback = _url(fallback)
                 self.redis = redis.from_url(redis_url_fallback, decode_responses=True, socket_connect_timeout=5)
                 await self.redis.ping()
                 logger.info(f"Connected to Redis at {fallback}. Instance ID: {self.instance_id}")
@@ -376,33 +379,9 @@ class GameEngine:
                     else:
                         if self.status != "RESULT":
                             self.status = "RESULT"
-                            # If manual dice were pre-set in Redis, use them (comma-separated "1,2,3,4,5,6").
-                            manual_dice = None
-                            try:
-                                raw = await self.redis.get("manual_dice_result")
-                                if raw:
-                                    parts = [p.strip() for p in str(raw).split(",")]
-                                    vals = [int(p) for p in parts if p != ""]
-                                    if len(vals) == 6 and all(1 <= v <= 6 for v in vals):
-                                        manual_dice = vals
-                            except Exception:
-                                manual_dice = None
-
-                            if manual_dice is not None:
-                                self.dice_values = manual_dice
-                                try:
-                                    from game.utils import determine_winning_number
-                                    self.dice_result = determine_winning_number(self.dice_values)
-                                except Exception:
-                                    self.dice_result = "0"
-                                try:
-                                    await self.redis.delete("manual_dice_result")
-                                except Exception:
-                                    pass
-                            else:
-                                self.dice_values, self.dice_result = await generate_smart_dice_result(
-                                    self.redis, self.round_id
-                                )
+                            self.dice_values, self.dice_result = await generate_smart_dice_result(
+                                self.redis, self.round_id
+                            )
                             await self.push_settlement(self.dice_values, self.dice_result)
                             logger.info(f"Dice rolled: {self.dice_values} -> Result: {self.dice_result}")
 

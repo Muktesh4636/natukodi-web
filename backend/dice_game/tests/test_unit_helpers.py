@@ -63,18 +63,18 @@ class NormalizeSlashesMiddlewareTests(SimpleTestCase):
 
     def test_redirects_path_with_multiple_slashes_and_keeps_query_string(self):
         middleware = NormalizeSlashesMiddleware(lambda request: HttpResponse("ok"))
-        request = self.factory.get("//api//game//settings/?foo=bar")
-        request.path = "//api//game//settings/"
+        request = self.factory.get("//api//game//version/?foo=bar")
+        request.path = "//api//game//version/"
         request.META["QUERY_STRING"] = "foo=bar"
 
         response = middleware(request)
 
         self.assertEqual(response.status_code, 301)
-        self.assertEqual(response["Location"], "/api/game/settings/?foo=bar")
+        self.assertEqual(response["Location"], "/api/game/version/?foo=bar")
 
     def test_passes_clean_paths_through(self):
         middleware = NormalizeSlashesMiddleware(lambda request: HttpResponse("ok"))
-        request = self.factory.get("/api/game/settings/")
+        request = self.factory.get("/api/game/version/")
 
         response = middleware(request)
 

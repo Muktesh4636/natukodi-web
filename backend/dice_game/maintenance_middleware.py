@@ -23,7 +23,6 @@ MAINTENANCE_ALLOWED_PREFIXES = (
     '/api/status/',       # Aggregate DB + Redis + public-route probes — for external monitoring
     '/api/time/',         # Public time endpoint — useful for clients
     '/api/whitelabel/',   # White-label lead capture — public form so leads still work during maintenance
-    '/api/game/settings', # Read-only game config (timers, chips, payouts) — app needs this to render UI
     '/static/',
     '/media/',
     '/admin/',  # Franchise / access message (Django admin not exposed here)

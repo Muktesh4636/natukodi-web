@@ -406,8 +406,8 @@ def get_redis_client():
     except Exception as e:
         logger.warning("Redis (pool) connection failed: %s", e)
 
-    host = getattr(settings, 'REDIS_HOST', '72.61.254.74')
-    password = getattr(settings, 'REDIS_PASSWORD', 'Gunduata@123')
+    host = getattr(settings, 'REDIS_HOST', '127.0.0.1')
+    password = getattr(settings, 'REDIS_PASSWORD', '') or None
     port = int(getattr(settings, 'REDIS_PORT', 6379))
     db = int(getattr(settings, 'REDIS_DB', 0))
 

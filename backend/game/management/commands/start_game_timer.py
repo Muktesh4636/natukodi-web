@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from game.models import GameRound, DiceResult
-from game.views import calculate_payouts, get_dice_mode
+from game.views import calculate_payouts
 from game.utils import (
     generate_random_dice_values,
     apply_dice_values_to_round,
@@ -452,12 +452,10 @@ class Command(BaseCommand):
                     
                     # Auto-roll if dice_result is missing OR if any individual dice values are missing
                     # Check when timer >= dice_result_time (not just ==) to handle missed checks
-                    if timer >= dice_result_time:
-                        # If values are missing, auto-roll
-                        if not round_obj.dice_result or dice_values_missing:
-                            # Check dice mode – regardless of mode, ensure dice roll happens
-                            dice_mode = get_dice_mode()
-                            dice_values, result = generate_random_dice_values()
+                        if timer >= dice_result_time:
+                            # If values are missing, auto-roll
+                            if not round_obj.dice_result or dice_values_missing:
+                                dice_values, result = generate_random_dice_values()
                             apply_dice_values_to_round(round_obj, dice_values)
                             for index, value in enumerate(dice_values, start=1):
                                 round_data[f'dice_{index}'] = value
@@ -505,13 +503,12 @@ class Command(BaseCommand):
                                 self.stdout.write(self.style.WARNING(f'Failed to save dice result/payouts (non-critical): {db_err}'))
                                 # Continue - timer should keep running even if DB save fails
 
-                            logger.info(f"Dice rolled automatically (random mode) at {timer}s for round {round_obj.round_id}: Result={result}")
-                            self.stdout.write(self.style.SUCCESS(f'🎲 Dice rolled automatically (random mode) at {timer}s: {result}'))
+                            logger.info(f"Dice rolled automatically at {timer}s for round {round_obj.round_id}: Result={result}")
+                            self.stdout.write(self.style.SUCCESS(f'🎲 Dice rolled automatically at {timer}s: {result}'))
                         
-                        # If dice were already set (e.g., by admin pre-set), but payouts haven't been calculated for this round
-                        # We use the dice_result_sent lock to ensure this only runs once at dice_result_time
+                        # If dice values were already persisted on the round, ensure payouts run once at dice_result_time
                         if timer == dice_result_time:
-                            # Extract dice values and calculate payouts for the pre-set dice
+                            # Extract dice values and calculate payouts
                             existing_result = round_obj.dice_result
                             dice_values_for_payout = [
                                 getattr(round_obj, f'dice_{i}') for i in range(1, 7)
@@ -519,7 +516,7 @@ class Command(BaseCommand):
                             
                             if all(v is not None for v in dice_values_for_payout):
                                 calculate_payouts(round_obj, dice_result=existing_result, dice_values=dice_values_for_payout)
-                                self.stdout.write(self.style.SUCCESS(f'💰 Payouts calculated for pre-set dice at {timer}s: {existing_result}'))
+                                self.stdout.write(self.style.SUCCESS(f'💰 Payouts calculated for existing dice at {timer}s: {existing_result}'))
                                 # Keep API aligned with WebSocket immediately.
                                 if redis_client:
                                     try:

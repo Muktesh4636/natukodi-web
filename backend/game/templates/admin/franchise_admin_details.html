@@ -52,7 +52,7 @@
     <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="logo"><span class="logo-icon">🎲🎲</span><span>Gundu ata</span></div>
+            {% include 'admin/_admin_brand.html' %}
             <div class="subtitle">Game control</div>
         </div>
         {% include 'admin/_sidebar_menu.html' %}
@@ -134,7 +134,7 @@
                 <form method="post" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="assign_player">
-                    <input type="text" name="assign_phone" placeholder="e.g. muktesh or 9182351381" maxlength="150" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 220px;">
+                    <input type="text" name="assign_phone" placeholder="e.g. username or phone number" maxlength="150" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 220px;">
                     <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Assign</button>
                 </form>
             </div>
