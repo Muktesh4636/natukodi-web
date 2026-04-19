@@ -649,7 +649,7 @@
                         <label>Assigned to</label>
                         <value style="font-size: 14px;">
                             {% if player.worker %}
-                                <a href="{% url 'franchise_admin_details' player.worker.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">{{ player.worker.username }}</a> (worker)
+                                <span style="color: #667eea; font-weight: 600;">{{ player.worker.username }}</span> (worker)
                             {% else %}
                                 Super Admin
                             {% endif %}

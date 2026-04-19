@@ -438,8 +438,8 @@ try:
             'db': REDIS_DB,
             'max_connections': REDIS_POOL_SIZE,
             'decode_responses': True,
-            'socket_connect_timeout': 5,
-            'socket_timeout': 5,
+            'socket_connect_timeout': 0.3,
+            'socket_timeout': 0.3,
             'retry_on_timeout': True,
         }
         if REDIS_PASSWORD:
