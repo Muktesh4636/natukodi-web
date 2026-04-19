@@ -408,12 +408,6 @@
                     <p>Manage game and monitor activity</p>
                 </div>
                 <div class="header-actions" style="align-items: center;">
-                    {% if admin_sidebar_show_franchise_white_label and my_franchise_balance is not None %}
-                    <span class="chips-display" title="Your balance">
-                        <span class="chip-icon"></span>
-                        <span>{{ my_franchise_balance_display }}</span>
-                    </span>
-                    {% endif %}
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>

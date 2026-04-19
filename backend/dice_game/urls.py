@@ -53,9 +53,6 @@ urlpatterns = [
     # Public support contacts (help center)
     path('api/support/contacts/', project_views.support_contacts, name='support_contacts'),
     path('api/cricket/live-events/', project_views.live_cricket_events, name='live_cricket_events'),
-    path('api/cricket/pre-events/', project_views.cricket_pre_events, name='cricket_pre_events'),
-    path('api/cricket/live-odds/', project_views.cricket_live_odds_single_match, name='cricket_live_odds_single_match'),
-    path('api/cricket/preevent-odds/', project_views.cricket_preevent_odds, name='cricket_preevent_odds'),
     
     # Auth endpoints (api/auth/)
     path('api/auth/register/', accounts_views.register, name='register'),

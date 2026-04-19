@@ -649,11 +649,7 @@
                         <label>Assigned to</label>
                         <value style="font-size: 14px;">
                             {% if player.worker %}
-                                {% if admin_sidebar_show_franchise_white_label %}
-                                <a href="{% url 'franchise_admin_details' player.worker.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">{{ player.worker.username }}</a> (franchise admin)
-                                {% else %}
-                                <span style="font-weight: 600;">{{ player.worker.username }}</span> (worker)
-                                {% endif %}
+                                <a href="{% url 'franchise_admin_details' player.worker.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;">{{ player.worker.username }}</a> (worker)
                             {% else %}
                                 Super Admin
                             {% endif %}

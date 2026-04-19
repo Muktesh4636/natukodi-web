@@ -3048,18 +3048,11 @@ def create_franchise_admin(request):
             )
             AdminPermissions.objects.create(user=user, **permissions)
             invalidate_admin_permissions_cache(user)
-            _show_franchise_ui = getattr(settings, 'ADMIN_SIDEBAR_SHOW_FRANCHISE_WHITE_LABEL', False)
             if request.POST.get('password_auto_generated', 'false') == 'true':
-                if _show_franchise_ui:
-                    messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance. 🔐 Save the password securely.')
-                else:
-                    messages.success(request, f'Admin "{username}" created. 🔐 Save the password securely.')
+                messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance. 🔐 Save the password securely.')
             else:
-                if _show_franchise_ui:
-                    messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance.')
-                else:
-                    messages.success(request, f'Admin "{username}" created.')
-            return redirect('franchise_balance' if _show_franchise_ui else 'admin_dashboard')
+                messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance.')
+            return redirect('franchise_balance')
         except Exception as e:
             messages.error(request, f'Error creating franchise admin: {str(e)}')
             return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})

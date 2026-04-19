@@ -60,24 +60,12 @@
                 </a></li>
             {% endif %}
 
-            {% if admin_sidebar_show_franchise_white_label %}
-            {% if is_super_admin %} <li><a href="{% url 'franchise_balance' %}" {% if page == 'franchise-balance' %}class="active" {% endif %}> <span class="menu-icon">💰</span> Franchise
-                </a></li>
-            {% endif %}
-            {% endif %}
-
             {% if is_super_admin or admin_permissions.can_view_game_settings %} <li><a href="{% url 'game_settings' %}" {% if page == 'game_settings' %}class="active" {% endif %}> <span class="menu-icon">⚙️</span> Game Settings
                 </a></li>
             {% endif %}
 
             {% if is_super_admin or admin_permissions.can_view_help_center %} <li><a href="{% url 'help_center' %}" {% if page == 'help_center' %}class="active" {% endif %}> <span class="menu-icon">🆘</span> Help Center
                 </a></li>
-            {% endif %}
-
-            {% if admin_sidebar_show_franchise_white_label %}
-            {% if is_super_admin or admin_permissions.can_view_white_label %} <li><a href="{% url 'white_label_leads' %}" {% if page == 'white_label' %}class="active" {% endif %}> <span class="menu-icon">💬</span> White Label Messages
-                </a></li>
-            {% endif %}
             {% endif %}
 
             {% if is_super_admin or admin_permissions.can_manage_payment_methods %} <li><a href="{% url 'payment_methods' %}" {% if page == 'payment-methods' %}class="active" {% endif %}> <span class="menu-icon">🏦</span> Payment Methods

@@ -67,9 +67,7 @@
                     <h1 style="font-size: 28px; color: #334155; margin: 0;">Franchise Balance</h1>
                 </div>
                 <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
-                    {% if admin_sidebar_show_franchise_white_label %}
                     <a href="{% url 'create_franchise_admin' %}" class="btn-add" style="padding: 10px 18px; text-decoration: none; border-radius: 8px; font-size: 14px;">➕ Add admin</a>
-                    {% endif %}
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
                 </div>
             </div>

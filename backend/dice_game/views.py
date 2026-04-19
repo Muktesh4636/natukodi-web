@@ -1026,7 +1026,7 @@ def cricket_pre_events(request):
 # Cricket pre-match odds for a single event — on-demand with 30s file cache
 # ---------------------------------------------------------------------------
 _CRICKET_PREEVENT_CACHE_DIR = '/tmp/cricket_preevent_cache'
-_CRICKET_PREEVENT_CACHE_TTL = 30  # seconds
+_CRICKET_PREEVENT_CACHE_TTL = 15  # seconds
 
 
 def _preevent_cache_path(event_id):
