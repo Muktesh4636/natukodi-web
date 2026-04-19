@@ -528,10 +528,7 @@
     
     <div class="sidebar">
                 <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">🎲🎲</span>
-                <span>Gundu ata</span>
-            </div>
+            {% include 'admin/_admin_brand.html' %}
             <div class="subtitle">Game control</div>
         </div>
         {% include 'admin/_sidebar_menu.html' %}
@@ -560,7 +557,7 @@
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>{% if game == 'cricket' %}Cricket events{% else %}Total Rounds{% endif %}</h3>
+                    <h3>{% if game == 'cricket' %}Cricket events{% elif game == 'cockfight' %}Cock fight sessions{% else %}Total Rounds{% endif %}</h3>
                     <p>{{ total_rounds }}</p>
                 </div>
                 <div class="stat-card">
@@ -585,14 +582,15 @@
                             name="game"
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; font-weight: 600;"
                         >
-                            <option value="gunduata" {% if game == 'gunduata' %}selected{% endif %}>Gundu ata (dice)</option>
+                            <option value="cockfight" {% if game == 'cockfight' %}selected{% endif %}>Cock fight</option>
+                            <option value="gunduata" {% if game == 'gunduata' %}selected{% endif %}>Gundu Ata</option>
                             <option value="cricket" {% if game == 'cricket' %}selected{% endif %}>Cricket</option>
                         </select>
                         <input 
                             type="text" 
                             name="search" 
                             value="{{ search_query }}" 
-                            placeholder="{% if game == 'cricket' %}Search event, market, outcome, ID…{% else %}Search by Round ID or Dice Result…{% endif %}" 
+                            placeholder="{% if game == 'cricket' %}Search event, market, outcome, ID…{% elif game == 'cockfight' %}Search user, session ID, side…{% else %}Search by Round ID or Dice Result…{% endif %}" 
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; min-width: 250px;"
                         />
                         {% if game == 'gunduata' %}
@@ -624,7 +622,7 @@
                         >
                             🔍 Search
                         </button>
-                        {% if search_query or status_filter or date_range or game != 'gunduata' %}
+                        {% if search_query or status_filter or date_range or game != 'cockfight' %}
                         <a 
                             href="{% url 'recent_rounds' %}" 
                             style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
@@ -634,15 +632,15 @@
                         {% endif %}
                     </form>
                 </div>
-                {% if search_query or status_filter or date_range or game != 'gunduata' %}
+                {% if search_query or status_filter or date_range or game != 'cockfight' %}
                 <div style="margin-bottom: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #a0c4ff;">
                     <p style="margin: 0; color: #4a5568; font-size: 14px;">
                         <strong>Filtered results:</strong>
-                        Game: {% if game == 'cricket' %}Cricket{% else %}Gundu ata{% endif %}
+                        Game: {% if game == 'cricket' %}Cricket{% elif game == 'cockfight' %}Cock fight{% else %}Gundu Ata{% endif %}
                         {% if search_query %} | Search: "{{ search_query }}"{% endif %}
                         {% if game == 'gunduata' and status_filter %} | Status: {{ status_filter }}{% endif %}
                         {% if date_range %} | {% if date_range == 'last_month' %}Last month{% elif date_range == 'last_7_days' %}Last 7 days{% elif date_range == 'last_30_days' %}Last 30 days{% else %}{{ date_range }}{% endif %}{% endif %}
-                        <span style="color: #718096;">({{ page_obj.paginator.count }} {% if game == 'cricket' %}events{% else %}rounds{% endif %} total)</span>
+                        <span style="color: #718096;">({{ page_obj.paginator.count }} {% if game == 'cricket' %}events{% elif game == 'cockfight' %}sessions{% else %}rounds{% endif %} total)</span>
                         {% if page_obj.paginator.num_pages > 1 %}
                             <span style="color: #718096;"> — Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
                         {% endif %}
@@ -677,6 +675,35 @@
                                         <div class="empty-state-icon">🏏</div>
                                         <p>No cricket bets yet</p>
                                         <p style="font-size: 14px; margin-top: 4px;">Events appear when users place cricket bets</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% elif game == 'cockfight' %}
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>Bets</th>
+                                <th>Total stake</th>
+                                <th>Last activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in recent_rounds %}
+                            <tr>
+                                <td><span class="round-id">#{{ row.session_id }}</span></td>
+                                <td><strong>{{ row.round_bets_count }}</strong></td>
+                                <td><span class="amount">₹{% widthratio row.round_bets_amount 100 1 %}</span></td>
+                                <td><span class="time-badge">{{ row.last_time|date:"M d, Y H:i:s" }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">🐓</div>
+                                        <p>No cock fight bets yet</p>
+                                        <p style="font-size: 14px; margin-top: 4px;">Sessions appear when users place cock fight bets</p>
                                     </div>
                                 </td>
                             </tr>

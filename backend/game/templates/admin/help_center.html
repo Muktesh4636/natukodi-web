@@ -142,7 +142,7 @@
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="logo"><span class="logo-icon">🎲</span> Gundu ata</div>
+            {% include 'admin/_admin_brand.html' %}
             <div class="subtitle">Game Admin Panel</div>
         </div>
         {% include 'admin/_sidebar_menu.html' %}
@@ -154,9 +154,9 @@
                 <div class="page-title">Help Center{% if scope_label %} — {{ scope_label }}{% endif %}</div>
                 <div class="page-subtitle">
                     {% if is_franchise_scope %}
-                        Set the WhatsApp and Telegram numbers shown to <strong>players under your franchise</strong> when they open Help in the app. If your APK sends your package name to the API, these numbers are used. Leave blank to use the global default.
+                        Set the WhatsApp, Telegram, Facebook and Instagram contacts shown to <strong>players under your franchise</strong> when they open Help in the app. Leave blank to use the global default.
                     {% else %}
-                        Global default WhatsApp and Telegram numbers for the app Help Center. Franchise owners can set their own numbers in this same page (they will see &quot;Your franchise&quot; and only their franchise&#39;s numbers).
+                        Global default contacts for the app Help Center. Franchise owners can set their own contacts in this same page.
                     {% endif %}
                 </div>
             </div>
@@ -177,13 +177,25 @@
                 <div class="form-row">
                     <label for="SUPPORT_WHATSAPP_NUMBER">WhatsApp Number</label>
                     <input id="SUPPORT_WHATSAPP_NUMBER" name="SUPPORT_WHATSAPP_NUMBER" value="{{ whatsapp_number|default:'' }}" placeholder="+919876543210" />
-                    <div class="hint">Use full number with country code (example: <code>+91 9182351395</code>). Spaces are OK.</div>
+                    <div class="hint">Use full number with country code (example: <code>+91 9876543210</code>). Spaces are OK.</div>
                 </div>
 
                 <div class="form-row">
-                    <label for="SUPPORT_TELEGRAM">Telegram Number</label>
-                    <input id="SUPPORT_TELEGRAM" name="SUPPORT_TELEGRAM" value="{{ telegram_number|default:'' }}" placeholder="+919876543210" />
-                    <div class="hint">Use full number with country code (example: <code>+231 123456789</code>). Spaces are OK.</div>
+                    <label for="SUPPORT_TELEGRAM">Telegram</label>
+                    <input id="SUPPORT_TELEGRAM" name="SUPPORT_TELEGRAM" value="{{ telegram_number|default:'' }}" placeholder="+919876543210 or @username" />
+                    <div class="hint">Phone number with country code or Telegram username (e.g. <code>@mysupport</code>).</div>
+                </div>
+
+                <div class="form-row">
+                    <label for="SUPPORT_FACEBOOK">Facebook</label>
+                    <input id="SUPPORT_FACEBOOK" name="SUPPORT_FACEBOOK" value="{{ facebook|default:'' }}" placeholder="https://facebook.com/yourpage" />
+                    <div class="hint">Full Facebook page or profile URL.</div>
+                </div>
+
+                <div class="form-row">
+                    <label for="SUPPORT_INSTAGRAM">Instagram</label>
+                    <input id="SUPPORT_INSTAGRAM" name="SUPPORT_INSTAGRAM" value="{{ instagram|default:'' }}" placeholder="https://instagram.com/yourhandle" />
+                    <div class="hint">Full Instagram profile URL or handle (e.g. <code>@mypage</code>).</div>
                 </div>
 
                 <div class="actions">

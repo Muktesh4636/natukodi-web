@@ -71,36 +71,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_staff = serializers.BooleanField(read_only=True)
-    profile_photo_url = serializers.SerializerMethodField()
-    wallet_balance = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'telegram', 'facebook', 'address', 'date_of_birth', 'is_staff', 'profile_photo_url', 'referral_code', 'wallet_balance')
-        read_only_fields = ('id', 'referral_code', 'is_staff')
-
-    def get_profile_photo_url(self, obj):
-        return None  # Return null as requested, APK will use local default
-
-    def get_wallet_balance(self, obj):
-        # Optimized balance fetch - try Redis first for real-time consistency
-        from game.utils import get_redis_client
-        redis_client = get_redis_client()
-        if redis_client:
-            try:
-                realtime_balance = redis_client.get(f"user_balance:{obj.id}")
-                if realtime_balance is not None:
-                    return str(realtime_balance)
-            except:
-                pass
-
-        # Fallback to DB
-        try:
-            if hasattr(obj, 'wallet'):
-                return str(obj.wallet.balance)
-            return "0.00"
-        except:
-            return "0.00"
+        fields = ('id', 'username', 'email', 'phone_number', 'gender', 'is_staff')
+        read_only_fields = ('id', 'is_staff')
 
 
 class WalletSerializer(serializers.ModelSerializer):
@@ -129,10 +104,82 @@ class WalletSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    """
+    Human-readable ``status`` for clients:
+
+    - ``WIN`` → ``win``
+    - ``BET`` → ``bet`` (open stake) or ``loss`` once the round is settled and this bet lost
+    - ``DEPOSIT`` → ``successful`` (ledger rows are created after completed deposits; pending is on deposit-requests APIs)
+    - ``REFERRAL_BONUS``, ``MILESTONE_BONUS``, ``LEADERBOARD_PRIZE``, ``WITHDRAW``, ``REFUND`` → ``successful``
+    """
+
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = Transaction
-        fields = ('id', 'transaction_type', 'amount', 'balance_before', 'balance_after', 'description', 'created_at')
-        read_only_fields = ('id', 'created_at')
+        fields = (
+            'id',
+            'transaction_type',
+            'status',
+            'amount',
+            'balance_before',
+            'balance_after',
+            'description',
+            'created_at',
+        )
+        read_only_fields = ('id', 'status', 'created_at')
+
+    def _resolve_bet_for_transaction(self, obj):
+        """Match a BET ledger row to ``game.Bet`` via ``Bet on N in round <id>`` description."""
+        import re
+
+        if obj.transaction_type != 'BET':
+            return None
+        desc = obj.description or ''
+        m = re.search(r'Bet on (\d+) in round (\S+)', desc)
+        if not m:
+            return None
+        number = int(m.group(1))
+        round_id = m.group(2).strip()
+        try:
+            from game.models import Bet
+
+            return (
+                Bet.objects.select_related('round')
+                .filter(
+                    user_id=obj.user_id,
+                    round__round_id=round_id,
+                    number=number,
+                    chip_amount=obj.amount,
+                )
+                .order_by('-created_at')
+                .first()
+            )
+        except Exception:
+            return None
+
+    @staticmethod
+    def _round_is_settled(round_obj):
+        if round_obj.status in ('RESULT', 'COMPLETED'):
+            return True
+        dr = round_obj.dice_result
+        return dr not in (None, '',)
+
+    def get_status(self, obj):
+        t = obj.transaction_type
+        if t == 'WIN':
+            return 'win'
+        if t == 'BET':
+            bet = self._resolve_bet_for_transaction(obj)
+            if bet is not None and self._round_is_settled(bet.round):
+                if not bet.is_winner:
+                    return 'loss'
+            return 'bet'
+        if t == 'DEPOSIT':
+            return 'successful'
+        if t in ('WITHDRAW', 'REFUND', 'REFERRAL_BONUS', 'MILESTONE_BONUS', 'LEADERBOARD_PRIZE'):
+            return 'successful'
+        return 'successful'
 
 
 class DepositRequestSerializer(serializers.ModelSerializer):
@@ -153,6 +200,34 @@ class DepositRequestSerializer(serializers.ModelSerializer):
             'updated_at',
         )
         read_only_fields = ('id', 'status', 'created_at', 'updated_at', 'user', 'screenshot_url')
+
+    def get_screenshot_url(self, obj):
+        request = self.context.get('request')
+        if obj.screenshot and hasattr(obj.screenshot, 'url'):
+            if request:
+                return request.build_absolute_uri(obj.screenshot.url)
+            return obj.screenshot.url
+        return None
+
+
+class DepositRequestMineSerializer(serializers.ModelSerializer):
+    """Deposit rows for GET /api/auth/deposits/mine/ — no nested user (caller is authenticated)."""
+
+    screenshot_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DepositRequest
+        fields = (
+            'id',
+            'amount',
+            'status',
+            'screenshot_url',
+            'payment_method',
+            'admin_note',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = fields
 
     def get_screenshot_url(self, obj):
         request = self.context.get('request')
@@ -192,8 +267,6 @@ class WithdrawRequestSerializer(serializers.ModelSerializer):
 class WithdrawRequestAppSerializer(serializers.ModelSerializer):
     """Minimal withdraw payload for mobile clients (no nested ``user``)."""
 
-    processed_by_name = serializers.ReadOnlyField(source='processed_by.username')
-
     class Meta:
         model = WithdrawRequest
         fields = (
@@ -203,7 +276,6 @@ class WithdrawRequestAppSerializer(serializers.ModelSerializer):
             'withdrawal_method',
             'withdrawal_details',
             'admin_note',
-            'processed_by_name',
             'created_at',
             'updated_at',
         )
@@ -214,7 +286,6 @@ class WithdrawRequestAppSerializer(serializers.ModelSerializer):
             'withdrawal_method',
             'withdrawal_details',
             'admin_note',
-            'processed_by_name',
             'created_at',
             'updated_at',
         )

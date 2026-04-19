@@ -37,18 +37,6 @@ def _method_type_legacy_slug(method_type: str) -> str:
     }.get(method_type, method_type.lower())
 
 
-def _absolute_media_url(request: 'HttpRequest', filefield) -> str:
-    if not filefield or not getattr(filefield, 'name', None):
-        return ''
-    try:
-        url = filefield.url
-    except Exception:
-        return ''
-    if url.startswith('http'):
-        return url
-    return request.build_absolute_uri(url)
-
-
 def payment_methods_to_legacy_list(methods: List[Any], request: 'HttpRequest') -> List[dict]:
     """Simple array: name, type, upi_id, deep_link, url, package aliases."""
     out: List[dict] = []
@@ -78,35 +66,54 @@ def payment_methods_to_legacy_list(methods: List[Any], request: 'HttpRequest') -
 
 
 def payment_methods_to_details_list(methods: List[Any], request: 'HttpRequest') -> List[dict]:
-    """Payment-details rows with method_type (GPAY, PHONEPE, QR, BANK, USDT, …)."""
+    """
+    Top-level array: shape depends on ``method_type``.
+
+    - GPAY / PHONEPE / PAYTM / UPI / …: ``id``, ``is_active``, ``method_type``, ``name``,
+      ``upi_id``, ``link``.
+    - QR: ``id``, ``is_active``, ``method_type``, ``name``, ``qr_image`` (relative ``/media/…`` URL).
+    - BANK: ``id``, ``is_active``, ``method_type``, ``name``, ``account_name``, ``bank_name``,
+      ``account_number``, ``ifsc_code``.
+    - USDT_*: ``usdt_network``, ``usdt_wallet_address``, ``usdt_exchange_rate`` on top of base keys.
+    """
     out: List[dict] = []
     for pm in methods:
         mt = pm.method_type
-        row: dict = {
+        base = {
             'id': pm.id,
             'is_active': pm.is_active,
             'method_type': mt,
             'name': pm.name,
-            'upi_id': pm.upi_id or '',
-            'link': pm.link or '',
         }
         if mt == 'QR':
-            qr = _absolute_media_url(request, pm.qr_image)
-            row['qr_image'] = qr
-            row['qr_url'] = qr
-            row['qr_code'] = qr
+            qr_rel = ''
+            if pm.qr_image and getattr(pm.qr_image, 'name', None):
+                try:
+                    qr_rel = pm.qr_image.url
+                except Exception:
+                    qr_rel = ''
+            row = {**base, 'qr_image': qr_rel}
         elif mt == 'BANK':
-            row['account_name'] = pm.account_name or ''
-            row['bank_name'] = pm.bank_name or ''
-            row['account_number'] = pm.account_number or ''
-            row['ifsc_code'] = pm.ifsc_code or ''
+            row = {
+                **base,
+                'account_name': pm.account_name or '',
+                'bank_name': pm.bank_name or '',
+                'account_number': pm.account_number or '',
+                'ifsc_code': pm.ifsc_code or '',
+            }
         elif mt in ('USDT_TRC20', 'USDT_BEP20'):
-            row['usdt_network'] = getattr(pm, 'usdt_network', None) or ''
-            row['usdt_wallet_address'] = getattr(pm, 'usdt_wallet_address', None) or ''
-            row['usdt_exchange_rate'] = getattr(pm, 'usdt_exchange_rate', None)
+            row = {
+                **base,
+                'usdt_network': getattr(pm, 'usdt_network', None) or '',
+                'usdt_wallet_address': getattr(pm, 'usdt_wallet_address', None) or '',
+                'usdt_exchange_rate': getattr(pm, 'usdt_exchange_rate', None),
+            }
         else:
-            # UPI-family apps
-            pass
+            row = {
+                **base,
+                'upi_id': pm.upi_id or '',
+                'link': (pm.link or '').strip(),
+            }
         out.append(row)
     return out
 

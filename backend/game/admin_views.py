@@ -823,9 +823,9 @@ def recent_rounds(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '')
     date_range = request.GET.get('date_range', '').strip()  # '', 'last_7_days', 'last_30_days', 'last_month'
-    game = (request.GET.get('game') or 'gunduata').strip().lower()
-    if game not in ('gunduata', 'cricket'):
-        game = 'gunduata'
+    game = (request.GET.get('game') or 'cockfight').strip().lower()
+    if game not in ('gunduata', 'cricket', 'cockfight'):
+        game = 'cockfight'
 
     # Date range filter for round start_time
     from datetime import timedelta, date
@@ -889,8 +889,47 @@ def recent_rounds(request):
             page_number = 1
         page_obj = paginator.get_page(page_number)
         recent_rounds_list = list(page_obj.object_list)
+    elif game == 'cockfight':
+        cf_qs = CockFightBet.objects.all()
+        if not is_super_admin(effective_admin):
+            cf_qs = cf_qs.filter(user__worker=effective_admin)
+        if search_query:
+            cq = (
+                Q(user__username__icontains=search_query)
+                | Q(user__phone_number__icontains=search_query)
+                | Q(side__icontains=search_query)
+            )
+            if search_query.isdigit():
+                try:
+                    sid = int(search_query)
+                    cq |= Q(session_id=sid)
+                except (ValueError, OverflowError):
+                    pass
+            cf_qs = cf_qs.filter(cq)
+        if date_from is not None:
+            cf_qs = cf_qs.filter(created_at__date__gte=date_from)
+        if date_to is not None:
+            cf_qs = cf_qs.filter(created_at__date__lte=date_to)
+
+        total_bets_count = cf_qs.count()
+        total_bets_amount = cf_qs.aggregate(s=Sum('stake'))['s'] or 0
+        total_rounds = cf_qs.values('session_id').distinct().count()
+
+        aggregated = cf_qs.values('session_id').annotate(
+            round_bets_count=Count('id'),
+            round_bets_amount=Coalesce(Sum('stake'), Value(0)),
+            last_time=Max('created_at'),
+        ).order_by('-last_time')
+        paginator = Paginator(aggregated, 50)
+        page_number = request.GET.get('page', 1)
+        try:
+            page_number = max(1, min(int(page_number), 999))
+        except (ValueError, TypeError):
+            page_number = 1
+        page_obj = paginator.get_page(page_number)
+        recent_rounds_list = list(page_obj.object_list)
     else:
-        # Gundu ata — dice rounds
+        # Dice (Kokoroko / gunduata) rounds
         recent_rounds_list = GameRound.objects.annotate(
             round_bets_count=Count('bets'),
             round_bets_amount=Coalesce(Sum('bets__chip_amount'), Value(0)),
@@ -935,8 +974,8 @@ def recent_rounds(request):
         total_bets_count = Bet.objects.count()
         total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
 
-    # Cricket stakes are stored in paise — stats card shows rupees
-    total_bets_amount_display = (total_bets_amount or 0) / 100.0 if game == 'cricket' else (total_bets_amount or 0)
+    # Cricket / cockfight stakes stored in smallest currency units — stats card shows rupees
+    total_bets_amount_display = (total_bets_amount or 0) / 100.0 if game in ('cricket', 'cockfight') else (total_bets_amount or 0)
 
     context = get_admin_context(request, {
         'recent_rounds': recent_rounds_list,
@@ -1382,9 +1421,9 @@ def all_bets(request):
     # Get filter parameters
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', 'all')  # all, winners, losers
-    game = (request.GET.get('game') or 'gunduata').strip().lower()
-    if game not in ('gunduata', 'cricket'):
-        game = 'gunduata'
+    game = (request.GET.get('game') or 'cockfight').strip().lower()
+    if game not in ('gunduata', 'cricket', 'cockfight'):
+        game = 'cockfight'
 
     effective_admin = get_effective_admin(request.user)
 
@@ -1403,6 +1442,41 @@ def all_bets(request):
                 try:
                     sid = int(search_query)
                     cq |= Q(event_id=sid) | Q(market_id=sid)
+                except (ValueError, OverflowError):
+                    pass
+            all_bets_list = all_bets_list.filter(cq)
+        if status_filter == 'winners':
+            all_bets_list = all_bets_list.filter(status='WON')
+        elif status_filter == 'losers':
+            all_bets_list = all_bets_list.filter(status='LOST')
+
+        stats = all_bets_list.aggregate(
+            total_bets_count=Count('id'),
+            total_bets_amount=Sum('stake'),
+            total_payouts=Sum('payout_amount'),
+            total_winners=Count('id', filter=Q(status='WON')),
+        )
+        total_bets_count = stats.get('total_bets_count') or 0
+        raw_stake = stats.get('total_bets_amount') or 0
+        raw_payout = stats.get('total_payouts') or 0
+        total_bets_amount = float(raw_stake) / 100.0
+        total_payouts = float(raw_payout) / 100.0
+        total_winners = stats.get('total_winners') or 0
+        all_bets_list = list(all_bets_list[:200])
+    elif game == 'cockfight':
+        all_bets_list = CockFightBet.objects.select_related('user', 'session').order_by('-created_at')
+        if not is_super_admin(effective_admin):
+            all_bets_list = all_bets_list.filter(user__worker=effective_admin)
+        if search_query:
+            cq = (
+                Q(user__username__icontains=search_query)
+                | Q(user__phone_number__icontains=search_query)
+                | Q(side__icontains=search_query)
+            )
+            if search_query.isdigit():
+                try:
+                    sid = int(search_query)
+                    cq |= Q(session_id=sid) | Q(session__id=sid)
                 except (ValueError, OverflowError):
                     pass
             all_bets_list = all_bets_list.filter(cq)
@@ -2600,7 +2674,6 @@ def create_admin(request):
         # Get permission checkboxes
         permissions = {
             'can_view_dashboard': request.POST.get('can_view_dashboard') == 'on',
-            'can_control_dice': False,
             'can_view_recent_rounds': request.POST.get('can_view_recent_rounds') == 'on',
             'can_view_all_bets': request.POST.get('can_view_all_bets') == 'on',
             'can_view_wallets': request.POST.get('can_view_wallets') == 'on',
@@ -2902,7 +2975,6 @@ def edit_franchise_admin(request, admin_id):
         permissions = AdminPermissions.objects.create(user=user)
     if request.method == 'POST':
         permissions.can_view_dashboard = request.POST.get('can_view_dashboard') == 'on'
-        permissions.can_control_dice = False
         permissions.can_view_recent_rounds = request.POST.get('can_view_recent_rounds') == 'on'
         permissions.can_view_all_bets = request.POST.get('can_view_all_bets') == 'on'
         permissions.can_view_wallets = request.POST.get('can_view_wallets') == 'on'
@@ -2937,7 +3009,6 @@ def create_franchise_admin(request):
         password2 = request.POST.get('password2') or request.POST.get('confirm_password') or ''
         permissions = {
             'can_view_dashboard': request.POST.get('can_view_dashboard') == 'on',
-            'can_control_dice': False,
             'can_view_recent_rounds': request.POST.get('can_view_recent_rounds') == 'on',
             'can_view_all_bets': request.POST.get('can_view_all_bets') == 'on',
             'can_view_wallets': request.POST.get('can_view_wallets') == 'on',
@@ -3017,7 +3088,6 @@ def edit_admin(request, admin_id):
     if request.method == 'POST':
         # Update permissions
         permissions.can_view_dashboard = request.POST.get('can_view_dashboard') == 'on'
-        permissions.can_control_dice = False
         permissions.can_view_recent_rounds = request.POST.get('can_view_recent_rounds') == 'on'
         permissions.can_view_all_bets = request.POST.get('can_view_all_bets') == 'on'
         permissions.can_view_wallets = request.POST.get('can_view_wallets') == 'on'
@@ -3305,39 +3375,6 @@ def game_settings(request):
         messages.error(request, 'You do not have permission to access Game Settings.')
         return redirect('admin_dashboard')
     
-    from django.conf import settings as django_settings
-    
-    # Get or create default settings if they don't exist
-    default_settings = getattr(django_settings, 'GAME_SETTINGS', {})
-    
-    settings_to_manage = [
-        {
-            'key': 'BETTING_CLOSE_TIME',
-            'default': default_settings.get('BETTING_CLOSE_TIME', 30),
-            'description': 'Time in seconds when betting closes (default: 30)'
-        },
-        {
-            'key': 'DICE_ROLL_TIME',
-            'default': default_settings.get('DICE_ROLL_TIME', 7),
-            'description': 'Time in seconds before dice result when dice roll warning is sent (default: 7)'
-        },
-        {
-            'key': 'DICE_RESULT_TIME',
-            'default': default_settings.get('DICE_RESULT_TIME', 51),
-            'description': 'Time in seconds when dice result is announced (default: 51)'
-        },
-        {
-            'key': 'ROUND_END_TIME',
-            'default': default_settings.get('ROUND_END_TIME', 80),
-            'description': 'Total round duration in seconds (default: 80)'
-        },
-        {
-            'key': 'MAX_BET',
-            'default': default_settings.get('MAX_BET', 50000),
-            'description': 'Maximum bet amount per number (default: 50000)'
-        },
-    ]
-
     # App version settings (for APK update prompts)
     app_version_settings = [
         {
@@ -3354,7 +3391,7 @@ def game_settings(request):
         },
         {
             'key': 'APP_DOWNLOAD_URL',
-            'default': 'https://gunduata.club/gundu-ata.apk',
+            'default': '/api/download/apk/',
             'input_type': 'url',
             'description': 'Direct URL to download the latest APK. Users tap "Update" to open this link.'
         },
@@ -3366,23 +3403,6 @@ def game_settings(request):
         },
     ]
     
-    # Get current settings from database
-    current_settings = {}
-    for setting_info in settings_to_manage:
-        try:
-            setting = GameSettings.objects.get(key=setting_info['key'])
-            current_settings[setting_info['key']] = {
-                'value': int(setting.value),
-                'description': setting.description or setting_info['description'],
-                'exists': True
-            }
-        except GameSettings.DoesNotExist:
-            current_settings[setting_info['key']] = {
-                'value': setting_info['default'],
-                'description': setting_info['description'],
-                'exists': False
-            }
-
     # Get current app version settings
     app_version_current = {}
     for setting_info in app_version_settings:
@@ -3406,118 +3426,45 @@ def game_settings(request):
                 'exists': False
             }
     
-    # Handle form submission
+    # Handle form submission (app version + maintenance toggles elsewhere; timing not edited here)
     if request.method == 'POST':
-        errors = []
-        new_values = {}
-        
-        # First, collect and validate all values
-        for setting_info in settings_to_manage:
+        for setting_info in app_version_settings:
             key = setting_info['key']
-            new_value = request.POST.get(key)
-            
-            if new_value:
-                try:
-                    int_value = int(new_value)
-                    if int_value < 1:
-                        errors.append(f"{key.replace('_', ' ').title()} must be at least 1 second")
-                        continue
-                    new_values[key] = int_value
-                except ValueError:
-                    errors.append(f"{key.replace('_', ' ').title()} must be a valid number")
-        
-        # Validate relationships if all values are valid
-        if not errors and len(new_values) >= 3:
-            betting_close = new_values.get('BETTING_CLOSE_TIME')
-            dice_roll = new_values.get('DICE_ROLL_TIME')
-            dice_result = new_values.get('DICE_RESULT_TIME')
-            round_end = new_values.get('ROUND_END_TIME')
-            
-            if betting_close and dice_result and round_end:
-                if betting_close >= dice_result:
-                    errors.append(f"Betting close time ({betting_close}s) must be less than dice result time ({dice_result}s)")
-                if dice_result <= betting_close:
-                    errors.append(f"Dice result time ({dice_result}s) must be greater than betting close time ({betting_close}s)")
-                if dice_result >= round_end:
-                    errors.append(f"Dice result time ({dice_result}s) must be less than round end time ({round_end}s)")
-                if round_end <= dice_result:
-                    errors.append(f"Round end time ({round_end}s) must be greater than dice result time ({dice_result}s)")
-            
-            # Validate dice roll time
-            if dice_roll and dice_result:
-                if dice_roll >= dice_result:
-                    errors.append(f"Dice roll time ({dice_roll}s) must be less than dice result time ({dice_result}s)")
-                if dice_roll < 1:
-                    errors.append(f"Dice roll time ({dice_roll}s) must be at least 1 second")
-        
-        # If no errors, save all settings
-        if not errors and new_values:
-            for key, int_value in new_values.items():
-                setting_info = next(s for s in settings_to_manage if s['key'] == key)
-                GameSettings.objects.update_or_create(
-                    key=key,
-                    defaults={
-                        'value': str(int_value),
-                        'description': setting_info['description']
-                    }
-                )
-
-            # Save app version settings
-            for setting_info in app_version_settings:
-                key = setting_info['key']
-                if setting_info['input_type'] == 'number':
-                    val = request.POST.get(key)
-                    if val is not None:
-                        try:
-                            GameSettings.objects.update_or_create(
-                                key=key,
-                                defaults={
-                                    'value': str(int(val)),
-                                    'description': setting_info['description']
-                                }
-                            )
-                        except ValueError:
-                            pass
-                elif setting_info['input_type'] == 'checkbox':
-                    GameSettings.objects.update_or_create(
-                        key=key,
-                        defaults={
-                            'value': 'true' if request.POST.get(key) == 'on' else 'false',
-                            'description': setting_info['description']
-                        }
-                    )
-                else:
-                    val = request.POST.get(key)
-                    if val is not None:
+            if setting_info['input_type'] == 'number':
+                val = request.POST.get(key)
+                if val is not None:
+                    try:
                         GameSettings.objects.update_or_create(
                             key=key,
                             defaults={
-                                'value': val.strip(),
+                                'value': str(int(val)),
                                 'description': setting_info['description']
                             }
                         )
+                    except ValueError:
+                        pass
+            elif setting_info['input_type'] == 'checkbox':
+                GameSettings.objects.update_or_create(
+                    key=key,
+                    defaults={
+                        'value': 'true' if request.POST.get(key) == 'on' else 'false',
+                        'description': setting_info['description']
+                    }
+                )
+            else:
+                val = request.POST.get(key)
+                if val is not None:
+                    GameSettings.objects.update_or_create(
+                        key=key,
+                        defaults={
+                            'value': val.strip(),
+                            'description': setting_info['description']
+                        }
+                    )
 
-            # Clear cache so app_version API returns fresh values immediately
-            all_keys = [s['key'] for s in settings_to_manage] + [s['key'] for s in app_version_settings]
-            clear_game_setting_cache(all_keys)
-
-            messages.success(request, 'Game settings updated successfully! Changes will take effect for the next round only.')
-            return redirect('game_settings')
-        else:
-            for error in errors:
-                messages.error(request, error)
-    
-    # Prepare settings list with current values for template
-    settings_list = []
-    for setting_info in settings_to_manage:
-        key = setting_info['key']
-        setting_data = current_settings[key]
-        settings_list.append({
-            'key': key,
-            'value': setting_data['value'],
-            'description': setting_data['description'],
-            'default': setting_info['default']
-        })
+        clear_game_setting_cache([s['key'] for s in app_version_settings])
+        messages.success(request, 'Settings saved successfully.')
+        return redirect('game_settings')
 
     # Prepare app version settings list for template
     app_version_list = []
@@ -3546,7 +3493,8 @@ def game_settings(request):
             pass
 
     context = get_admin_context(request, {
-        'settings_list': settings_list,
+        # Empty: round timing / max-bet fields removed from this page; kept for template compatibility.
+        'settings_list': [],
         'app_version_list': app_version_list,
         'maintenance_enabled': maintenance_enabled,
         'maintenance_until': maintenance_until,
@@ -3582,42 +3530,54 @@ def help_center(request):
     effective_admin = get_effective_admin(request.user)
     global_whatsapp = get_game_setting('SUPPORT_WHATSAPP_NUMBER', '')
     global_telegram = get_game_setting('SUPPORT_TELEGRAM', '')
+    global_facebook = get_game_setting('SUPPORT_FACEBOOK', '')
+    global_instagram = get_game_setting('SUPPORT_INSTAGRAM', '')
 
     if is_super_admin(effective_admin):
         whatsapp_number = global_whatsapp
         telegram_number = global_telegram
+        facebook = global_facebook
+        instagram = global_instagram
         is_franchise_scope = False
     else:
         try:
             fb = FranchiseBalance.objects.get(user=effective_admin)
             whatsapp_number = (fb.help_whatsapp_number or '').strip() or global_whatsapp
             telegram_number = (fb.help_telegram or '').strip() or global_telegram
+            facebook = (fb.help_facebook or '').strip() or global_facebook
+            instagram = (fb.help_instagram or '').strip() or global_instagram
         except FranchiseBalance.DoesNotExist:
             fb = None
             whatsapp_number = global_whatsapp
             telegram_number = global_telegram
+            facebook = global_facebook
+            instagram = global_instagram
         is_franchise_scope = True
 
     if request.method == 'POST':
         whatsapp_number = _normalize_help_phone(request.POST.get('SUPPORT_WHATSAPP_NUMBER'))
         telegram_number = _normalize_help_phone(request.POST.get('SUPPORT_TELEGRAM'))
+        facebook = (request.POST.get('SUPPORT_FACEBOOK') or '').strip()
+        instagram = (request.POST.get('SUPPORT_INSTAGRAM') or '').strip()
 
         if is_super_admin(effective_admin):
             GameSettings.objects.update_or_create(
                 key='SUPPORT_WHATSAPP_NUMBER',
-                defaults={
-                    'value': whatsapp_number,
-                    'description': 'Help Center WhatsApp number (example: +919876543210)'
-                }
+                defaults={'value': whatsapp_number, 'description': 'Help Center WhatsApp number'}
             )
             GameSettings.objects.update_or_create(
                 key='SUPPORT_TELEGRAM',
-                defaults={
-                    'value': telegram_number,
-                    'description': 'Help Center Telegram phone number (example: +919876543210)'
-                }
+                defaults={'value': telegram_number, 'description': 'Help Center Telegram phone number or username'}
             )
-            clear_game_setting_cache(['SUPPORT_WHATSAPP_NUMBER', 'SUPPORT_TELEGRAM'])
+            GameSettings.objects.update_or_create(
+                key='SUPPORT_FACEBOOK',
+                defaults={'value': facebook, 'description': 'Help Center Facebook page URL'}
+            )
+            GameSettings.objects.update_or_create(
+                key='SUPPORT_INSTAGRAM',
+                defaults={'value': instagram, 'description': 'Help Center Instagram profile URL or handle'}
+            )
+            clear_game_setting_cache(['SUPPORT_WHATSAPP_NUMBER', 'SUPPORT_TELEGRAM', 'SUPPORT_FACEBOOK', 'SUPPORT_INSTAGRAM'])
             messages.success(request, 'Global Help Center contacts updated successfully.')
         else:
             fb, _ = FranchiseBalance.objects.get_or_create(
@@ -3626,8 +3586,10 @@ def help_center(request):
             )
             fb.help_whatsapp_number = whatsapp_number
             fb.help_telegram = telegram_number
+            fb.help_facebook = facebook
+            fb.help_instagram = instagram
             fb.save()
-            messages.success(request, 'Your franchise Help Center contacts updated. Players under your franchise will see these numbers when they use the app with your package.')
+            messages.success(request, 'Your franchise Help Center contacts updated.')
 
         return redirect('help_center')
 
@@ -3635,6 +3597,8 @@ def help_center(request):
         'page': 'help_center',
         'whatsapp_number': whatsapp_number,
         'telegram_number': telegram_number,
+        'facebook': facebook,
+        'instagram': instagram,
         'admin_profile': get_admin_profile(request.user),
         'is_franchise_scope': is_franchise_scope,
         'scope_label': 'Your franchise' if is_franchise_scope else None,

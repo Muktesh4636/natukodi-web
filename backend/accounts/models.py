@@ -590,6 +590,21 @@ class FranchiseBalance(models.Model):
         blank=True,
         help_text='Help Center Telegram number/username for this franchise\'s APK.',
     )
+    help_facebook = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Help Center Facebook page or profile URL for this franchise's APK.",
+    )
+    help_instagram = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Help Center Instagram profile URL or handle for this franchise's APK.",
+    )
+    help_youtube = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Help Center YouTube channel URL for this franchise's APK.",
+    )
 
     class Meta:
         constraints = [

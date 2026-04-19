@@ -1,5 +1,10 @@
+from urllib.parse import urlencode
+
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_datetime
 from rest_framework import status, generics
+from rest_framework.settings import api_settings
 from rest_framework.decorators import api_view, permission_classes, parser_classes, authentication_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -51,6 +56,7 @@ from .serializers import (
     WalletSerializer,
     TransactionSerializer,
     DepositRequestSerializer,
+    DepositRequestMineSerializer,
     DepositRequestAdminSerializer,
     WithdrawRequestSerializer,
     WithdrawRequestAppSerializer,
@@ -611,14 +617,7 @@ def login(request):
             'email': getattr(user, 'email') or '',
             'phone_number': getattr(user, 'phone_number') or '',
             'gender': getattr(user, 'gender') or '',
-            'telegram': getattr(user, 'telegram') or '',
-            'facebook': getattr(user, 'facebook') or '',
-            'address': getattr(user, 'address') or '',
-            'date_of_birth': str(user.date_of_birth) if getattr(user, 'date_of_birth') else None,
             'is_staff': user.is_staff,
-            'profile_photo_url': None,
-            'referral_code': getattr(user, 'referral_code', None) or '',
-            'wallet_balance': str(wallet_balance),
         }
         return Response({
             'user': user_data,
@@ -1135,14 +1134,155 @@ class WalletView(APIView):
         return Response(wallet_response)
 
 
+def _timeline_sort_key(entry):
+    c = entry['created_at']
+    if hasattr(c, 'utcoffset'):
+        return c
+    if isinstance(c, str):
+        return parse_datetime(c) or c
+    return c
+
+
+def _pending_deposit_timeline_row(dr):
+    """Shape matches ``TransactionSerializer`` output; ``status`` is ``pending``."""
+    note = (dr.admin_note or '').strip()
+    desc = note if note else f'Deposit request #{dr.pk} pending review'
+    return {
+        'id': dr.pk,
+        'transaction_type': 'DEPOSIT',
+        'status': 'pending',
+        'amount': dr.amount,
+        'balance_before': None,
+        'balance_after': None,
+        'description': desc,
+        'created_at': dr.created_at,
+    }
+
+
+def _pending_withdraw_timeline_row(wr):
+    return {
+        'id': wr.pk,
+        'transaction_type': 'WITHDRAW',
+        'status': 'pending',
+        'amount': wr.amount,
+        'balance_before': None,
+        'balance_after': None,
+        'description': f'Withdraw request #{wr.pk} pending review',
+        'created_at': wr.created_at,
+    }
+
+
 class TransactionList(generics.ListAPIView):
-    """List user transactions"""
+    """
+    List authenticated user's transactions.
+
+    Default: JSON object with **separate arrays per type** (keys match ``Transaction.TRANSACTION_TYPES``).
+    Pending deposit / withdraw requests (not yet in the ledger) appear under ``DEPOSIT`` / ``WITHDRAW``
+    with ``status`` ``pending`` (same field shape as ledger rows; ``balance_*`` are ``null``).
+
+    Query params:
+    - ``flat=1`` — paginated list ``{count, next, previous, results}`` (newest first; includes pending rows).
+    - ``limit_per_type`` — max rows per type when grouped (default 100, max 500).
+    """
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         logger.info(f"Transaction history access for user: {self.request.user.username} (ID: {self.request.user.id})")
         return Transaction.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        flat = request.query_params.get('flat', '').strip().lower() in ('1', 'true', 'yes')
+        if flat:
+            return self._list_flat_with_pending(request)
+
+        raw_limit = request.query_params.get('limit_per_type', '100').strip()
+        try:
+            limit_per_type = int(raw_limit)
+        except ValueError:
+            limit_per_type = 100
+        limit_per_type = max(1, min(limit_per_type, 500))
+
+        user = request.user
+        serializer_cls = self.get_serializer_class()
+        grouped = {}
+        for code, _label in Transaction.TRANSACTION_TYPES:
+            if code == 'DEPOSIT':
+                pending_rows = [
+                    _pending_deposit_timeline_row(d)
+                    for d in DepositRequest.objects.filter(user=user, status='PENDING').order_by('-created_at')
+                ]
+                qs = Transaction.objects.filter(user=user, transaction_type='DEPOSIT').order_by('-created_at')
+                ledger_rows = list(serializer_cls(qs, many=True).data)
+                merged = pending_rows + ledger_rows
+                merged.sort(key=_timeline_sort_key, reverse=True)
+                grouped[code] = merged[:limit_per_type]
+                continue
+            if code == 'WITHDRAW':
+                pending_rows = [
+                    _pending_withdraw_timeline_row(w)
+                    for w in WithdrawRequest.objects.filter(user=user, status='PENDING').order_by('-created_at')
+                ]
+                qs = Transaction.objects.filter(user=user, transaction_type='WITHDRAW').order_by('-created_at')
+                ledger_rows = list(serializer_cls(qs, many=True).data)
+                merged = pending_rows + ledger_rows
+                merged.sort(key=_timeline_sort_key, reverse=True)
+                grouped[code] = merged[:limit_per_type]
+                continue
+
+            qs = (
+                Transaction.objects.filter(user=user, transaction_type=code)
+                .order_by('-created_at')[:limit_per_type]
+            )
+            grouped[code] = serializer_cls(qs, many=True).data
+
+        logger.info(
+            "Transaction history (grouped) for user %s (ID: %s), limit_per_type=%s",
+            user.username,
+            user.id,
+            limit_per_type,
+        )
+        return Response(grouped)
+
+    def _list_flat_with_pending(self, request):
+        """Single timeline: pending deposit/withdraw requests + all ledger rows, paginated."""
+        user = request.user
+        serializer_cls = self.get_serializer_class()
+        entries = []
+
+        for dr in DepositRequest.objects.filter(user=user, status='PENDING').order_by('-created_at'):
+            entries.append(_pending_deposit_timeline_row(dr))
+        for wr in WithdrawRequest.objects.filter(user=user, status='PENDING').order_by('-created_at'):
+            entries.append(_pending_withdraw_timeline_row(wr))
+        for tx in Transaction.objects.filter(user=user).order_by('-created_at'):
+            entries.append(serializer_cls(tx).data)
+
+        entries.sort(key=_timeline_sort_key, reverse=True)
+
+        page_size = api_settings.PAGE_SIZE
+        try:
+            page_num = int(request.query_params.get('page', '1') or 1)
+        except ValueError:
+            page_num = 1
+        page_num = max(1, page_num)
+
+        paginator = Paginator(entries, page_size)
+        page_obj = paginator.get_page(page_num)
+
+        def _page_url(p):
+            if p < 1 or p > paginator.num_pages:
+                return None
+            q = request.query_params.copy()
+            q['flat'] = '1'
+            q['page'] = str(p)
+            return request.build_absolute_uri(f"{request.path}?{urlencode(q)}")
+
+        return Response({
+            'count': paginator.count,
+            'next': _page_url(page_obj.next_page_number()) if page_obj.has_next() else None,
+            'previous': _page_url(page_obj.previous_page_number()) if page_obj.has_previous() else None,
+            'results': list(page_obj.object_list),
+        })
 
 
 def _parse_amount(value):
@@ -1502,11 +1642,49 @@ def submit_utr(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_deposit_requests(request):
-    """List the authenticated user's deposit requests"""
-    logger.info(f"Fetching deposit requests for user: {request.user.username} (ID: {request.user.id})")
-    deposits = DepositRequest.objects.filter(user=request.user).order_by('-created_at')
-    serializer = DepositRequestSerializer(deposits, many=True, context={'request': request})
-    return Response(serializer.data)
+    """
+    List the authenticated user's deposit requests in three groups:
+
+    - ``successful`` — ``APPROVED`` (credited / accepted)
+    - ``rejected`` — ``REJECTED`` (declined by admin)
+    - ``failed`` — ``PENDING`` (still open — awaiting review; not yet successful or rejected)
+
+    Legacy: ``?flat=1`` returns the previous single array (newest first, all statuses mixed).
+    """
+    user = request.user
+    logger.info(f"Fetching deposit requests for user: {user.username} (ID: {user.id})")
+    ctx = {'request': request}
+
+    flat = request.query_params.get('flat', '').strip().lower() in ('1', 'true', 'yes')
+    if flat:
+        deposits = DepositRequest.objects.filter(user=user).order_by('-created_at')
+        serializer = DepositRequestMineSerializer(deposits, many=True, context=ctx)
+        return Response(serializer.data)
+
+    base = DepositRequest.objects.filter(user=user)
+    successful = DepositRequestMineSerializer(
+        base.filter(status='APPROVED').order_by('-created_at'),
+        many=True,
+        context=ctx,
+    ).data
+    rejected = DepositRequestMineSerializer(
+        base.filter(status='REJECTED').order_by('-created_at'),
+        many=True,
+        context=ctx,
+    ).data
+    failed = DepositRequestMineSerializer(
+        base.filter(status='PENDING').order_by('-created_at'),
+        many=True,
+        context=ctx,
+    ).data
+
+    return Response(
+        {
+            'successful': successful,
+            'rejected': rejected,
+            'failed': failed,
+        }
+    )
 
 
 @api_view(['GET'])
@@ -1857,7 +2035,7 @@ def my_withdraw_requests(request):
     List the authenticated user's withdraw requests.
 
     Default: JSON **array** of objects
-    ``{ id, amount, status, withdrawal_method, withdrawal_details, admin_note, processed_by_name, created_at, updated_at }``.
+    ``{ id, amount, status, withdrawal_method, withdrawal_details, admin_note, created_at, updated_at }``.
 
     Query ``format`` / ``response``:
     - ``array`` (default): top-level array.
@@ -1893,7 +2071,7 @@ def get_payment_methods(request):
       ``name``, ``type``, ``upi_id``, ``deep_link``, ``url``, ``link``, ``package``, etc.
       (aliases: ``title``, ``label``, ``vpa``, ``package_name``, ``android_package``, …).
     - ``details`` / ``payment_details``: Top-level array with ``method_type``, ``id``,
-      ``is_active``, plus QR / BANK / USDT fields as applicable.
+      ``is_active``, plus QR / BANK fields as applicable.
     - ``wrapped`` / ``data`` / ``object``: ``{ "data": { "upi_id", "balance", "payment_methods",
       "payment_details", "wallet", "results" } }``. Balance uses authenticated user's wallet
       when logged in; otherwise ``0.00``.
@@ -1909,7 +2087,9 @@ def get_payment_methods(request):
         payment_methods_wrapped_payload,
     )
 
-    methods_qs = PaymentMethod.objects.filter(is_active=True)
+    methods_qs = PaymentMethod.objects.filter(is_active=True).exclude(
+        method_type__in=('USDT_TRC20', 'USDT_BEP20')
+    )
     if request.user.is_authenticated and getattr(request.user, 'worker_id', None):
         methods_qs = methods_qs.filter(Q(owner__isnull=True) | Q(owner_id=request.user.worker_id))
     else:
@@ -1936,9 +2116,26 @@ def my_bank_details(request):
     """Get or create user bank details"""
     if request.method == 'GET':
         logger.info(f"Fetching bank details for user: {request.user.username} (ID: {request.user.id})")
-        details = UserBankDetail.objects.filter(user=request.user)
+        details = list(UserBankDetail.objects.filter(user=request.user))
         serializer = UserBankDetailSerializer(details, many=True)
-        return Response(serializer.data)
+        all_data = serializer.data
+
+        bank_accounts = []
+        upi_accounts = []
+        bank_n = upi_n = 1
+        for item in all_data:
+            if item.get('account_number'):
+                bank_entry = {k: v for k, v in item.items() if k != 'upi_id'}
+                bank_accounts.append({'number': bank_n, **bank_entry})
+                bank_n += 1
+            if item.get('upi_id'):
+                upi_accounts.append({'number': upi_n, **item})
+                upi_n += 1
+
+        return Response({
+            'bank_accounts': bank_accounts,
+            'upi_accounts': upi_accounts,
+        })
     
     elif request.method == 'POST':
         logger.info(f"Creating bank detail for user: {request.user.username} (ID: {request.user.id})")

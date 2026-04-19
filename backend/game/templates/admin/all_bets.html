@@ -381,10 +381,7 @@
     
     <div class="sidebar">
                 <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">🎲🎲</span>
-                <span>Gundu ata</span>
-            </div>
+            {% include 'admin/_admin_brand.html' %}
             <div class="subtitle">Game control</div>
         </div>
         {% include 'admin/_sidebar_menu.html' %}
@@ -438,14 +435,15 @@
                             name="game"
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; font-weight: 600;"
                         >
-                            <option value="gunduata" {% if game == 'gunduata' %}selected{% endif %}>Gundu ata (dice)</option>
+                            <option value="cockfight" {% if game == 'cockfight' %}selected{% endif %}>Cock fight</option>
+                            <option value="gunduata" {% if game == 'gunduata' %}selected{% endif %}>Gundu Ata</option>
                             <option value="cricket" {% if game == 'cricket' %}selected{% endif %}>Cricket</option>
                         </select>
                         <input 
                             type="text" 
                             name="search" 
                             value="{{ search_query }}" 
-                            placeholder="{% if game == 'cricket' %}User, phone, event, market, ID…{% else %}User, Phone, or Round ID…{% endif %}" 
+                            placeholder="{% if game == 'cricket' %}User, phone, event, market, ID…{% elif game == 'cockfight' %}User, phone, session ID, side…{% else %}User, Phone, or Round ID…{% endif %}" 
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; min-width: 250px;"
                         />
                         <select 
@@ -462,7 +460,7 @@
                         >
                             🔍 Search
                         </button>
-                        {% if search_query or status_filter != 'all' or game != 'gunduata' %}
+                        {% if search_query or status_filter != 'all' or game != 'cockfight' %}
                         <a 
                             href="{% url 'all_bets' %}" 
                             style="padding: 8px 16px; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
@@ -473,11 +471,11 @@
                     </form>
                 </div>
 
-                {% if search_query or status_filter != 'all' or game != 'gunduata' %}
+                {% if search_query or status_filter != 'all' or game != 'cockfight' %}
                 <div style="margin-bottom: 16px; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 3px solid #a8e6cf;">
                     <p style="margin: 0; color: #166534; font-size: 14px;">
                         <strong>Filtered results:</strong>
-                        Game: {% if game == 'cricket' %}Cricket{% else %}Gundu ata{% endif %}
+                        Game: {% if game == 'cricket' %}Cricket{% elif game == 'cockfight' %}Cock fight{% else %}Gundu Ata{% endif %}
                         {% if search_query %} | Search: "{{ search_query }}"{% endif %}
                         {% if status_filter != 'all' %} | Status: {{ status_filter|title }}{% endif %}
                         <span style="color: #1a202c; opacity: 0.6;">({{ all_bets|length }} matches shown)</span>
@@ -530,6 +528,52 @@
                                     <div class="empty-state">
                                         <div class="empty-state-icon">🏏</div>
                                         <p>No cricket bets yet</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        {% elif game == 'cockfight' %}
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Session</th>
+                                <th>Side</th>
+                                <th>Odds</th>
+                                <th>Stake</th>
+                                <th>Status</th>
+                                <th>Payout</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bet in all_bets %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'user_details' bet.user.id %}" style="color: #5a9fd4; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                        {{ bet.user.username }}
+                                    </a>
+                                </td>
+                                <td><span class="round-id">#{{ bet.session_id }}</span></td>
+                                <td>{{ bet.side }}</td>
+                                <td>{{ bet.odds }}</td>
+                                <td><span class="amount">₹{% widthratio bet.stake 100 1 %}</span></td>
+                                <td><span class="winner-badge {% if bet.status == 'WON' %}yes{% elif bet.status == 'LOST' %}no{% endif %}">{{ bet.status }}</span></td>
+                                <td>
+                                    {% if bet.payout_amount %}
+                                        <span class="payout">₹{% widthratio bet.payout_amount 100 1 %}</span>
+                                    {% else %}
+                                        <span style="color: #a0aec0;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="time-badge">{{ bet.created_at|date:"M d, H:i:s" }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">🐓</div>
+                                        <p>No cock fight bets yet</p>
                                     </div>
                                 </td>
                             </tr>
