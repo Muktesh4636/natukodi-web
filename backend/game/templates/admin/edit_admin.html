@@ -381,10 +381,12 @@
                         <label for="can_view_help_center">🆘 Help Center</label>
                     </div>
 
+                    {% if admin_sidebar_show_franchise_white_label %}
                     <div class="permission-item">
                         <input type="checkbox" id="can_view_white_label" name="can_view_white_label" {% if permissions.can_view_white_label %}checked{% endif %}>
                         <label for="can_view_white_label">💬 White Label Messages</label>
                     </div>
+                    {% endif %}
 
                     <div class="permission-item">
                         <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" {% if permissions.can_view_admin_management %}checked{% endif %}>

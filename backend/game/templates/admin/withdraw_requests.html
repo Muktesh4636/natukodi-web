@@ -485,7 +485,7 @@
                     <p>Manage pending withdraw requests</p>
                 </div>
                 <div class="header-actions" style="display: flex; align-items: center; gap: 16px;">
-                    {% if my_franchise_balance is not None %}
+                    {% if admin_sidebar_show_franchise_white_label and my_franchise_balance is not None %}
                     <span class="chips-display" title="Your balance">
                         <span class="chip-icon"></span>
                         <span>{{ my_franchise_balance_display }}</span>

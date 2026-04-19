@@ -705,7 +705,418 @@ def custom_404_handler(request, exception):
     return page_not_found(request, exception)
 
 
+# ---------------------------------------------------------------------------
+# Cricket live events — background poller (every 3 seconds, file-based cache)
+# ---------------------------------------------------------------------------
+import threading as _threading
+import time as _time
+import json as _json
+import os as _os
+
+_CRICKET_SOURCE_URL = (
+    'https://sports.indiadafa.com/xapi/rest/events'
+    '?allBettableEvents=true&bettable=true&includeHiddenOutcomes=true'
+    '&includeLiveEvents=true&includeMarkets=true&lightWeightResponse=true'
+    '&liveAboutToStart=true&liveExcludeLongTermSuspended=true'
+    '&liveMarketStatus=OPEN,SUSPENDED&marketFilter=GAME&marketStatus=OPEN'
+    '&sortMarketsByPriceDifference=true&sportGroups=REGULAR'
+    '&periodType=IN_RUNNING&eventPathIds=215&liveOnly=true'
+    '&marketTypeIds=22,24,25,76,622,130069,130079,130081,145136,145142,'
+    '145145,10112523,20670747,20670748,40671455,40671613'
+    '&periodTypeIds=257,258&excludeLongTermSuspended=true'
+    '&excludeMarketByOpponent=false&maxMarketsPerMarketType=5'
+    '&maxMarketPerEvent=50&l=en-GB'
+)
+_CRICKET_CACHE_FILE = '/tmp/cricket_live_cache.json'
+_CRICKET_BY_EVENT_CACHE_FILE = '/tmp/cricket_live_by_event.json'
+_cricket_poller_started = False
+_cricket_poller_lock = _threading.Lock()
 
 
+def _parse_all_markets_for_event(ev):
+    """Return a rich dict for a single raw event with ALL markets and their outcomes."""
+    opponents_map = {}
+    for opp in (ev.get('opponents') or []):
+        opponents_map[opp.get('id')] = opp.get('description', '')
+    scores_data = ev.get('scores') or {}
+    score_list = scores_data.get('score') or []
+    scores = []
+    for s in score_list:
+        opp_id = s.get('opponentId')
+        scores.append({
+            'team': opponents_map.get(opp_id, str(opp_id)),
+            'score': s.get('formattedPoints', ''),
+            'batting': s.get('serving', False),
+        })
+    clock = ev.get('clock') or {}
+    all_markets = []
+    for mkt in (ev.get('markets') or []):
+        outcomes = []
+        for oc in (mkt.get('outcomes') or []):
+            price = (oc.get('consolidatedPrice') or {}).get('currentPrice') or {}
+            outcomes.append({
+                'name': oc.get('description', ''),
+                'decimal': price.get('decimal'),
+                'price_format': price.get('format'),
+                'status': oc.get('status', ''),
+            })
+        all_markets.append({
+            'market_id': mkt.get('id'),
+            'market_name': mkt.get('description', ''),
+            'market_status': mkt.get('status', ''),
+            'outcomes': outcomes,
+        })
+    return {
+        'event_id': ev.get('id'),
+        'match_name': ev.get('description', ''),
+        'current_innings': ev.get('currentPeriod', ''),
+        'clock_status': clock.get('status', ''),
+        'scores': scores,
+        'all_markets': all_markets,
+    }
 
 
+def _parse_cricket_events(raw_events):
+    events = []
+    for ev in (raw_events if isinstance(raw_events, list) else []):
+        opponents_map = {}
+        for opp in (ev.get('opponents') or []):
+            opponents_map[opp.get('id')] = opp.get('description', '')
+        scores_data = ev.get('scores') or {}
+        score_list = scores_data.get('score') or []
+        scores = []
+        for s in score_list:
+            opp_id = s.get('opponentId')
+            scores.append({
+                'team': opponents_map.get(opp_id, str(opp_id)),
+                'score': s.get('formattedPoints', ''),
+                'batting': s.get('serving', False),
+            })
+        clock = ev.get('clock') or {}
+        match_odds = []
+        for mkt in (ev.get('markets') or []):
+            if mkt.get('description', '').strip().lower() == 'head to head':
+                for oc in (mkt.get('outcomes') or []):
+                    price = (oc.get('consolidatedPrice') or {}).get('currentPrice') or {}
+                    match_odds.append({
+                        'team': oc.get('description', ''),
+                        'decimal': price.get('decimal'),
+                        'price_format': price.get('format'),
+                    })
+                break
+        events.append({
+            'event_id': ev.get('id'),
+            'match_name': ev.get('description', ''),
+            'current_innings': ev.get('currentPeriod', ''),
+            'clock_status': clock.get('status', ''),
+            'scores': scores,
+            'match_odds': match_odds,
+        })
+    return events
+
+
+def _cricket_poller():
+    import requests as _req
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-GB,en;q=0.9',
+        'Referer': 'https://sports.indiadafa.com/',
+        'Origin': 'https://sports.indiadafa.com',
+    }
+    while True:
+        try:
+            resp = _req.get(_CRICKET_SOURCE_URL, timeout=8, headers=headers)
+            resp.raise_for_status()
+            raw = resp.json()
+            parsed = _parse_cricket_events(raw)
+            # Write list cache (used by /api/cricket/live-events/)
+            payload = _json.dumps({
+                'count': len(parsed),
+                'events': parsed,
+                'last_updated': _time.time(),
+            })
+            tmp = _CRICKET_CACHE_FILE + '.tmp'
+            with open(tmp, 'w') as f:
+                f.write(payload)
+            _os.replace(tmp, _CRICKET_CACHE_FILE)
+            # Write per-event indexed cache with ALL markets (used by /api/cricket/live-odds/)
+            raw_list = raw if isinstance(raw, list) else []
+            ts = _time.time()
+            by_event = {
+                str(ev.get('id')): _parse_all_markets_for_event(ev)
+                for ev in raw_list
+                if ev.get('id') is not None
+            }
+            by_event_payload = {'last_updated': ts, 'events': by_event}
+            tmp2 = _CRICKET_BY_EVENT_CACHE_FILE + '.tmp'
+            with open(tmp2, 'w') as f:
+                f.write(_json.dumps(by_event_payload))
+            _os.replace(tmp2, _CRICKET_BY_EVENT_CACHE_FILE)
+        except Exception:
+            pass
+        _time.sleep(3)
+
+
+def _ensure_cricket_poller():
+    global _cricket_poller_started
+    if _cricket_poller_started:
+        return
+    with _cricket_poller_lock:
+        if _cricket_poller_started:
+            return
+        _cricket_poller_started = True
+        t = _threading.Thread(target=_cricket_poller, daemon=True)
+        t.start()
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def live_cricket_events(request):
+    """
+    Live cricket events — updated every 3 seconds from indiadafa sports feed.
+    GET /api/cricket/live-events/
+    """
+    _ensure_cricket_poller()
+    try:
+        with open(_CRICKET_CACHE_FILE, 'r') as f:
+            data = _json.load(f)
+        # Sort: matches with odds first, no odds at the bottom
+        events = data.get('events', [])
+        events.sort(key=lambda e: 0 if e.get('match_odds') else 1)
+        data['events'] = events
+        return Response(data)
+    except Exception:
+        return Response({
+            'count': 0,
+            'events': [],
+            'message': 'Please come back after some time',
+        })
+
+
+# ---------------------------------------------------------------------------
+# Cricket pre-match events — background poller (every 10 seconds, file-based)
+# ---------------------------------------------------------------------------
+_CRICKET_PRE_SOURCE_URL = 'https://sports.indiadafa.com/xapi/rest/events?hash=968a9178b351ab653bf703fb26c08427&l=en-GB'
+_CRICKET_PRE_CACHE_FILE = '/tmp/cricket_pre_cache.json'
+_cricket_pre_poller_started = False
+_cricket_pre_poller_lock = _threading.Lock()
+
+
+def _cricket_pre_poller():
+    import requests as _req
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-GB,en;q=0.9',
+        'Referer': 'https://sports.indiadafa.com/',
+        'Origin': 'https://sports.indiadafa.com',
+    }
+    while True:
+        try:
+            resp = _req.get(_CRICKET_PRE_SOURCE_URL, timeout=10, headers=headers)
+            resp.raise_for_status()
+            raw = resp.json()
+            parsed = _parse_cricket_events(raw)
+            payload = _json.dumps({
+                'count': len(parsed),
+                'events': parsed,
+                'last_updated': _time.time(),
+            })
+            tmp = _CRICKET_PRE_CACHE_FILE + '.tmp'
+            with open(tmp, 'w') as f:
+                f.write(payload)
+            _os.replace(tmp, _CRICKET_PRE_CACHE_FILE)
+        except Exception:
+            pass
+        _time.sleep(10)
+
+
+def _ensure_cricket_pre_poller():
+    global _cricket_pre_poller_started
+    if _cricket_pre_poller_started:
+        return
+    with _cricket_pre_poller_lock:
+        if _cricket_pre_poller_started:
+            return
+        _cricket_pre_poller_started = True
+        t = _threading.Thread(target=_cricket_pre_poller, daemon=True)
+        t.start()
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cricket_live_odds_single_match(request):
+    """
+    Live odds for a single match.
+    GET /api/cricket/live-odds/<event_id>/
+    Returns event_id, match_name, match_odds for the requested event from the live cache.
+    """
+    event_id = request.query_params.get('event_id') or request.GET.get('event_id')
+    if not event_id:
+        return Response({'error': 'event_id query parameter is required.'}, status=400)
+    try:
+        event_id = int(event_id)
+    except (ValueError, TypeError):
+        return Response({'error': 'event_id must be an integer.'}, status=400)
+
+    _ensure_cricket_poller()
+    try:
+        with open(_CRICKET_BY_EVENT_CACHE_FILE, 'r') as f:
+            cache = _json.load(f)
+        by_event = cache.get('events', cache)  # backwards-compat if old cache exists
+        match = by_event.get(str(event_id))
+        if match is None:
+            return Response({'error': 'Match not found.'}, status=404)
+        return Response({
+            'event_id': match['event_id'],
+            'match_name': match.get('match_name', ''),
+            'current_innings': match.get('current_innings'),
+            'clock_status': match.get('clock_status'),
+            'scores': match.get('scores'),
+            'all_markets': match.get('all_markets', []),
+            'last_updated': cache.get('last_updated'),
+            'poll_interval_seconds': 3,
+        })
+    except Exception:
+        return Response({'error': 'Please come back after some time.'}, status=503)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cricket_pre_events(request):
+    """
+    Pre-match cricket events — updated every 10 seconds from indiadafa sports feed.
+    GET /api/cricket/pre-events/
+    """
+    _ensure_cricket_pre_poller()
+    try:
+        with open(_CRICKET_PRE_CACHE_FILE, 'r') as f:
+            data = _json.load(f)
+        events = data.get('events', [])
+        # Filter out virtual/simulated matches
+        events = [
+            e for e in events
+            if '(virtual)' not in e.get('match_name', '').lower()
+            and ' srl' not in e.get('match_name', '').lower()
+            and not e.get('match_name', '').lower().endswith(' srl')
+        ]
+        # Only return event_id, match_name, match_odds
+        events = [
+            {
+                'event_id': e['event_id'],
+                'match_name': e['match_name'],
+                'match_odds': e['match_odds'],
+            }
+            for e in events
+        ]
+        events.sort(key=lambda e: 0 if e.get('match_odds') else 1)
+        data['events'] = events
+        data['count'] = len(events)
+        return Response(data)
+    except Exception:
+        return Response({
+            'count': 0,
+            'events': [],
+            'message': 'Please come back after some time',
+        })
+
+
+# ---------------------------------------------------------------------------
+# Cricket pre-match odds for a single event — on-demand with 30s file cache
+# ---------------------------------------------------------------------------
+_CRICKET_PREEVENT_CACHE_DIR = '/tmp/cricket_preevent_cache'
+_CRICKET_PREEVENT_CACHE_TTL = 30  # seconds
+
+
+def _preevent_cache_path(event_id):
+    return _os.path.join(_CRICKET_PREEVENT_CACHE_DIR, f'{event_id}.json')
+
+
+def _fetch_preevent_odds(event_id):
+    import requests as _req
+    url = (
+        f'https://sports.indiadafa.com/xapi/rest/events/{event_id}'
+        '?bettable=true&marketStatus=OPEN&periodType=PRE_MATCH'
+        '&includeMarkets=true&lightWeightResponse=true&l=en-GB'
+    )
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-GB,en;q=0.9',
+        'Referer': 'https://sports.indiadafa.com/',
+        'Origin': 'https://sports.indiadafa.com',
+    }
+    resp = _req.get(url, timeout=10, headers=headers)
+    resp.raise_for_status()
+    ev = resp.json()
+
+    all_markets = []
+    for mkt in (ev.get('markets') or []):
+        outcomes = []
+        for oc in (mkt.get('outcomes') or []):
+            price = (oc.get('consolidatedPrice') or {}).get('currentPrice') or {}
+            outcomes.append({
+                'name': oc.get('description', ''),
+                'decimal': price.get('decimal'),
+                'price_format': price.get('format'),
+                'status': oc.get('status', ''),
+            })
+        all_markets.append({
+            'market_id': mkt.get('id'),
+            'market_name': mkt.get('description', ''),
+            'market_status': mkt.get('status', ''),
+            'outcomes': outcomes,
+        })
+
+    return {
+        'event_id': ev.get('id'),
+        'match_name': ev.get('description', ''),
+        'event_date': ev.get('eventDate'),
+        'current_innings': ev.get('currentPeriod', ''),
+        'all_markets': all_markets,
+        'total_markets': len(all_markets),
+        'last_updated': _time.time(),
+        'cache_ttl_seconds': _CRICKET_PREEVENT_CACHE_TTL,
+    }
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cricket_preevent_odds(request):
+    """
+    Pre-match odds for a single event — fetched on demand, cached 30 seconds per event.
+    GET /api/cricket/preevent-odds/?event_id=<event_id>
+    """
+    event_id = request.query_params.get('event_id') or request.GET.get('event_id')
+    if not event_id:
+        return Response({'error': 'event_id query parameter is required.'}, status=400)
+    try:
+        event_id = int(event_id)
+    except (ValueError, TypeError):
+        return Response({'error': 'event_id must be an integer.'}, status=400)
+
+    _os.makedirs(_CRICKET_PREEVENT_CACHE_DIR, exist_ok=True)
+    cache_file = _preevent_cache_path(event_id)
+
+    # Serve from cache if still fresh
+    try:
+        mtime = _os.path.getmtime(cache_file)
+        if _time.time() - mtime < _CRICKET_PREEVENT_CACHE_TTL:
+            with open(cache_file, 'r') as f:
+                return Response(_json.load(f))
+    except (OSError, ValueError):
+        pass
+
+    # Fetch fresh data from upstream
+    try:
+        data = _fetch_preevent_odds(event_id)
+        tmp = cache_file + '.tmp'
+        with open(tmp, 'w') as f:
+            f.write(_json.dumps(data))
+        _os.replace(tmp, cache_file)
+        return Response(data)
+    except Exception as exc:
+        if '404' in str(exc):
+            return Response({'error': 'Match not found.'}, status=404)
+        return Response({'error': 'Please come back after some time.'}, status=503)

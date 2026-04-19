@@ -11,6 +11,11 @@ load_dotenv()
 
 USE_REDIS = True # Global setting for Redis usage
 
+# Admin sidebar: Franchise + White Label links (hidden by default; set env to true to show).
+ADMIN_SIDEBAR_SHOW_FRANCHISE_WHITE_LABEL = os.getenv(
+    'ADMIN_SIDEBAR_SHOW_FRANCHISE_WHITE_LABEL', 'false'
+).lower() in ('1', 'true', 'yes')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -231,6 +236,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'game.context_processors.admin_ui_flags',
             ],
         },
     },

@@ -171,7 +171,9 @@
             <a href="/" class="navbar-brand">🎮 Gundu Ata</a>
             <div class="navbar-links">
                 <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+                {% if admin_sidebar_show_franchise_white_label %}
                 <a href="{% url 'franchise_balance' %}">Franchise Balance</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -180,12 +182,18 @@
         <div class="header">
             <div class="header-left">
                 <h1>➕ Add admin</h1>
+                {% if admin_sidebar_show_franchise_white_label %}
                 <p>Franchise owner – will appear only in Franchise Balance list</p>
+                {% else %}
+                <p>Regional admin account</p>
+                {% endif %}
             </div>
             <div class="header-actions">
                 <span>👤 {{ user.username }}</span>
                 <a href="{% url 'admin_dashboard' %}" class="action-btn">🏠 Dashboard</a>
+                {% if admin_sidebar_show_franchise_white_label %}
                 <a href="{% url 'franchise_balance' %}" class="action-btn">💰 Franchise Balance</a>
+                {% endif %}
             </div>
         </div>
 
@@ -306,10 +314,12 @@
                             <label for="can_view_help_center" style="margin: 0; font-weight: 500; cursor: pointer;">🆘 Help Center</label>
                         </div>
 
+                        {% if admin_sidebar_show_franchise_white_label %}
                         <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
                             <input type="checkbox" id="can_view_white_label" name="can_view_white_label" style="width: 18px; height: 18px; margin-right: 12px;">
                             <label for="can_view_white_label" style="margin: 0; font-weight: 500; cursor: pointer;">💬 White Label Messages</label>
                         </div>
+                        {% endif %}
 
                         <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
                             <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" style="width: 18px; height: 18px; margin-right: 12px;">
@@ -324,7 +334,7 @@
                 </div>
 
                 <div class="form-actions" style="display: flex; gap: 16px; justify-content: flex-end;">
-                    <a href="{% url 'franchise_balance' %}" class="btn" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Cancel</a>
+                    <a href="{% if admin_sidebar_show_franchise_white_label %}{% url 'franchise_balance' %}{% else %}{% url 'admin_dashboard' %}{% endif %}" class="btn" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Cancel</a>
                     <button type="submit" class="btn" style="background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'">
                         ➕ Add admin
                     </button>

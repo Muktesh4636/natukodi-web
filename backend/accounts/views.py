@@ -1643,11 +1643,10 @@ def submit_utr(request):
 @permission_classes([IsAuthenticated])
 def my_deposit_requests(request):
     """
-    List the authenticated user's deposit requests in three groups:
+    List the authenticated user's deposit requests in two groups:
 
     - ``successful`` — ``APPROVED`` (credited / accepted)
     - ``rejected`` — ``REJECTED`` (declined by admin)
-    - ``failed`` — ``PENDING`` (still open — awaiting review; not yet successful or rejected)
 
     Legacy: ``?flat=1`` returns the previous single array (newest first, all statuses mixed).
     """
@@ -1672,17 +1671,11 @@ def my_deposit_requests(request):
         many=True,
         context=ctx,
     ).data
-    failed = DepositRequestMineSerializer(
-        base.filter(status='PENDING').order_by('-created_at'),
-        many=True,
-        context=ctx,
-    ).data
 
     return Response(
         {
             'successful': successful,
             'rejected': rejected,
-            'failed': failed,
         }
     )
 
@@ -2126,10 +2119,20 @@ def my_bank_details(request):
         for item in all_data:
             if item.get('account_number'):
                 bank_entry = {k: v for k, v in item.items() if k != 'upi_id'}
-                bank_accounts.append({'number': bank_n, **bank_entry})
+                bank_accounts.append({
+                    'number': bank_n,
+                    **bank_entry,
+                    'copy_text': item.get('account_number', ''),
+                    'copy_label': 'Account Number',
+                })
                 bank_n += 1
             if item.get('upi_id'):
-                upi_accounts.append({'number': upi_n, **item})
+                upi_accounts.append({
+                    'number': upi_n,
+                    **item,
+                    'copy_text': item.get('upi_id', ''),
+                    'copy_label': 'UPI ID',
+                })
                 upi_n += 1
 
         return Response({

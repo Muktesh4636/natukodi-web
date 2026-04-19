@@ -213,29 +213,18 @@ class DepositRequestSerializer(serializers.ModelSerializer):
 class DepositRequestMineSerializer(serializers.ModelSerializer):
     """Deposit rows for GET /api/auth/deposits/mine/ — no nested user (caller is authenticated)."""
 
-    screenshot_url = serializers.SerializerMethodField()
-
     class Meta:
         model = DepositRequest
         fields = (
             'id',
             'amount',
             'status',
-            'screenshot_url',
             'payment_method',
             'admin_note',
             'created_at',
             'updated_at',
         )
         read_only_fields = fields
-
-    def get_screenshot_url(self, obj):
-        request = self.context.get('request')
-        if obj.screenshot and hasattr(obj.screenshot, 'url'):
-            if request:
-                return request.build_absolute_uri(obj.screenshot.url)
-            return obj.screenshot.url
-        return None
 
 
 class DepositRequestAdminSerializer(DepositRequestSerializer):

@@ -456,7 +456,7 @@
                         <div class="header">
                 <div class="header-left">
                     <h1>Wallets{% if scope_label %} — {{ scope_label }}{% endif %}</h1>
-                    <p>View and manage user wallets{% if scope_label %} (players under your franchise){% endif %}</p>
+                    <p>View and manage user wallets{% if scope_label %} ({% if admin_sidebar_show_franchise_white_label %}players under your franchise{% else %}your players{% endif %}){% endif %}</p>
                 </div>
                 <div class="header-actions">
                     <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>

@@ -66,7 +66,11 @@
                 </div>
                 <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
                     <a href="{% url 'edit_franchise_admin' admin_user.id %}" class="link-teal" style="padding: 10px 16px; border: 1px solid #0d9488; border-radius: 8px;">Edit privileges</a>
+                    {% if admin_sidebar_show_franchise_white_label %}
                     <a href="{% url 'franchise_balance' %}" class="btn-secondary btn">← Back to Franchise Balance</a>
+                    {% else %}
+                    <a href="{% url 'admin_dashboard' %}" class="btn-secondary btn">← Dashboard</a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -111,7 +115,7 @@
             {% if not admin_user.is_superuser %}
             <div class="info-box" style="margin-bottom: 24px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
                 <h3 style="font-size: 14px; color: #166534; margin-bottom: 8px;">🔐 Change password</h3>
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Set a new login password for this franchise admin.</p>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Set a new login password for this {% if admin_sidebar_show_franchise_white_label %}franchise {% endif %}admin.</p>
                 <form method="post" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="change_password">
@@ -129,8 +133,8 @@
             {% endif %}
 
             <div class="info-box" style="margin-bottom: 24px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;">
-                <h3 style="font-size: 14px; color: #1e40af; margin-bottom: 8px;">Assign player to this franchise</h3>
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">If a player's deposit/withdraw requests show under Super Admin instead of here, enter their <strong>phone number</strong> or <strong>username</strong> to assign them to this franchise.</p>
+                <h3 style="font-size: 14px; color: #1e40af; margin-bottom: 8px;">Assign player to this {% if admin_sidebar_show_franchise_white_label %}franchise{% else %}admin{% endif %}</h3>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">If a player's deposit/withdraw requests show under Super Admin instead of here, enter their <strong>phone number</strong> or <strong>username</strong> to assign them{% if admin_sidebar_show_franchise_white_label %} to this franchise{% else %} to this admin{% endif %}.</p>
                 <form method="post" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="assign_player">
@@ -149,7 +153,7 @@
                 </div>
 
                 <div class="form-group" style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
-                    <h3 style="font-size: 16px; color: #334155; margin-bottom: 12px;">📱 Help Center (for this franchise’s APK)</h3>
+                    <h3 style="font-size: 16px; color: #334155; margin-bottom: 12px;">📱 Help Center {% if admin_sidebar_show_franchise_white_label %}(for this franchise’s APK){% else %}(for this admin’s APK){% endif %}</h3>
                     <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
                         <div>
                             <label for="package_name" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">Package name</label>
@@ -180,13 +184,17 @@
 
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">Save</button>
+                    {% if admin_sidebar_show_franchise_white_label %}
                     <a href="{% url 'franchise_balance' %}" class="btn btn-secondary">Back to Franchise Balance</a>
+                    {% else %}
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                    {% endif %}
                 </div>
             </form>
 
             <div class="log-section" style="margin-top: 32px;">
                 <h2>💰 Money given to this admin</h2>
-                <p style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Every Add or Set balance for this franchise is recorded below.</p>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Every Add or Set balance for this {% if admin_sidebar_show_franchise_white_label %}franchise{% else %}admin{% endif %} is recorded below.</p>
                 <table class="log-table">
                     <thead>
                         <tr>

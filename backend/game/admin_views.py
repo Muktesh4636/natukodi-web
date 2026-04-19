@@ -3048,11 +3048,18 @@ def create_franchise_admin(request):
             )
             AdminPermissions.objects.create(user=user, **permissions)
             invalidate_admin_permissions_cache(user)
+            _show_franchise_ui = getattr(settings, 'ADMIN_SIDEBAR_SHOW_FRANCHISE_WHITE_LABEL', False)
             if request.POST.get('password_auto_generated', 'false') == 'true':
-                messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance. 🔐 Save the password securely.')
+                if _show_franchise_ui:
+                    messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance. 🔐 Save the password securely.')
+                else:
+                    messages.success(request, f'Admin "{username}" created. 🔐 Save the password securely.')
             else:
-                messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance.')
-            return redirect('franchise_balance')
+                if _show_franchise_ui:
+                    messages.success(request, f'Franchise admin "{username}" created. They will appear only in Franchise Balance.')
+                else:
+                    messages.success(request, f'Admin "{username}" created.')
+            return redirect('franchise_balance' if _show_franchise_ui else 'admin_dashboard')
         except Exception as e:
             messages.error(request, f'Error creating franchise admin: {str(e)}')
             return render(request, 'admin/create_franchise_admin.html', {'permissions': permissions})
@@ -3556,7 +3563,7 @@ def help_center(request):
 
     if request.method == 'POST':
         whatsapp_number = _normalize_help_phone(request.POST.get('SUPPORT_WHATSAPP_NUMBER'))
-        telegram_number = _normalize_help_phone(request.POST.get('SUPPORT_TELEGRAM'))
+        telegram_number = (request.POST.get('SUPPORT_TELEGRAM') or '').strip()
         facebook = (request.POST.get('SUPPORT_FACEBOOK') or '').strip()
         instagram = (request.POST.get('SUPPORT_INSTAGRAM') or '').strip()
 

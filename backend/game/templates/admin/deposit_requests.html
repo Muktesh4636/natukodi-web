@@ -497,7 +497,7 @@
                     <p>Manage pending deposit requests</p>
                 </div>
                 <div class="header-actions" style="display: flex; align-items: center; gap: 16px;">
-                    {% if my_franchise_balance is not None %}
+                    {% if admin_sidebar_show_franchise_white_label and my_franchise_balance is not None %}
                     <span class="chips-display" title="Your balance">
                         <span class="chip-icon"></span>
                         <span>{{ my_franchise_balance_display }}</span>
@@ -517,7 +517,12 @@
             
             {% if my_franchise_balance is not None and balance_is_low %}
             <div class="alert" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
-                <strong>Balance low.</strong> You can get a top-up from Super Admin. They can add balance from the <a href="{% url 'franchise_balance' %}" style="color: #b45309; font-weight: 600;">Franchise Balance</a> page.
+                <strong>Balance low.</strong>
+                {% if admin_sidebar_show_franchise_white_label %}
+                You can get a top-up from Super Admin. They can add balance from the <a href="{% url 'franchise_balance' %}" style="color: #b45309; font-weight: 600;">Franchise Balance</a> page.
+                {% else %}
+                Contact Super Admin for a top-up.
+                {% endif %}
             </div>
             {% endif %}
             <div class="stats-grid">

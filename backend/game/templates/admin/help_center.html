@@ -154,9 +154,17 @@
                 <div class="page-title">Help Center{% if scope_label %} — {{ scope_label }}{% endif %}</div>
                 <div class="page-subtitle">
                     {% if is_franchise_scope %}
+                        {% if admin_sidebar_show_franchise_white_label %}
                         Set the WhatsApp, Telegram, Facebook and Instagram contacts shown to <strong>players under your franchise</strong> when they open Help in the app. Leave blank to use the global default.
+                        {% else %}
+                        Set the WhatsApp, Telegram, Facebook and Instagram contacts shown to <strong>your players</strong> when they open Help in the app. Leave blank to use the global default.
+                        {% endif %}
                     {% else %}
+                        {% if admin_sidebar_show_franchise_white_label %}
                         Global default contacts for the app Help Center. Franchise owners can set their own contacts in this same page.
+                        {% else %}
+                        Global default contacts for the app Help Center.
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
