@@ -558,21 +558,8 @@ def place_bet(request):
             if round_id_raw and status_raw:
                 round_id = _rstr(round_id_raw)
                 status_val = _rstr(status_raw)
-                # Engine can publish lowercase; legacy key is uppercase
                 status_val = (status_val or "WAITING").upper()
                 end_time = int(end_time_raw or 0)
-                
-                now_ts = int(timezone.now().timestamp())
-                
-                # Check if betting is closed
-                if status_val != "BETTING":
-                    logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} status is {status_val}")
-                    return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Safety check: if end_time is in the past, engine might be lagging
-                if end_time > 0 and now_ts > end_time:
-                    logger.warning(f"Bet placement rejected for user {user_id}: Round {round_id} betting period expired ({now_ts} > {end_time})")
-                    return Response({'error': 'Betting period has expired'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 # Strict Redis-only mode: do not hit DB in hot path.
                 return Response(
@@ -704,8 +691,6 @@ def remove_bet(request, number):
                     status_val = state.get('status') or status_val
 
             status_val = (status_val or "WAITING").upper()
-            if status_val != "BETTING":
-                return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
 
             stack_key = f"user_bets_stack:{user_id}"
             keys = [
@@ -769,8 +754,8 @@ def remove_bet_by_id(request, bet_id):
                 round_id = state.get('round_id')
                 status_val = state.get('status')
                 
-                if status_val != "BETTING":
-                    return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
+                if status_val is not None:
+                    status_val = status_val.upper()
         except Exception as e:
             logger.error(f"Redis error in remove_bet_by_id: {e}")
     
@@ -780,9 +765,6 @@ def remove_bet_by_id(request, bet_id):
         round_obj = bet.round
     except Bet.DoesNotExist:
         return Response({'error': 'Bet not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    if round_obj.status != 'BETTING':
-        return Response({'error': 'Betting is closed for this round'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Store bet amount before deleting
     refund_amount = bet.chip_amount
@@ -913,9 +895,6 @@ def remove_last_bet(request):
                 })
 
             # If it's a DELETE request, proceed with removal
-            if status_val != "BETTING":
-                return Response({'error': 'Cannot remove bet after betting closes'}, status=status.HTTP_400_BAD_REQUEST)
-
             refund_amount = float(last_bet['chip_amount'])
             bet_number = last_bet['number']
             msg_id = last_bet['msg_id']
