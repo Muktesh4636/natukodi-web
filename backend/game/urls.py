@@ -41,5 +41,11 @@ urlpatterns = [
     path('admin/mega-spin-prob/<int:user_id>/', views.admin_mega_spin_prob, name='admin_mega_spin_prob_user'),
     path('admin/daily-reward-prob/', views.admin_daily_reward_prob, name='admin_daily_reward_prob_global'),
     path('admin/daily-reward-prob/<int:user_id>/', views.admin_daily_reward_prob, name='admin_daily_reward_prob_user'),
+
+    # Meron / Wala / Draw betting (sabong-style fixed odds)
+    path('meron-wala/bet/', views.place_meron_wala_bet, name='place_meron_wala_bet'),
+    path('meron-wala/bets/mine/', views.my_cock_fight_bets, name='my_cock_fight_bets'),
+    path('meron-wala/info/', views.cock_fight_info, name='cock_fight_info'),
+    path('meron-wala/settle/', views.settle_cock_fight, name='settle_cock_fight'),
 ]
 

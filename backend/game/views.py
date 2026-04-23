@@ -651,17 +651,22 @@ def place_bet(request):
                 return Response({'error': response_val}, status=status.HTTP_400_BAD_REQUEST)
 
             new_balance = response_val
-            legacy_bets = result[3]
-            legacy_amount = result[4]
+
+            _pay_raw = getattr(settings, 'GAME_SETTINGS', {}).get('PAYOUT_RATIOS') or {}
+            payout_ratios = {str(k): float(v) for k, v in _pay_raw.items()}
 
             return Response({
                 'message': 'Bet placed successfully',
                 'wallet_balance': "{:.2f}".format(float(new_balance)),
-                'round': {
-                    'round_id': round_id,
-                    'total_bets': int(float(legacy_bets) if legacy_bets is not None else 0),
-                    'total_amount': "{:.2f}".format(float(legacy_amount) if legacy_amount is not None else 0.0)
-                }
+                'round_id': round_id,
+                'number': number,
+                'chip_amount': "{:.2f}".format(chip_amount),
+                'max_bet': max_bet_limit,
+                'payout_ratios': payout_ratios,
+                'settlement_note': (
+                    'Returns use dice frequency when a face appears ≥2 times: stake × (1 + frequency). '
+                    'payout_ratios are UI hints only.'
+                ),
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -731,18 +736,12 @@ def remove_bet(request, number):
 
             new_balance = result[1]
             refund_amount = result[3]
-            legacy_bets = result[4]
-            legacy_amount = result[5]
 
             return Response({
                 'message': f'Bet on number {number} removed',
                 'refund_amount': "{:.2f}".format(float(refund_amount)),
                 'wallet_balance': "{:.2f}".format(float(new_balance)),
-                'round': {
-                    'round_id': round_id,
-                    'total_bets': int(float(legacy_bets) if legacy_bets is not None else 0),
-                    'total_amount': "{:.2f}".format(float(legacy_amount) if legacy_amount is not None else 0.0),
-                }
+                'round_id': round_id,
             })
         except Exception as e:
             logger.exception(f"Redis-first remove_bet failed for user {username}: {e}")
@@ -849,11 +848,7 @@ def remove_bet_by_id(request, bet_id):
         'message': f'Bet removed',
         'refund_amount': str(refund_amount),
         'wallet_balance': str(wallet.balance),
-        'round': {
-            'round_id': round_obj.round_id,
-            'total_bets': round_obj.total_bets,
-            'total_amount': str(round_obj.total_amount)
-        }
+        'round_id': round_obj.round_id,
     })
 
 
@@ -964,11 +959,7 @@ def remove_last_bet(request):
                 'refund_amount': "{:.2f}".format(refund_amount),
                 'bet_number': bet_number,
                 'wallet_balance': "{:.2f}".format(float(response_val)),
-                'round': {
-                    'round_id': round_id,
-                    'total_bets': int(redis_client.get(f"round_total_bets:{round_id}") or 0),
-                    'total_amount': "{:.2f}".format(float(redis_client.get(f"round_total_amount:{round_id}") or 0))
-                }
+                'round_id': round_id,
             })
 
         except Exception as e:
@@ -2992,3 +2983,105 @@ def settle_cock_fight(request):
                 bet.save()
                 lost_count += 1
     return Response({'session': session.pk, 'winner': winner, 'won': won_count, 'lost': lost_count})
+
+
+# ---------------------------------------------------------------------------
+# Meron / Wala / Draw betting (sabong-style fixed odds)
+# Odds (decimal, includes stake):  MERON=1.90, WALA=1.92, DRAW=4.46
+# Example: bet 100 on MERON → win returns 190 total (90 profit + 100 stake back)
+# ---------------------------------------------------------------------------
+MERON_WALA_ODDS = {
+    'MERON': Decimal('1.90'),
+    'WALA': Decimal('1.92'),
+    'DRAW': Decimal('4.46'),
+}
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def place_meron_wala_bet(request):
+    """
+    Place a bet on MERON / WALA / DRAW.
+    POST /api/game/meron-wala/bet/
+    Body: { "side": "MERON" | "WALA" | "DRAW", "stake": <int>, "event_id": <optional int> }
+    """
+    from .models import CockFightSession, CockFightBet
+    from accounts.models import Wallet, Transaction
+
+    if request.user.is_staff or request.user.is_superuser:
+        return Response({'error': 'Admins are not allowed to participate in the game.'},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    side = (request.data.get('side') or '').upper().strip()
+    if side not in MERON_WALA_ODDS:
+        return Response({'error': 'side must be MERON, WALA or DRAW'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        stake = int(request.data['stake'])
+    except (KeyError, ValueError, TypeError):
+        return Response({'error': 'Invalid stake'}, status=status.HTTP_400_BAD_REQUEST)
+    if stake <= 0:
+        return Response({'error': 'Stake must be positive'}, status=status.HTTP_400_BAD_REQUEST)
+
+    max_bet_limit = int(get_game_setting('MAX_BET', 50000))
+    if stake > max_bet_limit:
+        return Response({'error': f'Maximum bet amount is {max_bet_limit}'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    odds = MERON_WALA_ODDS[side]
+    potential_payout = int(Decimal(stake) * odds)
+
+    with transaction.atomic():
+        session = (CockFightSession.objects
+                   .select_for_update()
+                   .filter(status='OPEN')
+                   .order_by('-id')
+                   .first())
+        if not session:
+            session = CockFightSession.objects.create(status='OPEN')
+
+        wallet = Wallet.objects.select_for_update().get(user=request.user)
+        balance_before = int(wallet.balance)
+        if balance_before < stake:
+            return Response({'error': 'Insufficient balance'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        wallet.balance = balance_before - stake
+        wallet.save(update_fields=['balance'])
+        balance_after = int(wallet.balance)
+
+        bet = CockFightBet.objects.create(
+            user=request.user,
+            session=session,
+            side=side,
+            stake=stake,
+            odds=odds,
+            potential_payout=potential_payout,
+        )
+        Transaction.objects.create(
+            user=request.user,
+            transaction_type='BET',
+            amount=stake,
+            balance_before=balance_before,
+            balance_after=balance_after,
+            description=f'Meron/Wala bet #{bet.pk} on {side}',
+        )
+
+        # Keep Redis balance cache in sync so wallet API stays fast/correct.
+        if redis_client:
+            try:
+                redis_client.set(f'user_balance:{request.user.id}', str(wallet.balance), ex=86400)
+            except Exception:
+                pass
+
+    return Response({
+        'success': True,
+        'bet_id': bet.pk,
+        'session_id': session.pk,
+        'side': side,
+        'stake': stake,
+        'odds': str(odds),
+        'potential_payout': potential_payout,
+        'wallet_balance': str(wallet.balance),
+    }, status=status.HTTP_201_CREATED)
