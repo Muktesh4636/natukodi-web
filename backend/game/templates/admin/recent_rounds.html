@@ -622,7 +622,7 @@
                         >
                             🔍 Search
                         </button>
-                        {% if search_query or status_filter or date_range or game != 'cockfight' %}
+                        {% if search_query or status_filter or date_range or game != 'gunduata' %}
                         <a 
                             href="{% url 'recent_rounds' %}" 
                             style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;"
@@ -632,7 +632,7 @@
                         {% endif %}
                     </form>
                 </div>
-                {% if search_query or status_filter or date_range or game != 'cockfight' %}
+                {% if search_query or status_filter or date_range or game != 'gunduata' %}
                 <div style="margin-bottom: 16px; padding: 12px; background: #edf2f7; border-radius: 6px; border-left: 3px solid #a0c4ff;">
                     <p style="margin: 0; color: #4a5568; font-size: 14px;">
                         <strong>Filtered results:</strong>

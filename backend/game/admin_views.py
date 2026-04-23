@@ -823,9 +823,9 @@ def recent_rounds(request):
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '')
     date_range = request.GET.get('date_range', '').strip()  # '', 'last_7_days', 'last_30_days', 'last_month'
-    game = (request.GET.get('game') or 'cockfight').strip().lower()
+    game = (request.GET.get('game') or 'gunduata').strip().lower()
     if game not in ('gunduata', 'cricket', 'cockfight'):
-        game = 'cockfight'
+        game = 'gunduata'
 
     # Date range filter for round start_time
     from datetime import timedelta, date
@@ -1421,9 +1421,9 @@ def all_bets(request):
     # Get filter parameters
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', 'all')  # all, winners, losers
-    game = (request.GET.get('game') or 'cockfight').strip().lower()
+    game = (request.GET.get('game') or 'gunduata').strip().lower()
     if game not in ('gunduata', 'cricket', 'cockfight'):
-        game = 'cockfight'
+        game = 'gunduata'
 
     effective_admin = get_effective_admin(request.user)
 
