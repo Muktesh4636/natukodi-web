@@ -3064,3 +3064,38 @@ def place_meron_wala_bet(request):
         'potential_payout': potential_payout,
         'wallet_balance': str(wallet.balance),
     }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def settle_meron_wala_round(request):
+    """
+    Admin: mark the result for a Meron/Wala/Draw (cockfight) round and credit winners.
+    Staff/superuser only. Use from admin tools or a trusted client with a staff JWT.
+
+    POST /api/game/meron-wala/admin/settle-round/
+    Body (JSON):
+      { "round_id": <int>,  "winner": "MERON" | "WALA" | "DRAW" }
+    (Legacy alias: "session_id" is accepted if "round_id" is omitted — same value as round id.)
+    """
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response({'error': 'Admin only'}, status=status.HTTP_403_FORBIDDEN)
+
+    winner = (request.data.get('winner') or '').upper().strip()
+    raw_id = request.data.get('round_id', request.data.get('session_id'))
+    try:
+        round_id = int(raw_id)
+    except (TypeError, ValueError):
+        return Response(
+            {'error': 'round_id is required and must be an integer'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    from .meron_wala_settlement import run_meron_wala_settlement
+
+    payload, code = run_meron_wala_settlement(round_id, winner)
+    if code == 200:
+        return Response(payload, status=status.HTTP_200_OK)
+    if code == 404:
+        return Response(payload, status=status.HTTP_404_NOT_FOUND)
+    return Response(payload, status=status.HTTP_400_BAD_REQUEST)

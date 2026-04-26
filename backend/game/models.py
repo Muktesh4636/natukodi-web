@@ -3,6 +3,14 @@ from django.conf import settings
 from decimal import Decimal
 import json
 import random
+from pathlib import Path
+
+
+def cockfight_round_video_upload_path(instance, filename):
+    ext = Path(filename or '').suffix.lower()
+    if ext not in ('.mp4', '.webm', '.mov', '.mkv', '.m4v'):
+        ext = '.mp4'
+    return f'cockfight_videos/round_{instance.session_id}{ext}'
 
 
 class GameRound(models.Model):
@@ -612,7 +620,7 @@ class CricketBet(models.Model):
     outcome_id = models.BigIntegerField()
     outcome_name = models.CharField(max_length=255)
     odds = models.DecimalField(max_digits=10, decimal_places=2)
-    stake = models.BigIntegerField(help_text='Stake in paise (smallest currency unit)')
+    stake = models.BigIntegerField(help_text='Stake in rupees')
     potential_payout = models.BigIntegerField()
     status = models.CharField(
         max_length=20,
@@ -681,6 +689,31 @@ class CockFightBet(models.Model):
 
     def __str__(self):
         return f'CockFightBet #{self.pk} – {self.user} {self.side} {self.status}'
+
+
+class CockFightRoundVideo(models.Model):
+    """Admin-uploaded replay / recording for a cock fight round (session pk = round id)."""
+
+    session = models.OneToOneField(
+        CockFightSession,
+        on_delete=models.CASCADE,
+        related_name='round_video',
+    )
+    video = models.FileField(upload_to=cockfight_round_video_upload_path, max_length=255)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='cockfight_round_videos_uploaded',
+    )
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f'CockFightRoundVideo round {self.session_id}'
 
 
 class ColourRound(models.Model):

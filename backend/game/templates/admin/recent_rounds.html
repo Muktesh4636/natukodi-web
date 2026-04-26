@@ -665,7 +665,7 @@
                                 <td><span class="round-id">#{{ row.event_id }}</span></td>
                                 <td>{{ row.event_name|default:"—" }}</td>
                                 <td><strong>{{ row.round_bets_count }}</strong></td>
-                                <td><span class="amount">₹{% widthratio row.round_bets_amount 100 1 %}</span></td>
+                                <td><span class="amount">₹{{ row.round_bets_amount|floatformat:2 }}</span></td>
                                 <td><span class="time-badge">{{ row.last_time|date:"M d, Y H:i:s" }}</span></td>
                             </tr>
                             {% empty %}
@@ -694,7 +694,7 @@
                             <tr>
                                 <td><span class="round-id">#{{ row.session_id }}</span></td>
                                 <td><strong>{{ row.round_bets_count }}</strong></td>
-                                <td><span class="amount">₹{% widthratio row.round_bets_amount 100 1 %}</span></td>
+                                <td><span class="amount">₹{{ row.round_bets_amount|floatformat:2 }}</span></td>
                                 <td><span class="time-badge">{{ row.last_time|date:"M d, Y H:i:s" }}</span></td>
                             </tr>
                             {% empty %}

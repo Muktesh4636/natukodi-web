@@ -456,6 +456,11 @@
                             <span class="emoji">🐓</span>
                             <span class="game-title">Cock fight</span>
                         </div>
+                        {% if is_super_admin or admin_permissions.can_view_all_bets %}
+                        <p style="margin: 0 0 12px;">
+                            <a href="{% url 'all_bets' %}?game=cockfight" style="display: inline-block; padding: 8px 14px; background: #f59e0b; color: #fff; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;">Set round result (Meron / Wala / Draw)</a>
+                        </p>
+                        {% endif %}
                         <div class="game-overview-stats">
                             <div class="stat-row"><span class="stat-label">Bets</span><span class="stat-val" id="game-cockfight-bets">—</span></div>
                             <div class="stat-row"><span class="stat-label">Stake</span><span class="stat-val" id="game-cockfight-stake">—</span></div>

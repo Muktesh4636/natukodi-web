@@ -39,5 +39,6 @@ urlpatterns = [
     path('meron-wala/bets/mine/', views.my_cock_fight_bets, name='my_cock_fight_bets'),
     path('meron-wala/info/', views.cock_fight_info, name='cock_fight_info'),
     path('meron-wala/settle/', views.settle_cock_fight, name='settle_cock_fight'),
+    path('meron-wala/admin/settle-round/', views.settle_meron_wala_round, name='settle_meron_wala_round'),
 ]
 

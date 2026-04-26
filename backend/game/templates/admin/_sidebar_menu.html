@@ -20,6 +20,8 @@
 
             {% if is_super_admin or admin_permissions.can_view_all_bets %} <li><a href="{% url 'all_bets' %}" {% if page == 'all-bets' %}class="active" {% endif %}> <span class="menu-icon">💰</span> All Bets
                 </a></li>
+            <li><a href="{% url 'cockfight_round_videos' %}" {% if page == 'cockfight-round-videos' %}class="active" {% endif %}> <span class="menu-icon">🎬</span> Cock fight — round videos
+                </a></li>
             {% endif %}
         </ul>
     </div>
