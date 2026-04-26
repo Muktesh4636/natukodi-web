@@ -13,7 +13,18 @@ import redis
 import json
 import os
 from collections import Counter
-from .models import GameRound, Bet, GameSettings, AdminPermissions, WhiteLabelLead, LiveStream, CricketBet, CockFightBet
+from .models import (
+    GameRound,
+    Bet,
+    GameSettings,
+    AdminPermissions,
+    WhiteLabelLead,
+    LiveStream,
+    CricketBet,
+    CockFightBet,
+    CockFightSession,
+    CockFightRoundVideo,
+)
 from accounts.models import (
     Wallet,
     Transaction,
@@ -974,8 +985,8 @@ def recent_rounds(request):
         total_bets_count = Bet.objects.count()
         total_bets_amount = Bet.objects.aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
 
-    # Cricket / cockfight stakes stored in smallest currency units — stats card shows rupees
-    total_bets_amount_display = (total_bets_amount or 0) / 100.0 if game in ('cricket', 'cockfight') else (total_bets_amount or 0)
+    # Amounts stored as-is in rupees — no conversion needed
+    total_bets_amount_display = (total_bets_amount or 0)
 
     context = get_admin_context(request, {
         'recent_rounds': recent_rounds_list,
@@ -1459,8 +1470,8 @@ def all_bets(request):
         total_bets_count = stats.get('total_bets_count') or 0
         raw_stake = stats.get('total_bets_amount') or 0
         raw_payout = stats.get('total_payouts') or 0
-        total_bets_amount = float(raw_stake) / 100.0
-        total_payouts = float(raw_payout) / 100.0
+        total_bets_amount = float(raw_stake)
+        total_payouts = float(raw_payout)
         total_winners = stats.get('total_winners') or 0
         all_bets_list = list(all_bets_list[:200])
     elif game == 'cockfight':
@@ -1494,8 +1505,8 @@ def all_bets(request):
         total_bets_count = stats.get('total_bets_count') or 0
         raw_stake = stats.get('total_bets_amount') or 0
         raw_payout = stats.get('total_payouts') or 0
-        total_bets_amount = float(raw_stake) / 100.0
-        total_payouts = float(raw_payout) / 100.0
+        total_bets_amount = float(raw_stake)
+        total_payouts = float(raw_payout)
         total_winners = stats.get('total_winners') or 0
         all_bets_list = list(all_bets_list[:200])
     else:
@@ -1543,6 +1554,123 @@ def all_bets(request):
     })
 
     return render(request, 'admin/all_bets.html', context)
+
+
+@admin_required
+@require_POST
+def cockfight_settle_result(request):
+    """
+    Settle Meron/Wala/Draw for a cockfight round (same logic as
+    POST /api/game/meron-wala/admin/settle-round/). Submitted from All Bets (cock fight).
+    """
+    if not has_menu_permission(request.user, 'all_bets'):
+        messages.error(request, 'You do not have permission to settle cock fight rounds.')
+        return redirect('admin_dashboard')
+
+    from django.urls import reverse
+    from .meron_wala_settlement import run_meron_wala_settlement
+
+    try:
+        round_id = int((request.POST.get('round_id') or '').strip())
+    except (TypeError, ValueError):
+        messages.error(request, 'Enter a valid Round ID (a positive number).')
+        return redirect(f"{reverse('all_bets')}?game=cockfight")
+
+    winner = (request.POST.get('winner') or '').upper().strip()
+    payload, code = run_meron_wala_settlement(round_id, winner)
+    if code == 200:
+        messages.success(
+            request,
+            f"Round {payload['round_id']} settled. Winner: {payload['winner']}.",
+        )
+    else:
+        err = payload.get('error', 'Settlement failed')
+        st = payload.get('status')
+        if st is not None:
+            messages.error(request, f"{err} (round status: {st})")
+        else:
+            messages.error(request, err)
+    return redirect(f"{reverse('all_bets')}?game=cockfight")
+
+
+COCKFIGHT_VIDEO_ALLOWED_EXTS = frozenset({'.mp4', '.webm', '.mov', '.mkv', '.m4v'})
+COCKFIGHT_VIDEO_MAX_BYTES = 200 * 1024 * 1024  # 200 MB
+
+
+@admin_required
+def cockfight_round_videos(request):
+    """Upload a cock fight round video (linked by round id = CockFightSession pk)."""
+    if not has_menu_permission(request.user, 'all_bets'):
+        messages.error(request, 'You do not have permission to upload cock fight videos.')
+        return redirect('admin_dashboard')
+
+    if request.method == 'POST':
+        try:
+            round_id = int((request.POST.get('round_id') or '').strip())
+        except (TypeError, ValueError):
+            messages.error(request, 'Enter a valid Round ID (positive number, same as in All Bets).')
+            return redirect('cockfight_round_videos')
+
+        if round_id < 1:
+            messages.error(request, 'Round ID must be positive.')
+            return redirect('cockfight_round_videos')
+
+        if not CockFightSession.objects.filter(pk=round_id).exists():
+            messages.error(request, f'Round {round_id} not found.')
+            return redirect('cockfight_round_videos')
+
+        upload = request.FILES.get('video')
+        if not upload:
+            messages.error(request, 'Choose a video file.')
+            return redirect('cockfight_round_videos')
+
+        if upload.size > COCKFIGHT_VIDEO_MAX_BYTES:
+            messages.error(
+                request,
+                f'Video is too large (max {COCKFIGHT_VIDEO_MAX_BYTES // (1024 * 1024)} MB).',
+            )
+            return redirect('cockfight_round_videos')
+
+        name = (getattr(upload, 'name', '') or '').lower()
+        ext = os.path.splitext(name)[1]
+        if ext not in COCKFIGHT_VIDEO_ALLOWED_EXTS:
+            messages.error(
+                request,
+                'Unsupported file type. Allowed: '
+                + ', '.join(sorted(COCKFIGHT_VIDEO_ALLOWED_EXTS)),
+            )
+            return redirect('cockfight_round_videos')
+
+        obj, _ = CockFightRoundVideo.objects.get_or_create(
+            session_id=round_id,
+            defaults={'uploaded_by': request.user},
+        )
+        if obj.video:
+            try:
+                obj.video.delete(save=False)
+            except OSError:
+                pass
+        obj.video = upload
+        obj.uploaded_by = request.user
+        obj.save()
+        messages.success(request, f'Video saved for round {round_id}.')
+        return redirect('cockfight_round_videos')
+
+    recent_videos = (
+        CockFightRoundVideo.objects.select_related('session', 'uploaded_by')
+        .order_by('-uploaded_at')[:60]
+    )
+    context = get_admin_context(
+        request,
+        {
+            'page': 'cockfight-round-videos',
+            'recent_videos': recent_videos,
+            'max_video_mb': COCKFIGHT_VIDEO_MAX_BYTES // (1024 * 1024),
+            'allowed_exts': ', '.join(sorted(COCKFIGHT_VIDEO_ALLOWED_EXTS)),
+        },
+    )
+    return render(request, 'admin/cockfight_round_videos.html', context)
+
 
 @admin_required
 def wallets(request):
@@ -1739,8 +1867,11 @@ def check_new_deposit_requests(request):
         requests_data.append({
             'id': req.id,
             'user': req.user.username,
+            'user_id': req.user.id,
             'amount': float(req.amount),
-            'created_at': req.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'screenshot_url': req.screenshot.url if req.screenshot else '',
+            'payment_reference': req.payment_reference or '',
+            'created_at': req.created_at.strftime('%b %d, %H:%M'),
         })
     
     pending_qs = DepositRequest.objects.filter(status='PENDING')

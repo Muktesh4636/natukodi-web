@@ -792,7 +792,138 @@
     <!-- Audio element for notification sound - will be generated via Web Audio API -->
 
     <script>
-        // Use a flag to avoid duplicate listeners
+        // ── Notification helpers ────────────────────────────────────────────────
+        let _newDepositCount = 0;
+        const _originalTitle = document.title;
+
+        function _playDepositSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                // Two-tone "ding-dong"
+                [440, 523].forEach(function(freq, i) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.4, ctx.currentTime + i * 0.2);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.2 + 0.6);
+                    osc.start(ctx.currentTime + i * 0.2);
+                    osc.stop(ctx.currentTime + i * 0.2 + 0.6);
+                });
+            } catch(e) { /* audio not available */ }
+        }
+
+        function _showDepositBanner(username, amount) {
+            _newDepositCount++;
+            document.title = '(' + _newDepositCount + ') New Deposit – ' + _originalTitle;
+
+            // Remove any existing banner
+            const old = document.getElementById('_deposit-notify-banner');
+            if (old) old.remove();
+
+            const banner = document.createElement('div');
+            banner.id = '_deposit-notify-banner';
+            banner.style.cssText = [
+                'position:fixed', 'top:18px', 'left:50%', 'transform:translateX(-50%)',
+                'z-index:99999', 'background:#16a34a', 'color:#fff',
+                'padding:14px 28px', 'border-radius:12px',
+                'font-size:15px', 'font-weight:600',
+                'box-shadow:0 4px 24px rgba(0,0,0,0.22)',
+                'display:flex', 'align-items:center', 'gap:12px',
+                'transition:opacity 0.5s ease'
+            ].join(';');
+            banner.innerHTML = (
+                '<span style="font-size:22px">💰</span>' +
+                '<span>New deposit request from <strong>' + username + '</strong>' +
+                ' — ₹' + parseFloat(amount).toFixed(2) + '</span>' +
+                '<button onclick="this.parentElement.remove()" style="margin-left:12px;background:rgba(255,255,255,0.25);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:2px 10px;font-size:14px;">✕</button>'
+            );
+            document.body.appendChild(banner);
+
+            // Auto-dismiss after 8 s
+            setTimeout(function() {
+                if (banner.parentElement) {
+                    banner.style.opacity = '0';
+                    setTimeout(function() { banner.remove(); }, 500);
+                }
+            }, 8000);
+
+            // Browser Notification API (only if already granted)
+            if (window.Notification && Notification.permission === 'granted') {
+                new Notification('New Deposit Request', {
+                    body: username + ' — ₹' + parseFloat(amount).toFixed(2),
+                    icon: '/static/favicon.ico',
+                    tag: 'deposit-' + Date.now()
+                });
+            }
+        }
+
+        // Reset title badge when tab gains focus
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                _newDepositCount = 0;
+                document.title = _originalTitle;
+            }
+        });
+
+        // ── Polling fallback (30 s) ──────────────────────────────────────────────
+        // Tracks IDs already rendered so we don't duplicate rows
+        const _knownDepositIds = new Set();
+        document.querySelectorAll('tr[id^="deposit-row-"]').forEach(function(r) {
+            _knownDepositIds.add(parseInt(r.id.replace('deposit-row-', ''), 10));
+        });
+        // Start with the highest ID already on the page
+        let _lastKnownDepositId = _knownDepositIds.size
+            ? Math.max(..._knownDepositIds)
+            : 0;
+
+        async function _pollNewDeposits() {
+            try {
+                const resp = await fetch(
+                    '/game-admin/deposit-requests/check-new/?last_id=' + _lastKnownDepositId,
+                    { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+                );
+                if (!resp.ok) return;
+                const json = await resp.json();
+
+                // Update our cursor so next poll only fetches truly new ones
+                if (json.latest_id && json.latest_id > _lastKnownDepositId) {
+                    _lastKnownDepositId = json.latest_id;
+                }
+
+                const items = json.new_requests || [];
+                items.forEach(function(item) {
+                    if (!_knownDepositIds.has(item.id)) {
+                        _knownDepositIds.add(item.id);
+                        const d = {
+                            id: item.id,
+                            user: item.user || '—',
+                            user_id: item.user_id || '',
+                            amount: item.amount,
+                            screenshot_url: item.screenshot_url || '',
+                            payment_reference: item.payment_reference || '',
+                            created_at: item.created_at || ''
+                        };
+                        updateDepositTable(d);
+                        updateDepositStats(d);
+                        _showDepositBanner(d.user, d.amount);
+                        _playDepositSound();
+                    }
+                });
+            } catch(e) { /* network error – silent */ }
+        }
+
+        // Request browser notification permission once
+        if (window.Notification && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Start polling every 30 seconds
+        setInterval(_pollNewDeposits, 30000);
+
+        // ── Use a flag to avoid duplicate listeners ──────────────────────────────
         if (window.depositListenerInitialized) {
             console.log('⚠️ Deposit listener already initialized');
         } else {
@@ -806,8 +937,13 @@
                 
                 if (data.notification_type === 'deposit') {
                     console.log('📬 [Page] Processing new deposit row for ID:', data.id);
-                    updateDepositTable(data);
-                    updateDepositStats(data);
+                    if (!_knownDepositIds.has(data.id)) {
+                        _knownDepositIds.add(data.id);
+                        updateDepositTable(data);
+                        updateDepositStats(data);
+                        _showDepositBanner(data.user, data.amount);
+                        _playDepositSound();
+                    }
                 }
             });
         }
