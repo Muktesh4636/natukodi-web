@@ -413,7 +413,7 @@
                 <p style="margin: 0 0 14px; font-size: 13px; color: #78716c; line-height: 1.5;">
                     Enter the <strong>Round ID</strong> (same as in the table) for a round that is still <strong>open</strong>, choose the winning side, then submit. Winning bets are paid out; this action cannot be undone.
                 </p>
-                <form method="post" action="{% url 'cockfight_settle_result' %}" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                <form id="cockfight-result-form" method="post" action="{% url 'cockfight_settle_result' %}" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                     {% csrf_token %}
                     <div>
                         <label for="id_round_id" style="display: block; font-size: 12px; font-weight: 600; color: #44403c; margin-bottom: 4px;">Round ID</label>
@@ -431,10 +431,50 @@
                             <option value="DRAW">Draw</option>
                         </select>
                     </div>
-                    <button type="submit" style="padding: 8px 18px; background: #f59e0b; color: #fff; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">
+                    <button type="button" onclick="openCockfightConfirm()" style="padding: 8px 18px; background: #f59e0b; color: #fff; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">
                         Update result
                     </button>
                 </form>
+
+                <!-- Step 1 confirmation modal -->
+                <div id="cf-confirm-1" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center;">
+                    <div style="background:#fff; border-radius:14px; padding:32px 36px; max-width:420px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.22); text-align:center;">
+                        <div style="font-size:44px; margin-bottom:12px;">⚠️</div>
+                        <h2 style="margin:0 0 10px; font-size:20px; color:#1e293b;">Update Cock Fight Result?</h2>
+                        <p style="margin:0 0 6px; color:#64748b; font-size:14px; line-height:1.6;">
+                            You are about to set the result for
+                            <strong id="cf-confirm-round">Round #?</strong> to
+                            <strong id="cf-confirm-winner" style="color:#f59e0b;">?</strong>.
+                        </p>
+                        <p style="margin:0 0 24px; color:#ef4444; font-size:13px; font-weight:600;">
+                            Payouts will be processed immediately. This cannot be undone.
+                        </p>
+                        <div style="display:flex; gap:12px; justify-content:center;">
+                            <button onclick="closeCockfightConfirm(1)" style="padding:10px 26px; background:#e2e8f0; color:#475569; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">Cancel</button>
+                            <button onclick="goToConfirm2()" style="padding:10px 26px; background:#f59e0b; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">Yes, continue →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 final confirmation modal -->
+                <div id="cf-confirm-2" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+                    <div style="background:#fff; border-radius:14px; padding:32px 36px; max-width:420px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.28); text-align:center;">
+                        <div style="font-size:44px; margin-bottom:12px;">🔒</div>
+                        <h2 style="margin:0 0 10px; font-size:20px; color:#dc2626;">Final Confirmation</h2>
+                        <p style="margin:0 0 6px; color:#64748b; font-size:14px; line-height:1.6;">
+                            Confirm setting
+                            <strong id="cf-confirm2-round">Round #?</strong> winner to
+                            <strong id="cf-confirm2-winner" style="color:#dc2626;">?</strong>.
+                        </p>
+                        <p style="margin:0 0 24px; color:#64748b; font-size:13px;">
+                            All winning bets will be credited. Are you absolutely sure?
+                        </p>
+                        <div style="display:flex; gap:12px; justify-content:center;">
+                            <button onclick="closeCockfightConfirm(2)" style="padding:10px 26px; background:#e2e8f0; color:#475569; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">Cancel</button>
+                            <button onclick="submitCockfightResult()" style="padding:10px 26px; background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">✅ Confirm &amp; Update</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endif %}
             
@@ -700,6 +740,49 @@
                 });
             });
         }
+
+        // ── Cockfight double-confirmation ────────────────────────────────────────
+        function openCockfightConfirm() {
+            const roundId = document.getElementById('id_round_id').value.trim();
+            const winner  = document.getElementById('id_winner').value;
+            const winnerLabel = { MERON: 'Meron', WALA: 'Wala', DRAW: 'Draw' }[winner] || winner;
+
+            if (!roundId) { alert('Please enter a Round ID.'); return; }
+            if (!winner)  { alert('Please select a winner.'); return; }
+
+            document.getElementById('cf-confirm-round').textContent  = 'Round #' + roundId;
+            document.getElementById('cf-confirm-winner').textContent = winnerLabel;
+            document.getElementById('cf-confirm-2').style.display = 'none';
+            const m = document.getElementById('cf-confirm-1');
+            m.style.display = 'flex';
+        }
+
+        function goToConfirm2() {
+            const roundId = document.getElementById('id_round_id').value.trim();
+            const winner  = document.getElementById('id_winner').value;
+            const winnerLabel = { MERON: 'Meron', WALA: 'Wala', DRAW: 'Draw' }[winner] || winner;
+
+            document.getElementById('cf-confirm2-round').textContent  = 'Round #' + roundId;
+            document.getElementById('cf-confirm2-winner').textContent = winnerLabel;
+            document.getElementById('cf-confirm-1').style.display = 'none';
+            document.getElementById('cf-confirm-2').style.display = 'flex';
+        }
+
+        function closeCockfightConfirm(step) {
+            document.getElementById('cf-confirm-' + step).style.display = 'none';
+        }
+
+        function submitCockfightResult() {
+            document.getElementById('cf-confirm-2').style.display = 'none';
+            document.getElementById('cockfight-result-form').submit();
+        }
+
+        // Close modals on backdrop click
+        ['cf-confirm-1', 'cf-confirm-2'].forEach(function(id) {
+            document.getElementById(id).addEventListener('click', function(e) {
+                if (e.target === this) this.style.display = 'none';
+            });
+        });
     </script>
 </body>
 </html>
