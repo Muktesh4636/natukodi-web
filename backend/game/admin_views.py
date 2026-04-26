@@ -1594,41 +1594,19 @@ def cockfight_settle_result(request):
 
 
 COCKFIGHT_VIDEO_ALLOWED_EXTS = frozenset({'.mp4', '.webm', '.mov', '.mkv', '.m4v'})
-COCKFIGHT_VIDEO_MAX_BYTES = 200 * 1024 * 1024  # 200 MB
 
 
 @admin_required
 def cockfight_round_videos(request):
-    """Upload a cock fight round video (linked by round id = CockFightSession pk)."""
+    """Upload a cock fight round video. Round ID is auto-assigned (pk: 1, 2, 3…)."""
     if not has_menu_permission(request.user, 'all_bets'):
         messages.error(request, 'You do not have permission to upload cock fight videos.')
         return redirect('admin_dashboard')
 
     if request.method == 'POST':
-        try:
-            round_id = int((request.POST.get('round_id') or '').strip())
-        except (TypeError, ValueError):
-            messages.error(request, 'Enter a valid Round ID (positive number, same as in All Bets).')
-            return redirect('cockfight_round_videos')
-
-        if round_id < 1:
-            messages.error(request, 'Round ID must be positive.')
-            return redirect('cockfight_round_videos')
-
-        if not CockFightSession.objects.filter(pk=round_id).exists():
-            messages.error(request, f'Round {round_id} not found.')
-            return redirect('cockfight_round_videos')
-
         upload = request.FILES.get('video')
         if not upload:
             messages.error(request, 'Choose a video file.')
-            return redirect('cockfight_round_videos')
-
-        if upload.size > COCKFIGHT_VIDEO_MAX_BYTES:
-            messages.error(
-                request,
-                f'Video is too large (max {COCKFIGHT_VIDEO_MAX_BYTES // (1024 * 1024)} MB).',
-            )
             return redirect('cockfight_round_videos')
 
         name = (getattr(upload, 'name', '') or '').lower()
@@ -1641,31 +1619,26 @@ def cockfight_round_videos(request):
             )
             return redirect('cockfight_round_videos')
 
-        obj, _ = CockFightRoundVideo.objects.get_or_create(
-            session_id=round_id,
-            defaults={'uploaded_by': request.user},
+        obj = CockFightRoundVideo.objects.create(
+            video=upload,
+            uploaded_by=request.user,
         )
-        if obj.video:
-            try:
-                obj.video.delete(save=False)
-            except OSError:
-                pass
-        obj.video = upload
-        obj.uploaded_by = request.user
-        obj.save()
-        messages.success(request, f'Video saved for round {round_id}.')
+        messages.success(request, f'Video uploaded. Assigned round ID: {obj.pk}.')
         return redirect('cockfight_round_videos')
 
     recent_videos = (
-        CockFightRoundVideo.objects.select_related('session', 'uploaded_by')
-        .order_by('-uploaded_at')[:60]
+        CockFightRoundVideo.objects.select_related('uploaded_by')
+        .order_by('-id')[:60]
     )
+    from django.db.models import Max
+    max_id = CockFightRoundVideo.objects.aggregate(m=Max('id'))['m'] or 0
+    next_round_number = max_id + 1
     context = get_admin_context(
         request,
         {
             'page': 'cockfight-round-videos',
             'recent_videos': recent_videos,
-            'max_video_mb': COCKFIGHT_VIDEO_MAX_BYTES // (1024 * 1024),
+            'next_round_number': next_round_number,
             'allowed_exts': ', '.join(sorted(COCKFIGHT_VIDEO_ALLOWED_EXTS)),
         },
     )

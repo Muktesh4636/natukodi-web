@@ -7,10 +7,11 @@ from pathlib import Path
 
 
 def cockfight_round_video_upload_path(instance, filename):
+    from uuid import uuid4
     ext = Path(filename or '').suffix.lower()
     if ext not in ('.mp4', '.webm', '.mov', '.mkv', '.m4v'):
         ext = '.mp4'
-    return f'cockfight_videos/round_{instance.session_id}{ext}'
+    return f'cockfight_videos/{uuid4().hex}{ext}'
 
 
 class GameRound(models.Model):
@@ -692,13 +693,8 @@ class CockFightBet(models.Model):
 
 
 class CockFightRoundVideo(models.Model):
-    """Admin-uploaded replay / recording for a cock fight round (session pk = round id)."""
+    """Admin-uploaded replay/recording for a cock fight round. Round number = pk (auto 1, 2, 3…)."""
 
-    session = models.OneToOneField(
-        CockFightSession,
-        on_delete=models.CASCADE,
-        related_name='round_video',
-    )
     video = models.FileField(upload_to=cockfight_round_video_upload_path, max_length=255)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
@@ -710,10 +706,14 @@ class CockFightRoundVideo(models.Model):
     )
 
     class Meta:
-        ordering = ['-uploaded_at']
+        ordering = ['-id']
+
+    @property
+    def round_number(self):
+        return self.pk
 
     def __str__(self):
-        return f'CockFightRoundVideo round {self.session_id}'
+        return f'CockFightRoundVideo #{self.pk}'
 
 
 class ColourRound(models.Model):

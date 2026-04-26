@@ -313,6 +313,10 @@ if _media_root_env:
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
+# No size limit for file uploads (e.g. large cock fight round videos)
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440  # 2.5 MB threshold for temp-file vs memory; does not cap size
+
 # React app build directory (override via REACT_BUILD_DIR env for production)
 _react_build_env = os.getenv('REACT_BUILD_DIR', '').strip()
 if _react_build_env:

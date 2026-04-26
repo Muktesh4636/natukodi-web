@@ -179,8 +179,8 @@
             <div>
                 <div class="page-title">🎬 Cock fight — round videos</div>
                 <div class="page-subtitle">
-                    Upload a video file for a cock fight <strong>round</strong>. The round ID is the same number shown in All Bets (cock fight) for that session.
-                    Re-uploading for the same round replaces the previous file. Max {{ max_video_mb }} MB. Types: {{ allowed_exts }}.
+                    Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
+                    Next round will be <strong>#{{ next_round_number }}</strong>. No size limit. Types: {{ allowed_exts }}.
                 </div>
             </div>
             <div>
@@ -200,13 +200,9 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-row">
-                    <label for="id_round_id">Round ID</label>
-                    <input id="id_round_id" name="round_id" type="number" min="1" required placeholder="e.g. 12" />
-                    <div class="hint">Must match an existing <code>CockFightSession</code> primary key (round id in admin tables).</div>
-                </div>
-                <div class="form-row">
                     <label for="id_video">Video file</label>
                     <input id="id_video" name="video" type="file" accept=".mp4,.webm,.mov,.mkv,.m4v,video/*" required />
+                    <div class="hint">Round ID will be auto-assigned as <strong>#{{ next_round_number }}</strong>.</div>
                 </div>
                 <div class="actions">
                     <button class="btn btn-primary" type="submit">Upload</button>
@@ -220,9 +216,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Round</th>
-                        <th>Status</th>
-                        <th>Winner</th>
+                        <th>Round #</th>
                         <th>Uploaded</th>
                         <th>By</th>
                         <th>File</th>
@@ -231,9 +225,7 @@
                 <tbody>
                     {% for rv in recent_videos %}
                     <tr>
-                        <td><strong>{{ rv.session_id }}</strong></td>
-                        <td>{{ rv.session.status }}</td>
-                        <td>{{ rv.session.winner|default:"—" }}</td>
+                        <td><strong>{{ rv.pk }}</strong></td>
                         <td>{{ rv.uploaded_at|date:"Y-m-d H:i" }}</td>
                         <td>{% if rv.uploaded_by %}{{ rv.uploaded_by.username }}{% else %}—{% endif %}</td>
                         <td>
