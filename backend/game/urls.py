@@ -38,6 +38,11 @@ urlpatterns = [
     path('meron-wala/bet/', views.place_meron_wala_bet, name='place_meron_wala_bet'),
     path('meron-wala/bets/mine/', views.my_cock_fight_bets, name='my_cock_fight_bets'),
     path('meron-wala/info/', views.cock_fight_info, name='cock_fight_info'),
+    path(
+        'meron-wala/latest-round-video/',
+        views.meron_wala_latest_round_video,
+        name='meron_wala_latest_round_video',
+    ),
     path('meron-wala/settle/', views.settle_cock_fight, name='settle_cock_fight'),
     path('meron-wala/admin/settle-round/', views.settle_meron_wala_round, name='settle_meron_wala_round'),
 ]

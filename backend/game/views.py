@@ -2832,18 +2832,52 @@ def my_cricket_bets(request):
 
 # ─── Cock Fight Views ─────────────────────────────────────────────────────────
 
+
+def _serialize_latest_cockfight_round_video(request):
+    """Public URL for the newest admin-uploaded cockfight round video (admin uploads page)."""
+    from .models import CockFightRoundVideo
+
+    rv = CockFightRoundVideo.objects.order_by('-id').first()
+    if not rv or not rv.video:
+        return None
+    try:
+        url = request.build_absolute_uri(rv.video.url)
+    except Exception:
+        return None
+    return {
+        'round_id': rv.pk,
+        'url': url,
+        'uploaded_at': rv.uploaded_at.isoformat(),
+    }
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cock_fight_info(request):
     from .models import CockFightSession
+
+    latest_round_video = _serialize_latest_cockfight_round_video(request)
     session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
     if not session:
-        return Response({'session': None, 'open': False})
+        return Response({
+            'session': None,
+            'open': False,
+            'latest_round_video': latest_round_video,
+        })
     return Response({
         'session': session.pk,
         'open': True,
         'created_at': session.created_at.isoformat(),
+        'latest_round_video': latest_round_video,
     })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def meron_wala_latest_round_video(request):
+    """GET latest cockfight round video only (same file as shown on game-admin cockfight-round-videos)."""
+    latest = _serialize_latest_cockfight_round_video(request)
+    return Response({'latest_round_video': latest})
 
 
 @api_view(['POST'])

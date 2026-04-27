@@ -167,6 +167,9 @@ urlpatterns = [
     path('game-admin/payment-methods/<int:pk>/delete/', game_admin_views.delete_payment_method, name='delete_payment_method'),
     path('game-admin/payment-methods/<int:pk>/toggle/', game_admin_views.toggle_payment_method, name='toggle_payment_method'),
     
+    # Cockfight round video hook (must be before SPA catch-all)
+    path('cockfight-video-hook.js', project_views.cockfight_video_hook_js, name='cockfight_video_hook_js'),
+
     # Serve React static assets (assets/*)
     re_path(r'^assets/.*$', project_views.serve_react_app, name='react_assets'),
     

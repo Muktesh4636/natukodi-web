@@ -1626,10 +1626,17 @@ def cockfight_round_videos(request):
         messages.success(request, f'Video uploaded. Assigned round ID: {obj.pk}.')
         return redirect('cockfight_round_videos')
 
-    recent_videos = (
+    recent_qs = (
         CockFightRoundVideo.objects.select_related('uploaded_by')
         .order_by('-id')[:60]
     )
+    recent_video_rows = []
+    for rv in recent_qs:
+        play_url = ''
+        if rv.video:
+            play_url = request.build_absolute_uri(rv.video.url)
+        recent_video_rows.append({'rv': rv, 'play_url': play_url})
+
     from django.db.models import Max
     max_id = CockFightRoundVideo.objects.aggregate(m=Max('id'))['m'] or 0
     next_round_number = max_id + 1
@@ -1637,7 +1644,7 @@ def cockfight_round_videos(request):
         request,
         {
             'page': 'cockfight-round-videos',
-            'recent_videos': recent_videos,
+            'recent_video_rows': recent_video_rows,
             'next_round_number': next_round_number,
             'allowed_exts': ', '.join(sorted(COCKFIGHT_VIDEO_ALLOWED_EXTS)),
         },

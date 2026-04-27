@@ -1,3 +1,5 @@
+import re
+
 from django.http import HttpResponse, JsonResponse, FileResponse, StreamingHttpResponse
 from django.conf import settings
 from django.views.decorators.cache import never_cache
@@ -303,8 +305,8 @@ def support_contacts(request):
         try:
             fb = FranchiseBalance.objects.filter(package_name=package).first()
             if fb:
-                    whatsapp = fb.help_whatsapp_number or whatsapp
-                    telegram = fb.help_telegram or telegram
+                whatsapp = fb.help_whatsapp_number or whatsapp
+                telegram = fb.help_telegram or telegram
                 facebook = fb.help_facebook or facebook
                 instagram = fb.help_instagram or instagram
         except Exception:
@@ -471,6 +473,101 @@ def root_status(request):
     return HttpResponse(html)
 
 
+_COCKFIGHT_HOOK_SNIPPET = '<script defer src="/cockfight-video-hook.js"></script>'
+
+
+@never_cache
+def cockfight_video_hook_js(request):
+    """
+    Tiny client for SPAs: polls latest admin cockfight upload and drives <video> on #cockfight.
+    Injected into index.html by serve_react_app.
+    """
+    js = r"""
+(function () {
+    var INFO_URL = '/api/game/meron-wala/info/';
+    var POLL_MS = 12000;
+    var lastUrl = '';
+    var dockTimer = null;
+
+    function hashIsCockfight() {
+        return /cockfight/i.test(location.hash || '');
+    }
+
+    function targetVideos() {
+        var sel = (
+            'video[data-cockfight-stream],video[data-cockfight-latest],' +
+            '[data-game="cockfight"] video,[data-tab="cockfight"] video'
+        );
+        var marked = document.querySelectorAll(sel);
+        if (marked.length) return Array.prototype.slice.call(marked);
+        var root = document.getElementById('cockfight');
+        if (root) return Array.prototype.slice.call(root.querySelectorAll('video'));
+        if (!hashIsCockfight()) return [];
+        var one = document.querySelector('#root video, main video, [role="main"] video');
+        return one ? [one] : [];
+    }
+
+    function applyUrl(url, force) {
+        if (!url) return;
+        if (!force && url === lastUrl) return;
+        lastUrl = url;
+        var list = targetVideos();
+        if (!list.length) return;
+        list.forEach(function (v) {
+            try {
+                if (v.getAttribute('src') === url && !force) return;
+                v.muted = true;
+                v.setAttribute('playsinline', '');
+                v.playsInline = true;
+                v.setAttribute('controls', '');
+                v.src = url;
+                v.load();
+                var p = v.play();
+                if (p && typeof p.catch === 'function') p.catch(function () {});
+            } catch (e) {}
+        });
+        try {
+            window.dispatchEvent(new CustomEvent('kokoroko:cockfight-video', {
+                detail: { url: url }
+            }));
+        } catch (e) {}
+    }
+
+    function poll() {
+        fetch(INFO_URL, { credentials: 'same-origin', cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var lv = d && d.latest_round_video;
+                if (lv && lv.url) applyUrl(lv.url, false);
+            })
+            .catch(function () {});
+    }
+
+    function scheduleRedock() {
+        if (!lastUrl) return;
+        clearTimeout(dockTimer);
+        dockTimer = setTimeout(function () { applyUrl(lastUrl, true); }, 500);
+    }
+
+    try {
+        var mo = new MutationObserver(scheduleRedock);
+        mo.observe(document.documentElement, { childList: true, subtree: true });
+    } catch (e) {}
+
+    poll();
+    setInterval(poll, POLL_MS);
+    window.addEventListener('hashchange', poll);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', poll);
+    }
+    window.__pollCockfightLatestVideo = poll;
+})();
+"""
+    resp = HttpResponse(js, content_type='application/javascript; charset=utf-8')
+    resp['Cache-Control'] = 'no-store, max-age=0'
+    return resp
+
+
 @never_cache
 def serve_react_app(request, path=''):
     """Serve React app - serves index.html for all routes except API/admin/download. Never crash to avoid 502."""
@@ -520,6 +617,12 @@ def serve_react_app(request, path=''):
         if os.path.exists(index_path):
             with open(index_path, 'r', encoding='utf-8') as f:
                 content = f.read()
+            if _COCKFIGHT_HOOK_SNIPPET not in content:
+                m = re.search(r'</body>', content, flags=re.IGNORECASE)
+                if m:
+                    content = content[: m.start()] + _COCKFIGHT_HOOK_SNIPPET + content[m.start() :]
+                else:
+                    content = content + _COCKFIGHT_HOOK_SNIPPET
             return HttpResponse(content, content_type='text/html')
         return HttpResponse("React app index.html not found", status=404)
     except Exception as e:

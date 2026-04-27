@@ -13,6 +13,22 @@
             background: #f8fafc;
             min-height: 100vh;
         }
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .page-title { font-size: 22px; font-weight: 800; color: #0f172a; }
+        .page-subtitle {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+            max-width: 640px;
+        }
         .card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -51,6 +67,23 @@
         tr:last-child td { border-bottom: none; }
         a.video-link { color: #0284c7; font-weight: 600; text-decoration: none; }
         a.video-link:hover { text-decoration: underline; }
+
+        .video-preview-wrap {
+            width: 100%;
+            max-width: 320px;
+        }
+        .video-preview-wrap video {
+            width: 100%;
+            max-height: 180px;
+            border-radius: 10px;
+            background: #0f172a;
+            vertical-align: middle;
+        }
+        .video-preview-note {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
 
         /* ── Upload overlay ── */
         #upload-overlay {
@@ -132,16 +165,16 @@
     </div>
 
     <div class="main-content">
-        <div class="header" style="align-items: flex-start; margin-bottom: 24px;">
-            <div class="header-left">
-                <h1>🎬 Cock fight — round videos</h1>
-                <p style="max-width: 640px;">
+        <div class="page-header">
+            <div>
+                <div class="page-title">🎬 Cock fight — round videos</div>
+                <div class="page-subtitle">
                     Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
                     Next round will be <strong>#{{ next_round_number }}</strong>. No size limit. Types: {{ allowed_exts }}.
-                </p>
+                </div>
             </div>
-            <div class="header-actions">
-                <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
+            <div>
+                <a href="{% url 'admin_logout' %}" class="logout-btn">Logout</a>
             </div>
         </div>
 
@@ -169,28 +202,39 @@
 
         <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 12px;">Recent uploads</h2>
         <div class="table-wrap">
-            {% if recent_videos %}
+            {% if recent_video_rows %}
             <table>
                 <thead>
                     <tr>
                         <th>Round #</th>
+                        <th>Preview</th>
                         <th>Uploaded</th>
                         <th>By</th>
                         <th>File</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rv in recent_videos %}
+                    {% for row in recent_video_rows %}
+                    {% with rv=row.rv %}
                     <tr>
                         <td><strong>{{ rv.pk }}</strong></td>
+                        <td>
+                            {% if row.play_url %}
+                            <div class="video-preview-wrap">
+                                <video controls playsinline preload="metadata" src="{{ row.play_url }}"></video>
+                                <div class="video-preview-note">Use controls to play. Some formats (e.g. MKV) may only work via download.</div>
+                            </div>
+                            {% else %}—{% endif %}
+                        </td>
                         <td>{{ rv.uploaded_at|date:"Y-m-d H:i" }}</td>
                         <td>{% if rv.uploaded_by %}{{ rv.uploaded_by.username }}{% else %}—{% endif %}</td>
                         <td>
-                            {% if rv.video %}
-                            <a class="video-link" href="{{ rv.video.url }}" target="_blank" rel="noopener">Open / download</a>
+                            {% if row.play_url %}
+                            <a class="video-link" href="{{ row.play_url }}" target="_blank" rel="noopener">Open / download</a>
                             {% else %}—{% endif %}
                         </td>
                     </tr>
+                    {% endwith %}
                     {% endfor %}
                 </tbody>
             </table>
