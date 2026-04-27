@@ -409,8 +409,8 @@
                     <thead>
                         <tr>
                             <th>Username</th>
-                            <th>Email</th>
                             <th>Type</th>
+                            <th>Works Under</th>
                             <th>Permissions</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -419,13 +419,25 @@
                     <tbody>
                         {% for admin in admin_list %}
                         <tr>
-                            <td><strong>{{ admin.user.username }}</strong></td>
-                            <td>{{ admin.user.email|default:"—" }}</td>
+                            <td>
+                                <strong>{{ admin.user.username }}</strong>
+                                {% if admin.user.email %}<div style="font-size:12px;color:#9ca3af;">{{ admin.user.email }}</div>{% endif %}
+                            </td>
                             <td>
                                 {% if admin.is_superuser %}
                                     <span class="badge badge-super">👑 Super Admin</span>
                                 {% else %}
-                                    <span class="badge badge-admin">👤 Admin</span>
+                                    <span class="badge badge-admin">👤 Worker</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if admin.user.works_under %}
+                                    <span style="font-weight:600;color:#0f172a;">{{ admin.user.works_under.username }}</span>
+                                    <div style="font-size:11px;color:#64748b;">sees same data</div>
+                                {% elif admin.is_superuser %}
+                                    <span style="color:#9ca3af;font-size:13px;">All data</span>
+                                {% else %}
+                                    <span style="color:#ef4444;font-size:13px;">⚠ Not assigned</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -435,12 +447,14 @@
                                     {% if admin.permissions.can_view_all_bets %}<span class="permission-tag">All Bets</span>{% endif %}
                                     {% if admin.permissions.can_view_wallets %}<span class="permission-tag">Wallets</span>{% endif %}
                                     {% if admin.permissions.can_view_players %}<span class="permission-tag">Players</span>{% endif %}
-                                    {% if admin.permissions.can_view_deposit_requests %}<span class="permission-tag">Deposit Requests</span>{% endif %}
-                                    {% if admin.permissions.can_view_withdraw_requests %}<span class="permission-tag">Withdraw Requests</span>{% endif %}
+                                    {% if admin.permissions.can_view_deposit_requests %}<span class="permission-tag">Deposits</span>{% endif %}
+                                    {% if admin.permissions.can_view_withdraw_requests %}<span class="permission-tag">Withdrawals</span>{% endif %}
                                     {% if admin.permissions.can_view_transactions %}<span class="permission-tag">Reports</span>{% endif %}
-                                    {% if admin.permissions.can_manage_payment_methods %}<span class="permission-tag">Payment Methods</span>{% endif %}
-                                    {% if admin.permissions.can_view_game_settings %}<span class="permission-tag">Game Settings</span>{% endif %}
-                                    {% if admin.permissions.can_view_admin_management %}<span class="permission-tag">Worker Management</span>{% endif %}
+                                    {% if admin.permissions.can_manage_payment_methods %}<span class="permission-tag">Payments</span>{% endif %}
+                                    {% if admin.permissions.can_upload_cockfight_videos %}<span class="permission-tag">Videos</span>{% endif %}
+                                    {% if admin.permissions.can_view_help_center %}<span class="permission-tag">Help Center</span>{% endif %}
+                                    {% if admin.permissions.can_view_game_settings %}<span class="permission-tag" style="background:#fef3c7;color:#92400e;">⚙ Settings</span>{% endif %}
+                                    {% if admin.permissions.can_view_admin_management %}<span class="permission-tag" style="background:#fef3c7;color:#92400e;">👨‍💼 Workers</span>{% endif %}
                                 </div>
                             </td>
                             <td>

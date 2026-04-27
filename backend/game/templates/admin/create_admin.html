@@ -4,520 +4,308 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Add worker - Admin Panel</title>
+    <title>Add Worker — Admin Panel</title>
+    {% include 'admin/_admin_base_styles.html' %}
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
+        .password-wrapper { position: relative; display: flex; align-items: center; }
         .password-toggle {
-            position: absolute;
-            right: 12px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            transition: color 0.2s;
-            z-index: 10;
+            position: absolute; right: 12px; background: none; border: none; cursor: pointer;
+            padding: 4px; display: flex; align-items: center; color: #64748b; z-index: 10;
         }
-
-        .password-toggle:hover {
-            color: #1e293b;
-        }
-
+        .password-toggle:hover { color: #1e293b; }
         .password-input {
-            width: 100%;
-            padding: 12px 45px 12px 16px !important;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.2s;
+            width: 100%; padding: 12px 45px 12px 16px !important;
+            border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: #f8fafc;
-            color: #1a202c;
-            line-height: 1.6;
+        .form-card {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 32px; box-shadow: 0 2px 12px rgba(15,23,42,0.05); max-width: 780px;
         }
-
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 16px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #374151; font-size: 14px; }
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group select {
+            width: 100%; padding: 11px 14px; border: 1px solid #e2e8f0;
+            border-radius: 8px; font-size: 14px; transition: border-color 0.2s;
         }
-
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
-
-        .navbar-brand {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
-            font-weight: bold;
+        .permissions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .permission-item {
+            display: flex; align-items: flex-start; padding: 12px 14px;
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+            cursor: pointer; transition: background 0.15s;
         }
-
-        .navbar-links {
-            display: flex;
-            gap: 24px;
-            align-items: center;
+        .permission-item:hover { background: #f0f4ff; border-color: #c7d2fe; }
+        .permission-item input[type="checkbox"] {
+            width: 17px; height: 17px; margin-right: 10px; margin-top: 2px; flex-shrink: 0; cursor: pointer;
         }
-
-        .navbar-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: background-color 0.3s;
-        }
-
-        .navbar-links a:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        .header {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 24px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 4px;
-        }
-
-        .header-left p {
-            color: #718096;
-            font-size: 16px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .header-actions span {
-            color: #718096;
-        }
-
-        .action-btn {
-            background: #93c5fd;
-            color: #1e40af;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-
-        .action-btn:hover {
-            background: #dbeafe;
-        }
-
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-        }
+        .permission-label { font-weight: 600; font-size: 14px; color: #1e293b; }
+        .permission-desc { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .section-divider { border: 0; border-top: 1px solid #e2e8f0; margin: 28px 0; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+        .alert-error { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+        .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="/" class="navbar-brand">🎮 Gundu Ata</a>
-            <div class="navbar-links">
-                <a href="{% url 'admin_dashboard' %}">Dashboard</a>
-                <a href="{% url 'admin_management' %}">Worker Management</a>
-            </div>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            {% include 'admin/_admin_brand.html' %}
+            <div class="subtitle">Game control</div>
         </div>
-    </nav>
-<div class="main-content">
-    <div class="container">
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+
+    <div class="main-content">
         <div class="header">
             <div class="header-left">
-                <h1>➕ Add worker</h1>
-                <p>Add a new worker and allocate privileges</p>
+                <h1>➕ Add Worker</h1>
+                <p>Create a new worker and assign privileges</p>
             </div>
             <div class="header-actions">
-                <span>👤 {{ user.username }}</span>
-                <a href="{% url 'admin_dashboard' %}" class="action-btn">🏠 Dashboard</a>
-                <a href="{% url 'admin_management' %}" class="action-btn">👑 Worker Management</a>
+                <a href="{% url 'admin_management' %}" class="action-btn">← Back to Workers</a>
+                <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
             </div>
         </div>
 
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" style="padding: 14px 20px; border-radius: 8px; margin: 16px 0; border: 1px solid;">
-                    {{ message }}
-                </div>
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
             {% endfor %}
         {% endif %}
 
-        <div class="form-container" style="max-width: 600px; margin: 0 auto;">
-            <form method="post" style="background: #f8fafc; padding: 32px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div class="form-card">
+            <form method="post">
                 {% csrf_token %}
 
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label for="username" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Username *</label>
-                    <input type="text" id="username" name="username" required
-                           style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='#93c5fd'" onblur="this.style.borderColor='#e2e8f0'"
-                           placeholder="Enter worker username">
+                <!-- ── Credentials ── -->
+                <h2 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:20px;">👤 Account Details</h2>
+
+                <div class="form-group">
+                    <label for="username">Username *</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter worker username">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label for="password" style="font-weight: 600; color: #374151;">Password *</label>
-                        <button type="button" id="generatePasswordBtn" onclick="generatePassword()"
-                                style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;"
-                                onmouseover="this.style.backgroundColor='#059669'" onmouseout="this.style.backgroundColor='#10b981'">
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <span style="font-size:12px;color:#64748b;">Min 4 characters</span>
+                        <button type="button" onclick="generatePassword()"
+                            style="background:#10b981;color:white;border:none;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
                             🔐 Auto Generate
                         </button>
                     </div>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" required
-                               class="password-input"
-                               onfocus="this.style.borderColor='#93c5fd'" onblur="this.style.borderColor='#e2e8f0'"
-                               placeholder="Enter secure password">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
-                            <span class="eye-icon">👁️</span>
-                        </button>
+                        <input type="password" id="password" name="password" required class="password-input" placeholder="Enter password">
+                        <button type="button" class="password-toggle" onclick="togglePwd('password')"><span>👁️</span></button>
                     </div>
                     <input type="hidden" id="password_auto_generated" name="password_auto_generated" value="false">
-                    <div id="generatedPasswordDisplay" style="margin-top: 8px; padding: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; display: none;">
-                        <strong style="color: #166534; font-size: 14px;">🔐 Generated Password:</strong>
-                        <div style="margin-top: 4px; padding: 8px; background: white; border: 1px solid #d1fae5; border-radius: 4px; font-family: monospace; font-size: 16px; color: #065f46; word-break: break-all;" id="generatedPassword"></div>
-                        <div style="margin-top: 8px; display: flex; gap: 8px;">
-                            <button type="button" onclick="copyToClipboard()" style="background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">📋 Copy</button>
-                            <button type="button" onclick="useGeneratedPassword()" style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">✅ Use This Password</button>
+                    <div id="generatedPasswordDisplay" style="margin-top:8px;padding:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;display:none;">
+                        <strong style="color:#166534;font-size:13px;">🔐 Generated Password:</strong>
+                        <div style="margin-top:4px;padding:8px;background:white;border:1px solid #d1fae5;border-radius:4px;font-family:monospace;font-size:15px;color:#065f46;word-break:break-all;" id="generatedPassword"></div>
+                        <div style="margin-top:8px;display:flex;gap:8px;">
+                            <button type="button" onclick="copyPwd()" style="background:#059669;color:white;border:none;padding:5px 10px;border-radius:4px;font-size:12px;cursor:pointer;">📋 Copy</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label for="password2" style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Confirm Password *</label>
+                <div class="form-group">
+                    <label for="password2">Confirm Password *</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password2" name="password2" required
-                               class="password-input"
-                               onfocus="this.style.borderColor='#93c5fd'" onblur="this.style.borderColor='#e2e8f0'"
-                               placeholder="Confirm password">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password2')">
-                            <span class="eye-icon">👁️</span>
-                        </button>
+                        <input type="password" id="password2" name="password2" required class="password-input" placeholder="Confirm password">
+                        <button type="button" class="password-toggle" onclick="togglePwd('password2')"><span>👁️</span></button>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 24px; padding: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
-                    <label for="works_under_id" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e40af;">Works under (deposit/withdraw queue)</label>
-                    <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">If set, this worker will see that admin’s deposit and withdraw requests only. Leave empty if this worker is not assigned to any admin.</p>
-                    <select id="works_under_id" name="works_under_id" style="padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; min-width: 260px;">
-                        <option value="">— None —</option>
+                <hr class="section-divider">
+
+                <!-- ── Queue assignment ── -->
+                <h2 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;">🔗 Queue Assignment</h2>
+                <p style="font-size:13px;color:#64748b;margin-bottom:14px;">
+                    The worker will see the <strong>same deposit &amp; withdrawal requests</strong> as the admin they are assigned to.
+                    Changes they make are immediately visible to that admin (shared data).
+                </p>
+                {% if is_super_admin %}
+                <div class="form-group">
+                    <label for="works_under_id">Works under admin</label>
+                    <select id="works_under_id" name="works_under_id">
+                        <option value="">— None (unassigned) —</option>
                         {% for q in queue_owners %}
                         <option value="{{ q.id }}">{{ q.label }}</option>
                         {% endfor %}
                     </select>
                 </div>
+                {% else %}
+                <div style="padding:10px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:13px;color:#1e40af;">
+                    ℹ️ This worker will be assigned to <strong>you</strong> automatically.
+                </div>
+                {% endif %}
 
-                <div class="form-group" style="margin-bottom: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
-                    <h2 style="font-size: 20px; margin-bottom: 16px; color: #1a202c;">🔐 Privileges</h2>
-                    <p style="color: #718096; margin-bottom: 20px; font-size: 14px;">Select which menu options this worker can access:</p>
-                    
-                    <div class="permissions-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_dashboard" name="can_view_dashboard" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_dashboard" style="margin: 0; font-weight: 500; cursor: pointer;">📊 Dashboard</label>
-                        </div>
+                <hr class="section-divider">
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_recent_rounds" name="can_view_recent_rounds" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_recent_rounds" style="margin: 0; font-weight: 500; cursor: pointer;">🔄 Recent Rounds</label>
-                        </div>
+                <!-- ── Permissions ── -->
+                <h2 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:6px;">🔐 Permissions</h2>
+                <p style="font-size:13px;color:#64748b;margin-bottom:18px;">
+                    Select which sections this worker can access. They will see and edit the same data as their assigned admin.
+                </p>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_all_bets" name="can_view_all_bets" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_all_bets" style="margin: 0; font-weight: 500; cursor: pointer;">💰 All Bets</label>
-                        </div>
+                <div class="permissions-grid">
+                    {% with perms_list=permissions %}
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_wallets" name="can_view_wallets" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_wallets" style="margin: 0; font-weight: 500; cursor: pointer;">💳 Wallets</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_dashboard" {% if not perms_list or perms_list.can_view_dashboard %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">📊 Dashboard</div>
+                            <div class="permission-desc">Overview stats, game summary</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_players" name="can_view_players" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_players" style="margin: 0; font-weight: 500; cursor: pointer;">👥 Players</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_recent_rounds" {% if not perms_list or perms_list.can_view_recent_rounds %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">🔄 Recent Rounds</div>
+                            <div class="permission-desc">View completed game rounds</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_deposit_requests" name="can_view_deposit_requests" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_deposit_requests" style="margin: 0; font-weight: 500; cursor: pointer;">📥 Deposit Requests</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_all_bets" {% if not perms_list or perms_list.can_view_all_bets %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">💰 All Bets</div>
+                            <div class="permission-desc">View all placed bets; settle cockfight rounds</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_withdraw_requests" name="can_view_withdraw_requests" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_withdraw_requests" style="margin: 0; font-weight: 500; cursor: pointer;">💸 Withdraw Requests</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_wallets" {% if not perms_list or perms_list.can_view_wallets %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">💳 Wallets</div>
+                            <div class="permission-desc">View player wallet balances &amp; adjust</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_transactions" name="can_view_transactions" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_transactions" style="margin: 0; font-weight: 500; cursor: pointer;">📋 Reports</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_players" {% if not perms_list or perms_list.can_view_players %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">👥 Players</div>
+                            <div class="permission-desc">View &amp; manage player accounts</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_game_settings" name="can_view_game_settings" style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_game_settings" style="margin: 0; font-weight: 500; cursor: pointer;">⏱️ Game Settings</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_deposit_requests" {% if not perms_list or perms_list.can_view_deposit_requests %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">📥 Deposit Requests</div>
+                            <div class="permission-desc">Approve or reject player deposits</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_help_center" name="can_view_help_center" style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_help_center" style="margin: 0; font-weight: 500; cursor: pointer;">🆘 Help Center</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_withdraw_requests" {% if not perms_list or perms_list.can_view_withdraw_requests %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">💸 Withdraw Requests</div>
+                            <div class="permission-desc">Process player withdrawal requests</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_view_admin_management" name="can_view_admin_management" style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_view_admin_management" style="margin: 0; font-weight: 500; cursor: pointer;">👨‍💼 Worker Management</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_transactions" {% if not perms_list or perms_list.can_view_transactions %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">📋 Reports</div>
+                            <div class="permission-desc">Transaction &amp; financial reports</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_manage_payment_methods" name="can_manage_payment_methods" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_manage_payment_methods" style="margin: 0; font-weight: 500; cursor: pointer;">🏦 Payment Methods</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_manage_payment_methods" {% if not perms_list or perms_list.can_manage_payment_methods %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">🏦 Payment Methods</div>
+                            <div class="permission-desc">Add, edit, delete payment options</div>
                         </div>
+                    </label>
 
-                        <div class="permission-item" style="display: flex; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <input type="checkbox" id="can_upload_cockfight_videos" name="can_upload_cockfight_videos" checked style="width: 18px; height: 18px; margin-right: 12px;">
-                            <label for="can_upload_cockfight_videos" style="margin: 0; font-weight: 500; cursor: pointer;">🎬 Cock fight — round videos</label>
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_upload_cockfight_videos" {% if not perms_list or perms_list.can_upload_cockfight_videos %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">🎬 Cockfight Videos</div>
+                            <div class="permission-desc">Upload &amp; manage round videos</div>
                         </div>
-                    </div>
+                    </label>
+
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_help_center" {% if perms_list and perms_list.can_view_help_center %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">🆘 Help Center</div>
+                            <div class="permission-desc">Manage support messages</div>
+                        </div>
+                    </label>
+
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_game_settings" {% if perms_list and perms_list.can_view_game_settings %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">⚙️ Game Settings</div>
+                            <div class="permission-desc">Change bet limits, payout ratios</div>
+                        </div>
+                    </label>
+
+                    <label class="permission-item">
+                        <input type="checkbox" name="can_view_admin_management" {% if perms_list and perms_list.can_view_admin_management %}checked{% endif %}>
+                        <div>
+                            <div class="permission-label">👨‍💼 Worker Management</div>
+                            <div class="permission-desc">Create &amp; manage worker accounts</div>
+                        </div>
+                    </label>
+
+                    {% endwith %}
                 </div>
 
-                <div class="form-actions" style="display: flex; gap: 16px; justify-content: flex-end;">
-                    <a href="{% url 'players' %}" class="btn" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Cancel</a>
-                    <button type="submit" class="btn" style="background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'">
-                        ➕ Add worker
+                <hr class="section-divider">
+
+                <div style="display:flex;gap:14px;justify-content:flex-end;">
+                    <a href="{% url 'admin_management' %}" style="padding:11px 24px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px;">Cancel</a>
+                    <button type="submit" style="padding:11px 28px;background:#2563eb;color:white;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;">
+                        ➕ Add Worker
                     </button>
                 </div>
             </form>
         </div>
     </div>
-</div>
+
+    <script>
+        function togglePwd(id) {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+        function generatePassword() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let pwd = '';
+            for (let i = 0; i < 12; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+            document.getElementById('password').value = pwd;
+            document.getElementById('password2').value = pwd;
+            document.getElementById('generatedPassword').textContent = pwd;
+            document.getElementById('password_auto_generated').value = 'true';
+            document.getElementById('generatedPasswordDisplay').style.display = 'block';
+        }
+        function copyPwd() {
+            const txt = document.getElementById('generatedPassword').textContent;
+            navigator.clipboard.writeText(txt).catch(() => {});
+        }
+
+        const sidebarWrapper = document.querySelector('.sidebar-menu-wrapper');
+        if (sidebarWrapper) {
+            const saved = localStorage.getItem('sidebarScrollPos');
+            if (saved) sidebarWrapper.scrollTop = parseInt(saved);
+            sidebarWrapper.querySelectorAll('a').forEach(a =>
+                a.addEventListener('click', () => localStorage.setItem('sidebarScrollPos', sidebarWrapper.scrollTop)));
+            document.querySelectorAll('form').forEach(f =>
+                f.addEventListener('submit', () => localStorage.setItem('sidebarScrollPos', sidebarWrapper.scrollTop)));
+        }
+    </script>
 </body>
 </html>
-
-<style>
-    .form-container {
-        margin-top: 32px;
-    }
-
-    .btn {
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-        transition: all 0.2s;
-    }
-
-    input[type="radio"]:checked + span {
-        color: #2563eb;
-    }
-
-    input[type="radio"]:checked {
-        accent-color: #2563eb;
-    }
-
-    label:has(input[type="radio"]:checked) {
-        border-color: #2563eb !important;
-        background: #eff6ff !important;
-    }
-
-    .alert {
-        margin-bottom: 20px;
-        padding: 12px 16px;
-        border-radius: 6px;
-    }
-
-    .alert-error {
-        background-color: #fef2f2;
-        border-color: #fecaca;
-        color: #dc2626;
-    }
-
-    .alert-success {
-        background-color: #f0fdf4;
-        border-color: #bbf7d0;
-        color: #16a34a;
-    }
-</style>
-
-<script>
-    function togglePasswordVisibility(inputId) {
-        const input = document.getElementById(inputId);
-        const btn = input.nextElementSibling;
-        const icon = btn.querySelector('.eye-icon');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.textContent = '🙈';
-        } else {
-            input.type = 'password';
-            icon.textContent = '👁️';
-        }
-    }
-
-    // Password generation functions
-    function generatePassword() {
-        const length = 12;
-        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-        const numbers = '0123456789';
-        const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-        let password = '';
-
-        // Ensure at least one character from each category
-        password += uppercase[Math.floor(Math.random() * uppercase.length)];
-        password += lowercase[Math.floor(Math.random() * lowercase.length)];
-        password += numbers[Math.floor(Math.random() * numbers.length)];
-        password += symbols[Math.floor(Math.random() * symbols.length)];
-
-        // Fill the rest randomly
-        const allChars = uppercase + lowercase + numbers + symbols;
-        for (let i = password.length; i < length; i++) {
-            password += allChars[Math.floor(Math.random() * allChars.length)];
-        }
-
-        // Shuffle the password
-        password = password.split('').sort(() => Math.random() - 0.5).join('');
-
-        // Set the password fields
-        document.getElementById('password').value = password;
-        document.getElementById('password2').value = password;
-        document.getElementById('generatedPassword').textContent = password;
-        document.getElementById('password_auto_generated').value = 'true';
-        document.getElementById('generatedPasswordDisplay').style.display = 'block';
-
-        // Add visual feedback
-        const btn = document.getElementById('generatePasswordBtn');
-        const originalText = btn.textContent;
-        btn.textContent = '✅ Generated!';
-        btn.style.backgroundColor = '#059669';
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = '#10b981';
-        }, 2000);
-    }
-
-    function useGeneratedPassword() {
-        // Password is already set, just hide the display
-        document.getElementById('generatedPasswordDisplay').style.display = 'none';
-
-        // Add visual feedback
-        const btn = event.target;
-        const originalText = btn.textContent;
-        btn.textContent = '✅ Set!';
-        btn.style.backgroundColor = '#059669';
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = '#2563eb';
-        }, 1500);
-    }
-
-    function copyToClipboard() {
-        const passwordText = document.getElementById('generatedPassword').textContent;
-        navigator.clipboard.writeText(passwordText).then(() => {
-            const copyBtn = event.target;
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '✅ Copied!';
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = passwordText;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-
-            const copyBtn = event.target;
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '✅ Copied!';
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-            }, 2000);
-        });
-    }
-
-    // Sidebar scroll position preservation
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-        // Restore scroll position on page load
-        const savedScrollPos = localStorage.getItem('sidebarScrollPos');
-        if (savedScrollPos) {
-            sidebar.scrollTop = parseInt(savedScrollPos);
-        }
-
-        // Save scroll position before navigation
-        const sidebarLinks = sidebar.querySelectorAll('a');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                localStorage.setItem('sidebarScrollPos', sidebar.scrollTop);
-            });
-        });
-
-        // Also save on form submissions that navigate away
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function() {
-                localStorage.setItem('sidebarScrollPos', sidebar.scrollTop);
-            });
-        });
-    }
-</script>

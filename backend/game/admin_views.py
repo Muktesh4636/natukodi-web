@@ -2804,15 +2804,15 @@ def create_admin(request):
         # Validation
         if not username or not password:
             messages.error(request, 'Username and password are required.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
+            return render(request, 'admin/create_admin.html', get_admin_context(request, {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)}))
         
         if password != password2:
             messages.error(request, 'Passwords do not match.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
+            return render(request, 'admin/create_admin.html', get_admin_context(request, {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)}))
 
         if len(password) < 4:
             messages.error(request, 'Password must be at least 4 characters long.')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
+            return render(request, 'admin/create_admin.html', get_admin_context(request, {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)}))
         
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
@@ -2855,9 +2855,9 @@ def create_admin(request):
             return redirect('admin_management')
         except Exception as e:
             messages.error(request, f'Error creating admin: {str(e)}')
-            return render(request, 'admin/create_admin.html', {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)})
+            return render(request, 'admin/create_admin.html', get_admin_context(request, {'permissions': permissions, 'queue_owners': _get_queue_owners_for_request(request)}))
     
-    return render(request, 'admin/create_admin.html', {'queue_owners': _get_queue_owners_for_request(request)})
+    return render(request, 'admin/create_admin.html', get_admin_context(request, {'queue_owners': _get_queue_owners_for_request(request)}))
 
 
 @super_admin_required
