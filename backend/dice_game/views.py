@@ -507,6 +507,15 @@ def cockfight_video_hook_js(request):
         return one ? [one] : [];
     }
 
+    function mimeForUrl(u) {
+        var path = (u || '').split('?')[0].split('#')[0].toLowerCase();
+        if (path.endsWith('.webm')) return 'video/webm';
+        if (path.endsWith('.mov')) return 'video/quicktime';
+        if (path.endsWith('.mkv')) return 'video/x-matroska';
+        if (path.endsWith('.m4v') || path.endsWith('.mp4')) return 'video/mp4';
+        return 'video/mp4';
+    }
+
     function applyUrl(url, force) {
         if (!url) return;
         if (!force && url === lastUrl) return;
@@ -515,12 +524,28 @@ def cockfight_video_hook_js(request):
         if (!list.length) return;
         list.forEach(function (v) {
             try {
-                if (v.getAttribute('src') === url && !force) return;
+                var cur = (v.currentSrc || v.src || '').split('?')[0];
+                var next = url.split('?')[0];
+                if (!force && cur && cur === next) return;
+
+                /* Inline playback (streaming-like): typed <source>, playsinline, hide download control where supported */
+                v.removeAttribute('src');
+                while (v.firstChild) v.removeChild(v.firstChild);
+                var srcEl = document.createElement('source');
+                srcEl.src = url;
+                srcEl.type = mimeForUrl(url);
+                v.appendChild(srcEl);
+
                 v.muted = true;
                 v.setAttribute('playsinline', '');
+                v.setAttribute('webkit-playsinline', '');
                 v.playsInline = true;
+                v.setAttribute('preload', 'metadata');
                 v.setAttribute('controls', '');
-                v.src = url;
+                try {
+                    v.setAttribute('controlsList', 'nodownload');
+                } catch (e0) {}
+
                 v.load();
                 var p = v.play();
                 if (p && typeof p.catch === 'function') p.catch(function () {});

@@ -171,6 +171,7 @@
                 <div class="page-subtitle">
                     Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
                     Next round will be <strong>#{{ next_round_number }}</strong>. No size limit. Types: {{ allowed_exts }}.
+                    For <strong>in-app streaming</strong> (play inside the site, not a file download), use <strong>.mp4</strong> with H.264/AAC — not MOV/MKV.
                 </div>
             </div>
             <div>
@@ -192,7 +193,7 @@
                 <div class="form-row">
                     <label for="id_video">Video file</label>
                     <input id="id_video" name="video" type="file" accept=".mp4,.webm,.mov,.mkv,.m4v,video/*" required />
-                    <div class="hint">Round ID will be auto-assigned as <strong>#{{ next_round_number }}</strong>.</div>
+                    <div class="hint">Round ID will be auto-assigned as <strong>#{{ next_round_number }}</strong>. Prefer <strong>MP4</strong> so players stream in the browser; other formats may only download.</div>
                 </div>
                 <div class="actions">
                     <button id="upload-btn" class="btn btn-primary" type="submit">Upload</button>
@@ -221,8 +222,8 @@
                         <td>
                             {% if row.play_url %}
                             <div class="video-preview-wrap">
-                                <video controls playsinline preload="metadata" src="{{ row.play_url }}"></video>
-                                <div class="video-preview-note">Use controls to play. Some formats (e.g. MKV) may only work via download.</div>
+                                <video controls playsinline preload="metadata" controlsList="nodownload" webkit-playsinline src="{{ row.play_url }}"></video>
+                                <div class="video-preview-note">Streams in-page for MP4/WebM. MOV/MKV may not play here — use MP4 for the public app.</div>
                             </div>
                             {% else %}—{% endif %}
                         </td>
@@ -230,7 +231,7 @@
                         <td>{% if rv.uploaded_by %}{{ rv.uploaded_by.username }}{% else %}—{% endif %}</td>
                         <td>
                             {% if row.play_url %}
-                            <a class="video-link" href="{{ row.play_url }}" target="_blank" rel="noopener">Open / download</a>
+                            <a class="video-link" href="{{ row.play_url }}" target="_blank" rel="noopener">Open file</a>
                             {% else %}—{% endif %}
                         </td>
                     </tr>
