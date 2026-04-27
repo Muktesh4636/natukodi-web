@@ -1258,18 +1258,48 @@ def user_details(request, user_id):
     # Get active tab from query params
     active_tab = request.GET.get('tab', 'all')
     
-    # Get all bets by this user
+    # Get all bets by this user (Gundu Ata)
     user_bets = Bet.objects.filter(user=user).select_related('round').order_by('-created_at')
     if active_tab == 'bets':
         user_bets = user_bets[:200]
     else:
         user_bets = user_bets[:50]
-    
+
+    # Cockfight bets
+    cockfight_bets = CockFightBet.objects.filter(user=user).select_related('session').order_by('-created_at')
+    if active_tab == 'bets':
+        cockfight_bets = cockfight_bets[:200]
+    else:
+        cockfight_bets = cockfight_bets[:50]
+
+    # Cricket bets
+    cricket_bets = CricketBet.objects.filter(user=user).order_by('-created_at')
+    if active_tab == 'bets':
+        cricket_bets = cricket_bets[:200]
+    else:
+        cricket_bets = cricket_bets[:50]
+
     # Calculate user stats (always needed)
-    total_bets = Bet.objects.filter(user=user).count()
-    total_bet_amount = Bet.objects.filter(user=user).aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0
-    total_wins = Bet.objects.filter(user=user, is_winner=True).count()
-    total_payouts = Bet.objects.filter(user=user).aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0
+    total_bets = (
+        Bet.objects.filter(user=user).count()
+        + CockFightBet.objects.filter(user=user).count()
+        + CricketBet.objects.filter(user=user).count()
+    )
+    total_bet_amount = (
+        (Bet.objects.filter(user=user).aggregate(Sum('chip_amount'))['chip_amount__sum'] or 0)
+        + (CockFightBet.objects.filter(user=user).aggregate(Sum('stake'))['stake__sum'] or 0)
+        + (CricketBet.objects.filter(user=user).aggregate(Sum('stake'))['stake__sum'] or 0)
+    )
+    total_wins = (
+        Bet.objects.filter(user=user, is_winner=True).count()
+        + CockFightBet.objects.filter(user=user, status='WON').count()
+        + CricketBet.objects.filter(user=user, status='WON').count()
+    )
+    total_payouts = (
+        (Bet.objects.filter(user=user).aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0)
+        + (CockFightBet.objects.filter(user=user).aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0)
+        + (CricketBet.objects.filter(user=user).aggregate(Sum('payout_amount'))['payout_amount__sum'] or 0)
+    )
     
     # Get user's transactions
     user_transactions = Transaction.objects.filter(user=user).order_by('-created_at')
@@ -1350,6 +1380,8 @@ def user_details(request, user_id):
         'wallet_unavailable': wallet.computed_unavailable_balance,
         'wallet_withdrawable': wallet.withdrawable_balance,
         'user_bets': user_bets,
+        'cockfight_bets': cockfight_bets,
+        'cricket_bets': cricket_bets,
         'total_bets': total_bets,
         'total_bet_amount': total_bet_amount,
         'total_wins': total_wins,

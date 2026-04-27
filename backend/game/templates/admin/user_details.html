@@ -917,7 +917,7 @@
                 <!-- User Bets -->
                 {% if active_tab == 'all' or active_tab == 'bets' %}
                 <div class="control-panel">
-                    <h2>💰 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Bets by {{ player.username }}</h2>
+                    <h2>🎲 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Gundu Ata Bets by {{ player.username }}</h2>
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -962,8 +962,134 @@
                                 <tr>
                                     <td colspan="6">
                                         <div class="empty-state">
-                                            <div class="empty-state-icon">💰</div>
-                                            <p>No bets found</p>
+                                            <div class="empty-state-icon">🎲</div>
+                                            <p>No Gundu Ata bets found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cockfight Bets -->
+                <div class="control-panel" style="margin-top: 24px;">
+                    <h2>🐓 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Cock Fight Bets by {{ player.username }}</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Round</th>
+                                    <th>Side</th>
+                                    <th>Stake</th>
+                                    <th>Odds</th>
+                                    <th>Status</th>
+                                    <th>Payout</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bet in cockfight_bets %}
+                                <tr>
+                                    <td><span class="round-id">#{{ bet.session_id }}</span></td>
+                                    <td>
+                                        {% if bet.side == 'MERON' %}
+                                            <span style="padding:3px 10px;background:#fee2e2;color:#991b1b;border-radius:6px;font-weight:600;font-size:12px;">MERON</span>
+                                        {% elif bet.side == 'WALA' %}
+                                            <span style="padding:3px 10px;background:#dbeafe;color:#1e40af;border-radius:6px;font-weight:600;font-size:12px;">WALA</span>
+                                        {% else %}
+                                            <span style="padding:3px 10px;background:#f3f4f6;color:#374151;border-radius:6px;font-weight:600;font-size:12px;">{{ bet.side }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="amount">₹{{ bet.stake|floatformat:2 }}</span></td>
+                                    <td>{{ bet.odds }}</td>
+                                    <td>
+                                        {% if bet.status == 'WON' %}
+                                            <span class="winner-badge yes">✅ Won</span>
+                                        {% elif bet.status == 'LOST' %}
+                                            <span class="winner-badge no">❌ Lost</span>
+                                        {% elif bet.status == 'VOID' %}
+                                            <span style="padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:6px;font-size:12px;font-weight:600;">VOID</span>
+                                        {% else %}
+                                            <span style="padding:3px 10px;background:#f3f4f6;color:#6b7280;border-radius:6px;font-size:12px;font-weight:600;">PENDING</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if bet.payout_amount %}
+                                            <span class="payout">₹{{ bet.payout_amount|floatformat:2 }}</span>
+                                        {% else %}
+                                            <span style="color:#a0aec0;">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="time-badge">{{ bet.created_at|date:"M d, H:i:s" }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">🐓</div>
+                                            <p>No Cock Fight bets found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cricket Bets -->
+                <div class="control-panel" style="margin-top: 24px;">
+                    <h2>🏏 {% if active_tab == 'all' %}Recent{% else %}All{% endif %} Cricket Bets by {{ player.username }}</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Market</th>
+                                    <th>Outcome</th>
+                                    <th>Stake</th>
+                                    <th>Odds</th>
+                                    <th>Status</th>
+                                    <th>Payout</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bet in cricket_bets %}
+                                <tr>
+                                    <td style="font-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ bet.event_name }}</td>
+                                    <td style="font-size:12px;">{{ bet.market_name }}</td>
+                                    <td style="font-size:12px;">{{ bet.outcome_name }}</td>
+                                    <td><span class="amount">₹{{ bet.stake|floatformat:2 }}</span></td>
+                                    <td>{{ bet.odds }}</td>
+                                    <td>
+                                        {% if bet.status == 'WON' %}
+                                            <span class="winner-badge yes">✅ Won</span>
+                                        {% elif bet.status == 'LOST' %}
+                                            <span class="winner-badge no">❌ Lost</span>
+                                        {% elif bet.status == 'VOID' %}
+                                            <span style="padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:6px;font-size:12px;font-weight:600;">VOID</span>
+                                        {% else %}
+                                            <span style="padding:3px 10px;background:#f3f4f6;color:#6b7280;border-radius:6px;font-size:12px;font-weight:600;">PENDING</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if bet.payout_amount %}
+                                            <span class="payout">₹{{ bet.payout_amount|floatformat:2 }}</span>
+                                        {% else %}
+                                            <span style="color:#a0aec0;">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="time-badge">{{ bet.created_at|date:"M d, H:i:s" }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">🏏</div>
+                                            <p>No Cricket bets found</p>
                                         </div>
                                     </td>
                                 </tr>
