@@ -13,118 +13,38 @@
             background: #f8fafc;
             min-height: 100vh;
         }
-
-        .page-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-
-        .page-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        .page-subtitle {
-            margin-top: 6px;
-            color: #64748b;
-            font-size: 13px;
-            line-height: 1.5;
-            max-width: 640px;
-        }
-
         .card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 20px 22px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 10px 24px rgba(15,23,42,0.05);
             max-width: 640px;
             margin-bottom: 24px;
         }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #0f172a;
-        }
-
-        input[type="number"], input[type="file"] {
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+        label { font-size: 13px; font-weight: 700; color: #0f172a; }
+        input[type="file"] {
             width: 100%;
             border: 1px solid #cbd5e1;
             border-radius: 10px;
-            padding: 12px 12px;
+            padding: 12px;
             font-size: 14px;
             outline: none;
             background: #ffffff;
         }
-
-        input[type="number"]:focus {
-            border-color: #0ea5e9;
-            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
-        }
-
-        .hint {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
-            font-weight: 800;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: #f59e0b;
-            color: #111827;
-        }
-
-        .btn-primary:hover {
-            filter: brightness(0.98);
-        }
-
+        .hint { font-size: 12px; color: #64748b; }
+        .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
+        .btn { border: none; border-radius: 10px; padding: 10px 18px; font-weight: 800; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #f59e0b; color: #111827; }
+        .btn-primary:hover { filter: brightness(0.98); }
+        .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
         .messages { max-width: 640px; margin-bottom: 14px; }
-        .msg {
-            padding: 12px 14px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            font-size: 13px;
-            border: 1px solid transparent;
-        }
+        .msg { padding: 12px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; border: 1px solid transparent; }
         .msg.success { background: #ecfdf5; border-color: #34d399; color: #065f46; }
-        .msg.error { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
+        .msg.error   { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
         .msg.warning { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
-
-        .table-wrap {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            overflow: hidden;
-            max-width: 960px;
-        }
-
+        .table-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; max-width: 960px; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f1f5f9; }
         th { background: #f8fafc; font-weight: 700; color: #475569; }
@@ -132,38 +52,75 @@
         a.video-link { color: #0284c7; font-weight: 600; text-decoration: none; }
         a.video-link:hover { text-decoration: underline; }
 
-        .logout-btn {
-            padding: 10px 18px;
-            background: #ef4444;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
+        /* ── Upload overlay ── */
+        #upload-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.80);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
         }
+        #upload-overlay.visible { display: flex; }
+        .upload-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px 40px;
+            min-width: 360px;
+            max-width: 500px;
+            width: 90vw;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.40);
+            text-align: center;
+        }
+        .uc-icon  { font-size: 44px; margin-bottom: 12px; }
+        .uc-title { font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+        .uc-file  { font-size: 13px; color: #64748b; margin-bottom: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .uc-track { background: #e2e8f0; border-radius: 999px; height: 18px; overflow: hidden; margin-bottom: 12px; }
+        .uc-bar {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
+            background-size: 200% 100%;
+            width: 2%;
+            transition: width 0.3s ease;
+            animation: shimmer 1.6s linear infinite;
+        }
+        @keyframes shimmer {
+            0%   { background-position: 0% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .uc-pct   { font-size: 36px; font-weight: 900; color: #f59e0b; margin: 4px 0 6px; }
+        .uc-speed { font-size: 13px; color: #64748b; min-height: 18px; }
 
         @media (max-width: 900px) {
             .main-content { margin-left: 0; padding: 18px 14px; }
             .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
             .sidebar.open { transform: translateX(0); }
             .sidebar-toggle {
-                position: fixed;
-                top: 14px;
-                left: 14px;
-                z-index: 2000;
-                border: none;
-                background: #0f172a;
-                color: #fff;
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 10px 20px rgba(15,23,42,0.25);
+                position: fixed; top: 14px; left: 14px; z-index: 2000;
+                border: none; background: #0f172a; color: #fff;
+                width: 44px; height: 44px; border-radius: 12px;
+                cursor: pointer; box-shadow: 0 10px 20px rgba(15,23,42,0.25);
             }
         }
     </style>
 </head>
 <body>
+    <!-- Upload progress overlay -->
+    <div id="upload-overlay">
+        <div class="upload-card">
+            <div class="uc-icon">⬆️</div>
+            <div class="uc-title">Uploading video…</div>
+            <div class="uc-file" id="uc-filename">—</div>
+            <div class="uc-track">
+                <div class="uc-bar" id="uc-bar"></div>
+            </div>
+            <div class="uc-pct" id="uc-pct">0%</div>
+            <div class="uc-speed" id="uc-speed">Starting…</div>
+        </div>
+    </div>
+
     <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 
     <div class="sidebar">
@@ -175,16 +132,16 @@
     </div>
 
     <div class="main-content">
-        <div class="page-header">
-            <div>
-                <div class="page-title">🎬 Cock fight — round videos</div>
-                <div class="page-subtitle">
+        <div class="header" style="align-items: flex-start; margin-bottom: 24px;">
+            <div class="header-left">
+                <h1>🎬 Cock fight — round videos</h1>
+                <p style="max-width: 640px;">
                     Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
                     Next round will be <strong>#{{ next_round_number }}</strong>. No size limit. Types: {{ allowed_exts }}.
-                </div>
+                </p>
             </div>
-            <div>
-                <a href="{% url 'admin_logout' %}" class="logout-btn">Logout</a>
+            <div class="header-actions">
+                <a href="{% url 'admin_logout' %}" class="logout-btn">🚪 Logout</a>
             </div>
         </div>
 
@@ -197,7 +154,7 @@
         </div>
 
         <div class="card">
-            <form method="post" enctype="multipart/form-data">
+            <form id="upload-form" method="post" enctype="multipart/form-data" action="">
                 {% csrf_token %}
                 <div class="form-row">
                     <label for="id_video">Video file</label>
@@ -205,7 +162,7 @@
                     <div class="hint">Round ID will be auto-assigned as <strong>#{{ next_round_number }}</strong>.</div>
                 </div>
                 <div class="actions">
-                    <button class="btn btn-primary" type="submit">Upload</button>
+                    <button id="upload-btn" class="btn btn-primary" type="submit">Upload</button>
                 </div>
             </form>
         </div>
@@ -242,5 +199,81 @@
             {% endif %}
         </div>
     </div>
+
+<script>
+(function () {
+    var form    = document.getElementById('upload-form');
+    var btn     = document.getElementById('upload-btn');
+    var overlay = document.getElementById('upload-overlay');
+    var bar     = document.getElementById('uc-bar');
+    var pct     = document.getElementById('uc-pct');
+    var spd     = document.getElementById('uc-speed');
+    var fname   = document.getElementById('uc-filename');
+
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var fileInput = document.getElementById('id_video');
+        if (!fileInput || !fileInput.files.length) return;
+
+        var file      = fileInput.files[0];
+        var data      = new FormData(form);
+        var xhr       = new XMLHttpRequest();
+        var startTime = Date.now();
+
+        /* Show overlay immediately */
+        fname.textContent = file.name;
+        bar.style.width   = '2%';
+        pct.textContent   = '0%';
+        spd.textContent   = 'Starting…';
+        overlay.classList.add('visible');
+        btn.disabled      = true;
+        btn.textContent   = 'Uploading…';
+
+        xhr.upload.addEventListener('progress', function (ev) {
+            if (!ev.lengthComputable) return;
+            var percent = Math.round((ev.loaded / ev.total) * 100);
+            bar.style.width = Math.max(percent, 2) + '%';
+            pct.textContent = percent + '%';
+
+            var elapsed = (Date.now() - startTime) / 1000;
+            if (elapsed > 0.5 && ev.loaded > 0) {
+                var mbps     = (ev.loaded / 1048576 / elapsed).toFixed(2);
+                var secLeft  = Math.round((ev.total - ev.loaded) / (ev.loaded / elapsed));
+                spd.textContent = mbps + ' MB/s' +
+                    (secLeft > 0 ? ' — ' + secLeft + 's remaining' : ' — almost done…');
+            }
+        });
+
+        xhr.addEventListener('load', function () {
+            bar.style.width = '100%';
+            pct.textContent = '100%';
+            spd.textContent = '✅ Upload complete — refreshing…';
+            setTimeout(function () {
+                window.location.href = xhr.responseURL || window.location.pathname;
+            }, 800);
+        });
+
+        xhr.addEventListener('error', function () {
+            overlay.classList.remove('visible');
+            btn.disabled    = false;
+            btn.textContent = 'Upload';
+            alert('Upload failed. Please try again.');
+        });
+
+        xhr.addEventListener('abort', function () {
+            overlay.classList.remove('visible');
+            btn.disabled    = false;
+            btn.textContent = 'Upload';
+        });
+
+        xhr.open('POST', window.location.pathname, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.send(data);
+    });
+})();
+</script>
 </body>
 </html>
