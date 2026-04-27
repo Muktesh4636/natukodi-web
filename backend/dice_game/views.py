@@ -303,8 +303,8 @@ def support_contacts(request):
         try:
             fb = FranchiseBalance.objects.filter(package_name=package).first()
             if fb:
-                whatsapp = fb.help_whatsapp_number or whatsapp
-                telegram = fb.help_telegram or telegram
+                    whatsapp = fb.help_whatsapp_number or whatsapp
+                    telegram = fb.help_telegram or telegram
                 facebook = fb.help_facebook or facebook
                 instagram = fb.help_instagram or instagram
         except Exception:

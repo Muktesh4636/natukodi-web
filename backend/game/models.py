@@ -138,6 +138,7 @@ class AdminPermissions(models.Model):
     can_view_white_label = models.BooleanField(default=False)
     can_view_admin_management = models.BooleanField(default=False)  # Super Admin only by default
     can_manage_payment_methods = models.BooleanField(default=True)
+    can_upload_cockfight_videos = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -162,6 +163,7 @@ class AdminPermissions(models.Model):
             'white_label': self.can_view_white_label,
             'admin_management': self.can_view_admin_management,
             'payment_methods': self.can_manage_payment_methods,
+            'cockfight_videos': self.can_upload_cockfight_videos,
         }
 
 

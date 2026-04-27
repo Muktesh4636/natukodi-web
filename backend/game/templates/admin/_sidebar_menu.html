@@ -20,7 +20,8 @@
 
             {% if is_super_admin or admin_permissions.can_view_all_bets %} <li><a href="{% url 'all_bets' %}" {% if page == 'all-bets' %}class="active" {% endif %}> <span class="menu-icon">💰</span> All Bets
                 </a></li>
-            <li><a href="{% url 'cockfight_round_videos' %}" {% if page == 'cockfight-round-videos' %}class="active" {% endif %}> <span class="menu-icon">🎬</span> Cock fight — round videos
+            {% endif %}
+            {% if is_super_admin or admin_permissions.can_upload_cockfight_videos %}<li><a href="{% url 'cockfight_round_videos' %}" {% if page == 'cockfight-round-videos' %}class="active" {% endif %}> <span class="menu-icon">🎬</span> Cock fight — round videos
                 </a></li>
             {% endif %}
         </ul>
@@ -350,6 +351,9 @@
             }, 15000);
         }
 
+        // Expose sound function globally so other pages (e.g. deposit_requests) can use it
+        window.playNotificationSound = playNotificationSound;
+
         // Test sound button listener
         document.addEventListener('DOMContentLoaded', () => {
             const testBtn = document.getElementById('test-sound-btn');
@@ -444,6 +448,128 @@
 
         // Only connect if user is an admin
         {% if user.is_staff %} connectNotificationSocket();
+        {% endif %}
+
+        // ── Universal polling fallback (works on every admin page) ──────────────
+        // Fires every 5 s; only shows notifications for truly new items.
+        // Complements the WebSocket — if WS fires first, _knownIds prevents a duplicate popup.
+        {% if user.is_staff %}
+        (function() {
+            var _knownDepositIds = new Set();
+            var _lastDepositId   = 0;
+            var _knownWithdrawIds = new Set();
+            var _lastWithdrawId   = 0;
+            var _initialized     = false;
+
+            // Stack offset so multiple notifications don't overlap
+            var _activeNotifications = 0;
+            var NOTIF_HEIGHT = 130; // px per card approx
+
+            function _stackedTop() {
+                return 24 + _activeNotifications * (NOTIF_HEIGHT + 12);
+            }
+
+            function _showPopup(type, item) {
+                if (type === 'deposit' && _knownDepositIds.has(item.id)) return;
+                if (type === 'withdraw' && _knownWithdrawIds.has(item.id)) return;
+                if (type === 'deposit') _knownDepositIds.add(item.id);
+                else _knownWithdrawIds.add(item.id);
+
+                var icon = type === 'deposit' ? '💰' : '💸';
+                var title = type === 'deposit' ? 'New Deposit Request' : 'New Withdraw Request';
+                var redirectUrl = type === 'deposit'
+                    ? '{% url "deposit_requests" %}'
+                    : '{% url "withdraw_requests" %}';
+
+                var el = document.createElement('div');
+                el.className = 'notification-popup ' + type;
+                el.style.top = _stackedTop() + 'px';
+                _activeNotifications++;
+                el.innerHTML = '<div class="notification-header">' +
+                    '<div class="notification-title"><span>' + icon + '</span><span>' + title + '</span></div>' +
+                    '<button class="notification-close">&times;</button>' +
+                    '</div>' +
+                    '<div class="notification-body">' +
+                    '<span class="notification-user">User: ' + (item.user || '—') + '</span>' +
+                    '<span class="notification-amount">₹' + parseFloat(item.amount).toFixed(2) + '</span>' +
+                    '<span class="notification-time">' + (item.created_at || '') + '</span>' +
+                    '</div>';
+
+                document.body.appendChild(el);
+
+                if (typeof window.playNotificationSound === 'function') {
+                    window.playNotificationSound(type);
+                }
+
+                function _dismiss() {
+                    el.classList.add('hide');
+                    _activeNotifications = Math.max(0, _activeNotifications - 1);
+                    setTimeout(function() { if (el.parentElement) el.remove(); }, 400);
+                }
+                el.querySelector('.notification-close').addEventListener('click', function(e) {
+                    e.stopPropagation(); _dismiss();
+                });
+                el.addEventListener('click', function() {
+                    window.location.href = redirectUrl;
+                });
+                setTimeout(_dismiss, 15000);
+            }
+
+            async function _pollAll() {
+                // Skip polling if we're already on the deposit/withdraw page
+                // (those pages handle their own updates)
+                var path = window.location.pathname;
+                var onDepositPage  = path.indexOf('/deposit-requests/') !== -1;
+                var onWithdrawPage = path.indexOf('/withdraw-requests/') !== -1;
+
+                if (!onDepositPage) {
+                    try {
+                        var dr = await fetch(
+                            '/game-admin/deposit-requests/check-new/?last_id=' + _lastDepositId,
+                            { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+                        );
+                        if (dr.ok) {
+                            var dj = await dr.json();
+                            if (dj.latest_id > _lastDepositId) _lastDepositId = dj.latest_id;
+                            (dj.new_requests || []).forEach(function(r) { _showPopup('deposit', r); });
+                        }
+                    } catch(e) {}
+                }
+
+                if (!onWithdrawPage) {
+                    try {
+                        var wr = await fetch(
+                            '/game-admin/withdraw-requests/check-new/?last_id=' + _lastWithdrawId,
+                            { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+                        );
+                        if (wr.ok) {
+                            var wj = await wr.json();
+                            if (wj.latest_id > _lastWithdrawId) _lastWithdrawId = wj.latest_id;
+                            (wj.new_requests || []).forEach(function(r) { _showPopup('withdraw', r); });
+                        }
+                    } catch(e) {}
+                }
+
+                if (!_initialized) {
+                    // After first poll, seed IDs so we don't alert for pre-existing pending items
+                    _initialized = true;
+                }
+            }
+
+            // Seed last IDs silently on load, then start alerting from poll #2 onwards
+            (async function _seed() {
+                try {
+                    var dr = await fetch('/game-admin/deposit-requests/check-new/?last_id=0', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (dr.ok) { var dj = await dr.json(); _lastDepositId = dj.latest_id || 0; }
+                } catch(e) {}
+                try {
+                    var wr = await fetch('/game-admin/withdraw-requests/check-new/?last_id=0', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (wr.ok) { var wj = await wr.json(); _lastWithdrawId = wj.latest_id || 0; }
+                } catch(e) {}
+                // Now start real polling every 5 seconds
+                setInterval(_pollAll, 5000);
+            })();
+        })();
         {% endif %}
     })();
 

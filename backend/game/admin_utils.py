@@ -123,6 +123,7 @@ def _perms_to_dict(perms):
         'can_view_white_label': getattr(perms, 'can_view_white_label', False),
         'can_view_admin_management': getattr(perms, 'can_view_admin_management', False),
         'can_manage_payment_methods': getattr(perms, 'can_manage_payment_methods', False),
+        'can_upload_cockfight_videos': getattr(perms, 'can_upload_cockfight_videos', True),
     }
 
 
@@ -187,6 +188,7 @@ def has_menu_permission(user, permission_name):
         'white_label': 'can_view_white_label',
         'admin_management': 'can_view_admin_management',
         'payment_methods': 'can_manage_payment_methods',
+        'cockfight_videos': 'can_upload_cockfight_videos',
     }
     
     field_name = permission_map.get(permission_name)

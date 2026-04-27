@@ -603,7 +603,7 @@
                         </thead>
                         <tbody id="deposit-requests-table-body">
                             {% for request in deposit_requests %}
-                            <tr>
+                            <tr id="deposit-row-{{ request.pk }}">
                                 <td>
                                     <a href="{% url 'user_details' request.user.id %}" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
                                         {{ request.user.username }}
@@ -797,22 +797,27 @@
         const _originalTitle = document.title;
 
         function _playDepositSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                // Two-tone "ding-dong"
-                [440, 523].forEach(function(freq, i) {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.4, ctx.currentTime + i * 0.2);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.2 + 0.6);
-                    osc.start(ctx.currentTime + i * 0.2);
-                    osc.stop(ctx.currentTime + i * 0.2 + 0.6);
-                });
-            } catch(e) { /* audio not available */ }
+            // Use the shared sidebar sound (same as 🔔 Test button)
+            if (typeof playNotificationSound === 'function') {
+                playNotificationSound('deposit');
+            } else {
+                // Fallback if sidebar sound not yet loaded
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    [440, 523].forEach(function(freq, i) {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.4, ctx.currentTime + i * 0.2);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.2 + 0.6);
+                        osc.start(ctx.currentTime + i * 0.2);
+                        osc.stop(ctx.currentTime + i * 0.2 + 0.6);
+                    });
+                } catch(e) { /* audio not available */ }
+            }
         }
 
         function _showDepositBanner(username, amount) {
@@ -920,8 +925,21 @@
             Notification.requestPermission();
         }
 
-        // Start polling every 30 seconds
-        setInterval(_pollNewDeposits, 30000);
+        // Poll for new deposits every 5 seconds
+        setInterval(_pollNewDeposits, 5000);
+
+        // Auto-reload full page every 30 seconds to catch status changes (approve/reject/edit)
+        // Skip reload if a modal or form input is active so ongoing approvals aren't interrupted
+        var _autoReloadInterval = 30000;
+        var _autoReloadTimer = setInterval(function() {
+            var modalOpen = document.querySelector('.modal') &&
+                getComputedStyle(document.querySelector('.modal')).display !== 'none';
+            var inputFocused = document.activeElement &&
+                ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName);
+            if (!modalOpen && !inputFocused) {
+                location.reload();
+            }
+        }, _autoReloadInterval);
 
         // ── Use a flag to avoid duplicate listeners ──────────────────────────────
         if (window.depositListenerInitialized) {

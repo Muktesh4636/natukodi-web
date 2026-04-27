@@ -1432,9 +1432,9 @@ def all_bets(request):
     # Get filter parameters
     search_query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', 'all')  # all, winners, losers
-    game = (request.GET.get('game') or 'gunduata').strip().lower()
+    game = (request.GET.get('game') or 'cockfight').strip().lower()
     if game not in ('gunduata', 'cricket', 'cockfight'):
-        game = 'gunduata'
+        game = 'cockfight'
 
     effective_admin = get_effective_admin(request.user)
 
@@ -1599,7 +1599,7 @@ COCKFIGHT_VIDEO_ALLOWED_EXTS = frozenset({'.mp4', '.webm', '.mov', '.mkv', '.m4v
 @admin_required
 def cockfight_round_videos(request):
     """Upload a cock fight round video. Round ID is auto-assigned (pk: 1, 2, 3…)."""
-    if not has_menu_permission(request.user, 'all_bets'):
+    if not has_menu_permission(request.user, 'cockfight_videos'):
         messages.error(request, 'You do not have permission to upload cock fight videos.')
         return redirect('admin_dashboard')
 
@@ -2791,6 +2791,7 @@ def create_admin(request):
             'can_view_white_label': request.POST.get('can_view_white_label') == 'on',
             'can_view_admin_management': request.POST.get('can_view_admin_management') == 'on',
             'can_manage_payment_methods': request.POST.get('can_manage_payment_methods') == 'on',
+            'can_upload_cockfight_videos': request.POST.get('can_upload_cockfight_videos') == 'on',
         }
         
         # Validation
@@ -3092,6 +3093,7 @@ def edit_franchise_admin(request, admin_id):
         permissions.can_view_white_label = request.POST.get('can_view_white_label') == 'on'
         permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
+        permissions.can_upload_cockfight_videos = request.POST.get('can_upload_cockfight_videos') == 'on'
         permissions.save()
         invalidate_admin_permissions_cache(user)
         messages.success(request, f'Privileges for "{user.username}" updated.')
@@ -3205,6 +3207,7 @@ def edit_admin(request, admin_id):
         permissions.can_view_white_label = request.POST.get('can_view_white_label') == 'on'
         permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
+        permissions.can_upload_cockfight_videos = request.POST.get('can_upload_cockfight_videos') == 'on'
         permissions.save()
         invalidate_admin_permissions_cache(user)
         # Only Super Admin can change works_under; franchise owner's workers stay under them
