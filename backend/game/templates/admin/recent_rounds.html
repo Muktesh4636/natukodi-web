@@ -580,6 +580,7 @@
                     <form method="get" action="{% url 'recent_rounds' %}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <select
                             name="game"
+                            onchange="this.form.submit()"
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white; font-weight: 600;"
                         >
                             <option value="cockfight" {% if game == 'cockfight' %}selected{% endif %}>Cock fight</option>
@@ -596,6 +597,7 @@
                         {% if game == 'gunduata' %}
                         <select 
                             name="status" 
+                            onchange="this.form.submit()"
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
                         >
                             <option value="">All Status</option>
@@ -608,6 +610,7 @@
                         {% endif %}
                         <select 
                             name="date_range" 
+                            onchange="this.form.submit()"
                             style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; background: white;"
                         >
                             <option value="">All time</option>
