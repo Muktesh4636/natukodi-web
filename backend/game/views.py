@@ -2678,11 +2678,6 @@ def _serialize_latest_cockfight_round_video(request):
         out['start'] = rv.scheduled_start.isoformat()
     else:
         out['start'] = None
-    if rv.scheduled_start and rv.duration_seconds:
-        from datetime import timedelta as _td
-        out['end_time'] = (rv.scheduled_start + _td(seconds=rv.duration_seconds)).isoformat()
-    else:
-        out['end_time'] = None
     if request.user.is_authenticated:
         if cockfight_consumer_stream_active(rv):
             out['url'] = build_cockfight_signed_stream_url(request, rv.pk)
@@ -2771,6 +2766,40 @@ def meron_wala_latest_round_video(request):
     """GET latest cockfight round video only (same file as shown on game-admin cockfight-round-videos)."""
     latest = _serialize_latest_cockfight_round_video(request)
     return Response({'latest_round_video': latest})
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def meron_wala_video_schedule(request):
+    """
+    GET broadcast schedule for the latest cockfight round video.
+    Returns round_id, server_time, start and end_time (start + video duration).
+    end_time is null if video duration is not yet known.
+    """
+    from .models import CockFightRoundVideo
+    from datetime import timedelta as _td
+
+    rv = CockFightRoundVideo.objects.order_by('-id').first()
+    if not rv:
+        return Response({'schedule': None})
+
+    ensure_cockfight_round_video_duration(rv)
+
+    start = rv.scheduled_start.isoformat() if rv.scheduled_start else None
+
+    if rv.scheduled_start and rv.duration_seconds:
+        end_time = (rv.scheduled_start + _td(seconds=rv.duration_seconds)).isoformat()
+    else:
+        end_time = None
+
+    return Response({
+        'schedule': {
+            'round_id': rv.pk,
+            'server_time': timezone.now().isoformat(),
+            'start': start,
+            'end_time': end_time,
+        }
+    })
 
 
 @api_view(['POST'])

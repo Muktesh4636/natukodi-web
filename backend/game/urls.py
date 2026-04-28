@@ -45,6 +45,11 @@ urlpatterns = [
         views.meron_wala_latest_round_video,
         name='meron_wala_latest_round_video',
     ),
+    path(
+        'meron-wala/schedule/',
+        views.meron_wala_video_schedule,
+        name='meron_wala_video_schedule',
+    ),
     path('meron-wala/settle/', views.settle_cock_fight, name='settle_cock_fight'),
     path('meron-wala/admin/settle-round/', views.settle_meron_wala_round, name='settle_meron_wala_round'),
 ]
