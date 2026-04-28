@@ -2678,6 +2678,7 @@ def _serialize_latest_cockfight_round_video(request):
         out['start'] = rv.scheduled_start.isoformat()
     else:
         out['start'] = None
+    out['duration'] = round(rv.duration_seconds, 1) if rv.duration_seconds is not None else None
     if request.user.is_authenticated:
         if cockfight_consumer_stream_active(rv):
             out['url'] = build_cockfight_signed_stream_url(request, rv.pk)
