@@ -488,6 +488,18 @@ def cockfight_video_hook_js(request):
     var POLL_MS = 12000;
     var lastUrl = '';
     var dockTimer = null;
+    var pendingStartTimer = null;
+    var wallClockSyncTimer = null;
+    var liveEdgeStartMs = null;
+    var lastPollStreamKey = '';
+    var lastAppliedSyncKey = '';
+    var pendingStreamKey = '';
+    /* Offset so Date.now()+skew tracks server clock (pseudo-live; same moment for all users). */
+    var clockSkewMs = 0;
+
+    function effectiveNowMs() {
+        return Date.now() + clockSkewMs;
+    }
 
     function hashIsCockfight() {
         return /cockfight/i.test(location.hash || '');
@@ -516,54 +528,267 @@ def cockfight_video_hook_js(request):
         return 'video/mp4';
     }
 
-    function applyUrl(url, force) {
-        if (!url) return;
-        if (!force && url === lastUrl) return;
+    function clearScheduleTimers() {
+        if (pendingStartTimer) {
+            clearTimeout(pendingStartTimer);
+            pendingStartTimer = null;
+        }
+        if (wallClockSyncTimer) {
+            clearInterval(wallClockSyncTimer);
+            wallClockSyncTimer = null;
+        }
+    }
+
+    function detachCockfightVideos() {
+        clearScheduleTimers();
+        lastUrl = '';
+        lastPollStreamKey = '';
+        lastAppliedSyncKey = '';
+        pendingStreamKey = '';
+        liveEdgeStartMs = null;
+        targetVideos().forEach(function (v) {
+            try {
+                v.removeAttribute('src');
+                while (v.firstChild) v.removeChild(v.firstChild);
+                v.pause();
+                v.load();
+            } catch (e1) {}
+        });
+    }
+
+    function attachSourceAndMeta(v, url) {
+        v.removeAttribute('src');
+        while (v.firstChild) v.removeChild(v.firstChild);
+        var srcEl = document.createElement('source');
+        srcEl.src = url;
+        srcEl.type = mimeForUrl(url.split('#')[0]);
+        v.appendChild(srcEl);
+        v.muted = true;
+        v.setAttribute('playsinline', '');
+        v.setAttribute('webkit-playsinline', '');
+        v.playsInline = true;
+        v.setAttribute('preload', 'auto');
+        v.setAttribute('controls', '');
+        try {
+            v.setAttribute('controlsList', 'nodownload');
+        } catch (e0) {}
+        v.load();
+    }
+
+    function videoBaseUrl(v) {
+        /* Return the base URL (without fragment) of the currently loaded source. */
+        try {
+            var src = v.currentSrc || '';
+            return src.split('#')[0].split('?token=')[0];
+        } catch (e) { return ''; }
+    }
+
+    function softSyncPosition(v, startWallMs) {
+        /* Adjust currentTime toward live position without reloading. */
+        var target = (effectiveNowMs() - startWallMs) / 1000;
+        if (target < 0) target = 0;
+        if (v.duration && !isNaN(v.duration)) {
+            if (target >= v.duration) {
+                v.pause();
+                return;
+            }
+            target = Math.min(target, v.duration - 0.05);
+        }
+        if (Math.abs(v.currentTime - target) > 1) {
+            v.currentTime = target;
+        }
+        if (v.paused) {
+            var p = v.play();
+            if (p && typeof p.catch === 'function') p.catch(function () {});
+        }
+    }
+
+    /* No start time (legacy): play from beginning immediately */
+    function applyUrlImmediate(url) {
         lastUrl = url;
+        liveEdgeStartMs = null;
         var list = targetVideos();
         if (!list.length) return;
         list.forEach(function (v) {
             try {
-                var cur = (v.currentSrc || v.src || '').split('?')[0];
-                var next = url.split('?')[0];
-                if (!force && cur && cur === next) return;
-
-                /* Inline playback (streaming-like): typed <source>, playsinline, hide download control where supported */
-                v.removeAttribute('src');
-                while (v.firstChild) v.removeChild(v.firstChild);
-                var srcEl = document.createElement('source');
-                srcEl.src = url;
-                srcEl.type = mimeForUrl(url);
-                v.appendChild(srcEl);
-
-                v.muted = true;
-                v.setAttribute('playsinline', '');
-                v.setAttribute('webkit-playsinline', '');
-                v.playsInline = true;
-                v.setAttribute('preload', 'metadata');
-                v.setAttribute('controls', '');
-                try {
-                    v.setAttribute('controlsList', 'nodownload');
-                } catch (e0) {}
-
-                v.load();
+                /* Skip reload if same video is already playing. */
+                if (videoBaseUrl(v) === url.split('?token=')[0] && !v.paused && v.readyState >= 3) return;
+                attachSourceAndMeta(v, url);
                 var p = v.play();
                 if (p && typeof p.catch === 'function') p.catch(function () {});
             } catch (e) {}
         });
         try {
             window.dispatchEvent(new CustomEvent('kokoroko:cockfight-video', {
-                detail: { url: url }
+                detail: { url: url, start: null }
             }));
         } catch (e) {}
     }
 
+    /*
+     * Pseudo-live: same playback instant for everyone — position ~= effectiveNow - start,
+     * using server_time skew so wrong phone clocks stay aligned.
+     * Appends #t=<elapsed> fragment so the browser Range-fetches from the right byte offset
+     * immediately — no visible flash from position 0 on load or reload.
+     */
+    function applyUrlSynced(url, startWallMs, streamKey) {
+        lastUrl = url;
+        liveEdgeStartMs = startWallMs;
+        clearScheduleTimers();
+
+        var list = targetVideos();
+        if (!list.length) return;
+
+        if (streamKey) lastAppliedSyncKey = streamKey;
+
+        var urlBase = url.split('?token=')[0];
+
+        list.forEach(function (v) {
+            try {
+                /* If same video is already playing at a reasonable position, just resync. */
+                var alreadyLoaded = videoBaseUrl(v) === urlBase;
+                if (alreadyLoaded && v.readyState >= 2) {
+                    softSyncPosition(v, startWallMs);
+                    startWallClockSync(v, startWallMs);
+                    return;
+                }
+
+                /* Fresh load: append #t=<elapsed> so browser fetches from the right position. */
+                var elapsed = Math.max(0, (effectiveNowMs() - startWallMs) / 1000);
+                var urlWithTime = url + '#t=' + elapsed.toFixed(1);
+                attachSourceAndMeta(v, urlWithTime);
+
+                function onMeta() {
+                    v.removeEventListener('loadedmetadata', onMeta);
+                    var el = (effectiveNowMs() - startWallMs) / 1000;
+                    if (el < 0) el = 0;
+                    if (v.duration && !isNaN(v.duration)) {
+                        if (el >= v.duration) {
+                            v.currentTime = v.duration;
+                            v.pause();
+                            return;
+                        }
+                        el = Math.min(el, v.duration - 0.05);
+                    }
+                    v.currentTime = el;
+                    var p = v.play();
+                    if (p && typeof p.catch === 'function') p.catch(function () {});
+                }
+                v.addEventListener('loadedmetadata', onMeta);
+
+                v.addEventListener('seeking', function () {
+                    if (liveEdgeStartMs == null) return;
+                    var maxT = (effectiveNowMs() - liveEdgeStartMs) / 1000;
+                    if (v.duration && !isNaN(v.duration)) maxT = Math.min(maxT, v.duration - 0.05);
+                    if (v.currentTime > maxT + 0.3) {
+                        v.currentTime = Math.max(0, maxT);
+                    }
+                });
+
+                startWallClockSync(v, startWallMs);
+            } catch (e) {}
+        });
+
+        try {
+            window.dispatchEvent(new CustomEvent('kokoroko:cockfight-video', {
+                detail: { url: url, start: new Date(startWallMs).toISOString() }
+            }));
+        } catch (e) {}
+    }
+
+    function startWallClockSync(v, startWallMs) {
+        if (wallClockSyncTimer) clearInterval(wallClockSyncTimer);
+        wallClockSyncTimer = setInterval(function () {
+            if (liveEdgeStartMs == null || !v.duration) return;
+            var target = (effectiveNowMs() - liveEdgeStartMs) / 1000;
+            if (target >= v.duration) {
+                clearInterval(wallClockSyncTimer);
+                wallClockSyncTimer = null;
+                return;
+            }
+            if (Math.abs(v.currentTime - target) > 3) {
+                v.currentTime = Math.min(target, v.duration - 0.05);
+            }
+        }, 4000);
+    }
+
+    function handleLatestVideo(lv) {
+        /* API drops url after broadcast ends (or no row); stop player so they only had it while allowed. */
+        if (!lv || !lv.url) {
+            if (lastUrl && (!lv || lv.requires_authentication === false)) {
+                detachCockfightVideos();
+            }
+            return;
+        }
+
+        var schedIso = lv.start || '';
+        var streamKey = lv.url + '|' + schedIso;
+
+        if (streamKey !== lastPollStreamKey) {
+            clearScheduleTimers();
+            lastPollStreamKey = streamKey;
+            lastAppliedSyncKey = '';
+            pendingStreamKey = '';
+        }
+
+        var startMs = schedIso ? Date.parse(schedIso) : NaN;
+        var hasSchedule = schedIso && !isNaN(startMs);
+
+        if (!hasSchedule) {
+            clearScheduleTimers();
+            applyUrlImmediate(lv.url);
+            return;
+        }
+
+        var now = effectiveNowMs();
+        if (now < startMs) {
+            if (pendingStartTimer && pendingStreamKey === streamKey) return;
+            clearScheduleTimers();
+            pendingStreamKey = streamKey;
+            lastUrl = lv.url;
+            pendingStartTimer = setTimeout(function () {
+                pendingStartTimer = null;
+                pendingStreamKey = '';
+                applyUrlSynced(lv.url, startMs, streamKey);
+            }, Math.max(0, startMs - effectiveNowMs()) + 100);
+            return;
+        }
+
+        if (lastAppliedSyncKey === streamKey && targetVideos().length) return;
+        applyUrlSynced(lv.url, startMs, streamKey);
+    }
+
+    function authFetchHeaders() {
+        var headers = {};
+        try {
+            var keys = ['access', 'access_token', 'token', 'jwt'];
+            for (var i = 0; i < keys.length; i++) {
+                var t = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+                if (t && typeof t === 'string' && t.length > 8) {
+                    headers['Authorization'] = 'Bearer ' + t.replace(/^Bearer\s+/i, '');
+                    break;
+                }
+            }
+        } catch (e) {}
+        return headers;
+    }
+
     function poll() {
-        fetch(INFO_URL, { credentials: 'same-origin', cache: 'no-store' })
+        fetch(INFO_URL, {
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: authFetchHeaders(),
+        })
             .then(function (r) { return r.json(); })
             .then(function (d) {
                 var lv = d && d.latest_round_video;
-                if (lv && lv.url) applyUrl(lv.url, false);
+                try {
+                    if (lv && lv.server_time) {
+                        var srv = Date.parse(lv.server_time);
+                        if (!isNaN(srv)) clockSkewMs = srv - Date.now();
+                    }
+                } catch (eSk) {}
+                handleLatestVideo(lv);
             })
             .catch(function () {});
     }
@@ -571,7 +796,22 @@ def cockfight_video_hook_js(request):
     function scheduleRedock() {
         if (!lastUrl) return;
         clearTimeout(dockTimer);
-        dockTimer = setTimeout(function () { applyUrl(lastUrl, true); }, 500);
+        dockTimer = setTimeout(function () {
+            /* If same video is playing at roughly the right position, skip full reload — just resync. */
+            if (liveEdgeStartMs != null && lastAppliedSyncKey) {
+                var vids = targetVideos();
+                var urlBase = lastUrl.split('?token=')[0];
+                var allOk = vids.length > 0 && vids.every(function (v) {
+                    return videoBaseUrl(v) === urlBase && v.readyState >= 2 && !v.paused;
+                });
+                if (allOk) {
+                    vids.forEach(function (v) { softSyncPosition(v, liveEdgeStartMs); });
+                    return;
+                }
+            }
+            lastAppliedSyncKey = '';
+            poll();
+        }, 500);
     }
 
     try {

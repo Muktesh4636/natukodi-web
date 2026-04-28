@@ -8,7 +8,14 @@ from django.db import models, transaction
 from django.db.models import F, Q, Sum
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.http import FileResponse, Http404, HttpResponseForbidden
+from django.urls import reverse
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from urllib.parse import urlencode
 from datetime import timedelta
+import os
+import mimetypes
 from decimal import Decimal
 import redis
 import json
@@ -27,7 +34,15 @@ from .serializers import (
     RoundPredictionSerializer, CreatePredictionSerializer, UserSoundSettingSerializer,
     MegaSpinProbabilitySerializer, DailyRewardProbabilitySerializer
 )
-from .utils import get_game_setting, get_all_game_settings, calculate_current_timer, get_redis_client, get_current_round_state
+from .utils import (
+    get_game_setting,
+    get_all_game_settings,
+    calculate_current_timer,
+    get_redis_client,
+    get_current_round_state,
+    cockfight_consumer_stream_active,
+    ensure_cockfight_round_video_duration,
+)
 
 # Redis connection with tiered failover
 redis_client = get_redis_client()
@@ -2832,23 +2847,93 @@ def my_cricket_bets(request):
 
 # ─── Cock Fight Views ─────────────────────────────────────────────────────────
 
+COCKFIGHT_VIDEO_STREAM_SIGNER = TimestampSigner(salt='cockfight-round-video-stream-v1')
+
+
+def build_cockfight_signed_stream_url(request, pk: int) -> str:
+    """Time-limited signed URL for GET .../meron-wala/video-stream/?token=..."""
+    token = COCKFIGHT_VIDEO_STREAM_SIGNER.sign(str(pk))
+    path = reverse('cockfight_video_stream')
+    return request.build_absolute_uri(path) + '?' + urlencode({'token': token})
+
 
 def _serialize_latest_cockfight_round_video(request):
-    """Public URL for the newest admin-uploaded cockfight round video (admin uploads page)."""
+    """Metadata for the latest round video; playable `url` only when JWT auth and start time reached."""
     from .models import CockFightRoundVideo
 
     rv = CockFightRoundVideo.objects.order_by('-id').first()
     if not rv or not rv.video:
         return None
-    try:
-        url = request.build_absolute_uri(rv.video.url)
-    except Exception:
-        return None
-    return {
+    ensure_cockfight_round_video_duration(rv)
+    # Do not expose uploaded_at — it reveals pre-record timing vs simulated "live".
+    out = {
         'round_id': rv.pk,
-        'url': url,
-        'uploaded_at': rv.uploaded_at.isoformat(),
+        # Clients align device clock skew so everyone uses the same "now" vs `start` (pseudo-live sync).
+        'server_time': timezone.now().isoformat(),
     }
+    if rv.scheduled_start:
+        out['start'] = rv.scheduled_start.isoformat()
+    else:
+        out['start'] = None
+    if request.user.is_authenticated:
+        if cockfight_consumer_stream_active(rv):
+            out['url'] = build_cockfight_signed_stream_url(request, rv.pk)
+        else:
+            out['url'] = None
+        out['requires_authentication'] = False
+    else:
+        out['url'] = None
+        out['requires_authentication'] = True
+    return out
+
+
+@require_http_methods(['GET', 'HEAD'])
+def cockfight_video_stream(request):
+    """Serve video bytes only with a valid signed token (issued from authenticated cock_fight_info)."""
+    token = request.GET.get('token')
+    if not token:
+        return HttpResponseForbidden('Missing token')
+    max_age = getattr(settings, 'COCKFIGHT_VIDEO_STREAM_MAX_AGE', 60 * 60 * 6)
+    try:
+        pk = int(COCKFIGHT_VIDEO_STREAM_SIGNER.unsign(token, max_age=max_age))
+    except BadSignature:
+        return HttpResponseForbidden('Invalid token')
+    except SignatureExpired:
+        return HttpResponseForbidden('Expired token')
+    from .models import CockFightRoundVideo
+
+    rv = CockFightRoundVideo.objects.filter(pk=pk).first()
+    if not rv or not rv.video:
+        raise Http404()
+    from .admin_utils import is_admin
+
+    ensure_cockfight_round_video_duration(rv)
+    preview_ok = request.user.is_authenticated and is_admin(request.user)
+    if not preview_ok:
+        if not cockfight_consumer_stream_active(rv):
+            now = timezone.now()
+            if rv.scheduled_start and now < rv.scheduled_start:
+                return HttpResponseForbidden('Stream not started yet')
+            return HttpResponseForbidden('Broadcast ended')
+    file_path = rv.video.path
+    if not os.path.isfile(file_path):
+        raise Http404()
+    content_type, _ = mimetypes.guess_type(file_path)
+    if not content_type:
+        content_type = 'video/mp4'
+
+    # Use X-Accel-Redirect so nginx serves the bytes directly from disk —
+    # avoids buffering the full file through gunicorn and handles Range requests natively.
+    # Nginx internal location /x-accel-cockfight/ → /root/fight/media/cockfight_videos/
+    filename = os.path.basename(file_path)
+    from django.http import HttpResponse
+
+    resp = HttpResponse(content_type=content_type)
+    resp['X-Accel-Redirect'] = f'/x-accel-cockfight/{filename}'
+    resp['Accept-Ranges'] = 'bytes'
+    resp['Cache-Control'] = 'private, max-age=3600'
+    resp['Content-Disposition'] = 'inline'
+    return resp
 
 
 @api_view(['GET'])

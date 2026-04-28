@@ -1,5 +1,8 @@
-import random
 import json
+import logging
+import os
+import random
+import subprocess
 from collections import Counter
 
 
@@ -426,3 +429,79 @@ def get_redis_client():
     except Exception as e:
         logger.warning(f"Redis connection failed to {host}: {e}")
     return None
+
+
+_cockfight_dur_log = logging.getLogger('game')
+
+
+# --- Cock fight round video (duration + broadcast window) ---
+
+
+def probe_video_file_duration_seconds(file_path: str):
+    """Return media duration in seconds via ffprobe, or None if unavailable."""
+    if not file_path or not os.path.isfile(file_path):
+        return None
+    try:
+        r = subprocess.run(
+            [
+                'ffprobe',
+                '-v',
+                'quiet',
+                '-show_entries',
+                'format=duration',
+                '-of',
+                'csv=p=0',
+                file_path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if r.returncode != 0:
+            return None
+        return float(r.stdout.strip())
+    except Exception as e:
+        _cockfight_dur_log.warning('probe_video_file_duration_seconds: %s', e)
+        return None
+
+
+def ensure_cockfight_round_video_duration(rv):
+    """
+    Persist duration_seconds via ffprobe once when missing (mutates DB).
+    Expects CockFightRoundVideo with video file on disk.
+    """
+    from .models import CockFightRoundVideo
+
+    if getattr(rv, 'duration_seconds', None) is not None:
+        return rv
+    try:
+        path = rv.video.path
+    except Exception:
+        return rv
+    d = probe_video_file_duration_seconds(path)
+    if d is not None and d > 0:
+        CockFightRoundVideo.objects.filter(pk=rv.pk).update(duration_seconds=d)
+        rv.duration_seconds = d
+    return rv
+
+
+def cockfight_consumer_stream_active(rv) -> bool:
+    """
+    True while JWT viewers may receive stream URL / bytes:
+    after scheduled (or immediate) start and before wall-clock end (start + duration).
+    """
+    rv = ensure_cockfight_round_video_duration(rv)
+    now = timezone.now()
+
+    if rv.scheduled_start and now < rv.scheduled_start:
+        return False
+
+    if rv.duration_seconds is None:
+        return True
+
+    dur = timedelta(seconds=float(rv.duration_seconds))
+    if rv.scheduled_start:
+        wall_end = rv.scheduled_start + dur
+    else:
+        wall_end = rv.uploaded_at + dur
+    return now < wall_end

@@ -1651,11 +1651,38 @@ def cockfight_round_videos(request):
             )
             return redirect('cockfight_round_videos')
 
+        raw_schedule = (request.POST.get('scheduled_start') or '').strip()
+        if not raw_schedule:
+            messages.error(request, 'Set the date and time when the video should start playing.')
+            return redirect('cockfight_round_videos')
+
+        from datetime import datetime
+        from django.utils import timezone as tz_util
+
+        try:
+            schedule_dt = datetime.fromisoformat(raw_schedule)
+        except ValueError:
+            messages.error(request, 'Invalid start date/time.')
+            return redirect('cockfight_round_videos')
+
+        if tz_util.is_naive(schedule_dt):
+            schedule_dt = tz_util.make_aware(schedule_dt, tz_util.get_current_timezone())
+
         obj = CockFightRoundVideo.objects.create(
             video=upload,
             uploaded_by=request.user,
+            scheduled_start=schedule_dt,
         )
-        messages.success(request, f'Video uploaded. Assigned round ID: {obj.pk}.')
+        try:
+            from .utils import ensure_cockfight_round_video_duration
+
+            ensure_cockfight_round_video_duration(obj)
+        except Exception:
+            pass
+        messages.success(
+            request,
+            f'Video uploaded. Round #{obj.pk}. Scheduled start: {schedule_dt.strftime("%Y-%m-%d %H:%M")} ({tz_util.get_current_timezone_name()}).',
+        )
         return redirect('cockfight_round_videos')
 
     recent_qs = (
@@ -1666,12 +1693,16 @@ def cockfight_round_videos(request):
     for rv in recent_qs:
         play_url = ''
         if rv.video:
-            play_url = request.build_absolute_uri(rv.video.url)
+            from .views import build_cockfight_signed_stream_url
+
+            play_url = build_cockfight_signed_stream_url(request, rv.pk)
         recent_video_rows.append({'rv': rv, 'play_url': play_url})
 
     from django.db.models import Max
     max_id = CockFightRoundVideo.objects.aggregate(m=Max('id'))['m'] or 0
     next_round_number = max_id + 1
+    from django.utils import timezone as dj_timezone
+
     context = get_admin_context(
         request,
         {
@@ -1679,6 +1710,7 @@ def cockfight_round_videos(request):
             'recent_video_rows': recent_video_rows,
             'next_round_number': next_round_number,
             'allowed_exts': ', '.join(sorted(COCKFIGHT_VIDEO_ALLOWED_EXTS)),
+            'server_tz': dj_timezone.get_current_timezone_name(),
         },
     )
     return render(request, 'admin/cockfight_round_videos.html', context)

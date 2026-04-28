@@ -40,6 +40,50 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
         label { font-size: 13px; font-weight: 700; color: #0f172a; }
+        /* Date/time picker — readable but not oversized */
+        .form-row-schedule label {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .datetime-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+        input.input-datetime-large[type="datetime-local"] {
+            width: 100%;
+            max-width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.35;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #0f172a;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input.input-datetime-large[type="datetime-local"]:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+            background: #fff;
+        }
+        input.input-datetime-large[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            padding: 4px;
+            margin-right: 2px;
+            opacity: 0.85;
+            transform: scale(1.12);
+        }
+        input.input-datetime-large[type="datetime-local"]::-webkit-datetime-edit {
+            padding: 1px 0;
+        }
+        input.input-datetime-large[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+            padding: 2px 0;
+        }
         input[type="file"] {
             width: 100%;
             border: 1px solid #cbd5e1;
@@ -170,7 +214,7 @@
                 <div class="page-title">🎬 Cock fight — round videos</div>
                 <div class="page-subtitle">
                     Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
-                    Next round will be <strong>#{{ next_round_number }}</strong>. No size limit. Types: {{ allowed_exts }}.
+                    Next round will be <strong>#{{ next_round_number }}</strong>. Set <strong>playback start</strong> below. No size limit. Types: {{ allowed_exts }}.
                     For <strong>in-app streaming</strong> (play inside the site, not a file download), use <strong>.mp4</strong> with H.264/AAC — not MOV/MKV.
                 </div>
             </div>
@@ -190,6 +234,13 @@
         <div class="card">
             <form id="upload-form" method="post" enctype="multipart/form-data" action="">
                 {% csrf_token %}
+                <div class="form-row form-row-schedule">
+                    <label for="id_scheduled_start">Playback start — date &amp; time (IST)</label>
+                    <div class="datetime-input-wrap">
+                        <input id="id_scheduled_start" class="input-datetime-large" name="scheduled_start" type="datetime-local" required />
+                    </div>
+                    <div class="hint">Tap the calendar — enter <strong>Indian Standard Time (IST, UTC+5:30)</strong>. Shown zone: <strong>{{ server_tz }}</strong>. Everyone syncs to this start.</div>
+                </div>
                 <div class="form-row">
                     <label for="id_video">Video file</label>
                     <input id="id_video" name="video" type="file" accept=".mp4,.webm,.mov,.mkv,.m4v,video/*" required />
@@ -208,6 +259,7 @@
                 <thead>
                     <tr>
                         <th>Round #</th>
+                        <th>Starts at</th>
                         <th>Preview</th>
                         <th>Uploaded</th>
                         <th>By</th>
@@ -219,6 +271,7 @@
                     {% with rv=row.rv %}
                     <tr>
                         <td><strong>{{ rv.pk }}</strong></td>
+                        <td>{% if rv.scheduled_start %}{{ rv.scheduled_start|date:"Y-m-d H:i" }}{% else %}—{% endif %}</td>
                         <td>
                             {% if row.play_url %}
                             <div class="video-preview-wrap">

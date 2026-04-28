@@ -698,6 +698,16 @@ class CockFightRoundVideo(models.Model):
     """Admin-uploaded replay/recording for a cock fight round. Round number = pk (auto 1, 2, 3…)."""
 
     video = models.FileField(upload_to=cockfight_round_video_upload_path, max_length=255)
+    scheduled_start = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Wall-clock time when playback should start for everyone (simulated live).',
+    )
+    duration_seconds = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Video length in seconds (ffprobe); used to drop stream URL after broadcast ends.',
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

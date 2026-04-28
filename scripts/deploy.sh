@@ -73,6 +73,11 @@ echo "==> Deploy backend/ -> ${REMOTE}:${DEPLOY_REMOTE_PATH}/"
 _rsync backend/ "${REMOTE}:${DEPLOY_REMOTE_PATH}/"
 
 if [[ -n "${DEPLOY_SYSTEMD_SERVICE}" ]]; then
+  REMOTE_PYTHON="${DEPLOY_REMOTE_PYTHON:-${DEPLOY_REMOTE_PATH}/venv/bin/python3}"
+
+  echo "==> Run migrations"
+  _ssh "$REMOTE" "cd ${DEPLOY_REMOTE_PATH} && ${REMOTE_PYTHON} manage.py migrate --noinput"
+
   echo "==> Restart systemd: ${DEPLOY_SYSTEMD_SERVICE}"
   _ssh "$REMOTE" "systemctl restart ${DEPLOY_SYSTEMD_SERVICE} && systemctl is-active ${DEPLOY_SYSTEMD_SERVICE}"
 fi

@@ -39,6 +39,11 @@ urlpatterns = [
     path('meron-wala/bets/mine/', views.my_cock_fight_bets, name='my_cock_fight_bets'),
     path('meron-wala/info/', views.cock_fight_info, name='cock_fight_info'),
     path(
+        'meron-wala/video-stream/',
+        views.cockfight_video_stream,
+        name='cockfight_video_stream',
+    ),
+    path(
         'meron-wala/latest-round-video/',
         views.meron_wala_latest_round_video,
         name='meron_wala_latest_round_video',
