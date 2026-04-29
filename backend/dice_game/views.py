@@ -680,18 +680,36 @@ def cockfight_video_hook_js(request):
         }
 
         var hls = new Hls({
-            maxBufferLength: IS_LOW_END ? 20 : 60,       /* Samsung/low-end: keep buffer small to save RAM */
+            /* ── Buffer ─────────────────────────────────────────────────────── */
+            maxBufferLength: IS_LOW_END ? 20 : 60,
             maxMaxBufferLength: IS_LOW_END ? 20 : 60,
-            maxBufferSize: IS_LOW_END ? 20*1000*1000 : 60*1000*1000,  /* 20MB or 60MB max in memory */
-            startLevel: IS_LOW_END ? 0 : -1,             /* Samsung: start at lowest quality (360p) always */
+            maxBufferSize: IS_LOW_END ? 20*1000*1000 : 60*1000*1000,
+
+            /* ── Quality / ABR ───────────────────────────────────────────────
+             * Be conservative: start low, switch up only when bandwidth is
+             * very stable — prevents the 1-2s freeze caused by quality jumps. */
+            startLevel: IS_MOBILE ? 0 : -1,              /* Mobile: always start at 360p */
             capLevelToPlayerSize: true,                   /* Never load quality higher than screen size */
-            abrEwmaDefaultEstimate: IS_MOBILE ? 500000 : 2000000,
-            enableWorker: !IS_SAMSUNG_BROWSER,            /* Samsung Internet only: Workers cause crashes. Chrome on Samsung is fine. */
+            abrEwmaDefaultEstimate: IS_MOBILE ? 300000 : 1500000,
+            abrBandWidthFactor: 0.7,                      /* Switch up only when bandwidth is 70% stable */
+            abrBandWidthUpFactor: 0.5,                    /* Very conservative upswitch — prevents freeze */
+            abrMaxWithRealBitrate: true,                  /* Use real measured bitrate, not estimate */
+
+            /* ── Stall recovery ──────────────────────────────────────────────
+             * Instead of freezing when a gap is found, nudge past it. */
+            maxBufferHole: 0.5,                           /* Skip gaps up to 0.5s automatically */
+            maxSeekHole: 2,                               /* Skip gaps up to 2s on seek */
+            nudgeOffset: 0.1,                             /* Small nudge to unstick stalled playback */
+            nudgeMaxRetry: 5,                             /* Retry 5 times before giving up */
+            stallDetected: true,
+
+            /* ── Workers & reliability ───────────────────────────────────── */
+            enableWorker: !IS_SAMSUNG_BROWSER,
             lowLatencyMode: false,
-            fragLoadingMaxRetry: 6,                       /* Retry failed segment downloads */
+            fragLoadingMaxRetry: 6,
             manifestLoadingMaxRetry: 3,
             levelLoadingMaxRetry: 3,
-            fragLoadingRetryDelay: 1000,
+            fragLoadingRetryDelay: 500,                   /* Retry faster (500ms not 1000ms) */
         });
         _hlsInstances.push({ el: v, hls: hls });
 
