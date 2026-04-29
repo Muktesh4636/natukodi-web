@@ -1674,8 +1674,9 @@ def cockfight_round_videos(request):
             scheduled_start=schedule_dt,
         )
         try:
-            from .utils import ensure_cockfight_round_video_duration
+            from .utils import apply_mp4_faststart, ensure_cockfight_round_video_duration
 
+            apply_mp4_faststart(obj.video.path)
             ensure_cockfight_round_video_duration(obj)
         except Exception:
             pass

@@ -437,6 +437,50 @@ _cockfight_dur_log = logging.getLogger('game')
 # --- Cock fight round video (duration + broadcast window) ---
 
 
+def apply_mp4_faststart(file_path: str) -> bool:
+    """
+    Move moov atom to the front of an MP4/MOV file so browsers can start
+    playing immediately without downloading the whole file (no re-encoding).
+    Replaces the file in-place. Returns True if the file was remuxed.
+    """
+    if not file_path or not os.path.isfile(file_path):
+        return False
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext not in ('.mp4', '.m4v', '.mov'):
+        return False
+    tmp_path = file_path + '.faststart.tmp.mp4'
+    try:
+        r = subprocess.run(
+            [
+                'ffmpeg', '-y',
+                '-i', file_path,
+                '-c', 'copy',
+                '-movflags', '+faststart',
+                tmp_path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=600,
+        )
+        if r.returncode != 0:
+            _cockfight_dur_log.warning('apply_mp4_faststart failed: %s', r.stderr[-500:])
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+            return False
+        os.replace(tmp_path, file_path)
+        _cockfight_dur_log.info('apply_mp4_faststart: remuxed %s', file_path)
+        return True
+    except Exception as e:
+        _cockfight_dur_log.warning('apply_mp4_faststart exception: %s', e)
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        return False
+
+
 def probe_video_file_duration_seconds(file_path: str):
     """Return media duration in seconds via ffprobe, or None if unavailable."""
     if not file_path or not os.path.isfile(file_path):
