@@ -214,7 +214,7 @@
                 <div class="page-title">🎬 Cock fight — round videos</div>
                 <div class="page-subtitle">
                     Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
-                    Next round will be <strong>#{{ next_round_number }}</strong>. Set <strong>playback start</strong> and optional <strong>side names</strong> for the app (bets still use COCK1 / COCK2 in the API). No size limit. Types: {{ allowed_exts }}.
+                    Next round will be <strong>#{{ next_round_number }}</strong>. Set <strong>playback start</strong> and optional <strong>side names</strong> for the app. No size limit. Types: {{ allowed_exts }}.
                     For <strong>in-app streaming</strong> (play inside the site, not a file download), use <strong>.mp4</strong> with H.264/AAC — not MOV/MKV.
                 </div>
             </div>
@@ -242,14 +242,14 @@
                     <div class="hint">Tap the calendar — enter <strong>Indian Standard Time (IST, UTC+5:30)</strong>. Shown zone: <strong>{{ server_tz }}</strong>. Everyone syncs to this start.</div>
                 </div>
                 <div class="form-row">
-                    <label for="id_label_cock1">Cock 1 display name (maps to API side <code>COCK1</code>)</label>
+                    <label for="id_label_cock1">Cock 1 display name</label>
                     <input id="id_label_cock1" name="label_cock1" type="text" maxlength="80"
                            placeholder="e.g. Red (optional — default &quot;Cock 1&quot;)"
                            style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px;" />
                     <div class="hint">Shown in APK / website only. Empty uses <strong>Cock 1</strong>.</div>
                 </div>
                 <div class="form-row">
-                    <label for="id_label_cock2">Cock 2 display name (maps to API side <code>COCK2</code>)</label>
+                    <label for="id_label_cock2">Cock 2 display name</label>
                     <input id="id_label_cock2" name="label_cock2" type="text" maxlength="80"
                            placeholder="e.g. Black (optional — default &quot;Cock 2&quot;)"
                            style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px;" />

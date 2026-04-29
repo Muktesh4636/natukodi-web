@@ -480,7 +480,6 @@ GAME_SETTINGS = {
         5: 6.0,
         6: 6.0,
     },
-    # Referral: instant ₹ on referee first deposit; flat % on referee daily wallet loss (cron)
+    # Referral: instant ₹ on referee first deposit; tiered % on referee daily wallet loss (cron; slabs in code)
     'REFERRAL_INSTANT_BONUS_PER_REFEREE': 100,
-    'REFERRAL_COMMISSION_PERCENT': 4,
 }

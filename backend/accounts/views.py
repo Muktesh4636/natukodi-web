@@ -2312,10 +2312,10 @@ def daily_reward_history(request):
 @permission_classes([IsAuthenticated])
 def referral_data(request):
     """
-    Referral stats: instant ₹ bonus per referee (first deposit), flat daily-loss commission %, totals.
+    Referral stats: instant ₹ bonus per referee (first deposit), tiered daily-loss commission % by lifetime
+    referral count (see ``commission_slabs``), totals.
 
-    Config via GameSettings: REFERRAL_INSTANT_BONUS_PER_REFEREE (default 100),
-    REFERRAL_COMMISSION_PERCENT (default 4). Daily commission is credited by nightly cron.
+    Config via GameSettings: REFERRAL_INSTANT_BONUS_PER_REFEREE (default 100). Daily commission is credited by nightly cron.
 
     ``commission_earned_today`` uses IST midnight boundaries on ``Transaction.created_at`` (credits that
     actually landed today — typically from last night's cron). ``total_commission_earnings`` is lifetime
@@ -2419,6 +2419,25 @@ def referral_data(request):
         'total_earnings': str(daily_total + legacy_total),
         'recent_daily_commissions': recent_daily_commissions,
         'referrals': referrals_list,
+    })
+
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+@csrf_exempt
+def referral_commission_slabs_public(request):
+    """
+    Public referral rewards metadata: tiered daily-loss commission by lifetime referral count,
+    plus instant ₹ bonus per referee (first approved deposit) from GameSettings.
+
+    For logged-in stats (code, earnings, list), use GET /api/auth/referral-data/.
+    """
+    from .referral_logic import commission_slabs_for_api, referral_per_referee_bonus_amount
+
+    return Response({
+        'commission_slabs': commission_slabs_for_api(),
+        'instant_referral_bonus_per_referee': referral_per_referee_bonus_amount(),
     })
 
 

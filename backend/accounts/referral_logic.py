@@ -4,11 +4,11 @@ Referral rewards:
 1. **Instant bonus**: referrer gets ``REFERRAL_INSTANT_BONUS_PER_REFEREE`` (default ₹100) once when a
    referee's **first** deposit is approved (API + game-admin flows).
 
-2. **Daily commission**: referees' net wallet loss per IST calendar day × flat ``REFERRAL_COMMISSION_PERCENT``
-   (default 4%). Run ``manage.py process_referral_daily_commission`` **daily at 01:00 Asia/Kolkata** so the
-   previous IST day is settled once per night (no in-app timer — use cron/systemd on the server).
+2. **Daily commission**: referees' net wallet loss per IST calendar day × **tiered %** by referrer's
+   **lifetime referral count** (see ``REFERRAL_COMMISSION_SLABS``). Run
+   ``manage.py process_referral_daily_commission`` daily at ~01:00 Asia/Kolkata.
 
-Override defaults via ``GameSettings`` keys ``REFERRAL_INSTANT_BONUS_PER_REFEREE`` and ``REFERRAL_COMMISSION_PERCENT``.
+Override instant bonus via ``GameSettings`` key ``REFERRAL_INSTANT_BONUS_PER_REFEREE``.
 """
 import logging
 from datetime import date, datetime, timedelta
@@ -22,6 +22,15 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
+# Lifetime referrals (signups with referred_by = referrer) → daily-loss commission rate
+REFERRAL_COMMISSION_SLABS = (
+    (1, 10, Decimal('0.02')),
+    (11, 30, Decimal('0.03')),
+    (31, 50, Decimal('0.04')),
+    (51, 100, Decimal('0.06')),
+    (101, 250, Decimal('0.08')),
+)
+
 
 def referral_per_referee_bonus_amount() -> int:
     """Rupees credited to referrer when a referee's first deposit is approved."""
@@ -34,34 +43,37 @@ def referral_per_referee_bonus_amount() -> int:
         return 100
 
 
-def referral_loss_commission_rate() -> Decimal:
-    """Flat daily-loss commission rate for every referrer (e.g. 0.04 = 4%)."""
-    try:
-        from game.utils import get_game_setting
-
-        raw = get_game_setting('REFERRAL_COMMISSION_PERCENT', 4)
-        p = int(str(raw).strip())
-        p = max(0, min(100, p))
-        return Decimal(p) / Decimal(100)
-    except Exception:
-        return Decimal('0.04')
-
-
 def referral_commission_rate_for_count(total_referrals: int) -> Decimal:
-    """Backward-compatible API: slab count ignored — same flat rate for everyone."""
-    return referral_loss_commission_rate()
+    """
+    Daily-loss commission rate from lifetime referral count (tiers).
+    251+ referrals stay at top slab (8%).
+    """
+    n = int(total_referrals or 0)
+    if n <= 0:
+        return Decimal('0')
+    if n > 250:
+        return Decimal('0.08')
+    for lo, hi, rate in REFERRAL_COMMISSION_SLABS:
+        if lo <= n <= hi:
+            return rate
+    return Decimal('0.08')
 
 
 def commission_slabs_for_api():
-    """Single flat tier for clients."""
-    r = referral_loss_commission_rate()
-    return [
-        {
-            'min_referrals': 1,
-            'max_referrals': None,
-            'commission_percent': float(r * 100),
-        }
-    ]
+    """Tier table for GET /api/auth/referral-data/ (``commission_slabs``)."""
+    out = []
+    for lo, hi, rate in REFERRAL_COMMISSION_SLABS:
+        out.append({
+            'min_referrals': lo,
+            'max_referrals': hi,
+            'commission_percent': float(rate * 100),
+        })
+    out.append({
+        'min_referrals': 251,
+        'max_referrals': None,
+        'commission_percent': 8.0,
+    })
+    return out
 
 
 def award_referrer_instant_bonus_on_referee_first_deposit(deposit_request):
@@ -153,7 +165,7 @@ def yesterday_local_date() -> date:
 def process_referral_daily_commissions_for_date(target_date: date, *, dry_run: bool = False) -> dict:
     """
     For each referred user, compute net wallet loss on ``target_date`` (IST midnight boundaries).
-    Credit referrer ``flat_rate × loss`` (same rate for all referrers).
+    Credit referrer ``tier_rate × loss`` where tier follows referrer's ``total_referrals_count``.
 
     Idempotent via ReferralDailyCommission unique(referee, commission_date).
     """
@@ -164,12 +176,10 @@ def process_referral_daily_commissions_for_date(target_date: date, *, dry_run: b
     User = get_user_model()
 
     day_start, day_end = local_day_bounds(target_date)
-    rate = referral_loss_commission_rate()
 
     stats = {
         'target_date': str(target_date),
         'dry_run': dry_run,
-        'commission_percent': float(rate * 100),
         'referees_seen': 0,
         'skipped_staff_referee': 0,
         'skipped_no_referrer': 0,
@@ -208,11 +218,15 @@ def process_referral_daily_commissions_for_date(target_date: date, *, dry_run: b
             stats['skipped_no_loss'] += 1
             continue
 
-        ref_user = User.objects.filter(pk=referrer.id).only('id', 'is_staff', 'is_superuser', 'username').first()
+        ref_user = User.objects.filter(pk=referrer.id).only(
+            'id', 'is_staff', 'is_superuser', 'username', 'total_referrals_count'
+        ).first()
         if not ref_user or ref_user.is_staff or ref_user.is_superuser:
             stats['skipped_staff_referrer'] += 1
             continue
 
+        n = int(ref_user.total_referrals_count or 0)
+        rate = referral_commission_rate_for_count(n)
         if rate <= 0:
             stats['skipped_zero_rate'] += 1
             continue

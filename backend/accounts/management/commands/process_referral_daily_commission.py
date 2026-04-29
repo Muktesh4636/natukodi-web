@@ -1,4 +1,4 @@
-"""Nightly job: credit referrers from referees' daily wallet loss × flat rate (Asia/Kolkata day)."""
+"""Nightly job: credit referrers from referees' daily wallet loss × tiered rate (Asia/Kolkata day)."""
 from django.core.management.base import BaseCommand
 
 from accounts.referral_logic import process_referral_daily_commissions_for_date, yesterday_local_date

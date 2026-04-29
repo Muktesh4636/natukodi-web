@@ -317,7 +317,7 @@ def get_game_setting(key, default=None):
             'BETTING_DURATION', 'RESULT_SELECTION_DURATION',
             'RESULT_DISPLAY_DURATION', 'TOTAL_ROUND_DURATION',
             'RESULT_ANNOUNCE_TIME', 'MAX_BET',
-            'REFERRAL_INSTANT_BONUS_PER_REFEREE', 'REFERRAL_COMMISSION_PERCENT',
+            'REFERRAL_INSTANT_BONUS_PER_REFEREE',
         ]
         if key in numeric_keys:
             try:
