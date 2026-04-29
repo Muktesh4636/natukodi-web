@@ -706,10 +706,12 @@ def cockfight_video_hook_js(request):
                 wallClockSyncTimer = null;
                 return;
             }
-            if (Math.abs(v.currentTime - target) > 3) {
+            /* Only seek if badly out of sync (> 10s) — seeks drop buffered data and stall playback. */
+            var drift = Math.abs(v.currentTime - target);
+            if (drift > 10) {
                 v.currentTime = Math.min(target, v.duration - 0.05);
             }
-        }, 4000);
+        }, 15000); /* check every 15s — less frequent = less stutter */
     }
 
     function handleLatestVideo(lv) {
