@@ -487,6 +487,11 @@ def cockfight_video_hook_js(request):
     var INFO_URL = '/api/game/meron-wala/info/';
     var POLL_MS = 12000;
     var IS_MOBILE = /android|iphone|ipad|ipod|mobile|phone/i.test(navigator.userAgent || '');
+    /* Samsung Internet browser only — NOT Chrome on Samsung */
+    var IS_SAMSUNG_BROWSER = /samsungbrowser/i.test(navigator.userAgent || '');
+    /* Samsung device (any browser) — used for RAM/buffer limits */
+    var IS_SAMSUNG_DEVICE = /sm-|samsung/i.test(navigator.userAgent || '');
+    var IS_LOW_END = IS_SAMSUNG_DEVICE || (IS_MOBILE && navigator.hardwareConcurrency <= 4);
     var PRE_BUFFER_SECS = IS_MOBILE ? 15 : 60;
 
     /* ── hls.js loader ─────────────────────────────────────────────────────────
@@ -675,12 +680,18 @@ def cockfight_video_hook_js(request):
         }
 
         var hls = new Hls({
-            maxBufferLength: 60,          /* Buffer exactly 60s (1 min) ahead — no more */
-            maxMaxBufferLength: 60,       /* Hard cap at 60s regardless of network speed */
-            startLevel: -1,               /* Auto-select starting quality */
-            abrEwmaDefaultEstimate: IS_MOBILE ? 500000 : 2000000,  /* Initial bandwidth guess */
-            enableWorker: true,
+            maxBufferLength: IS_LOW_END ? 20 : 60,       /* Samsung/low-end: keep buffer small to save RAM */
+            maxMaxBufferLength: IS_LOW_END ? 20 : 60,
+            maxBufferSize: IS_LOW_END ? 20*1000*1000 : 60*1000*1000,  /* 20MB or 60MB max in memory */
+            startLevel: IS_LOW_END ? 0 : -1,             /* Samsung: start at lowest quality (360p) always */
+            capLevelToPlayerSize: true,                   /* Never load quality higher than screen size */
+            abrEwmaDefaultEstimate: IS_MOBILE ? 500000 : 2000000,
+            enableWorker: !IS_SAMSUNG_BROWSER,            /* Samsung Internet only: Workers cause crashes. Chrome on Samsung is fine. */
             lowLatencyMode: false,
+            fragLoadingMaxRetry: 6,                       /* Retry failed segment downloads */
+            manifestLoadingMaxRetry: 3,
+            levelLoadingMaxRetry: 3,
+            fragLoadingRetryDelay: 1000,
         });
         _hlsInstances.push({ el: v, hls: hls });
 
@@ -692,12 +703,21 @@ def cockfight_video_hook_js(request):
         });
 
         hls.on(Hls.Events.ERROR, function (event, data) {
-            if (data.fatal) {
-                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                    hls.startLoad();  /* retry on network error */
-                } else {
-                    hls.destroy();
+            if (!data.fatal) return;
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                /* Network blip — wait 2s and retry */
+                setTimeout(function () { try { hls.startLoad(); } catch(e) {} }, 2000);
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                /* MSE decode error (common on Samsung) — try to recover */
+                try { hls.recoverMediaError(); } catch(e) {
+                    /* Full reset if recovery fails */
+                    try { hls.destroy(); } catch(e2) {}
+                    setTimeout(function () {
+                        setupHlsPlayer(v, hlsUrl, startWallMs, onReady);
+                    }, 2000);
                 }
+            } else {
+                try { hls.destroy(); } catch(e) {}
             }
         });
     }
@@ -901,7 +921,7 @@ def cockfight_video_hook_js(request):
                     el.muted = true;
                     el.setAttribute('playsinline', '');
                     document.body.appendChild(el);
-                    var bgHls = new Hls({ maxBufferLength: 60, maxMaxBufferLength: 60, enableWorker: true });
+                    var bgHls = new Hls({ maxBufferLength: 60, maxMaxBufferLength: 60, enableWorker: !IS_SAMSUNG_BROWSER });
                     bgHls.loadSource(hlsUrl);
                     bgHls.attachMedia(el);
                     _bgPreloadEl = el;
