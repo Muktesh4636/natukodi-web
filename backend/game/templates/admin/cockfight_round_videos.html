@@ -275,16 +275,37 @@
                         <td>
                             {% if row.play_url %}
                             <div class="video-preview-wrap">
-                                <video controls playsinline preload="metadata" controlsList="nodownload" webkit-playsinline src="{{ row.play_url }}"></video>
-                                <div class="video-preview-note">Streams in-page for MP4/WebM. MOV/MKV may not play here — use MP4 for the public app.</div>
+                                <video id="admin-hls-{{ rv.pk }}" controls playsinline preload="none" controlsList="nodownload" webkit-playsinline></video>
+                                <script>
+                                (function(){
+                                    var v = document.getElementById('admin-hls-{{ rv.pk }}');
+                                    var src = '{{ row.play_url }}';
+                                    function attach(){
+                                        if(typeof Hls !== 'undefined' && Hls.isSupported()){
+                                            var h = new Hls(); h.loadSource(src); h.attachMedia(v);
+                                        } else if(v.canPlayType('application/vnd.apple.mpegurl')){
+                                            v.src = src;
+                                        }
+                                    }
+                                    if(typeof Hls !== 'undefined'){ attach(); }
+                                    else {
+                                        var s=document.createElement('script');
+                                        s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
+                                        s.onload=attach; document.head.appendChild(s);
+                                    }
+                                })();
+                                </script>
+                                <div class="video-preview-note">HLS adaptive stream preview (360p / 720p auto).</div>
                             </div>
+                            {% elif rv.video %}
+                            <span style="color:#888;font-size:12px">HLS transcoding in progress…</span>
                             {% else %}—{% endif %}
                         </td>
                         <td>{{ rv.uploaded_at|date:"Y-m-d H:i" }}</td>
                         <td>{% if rv.uploaded_by %}{{ rv.uploaded_by.username }}{% else %}—{% endif %}</td>
                         <td>
                             {% if row.play_url %}
-                            <a class="video-link" href="{{ row.play_url }}" target="_blank" rel="noopener">Open file</a>
+                            <a class="video-link" href="{{ row.play_url }}" target="_blank" rel="noopener">Open playlist</a>
                             {% else %}—{% endif %}
                         </td>
                     </tr>

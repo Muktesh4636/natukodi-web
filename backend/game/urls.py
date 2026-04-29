@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
@@ -36,19 +36,14 @@ urlpatterns = [
     path('meron-wala/bets/mine/', views.my_cock_fight_bets, name='my_cock_fight_bets'),
     path('meron-wala/info/', views.cock_fight_info, name='cock_fight_info'),
     path(
-        'meron-wala/video-stream/',
-        views.cockfight_video_stream,
-        name='cockfight_video_stream',
-    ),
-    path(
         'meron-wala/latest-round-video/',
         views.meron_wala_latest_round_video,
         name='meron_wala_latest_round_video',
     ),
-    path(
-        'meron-wala/schedule/',
-        views.meron_wala_video_schedule,
-        name='meron_wala_video_schedule',
+    re_path(
+        r'^meron-wala/hls/(?P<signed_token>[^/]+)/(?P<file_path>.+)$',
+        views.cockfight_hls_serve,
+        name='cockfight_hls_serve',
     ),
     path('meron-wala/settle/', views.settle_cock_fight, name='settle_cock_fight'),
     path('meron-wala/admin/settle-round/', views.settle_meron_wala_round, name='settle_meron_wala_round'),

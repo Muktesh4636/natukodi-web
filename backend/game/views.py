@@ -2653,15 +2653,65 @@ def my_cricket_bets(request):
 COCKFIGHT_VIDEO_STREAM_SIGNER = TimestampSigner(salt='cockfight-round-video-stream-v1')
 
 
-def build_cockfight_signed_stream_url(request, pk: int) -> str:
-    """Time-limited signed URL for GET .../meron-wala/video-stream/?token=..."""
+def build_cockfight_hls_url(request, pk: int) -> str:
+    """Signed URL to the HLS master playlist for adaptive streaming."""
     token = COCKFIGHT_VIDEO_STREAM_SIGNER.sign(str(pk))
-    path = reverse('cockfight_video_stream')
-    return request.build_absolute_uri(path) + '?' + urlencode({'token': token})
+    path = reverse('cockfight_hls_serve', kwargs={'signed_token': token, 'file_path': 'master.m3u8'})
+    return request.build_absolute_uri(path)
+
+
+@require_http_methods(['GET', 'HEAD'])
+def cockfight_hls_serve(request, signed_token, file_path):
+    """
+    Serve HLS master playlist, variant playlists, and .ts segments.
+    Token-gated: every request (including each 2-second segment) validates the signed token.
+    Nginx serves actual bytes via X-Accel-Redirect for zero Gunicorn overhead.
+    """
+    max_age = getattr(settings, 'COCKFIGHT_VIDEO_STREAM_MAX_AGE', 60 * 60 * 6)
+    try:
+        pk = int(COCKFIGHT_VIDEO_STREAM_SIGNER.unsign(signed_token, max_age=max_age))
+    except BadSignature:
+        return HttpResponseForbidden('Invalid token')
+    except SignatureExpired:
+        return HttpResponseForbidden('Expired token')
+
+    from .models import CockFightRoundVideo
+
+    rv = CockFightRoundVideo.objects.filter(pk=pk).first()
+    if not rv or not rv.hls_ready or not rv.hls_token:
+        raise Http404()
+
+    from .admin_utils import is_admin
+
+    ensure_cockfight_round_video_duration(rv)
+    preview_ok = request.user.is_authenticated and is_admin(request.user)
+    if not preview_ok:
+        if not cockfight_consumer_stream_active(rv):
+            return HttpResponseForbidden('Broadcast ended')
+
+    # Sanitise path — prevent traversal attacks
+    safe_path = os.path.normpath(file_path).lstrip('/')
+    if '..' in safe_path or safe_path.startswith('/'):
+        return HttpResponseForbidden('Invalid path')
+
+    if safe_path.endswith('.m3u8'):
+        content_type = 'application/vnd.apple.mpegurl'
+        cache = 'private, no-cache'
+    elif safe_path.endswith('.ts'):
+        content_type = 'video/mp2t'
+        cache = 'private, max-age=3600'
+    else:
+        raise Http404()
+
+    resp = HttpResponse(content_type=content_type)
+    resp['X-Accel-Redirect'] = f'/x-accel-cockfight-hls/{rv.hls_token}/{safe_path}'
+    resp['Cache-Control'] = cache
+    resp['Access-Control-Allow-Origin'] = '*'   # hls.js needs CORS for cross-origin segments
+    return resp
 
 
 def _serialize_latest_cockfight_round_video(request):
-    """Metadata for the latest round video; playable `url` only when JWT auth and start time reached."""
+    """Metadata for the latest round video; playable urls only when JWT auth and start time reached."""
     from .models import CockFightRoundVideo
 
     rv = CockFightRoundVideo.objects.order_by('-id').first()
@@ -2680,63 +2730,16 @@ def _serialize_latest_cockfight_round_video(request):
         out['start'] = None
     if request.user.is_authenticated:
         if cockfight_consumer_stream_active(rv):
-            out['url'] = build_cockfight_signed_stream_url(request, rv.pk)
+            out['hls_url'] = build_cockfight_hls_url(request, rv.pk) if rv.hls_ready else None
         else:
-            out['url'] = None
+            out['hls_url'] = None
         out['requires_authentication'] = False
     else:
-        out['url'] = None
+        out['hls_url'] = None
         out['requires_authentication'] = True
     return out
 
 
-@require_http_methods(['GET', 'HEAD'])
-def cockfight_video_stream(request):
-    """Serve video bytes only with a valid signed token (issued from authenticated cock_fight_info)."""
-    token = request.GET.get('token')
-    if not token:
-        return HttpResponseForbidden('Missing token')
-    max_age = getattr(settings, 'COCKFIGHT_VIDEO_STREAM_MAX_AGE', 60 * 60 * 6)
-    try:
-        pk = int(COCKFIGHT_VIDEO_STREAM_SIGNER.unsign(token, max_age=max_age))
-    except BadSignature:
-        return HttpResponseForbidden('Invalid token')
-    except SignatureExpired:
-        return HttpResponseForbidden('Expired token')
-    from .models import CockFightRoundVideo
-
-    rv = CockFightRoundVideo.objects.filter(pk=pk).first()
-    if not rv or not rv.video:
-        raise Http404()
-    from .admin_utils import is_admin
-
-    ensure_cockfight_round_video_duration(rv)
-    preview_ok = request.user.is_authenticated and is_admin(request.user)
-    if not preview_ok:
-        if not cockfight_consumer_stream_active(rv):
-            now = timezone.now()
-            if rv.scheduled_start and now < rv.scheduled_start:
-                return HttpResponseForbidden('Stream not started yet')
-            return HttpResponseForbidden('Broadcast ended')
-    file_path = rv.video.path
-    if not os.path.isfile(file_path):
-        raise Http404()
-    content_type, _ = mimetypes.guess_type(file_path)
-    if not content_type:
-        content_type = 'video/mp4'
-
-    # Use X-Accel-Redirect so nginx serves the bytes directly from disk —
-    # avoids buffering the full file through gunicorn and handles Range requests natively.
-    # Nginx internal location /x-accel-cockfight/ → /root/fight/media/cockfight_videos/
-    filename = os.path.basename(file_path)
-    from django.http import HttpResponse
-
-    resp = HttpResponse(content_type=content_type)
-    resp['X-Accel-Redirect'] = f'/x-accel-cockfight/{filename}'
-    resp['Accept-Ranges'] = 'bytes'
-    resp['Cache-Control'] = 'private, max-age=3600'
-    resp['Content-Disposition'] = 'inline'
-    return resp
 
 
 @api_view(['GET'])
@@ -2766,40 +2769,6 @@ def meron_wala_latest_round_video(request):
     """GET latest cockfight round video only (same file as shown on game-admin cockfight-round-videos)."""
     latest = _serialize_latest_cockfight_round_video(request)
     return Response({'latest_round_video': latest})
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def meron_wala_video_schedule(request):
-    """
-    GET broadcast schedule for the latest cockfight round video.
-    Returns round_id, server_time, start and end_time (start + video duration).
-    end_time is null if video duration is not yet known.
-    """
-    from .models import CockFightRoundVideo
-    from datetime import timedelta as _td
-
-    rv = CockFightRoundVideo.objects.order_by('-id').first()
-    if not rv:
-        return Response({'schedule': None})
-
-    ensure_cockfight_round_video_duration(rv)
-
-    start = rv.scheduled_start.isoformat() if rv.scheduled_start else None
-
-    if rv.scheduled_start and rv.duration_seconds:
-        end_time = (rv.scheduled_start + _td(seconds=rv.duration_seconds)).isoformat()
-    else:
-        end_time = None
-
-    return Response({
-        'schedule': {
-            'round_id': rv.pk,
-            'server_time': timezone.now().isoformat(),
-            'start': start,
-            'end_time': end_time,
-        }
-    })
 
 
 @api_view(['POST'])

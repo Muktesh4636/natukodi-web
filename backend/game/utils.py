@@ -481,6 +481,95 @@ def apply_mp4_faststart(file_path: str) -> bool:
         return False
 
 
+def transcode_cockfight_video_hls(rv_pk: int):
+    """
+    Background: transcode the original video into HLS (HTTP Live Streaming) with
+    two adaptive quality levels — 360p and 720p — using 2-second segments.
+
+    Output layout (all under MEDIA_ROOT/cockfight_hls/<hls_token>/):
+        master.m3u8          ← adaptive master playlist
+        360p/index.m3u8      ← variant playlist
+        360p/seg000.ts …
+        720p/index.m3u8
+        720p/seg000.ts …
+
+    hls_token is a random UUID stored on the model so the path is unguessable.
+    """
+    import threading, uuid as _uuid
+
+    def _run():
+        try:
+            from .models import CockFightRoundVideo
+            from django.conf import settings as dj_settings
+
+            rv = CockFightRoundVideo.objects.filter(pk=rv_pk).first()
+            if not rv or not rv.video:
+                return
+            src = rv.video.path
+            if not os.path.isfile(src):
+                return
+
+            token = _uuid.uuid4().hex
+            out_dir = os.path.join(dj_settings.MEDIA_ROOT, 'cockfight_hls', token)
+            os.makedirs(os.path.join(out_dir, '360p'), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, '720p'), exist_ok=True)
+
+            master_pl = os.path.join(out_dir, 'master.m3u8')
+            seg_pattern = os.path.join(out_dir, '%v', 'seg%03d.ts')
+            variant_pattern = os.path.join(out_dir, '%v', 'index.m3u8')
+
+            r = subprocess.run(
+                [
+                    'ffmpeg', '-y', '-i', src,
+                    # Split video into two streams
+                    '-filter_complex',
+                    '[0:v]split=2[v1][v2];'
+                    '[v1]scale=-2:360[v360];'
+                    '[v2]scale=-2:720[v720]',
+                    # 360p video
+                    '-map', '[v360]', '-map', '0:a',
+                    '-c:v:0', 'libx264', '-profile:v:0', 'main', '-level:v:0', '3.1',
+                    '-b:v:0', '800k', '-maxrate:v:0', '900k', '-bufsize:v:0', '1600k',
+                    '-c:a:0', 'aac', '-b:a:0', '96k',
+                    # 720p video
+                    '-map', '[v720]', '-map', '0:a',
+                    '-c:v:1', 'libx264', '-profile:v:1', 'main', '-level:v:1', '3.1',
+                    '-b:v:1', '2500k', '-maxrate:v:1', '2800k', '-bufsize:v:1', '5000k',
+                    '-c:a:1', 'aac', '-b:a:1', '128k',
+                    # HLS output
+                    '-f', 'hls',
+                    '-hls_time', '2',
+                    '-hls_playlist_type', 'vod',
+                    '-hls_flags', 'independent_segments',
+                    '-hls_segment_filename', seg_pattern,
+                    '-master_pl_name', 'master.m3u8',
+                    '-var_stream_map', 'v:0,a:0,name:360p v:1,a:1,name:720p',
+                    variant_pattern,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=7200,
+            )
+            if r.returncode != 0:
+                _cockfight_dur_log.warning('HLS transcode failed for pk=%s: %s', rv_pk, r.stderr[-400:])
+                return
+
+            if not os.path.isfile(master_pl):
+                _cockfight_dur_log.warning('HLS transcode: master.m3u8 not found for pk=%s', rv_pk)
+                return
+
+            CockFightRoundVideo.objects.filter(pk=rv_pk).update(
+                hls_ready=True,
+                hls_token=token,
+            )
+            _cockfight_dur_log.info('HLS transcode done for pk=%s → %s', rv_pk, out_dir)
+        except Exception as e:
+            _cockfight_dur_log.warning('transcode_cockfight_video_hls error pk=%s: %s', rv_pk, e)
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+
 def probe_video_file_duration_seconds(file_path: str):
     """Return media duration in seconds via ffprobe, or None if unavailable."""
     if not file_path or not os.path.isfile(file_path):
@@ -531,13 +620,17 @@ def ensure_cockfight_round_video_duration(rv):
 
 def cockfight_consumer_stream_active(rv) -> bool:
     """
-    True while JWT viewers may receive stream URL / bytes:
-    after scheduled (or immediate) start and before wall-clock end (start + duration).
+    True while JWT viewers may receive the stream URL.
+
+    URL is released 60 seconds BEFORE the scheduled start so clients can
+    pre-load the video in the background and have it fully buffered by the
+    time the game begins.  URL is removed once start + duration has passed.
     """
     rv = ensure_cockfight_round_video_duration(rv)
     now = timezone.now()
+    PRELOAD_WINDOW = timedelta(minutes=1)
 
-    if rv.scheduled_start and now < rv.scheduled_start:
+    if rv.scheduled_start and now < (rv.scheduled_start - PRELOAD_WINDOW):
         return False
 
     if rv.duration_seconds is None:

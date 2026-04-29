@@ -708,6 +708,14 @@ class CockFightRoundVideo(models.Model):
         blank=True,
         help_text='Video length in seconds (ffprobe); used to drop stream URL after broadcast ends.',
     )
+    hls_ready = models.BooleanField(
+        default=False,
+        help_text='True once HLS segments have been generated for adaptive streaming.',
+    )
+    hls_token = models.CharField(
+        max_length=64, blank=True, default='',
+        help_text='Random UUID used as the private HLS directory path.',
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

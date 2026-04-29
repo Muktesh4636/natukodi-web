@@ -486,6 +486,35 @@ def cockfight_video_hook_js(request):
 (function () {
     var INFO_URL = '/api/game/meron-wala/info/';
     var POLL_MS = 12000;
+    var IS_MOBILE = /android|iphone|ipad|ipod|mobile|phone/i.test(navigator.userAgent || '');
+    var PRE_BUFFER_SECS = IS_MOBILE ? 15 : 60;
+
+    /* ── hls.js loader ─────────────────────────────────────────────────────────
+     * Inject hls.js from CDN once, then use it for all HLS playback.
+     * Falls back to native HLS on Safari (which supports it natively).
+     * ────────────────────────────────────────────────────────────────────────── */
+    var _hlsJsReady = false;
+    var _hlsJsCallbacks = [];
+    function loadHlsJs(cb) {
+        if (typeof Hls !== 'undefined') { cb(); return; }
+        if (_hlsJsCallbacks.length > 0) { _hlsJsCallbacks.push(cb); return; }
+        _hlsJsCallbacks.push(cb);
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
+        s.onload = function () {
+            _hlsJsReady = true;
+            _hlsJsCallbacks.forEach(function (fn) { try { fn(); } catch (e) {} });
+            _hlsJsCallbacks = [];
+        };
+        s.onerror = function () {
+            _hlsJsCallbacks.forEach(function (fn) { try { fn(true); } catch (e) {} });
+            _hlsJsCallbacks = [];
+        };
+        document.head.appendChild(s);
+    }
+
+    /* Active Hls instances keyed by video element (WeakMap equivalent via array). */
+    var _hlsInstances = [];
     var lastUrl = '';
     var dockTimer = null;
     var pendingStartTimer = null;
@@ -541,6 +570,8 @@ def cockfight_video_hook_js(request):
 
     function detachCockfightVideos() {
         clearScheduleTimers();
+        stopBackgroundPreload();
+        destroyAllHls();
         lastUrl = '';
         lastPollStreamKey = '';
         lastAppliedSyncKey = '';
@@ -604,96 +635,157 @@ def cockfight_video_hook_js(request):
     }
 
     /* No start time (legacy): play from beginning immediately */
-    function applyUrlImmediate(url) {
-        lastUrl = url;
-        liveEdgeStartMs = null;
+    function destroyHlsForVideo(v) {
+        for (var i = _hlsInstances.length - 1; i >= 0; i--) {
+            if (_hlsInstances[i].el === v) {
+                try { _hlsInstances[i].hls.destroy(); } catch (e) {}
+                _hlsInstances.splice(i, 1);
+            }
+        }
+    }
+
+    function destroyAllHls() {
+        _hlsInstances.forEach(function (x) { try { x.hls.destroy(); } catch (e) {} });
+        _hlsInstances = [];
+    }
+
+    /*
+     * setupHlsPlayer: attach hls.js to a <video> element.
+     * Handles seeking to the correct live position after the manifest is parsed.
+     */
+    function setupHlsPlayer(v, hlsUrl, startWallMs, onReady) {
+        destroyHlsForVideo(v);
+        v.removeAttribute('src');
+        while (v.firstChild) v.removeChild(v.firstChild);
+        v.muted = true;
+        v.setAttribute('playsinline', '');
+        v.setAttribute('webkit-playsinline', '');
+        v.setAttribute('controls', '');
+        try { v.setAttribute('controlsList', 'nodownload'); } catch (e) {}
+
+        /* Safari supports HLS natively — don't load hls.js */
+        if (!Hls.isSupported() && v.canPlayType('application/vnd.apple.mpegurl')) {
+            v.src = hlsUrl;
+            v.load();
+            v.addEventListener('loadedmetadata', function onM() {
+                v.removeEventListener('loadedmetadata', onM);
+                if (onReady) onReady(v);
+            });
+            return;
+        }
+
+        var hls = new Hls({
+            maxBufferLength: 60,          /* Buffer up to 60s ahead */
+            maxMaxBufferLength: 120,
+            startLevel: -1,               /* Auto-select starting quality */
+            abrEwmaDefaultEstimate: IS_MOBILE ? 500000 : 2000000,  /* Initial bandwidth guess */
+            enableWorker: true,
+            lowLatencyMode: false,
+        });
+        _hlsInstances.push({ el: v, hls: hls });
+
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(v);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            if (onReady) onReady(v);
+        });
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+            if (data.fatal) {
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    hls.startLoad();  /* retry on network error */
+                } else {
+                    hls.destroy();
+                }
+            }
+        });
+    }
+
+    /*
+     * Pseudo-live HLS playback — same position for every viewer.
+     * startWallMs is null for videos with no schedule (play from 0).
+     */
+    function applyHlsSynced(hlsUrl, startWallMs, streamKey) {
+        lastUrl = hlsUrl;
+        liveEdgeStartMs = startWallMs;
+        clearScheduleTimers();
+        if (streamKey) lastAppliedSyncKey = streamKey;
+
         var list = targetVideos();
         if (!list.length) return;
-        list.forEach(function (v) {
-            try {
-                /* Skip reload if same video is already playing. */
-                if (videoBaseUrl(v) === url.split('?token=')[0] && !v.paused && v.readyState >= 3) return;
-                attachSourceAndMeta(v, url);
-                var p = v.play();
-                if (p && typeof p.catch === 'function') p.catch(function () {});
-            } catch (e) {}
+
+        loadHlsJs(function (err) {
+            if (err || typeof Hls === 'undefined') return;   /* hls.js CDN unreachable */
+            list.forEach(function (v) {
+                try {
+                    setupHlsPlayer(v, hlsUrl, startWallMs, function (v2) {
+                        if (startWallMs !== null) {
+                            waitForBuffer(v2, startWallMs);
+                        } else {
+                            doPlay(v2, 0);
+                        }
+                        startWallClockSync(v2, startWallMs);
+                    });
+                } catch (e) {}
+            });
         });
+
         try {
             window.dispatchEvent(new CustomEvent('kokoroko:cockfight-video', {
-                detail: { url: url, start: null }
+                detail: { hls_url: hlsUrl, start: startWallMs ? new Date(startWallMs).toISOString() : null }
             }));
         } catch (e) {}
     }
 
-    /*
-     * Pseudo-live: same playback instant for everyone — position ~= effectiveNow - start,
-     * using server_time skew so wrong phone clocks stay aligned.
-     * Appends #t=<elapsed> fragment so the browser Range-fetches from the right byte offset
-     * immediately — no visible flash from position 0 on load or reload.
-     */
-    function applyUrlSynced(url, startWallMs, streamKey) {
-        lastUrl = url;
-        liveEdgeStartMs = startWallMs;
-        clearScheduleTimers();
+    function doPlay(v, startWallMs) {
+        if (startWallMs) {
+            var liveEl = (effectiveNowMs() - startWallMs) / 1000;
+            if (liveEl < 0) liveEl = 0;
+            if (v.duration && !isNaN(v.duration)) liveEl = Math.min(liveEl, v.duration - 0.05);
+            v.currentTime = liveEl;
+        }
+        var p = v.play();
+        if (p && typeof p.catch === 'function') {
+            p.catch(function () { showTapToPlay(v, startWallMs); });
+        }
+    }
 
-        var list = targetVideos();
-        if (!list.length) return;
-
-        if (streamKey) lastAppliedSyncKey = streamKey;
-
-        var urlBase = url.split('?token=')[0];
-
-        list.forEach(function (v) {
-            try {
-                /* If same video is already playing at a reasonable position, just resync. */
-                var alreadyLoaded = videoBaseUrl(v) === urlBase;
-                if (alreadyLoaded && v.readyState >= 2) {
-                    softSyncPosition(v, startWallMs);
-                    startWallClockSync(v, startWallMs);
-                    return;
-                }
-
-                /* Fresh load: append #t=<elapsed> so browser fetches from the right position. */
-                var elapsed = Math.max(0, (effectiveNowMs() - startWallMs) / 1000);
-                var urlWithTime = url + '#t=' + elapsed.toFixed(1);
-                attachSourceAndMeta(v, urlWithTime);
-
-                function onMeta() {
-                    v.removeEventListener('loadedmetadata', onMeta);
-                    var el = (effectiveNowMs() - startWallMs) / 1000;
-                    if (el < 0) el = 0;
-                    if (v.duration && !isNaN(v.duration)) {
-                        if (el >= v.duration) {
-                            v.currentTime = v.duration;
-                            v.pause();
-                            return;
-                        }
-                        el = Math.min(el, v.duration - 0.05);
-                    }
-                    v.currentTime = el;
-                    var p = v.play();
-                    if (p && typeof p.catch === 'function') p.catch(function () {});
-                }
-                v.addEventListener('loadedmetadata', onMeta);
-
-                v.addEventListener('seeking', function () {
-                    if (liveEdgeStartMs == null) return;
-                    var maxT = (effectiveNowMs() - liveEdgeStartMs) / 1000;
-                    if (v.duration && !isNaN(v.duration)) maxT = Math.min(maxT, v.duration - 0.05);
-                    if (v.currentTime > maxT + 0.3) {
-                        v.currentTime = Math.max(0, maxT);
-                    }
-                });
-
-                startWallClockSync(v, startWallMs);
-            } catch (e) {}
-        });
-
+    function showTapToPlay(v, startWallMs) {
         try {
-            window.dispatchEvent(new CustomEvent('kokoroko:cockfight-video', {
-                detail: { url: url, start: new Date(startWallMs).toISOString() }
-            }));
+            if (document.getElementById('cf-tap-play')) return;
+            var btn = document.createElement('div');
+            btn.id = 'cf-tap-play';
+            btn.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);cursor:pointer;z-index:20;';
+            btn.innerHTML = '<div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;">' +
+                '<svg width="28" height="28" viewBox="0 0 24 24" fill="#111"><polygon points="5,3 19,12 5,21"/></svg></div>';
+            var par = v.parentElement || document.body;
+            if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+            par.appendChild(btn);
+            btn.addEventListener('click', function () {
+                try { par.removeChild(btn); } catch (e) {}
+                doPlay(v, startWallMs);
+            }, { once: true });
         } catch (e) {}
+    }
+
+    function waitForBuffer(v, startWallMs) {
+        /* Wait until PRE_BUFFER_SECS ahead is ready (max MAX_WAIT_MS). */
+        var MAX_WAIT_MS = IS_MOBILE ? 20000 : 45000;
+        var waited = 0;
+        v.pause();
+        var bufTimer = setInterval(function () {
+            waited += 500;
+            var ct = v.currentTime;
+            var b = v.buffered;
+            var ahead = 0;
+            for (var i = 0; i < b.length; i++) {
+                if (b.start(i) <= ct + 0.5) ahead = Math.max(ahead, b.end(i) - ct);
+            }
+            if (ahead < PRE_BUFFER_SECS && waited < MAX_WAIT_MS) return;
+            clearInterval(bufTimer);
+            doPlay(v, startWallMs);
+        }, 500);
     }
 
     function startWallClockSync(v, startWallMs) {
@@ -711,20 +803,69 @@ def cockfight_video_hook_js(request):
             if (drift > 10) {
                 v.currentTime = Math.min(target, v.duration - 0.05);
             }
-        }, 15000); /* check every 15s — less frequent = less stutter */
+        }, 15000); /* check every 15s */
+    }
+
+    var _bgPreloadEl = null;
+    var _bgPreloadUrl = '';
+
+    function startBackgroundPreload(url) {
+        /* Create (or reuse) a hidden <video> that downloads the full file into
+         * the browser HTTP cache before start time.  The element is invisible,
+         * muted, and never plays — its only job is to pull bytes from the server
+         * so they land in cache.  When the real <video> requests the same URL it
+         * gets served from cache immediately with no network round-trip. */
+        if (_bgPreloadUrl === url && _bgPreloadEl) return;  /* already running */
+        stopBackgroundPreload();
+        try {
+            var el = document.createElement('video');
+            el.style.cssText = 'position:fixed;width:1px;height:1px;top:-9999px;left:-9999px;opacity:0;pointer-events:none;';
+            el.muted = true;
+            el.preload = 'auto';
+            el.setAttribute('playsinline', '');
+            el.setAttribute('webkit-playsinline', '');
+            var src = document.createElement('source');
+            src.src = url;
+            src.type = mimeForUrl(url.split('#')[0]);
+            el.appendChild(src);
+            document.body.appendChild(el);
+            el.load();   /* kick off download immediately */
+            _bgPreloadEl = el;
+            _bgPreloadUrl = url;
+        } catch (e) {}
+    }
+
+    function stopBackgroundPreload() {
+        try {
+            if (_bgPreloadEl) {
+                /* Destroy attached hls.js instance if present */
+                if (_bgPreloadEl._bgHls) {
+                    try { _bgPreloadEl._bgHls.destroy(); } catch (e) {}
+                    _bgPreloadEl._bgHls = null;
+                }
+                _bgPreloadEl.pause();
+                _bgPreloadEl.removeAttribute('src');
+                while (_bgPreloadEl.firstChild) _bgPreloadEl.removeChild(_bgPreloadEl.firstChild);
+                _bgPreloadEl.load();
+                if (_bgPreloadEl.parentElement) _bgPreloadEl.parentElement.removeChild(_bgPreloadEl);
+            }
+        } catch (e) {}
+        _bgPreloadEl = null;
+        _bgPreloadUrl = '';
     }
 
     function handleLatestVideo(lv) {
-        /* API drops url after broadcast ends (or no row); stop player so they only had it while allowed. */
-        if (!lv || !lv.url) {
+        /* API drops hls_url after broadcast ends; stop player. */
+        if (!lv || !lv.hls_url) {
             if (lastUrl && (!lv || lv.requires_authentication === false)) {
                 detachCockfightVideos();
             }
             return;
         }
 
+        var hlsUrl = lv.hls_url;
         var schedIso = lv.start || '';
-        var streamKey = lv.url + '|' + schedIso;
+        var streamKey = hlsUrl + '|' + schedIso;
 
         if (streamKey !== lastPollStreamKey) {
             clearScheduleTimers();
@@ -738,7 +879,7 @@ def cockfight_video_hook_js(request):
 
         if (!hasSchedule) {
             clearScheduleTimers();
-            applyUrlImmediate(lv.url);
+            applyHlsSynced(hlsUrl, null);
             return;
         }
 
@@ -747,17 +888,42 @@ def cockfight_video_hook_js(request):
             if (pendingStartTimer && pendingStreamKey === streamKey) return;
             clearScheduleTimers();
             pendingStreamKey = streamKey;
-            lastUrl = lv.url;
+            lastUrl = hlsUrl;
+
+            /* ── Background HLS pre-load before start time ──────────────────────
+             * Attach hls.js to a hidden element so it starts downloading the
+             * same .ts segments the real player will use — all served from
+             * cache when start time hits.
+             * ─────────────────────────────────────────────────────────────────── */
+            loadHlsJs(function (err) {
+                if (err || typeof Hls === 'undefined') return;
+                if (_bgPreloadEl) stopBackgroundPreload();
+                try {
+                    var el = document.createElement('video');
+                    el.style.cssText = 'position:fixed;width:1px;height:1px;top:-9999px;left:-9999px;opacity:0;pointer-events:none;';
+                    el.muted = true;
+                    el.setAttribute('playsinline', '');
+                    document.body.appendChild(el);
+                    var bgHls = new Hls({ maxBufferLength: 60, maxMaxBufferLength: 120, enableWorker: true });
+                    bgHls.loadSource(hlsUrl);
+                    bgHls.attachMedia(el);
+                    _bgPreloadEl = el;
+                    _bgPreloadUrl = hlsUrl;
+                    el._bgHls = bgHls;
+                } catch (e) {}
+            });
+
             pendingStartTimer = setTimeout(function () {
                 pendingStartTimer = null;
                 pendingStreamKey = '';
-                applyUrlSynced(lv.url, startMs, streamKey);
+                stopBackgroundPreload();
+                applyHlsSynced(hlsUrl, startMs, streamKey);
             }, Math.max(0, startMs - effectiveNowMs()) + 100);
             return;
         }
 
         if (lastAppliedSyncKey === streamKey && targetVideos().length) return;
-        applyUrlSynced(lv.url, startMs, streamKey);
+        applyHlsSynced(hlsUrl, startMs, streamKey);
     }
 
     function authFetchHeaders() {

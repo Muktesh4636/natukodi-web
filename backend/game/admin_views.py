@@ -1674,10 +1674,15 @@ def cockfight_round_videos(request):
             scheduled_start=schedule_dt,
         )
         try:
-            from .utils import apply_mp4_faststart, ensure_cockfight_round_video_duration
+            from .utils import (
+                apply_mp4_faststart,
+                ensure_cockfight_round_video_duration,
+                transcode_cockfight_video_hls,
+            )
 
             apply_mp4_faststart(obj.video.path)
             ensure_cockfight_round_video_duration(obj)
+            transcode_cockfight_video_hls(obj.pk)   # HLS adaptive segments (background)
         except Exception:
             pass
         messages.success(
@@ -1693,10 +1698,10 @@ def cockfight_round_videos(request):
     recent_video_rows = []
     for rv in recent_qs:
         play_url = ''
-        if rv.video:
-            from .views import build_cockfight_signed_stream_url
+        if rv.video and rv.hls_ready:
+            from .views import build_cockfight_hls_url
 
-            play_url = build_cockfight_signed_stream_url(request, rv.pk)
+            play_url = build_cockfight_hls_url(request, rv.pk)
         recent_video_rows.append({'rv': rv, 'play_url': play_url})
 
     from django.db.models import Max
