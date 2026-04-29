@@ -1434,6 +1434,7 @@ def _parse_cricket_events(raw_events):
                 'batting': s.get('serving', False),
             })
         clock = ev.get('clock') or {}
+        period_type = (ev.get('periodType') or ev.get('period_type') or '').strip()
         match_odds = []
         for mkt in (ev.get('markets') or []):
             if mkt.get('description', '').strip().lower() == 'head to head':
@@ -1450,10 +1451,46 @@ def _parse_cricket_events(raw_events):
             'match_name': ev.get('description', ''),
             'current_innings': ev.get('currentPeriod', ''),
             'clock_status': clock.get('status', ''),
+            'period_type': period_type,
             'scores': scores,
             'match_odds': match_odds,
         })
     return events
+
+
+# Clock / period values that mean the match is over (hide from pre-match list).
+_CRICKET_FINISHED_CLOCK_STATUSES = frozenset({
+    'STOPPED', 'FINISHED', 'ENDED', 'COMPLETE', 'COMPLETED', 'CLOSED',
+    'FULL_TIME', 'FT', 'RESULT', 'RESULTED', 'SETTLED', 'ABANDONED',
+    'CANCELLED', 'CANCELED', 'VOID', 'VOIDED',
+})
+_CRICKET_POST_MATCH_PERIOD_TYPES = frozenset({
+    'POST_MATCH', 'AFTER_MATCH', 'FULL_TIME', 'ENDED',
+})
+
+
+def _cricket_event_should_hide_from_prematch(ev):
+    """True if event looks finished or already live — should not appear under pre-events."""
+    cs = (ev.get('clock_status') or '').strip().upper()
+    if cs in _CRICKET_FINISHED_CLOCK_STATUSES:
+        return True
+    pt = (ev.get('period_type') or '').strip().upper()
+    if pt in _CRICKET_POST_MATCH_PERIOD_TYPES:
+        return True
+    # Live / in-play belongs on live-events, not pre-match list
+    if pt == 'IN_RUNNING':
+        return True
+    ci = (ev.get('current_innings') or '').strip().lower()
+    if any(
+        phrase in ci
+        for phrase in (
+            'match finished', 'match complete', 'won by', 'innings complete',
+            'match abandoned', 'match cancelled', 'match canceled', 'no result',
+            'final innings', 'game over',
+        )
+    ):
+        return True
+    return False
 
 
 def _cricket_poller():
@@ -1642,6 +1679,8 @@ def cricket_pre_events(request):
             and ' srl' not in e.get('match_name', '').lower()
             and not e.get('match_name', '').lower().endswith(' srl')
         ]
+        # Drop finished / settled / live-in-play rows (feed often mixes them into this list)
+        events = [e for e in events if not _cricket_event_should_hide_from_prematch(e)]
         # Only return event_id, match_name, match_odds
         events = [
             {
