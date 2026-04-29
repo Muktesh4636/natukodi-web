@@ -770,19 +770,16 @@ def cockfight_video_hook_js(request):
     }
 
     function waitForBuffer(v, startWallMs) {
-        /* Wait until PRE_BUFFER_SECS ahead is ready (max MAX_WAIT_MS). */
-        var MAX_WAIT_MS = IS_MOBILE ? 20000 : 45000;
+        /* Always wait exactly 10 seconds before starting playback.
+         * During those 10s the browser downloads segments silently so
+         * the video starts smoothly with no buffering stutter.
+         * After 10s, play from the exact live position (join_time + 10s - start). */
+        var WAIT_MS = 10000;   /* fixed 10-second pre-load wait for all devices */
         var waited = 0;
         v.pause();
         var bufTimer = setInterval(function () {
             waited += 500;
-            var ct = v.currentTime;
-            var b = v.buffered;
-            var ahead = 0;
-            for (var i = 0; i < b.length; i++) {
-                if (b.start(i) <= ct + 0.5) ahead = Math.max(ahead, b.end(i) - ct);
-            }
-            if (ahead < PRE_BUFFER_SECS && waited < MAX_WAIT_MS) return;
+            if (waited < WAIT_MS) return;   /* always wait the full 10 seconds */
             clearInterval(bufTimer);
             doPlay(v, startWallMs);
         }, 500);
