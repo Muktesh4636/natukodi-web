@@ -483,15 +483,14 @@ def apply_mp4_faststart(file_path: str) -> bool:
 
 def transcode_cockfight_video_hls(rv_pk: int):
     """
-    Background: transcode the original video into HLS (HTTP Live Streaming) with
-    two adaptive quality levels — 360p and 720p — using 2-second segments.
+    Background: transcode the original video into HLS with three adaptive quality
+    levels — 360p, 720p, 1080p — using 2-second segments.
 
     Output layout (all under MEDIA_ROOT/cockfight_hls/<hls_token>/):
-        master.m3u8          ← adaptive master playlist
-        360p/index.m3u8      ← variant playlist
-        360p/seg000.ts …
-        720p/index.m3u8
-        720p/seg000.ts …
+        master.m3u8
+        360p/index.m3u8 + seg*.ts
+        720p/index.m3u8 + seg*.ts
+        1080p/index.m3u8 + seg*.ts
 
     hls_token is a random UUID stored on the model so the path is unguessable.
     """
@@ -513,6 +512,7 @@ def transcode_cockfight_video_hls(rv_pk: int):
             out_dir = os.path.join(dj_settings.MEDIA_ROOT, 'cockfight_hls', token)
             os.makedirs(os.path.join(out_dir, '360p'), exist_ok=True)
             os.makedirs(os.path.join(out_dir, '720p'), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, '1080p'), exist_ok=True)
 
             master_pl = os.path.join(out_dir, 'master.m3u8')
             seg_pattern = os.path.join(out_dir, '%v', 'seg%03d.ts')
@@ -521,11 +521,12 @@ def transcode_cockfight_video_hls(rv_pk: int):
             r = subprocess.run(
                 [
                     'ffmpeg', '-y', '-i', src,
-                    # Split video into two streams
+                    # Split video into three streams
                     '-filter_complex',
-                    '[0:v]split=2[v1][v2];'
+                    '[0:v]split=3[v1][v2][v3];'
                     '[v1]scale=-2:360[v360];'
-                    '[v2]scale=-2:720[v720]',
+                    '[v2]scale=-2:720[v720];'
+                    '[v3]scale=-2:1080[v1080]',
                     # 360p video
                     '-map', '[v360]', '-map', '0:a',
                     '-c:v:0', 'libx264', '-profile:v:0', 'main', '-level:v:0', '3.1',
@@ -536,6 +537,11 @@ def transcode_cockfight_video_hls(rv_pk: int):
                     '-c:v:1', 'libx264', '-profile:v:1', 'main', '-level:v:1', '3.1',
                     '-b:v:1', '2500k', '-maxrate:v:1', '2800k', '-bufsize:v:1', '5000k',
                     '-c:a:1', 'aac', '-b:a:1', '128k',
+                    # 1080p video
+                    '-map', '[v1080]', '-map', '0:a',
+                    '-c:v:2', 'libx264', '-profile:v:2', 'high', '-level:v:2', '4.0',
+                    '-b:v:2', '5000k', '-maxrate:v:2', '5500k', '-bufsize:v:2', '10000k',
+                    '-c:a:2', 'aac', '-b:a:2', '192k',
                     # HLS output
                     '-f', 'hls',
                     '-hls_time', '2',
@@ -543,7 +549,7 @@ def transcode_cockfight_video_hls(rv_pk: int):
                     '-hls_flags', 'independent_segments',
                     '-hls_segment_filename', seg_pattern,
                     '-master_pl_name', 'master.m3u8',
-                    '-var_stream_map', 'v:0,a:0,name:360p v:1,a:1,name:720p',
+                    '-var_stream_map', 'v:0,a:0,name:360p v:1,a:1,name:720p v:2,a:2,name:1080p',
                     variant_pattern,
                 ],
                 capture_output=True,

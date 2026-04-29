@@ -675,8 +675,8 @@ def cockfight_video_hook_js(request):
         }
 
         var hls = new Hls({
-            maxBufferLength: 60,          /* Buffer up to 60s ahead */
-            maxMaxBufferLength: 120,
+            maxBufferLength: 60,          /* Buffer exactly 60s (1 min) ahead — no more */
+            maxMaxBufferLength: 60,       /* Hard cap at 60s regardless of network speed */
             startLevel: -1,               /* Auto-select starting quality */
             abrEwmaDefaultEstimate: IS_MOBILE ? 500000 : 2000000,  /* Initial bandwidth guess */
             enableWorker: true,
@@ -904,7 +904,7 @@ def cockfight_video_hook_js(request):
                     el.muted = true;
                     el.setAttribute('playsinline', '');
                     document.body.appendChild(el);
-                    var bgHls = new Hls({ maxBufferLength: 60, maxMaxBufferLength: 120, enableWorker: true });
+                    var bgHls = new Hls({ maxBufferLength: 60, maxMaxBufferLength: 60, enableWorker: true });
                     bgHls.loadSource(hlsUrl);
                     bgHls.attachMedia(el);
                     _bgPreloadEl = el;
