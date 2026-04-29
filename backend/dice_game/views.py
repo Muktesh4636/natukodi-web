@@ -530,6 +530,8 @@ def cockfight_video_hook_js(request):
     var pendingStreamKey = '';
     /* Offset so Date.now()+skew tracks server clock (pseudo-live; same moment for all users). */
     var clockSkewMs = 0;
+    /* Latest COCK1/COCK2 display strings from /meron-wala/info/ for SPA buttons and overlays. */
+    var lastCockfightSideLabels = null;
 
     function effectiveNowMs() {
         return Date.now() + clockSkewMs;
@@ -679,7 +681,16 @@ def cockfight_video_hook_js(request):
             return;
         }
 
+        /* Start downloading from join_position + 10s (the exact point playback
+         * will begin after the pre-load wait), not from join_position.
+         * During the 10s wait, hls.js buffers 3:12 → 4:12 so playback is
+         * immediately smooth with no stutter when doPlay fires. */
+        var hlsStartPos = startWallMs ? Math.max(0, (effectiveNowMs() - startWallMs) / 1000 + 10) : 0;
+
         var hls = new Hls({
+            /* ── Start position ─────────────────────────────────────────────── */
+            startPosition: hlsStartPos,
+
             /* ── Buffer ─────────────────────────────────────────────────────── */
             maxBufferLength: IS_LOW_END ? 20 : 60,
             maxMaxBufferLength: IS_LOW_END ? 20 : 60,
@@ -771,7 +782,11 @@ def cockfight_video_hook_js(request):
 
         try {
             window.dispatchEvent(new CustomEvent('kokoroko:cockfight-video', {
-                detail: { hls_url: hlsUrl, start: startWallMs ? new Date(startWallMs).toISOString() : null }
+                detail: {
+                    hls_url: hlsUrl,
+                    start: startWallMs ? new Date(startWallMs).toISOString() : null,
+                    side_labels: lastCockfightSideLabels
+                }
             }));
         } catch (e) {}
     }
@@ -823,22 +838,70 @@ def cockfight_video_hook_js(request):
         }, 500);
     }
 
+    function liveTarget(startWallMs) {
+        /* Exact position all users should be at right now. */
+        return (effectiveNowMs() - startWallMs) / 1000;
+    }
+
     function startWallClockSync(v, startWallMs) {
         if (wallClockSyncTimer) clearInterval(wallClockSyncTimer);
-        wallClockSyncTimer = setInterval(function () {
+
+        /* Block user from seeking backward or forward.
+         * hls.js fires 'seeking' when user drags the scrubber — snap back. */
+        v.addEventListener('seeking', function () {
             if (liveEdgeStartMs == null || !v.duration) return;
-            var target = (effectiveNowMs() - liveEdgeStartMs) / 1000;
+            var target = liveTarget(liveEdgeStartMs);
+            if (target < 0) target = 0;
+            if (v.duration) target = Math.min(target, v.duration - 0.05);
+            /* Allow up to 3s behind live — anything more snaps back */
+            if (v.currentTime < target - 3 || v.currentTime > target + 1) {
+                v.currentTime = target;
+            }
+        });
+
+        /* Stall recovery: if the video freezes mid-playback (slow internet),
+         * seek 6 seconds ahead so hls.js buffers from the correct position,
+         * wait 6 seconds for it to load, then resume from live position. */
+        var _stallRecoveryTimer = null;
+        v.addEventListener('waiting', function () {
+            if (_stallRecoveryTimer) return;  /* already recovering */
+            var skipTo = v.currentTime + 6;
+            if (liveEdgeStartMs) {
+                var live = liveTarget(liveEdgeStartMs);
+                skipTo = Math.max(skipTo, live);  /* never behind live */
+            }
+            if (v.duration) skipTo = Math.min(skipTo, v.duration - 0.05);
+            v.currentTime = skipTo;  /* hls.js starts buffering from skipTo → skipTo+60s */
+            _stallRecoveryTimer = setTimeout(function () {
+                _stallRecoveryTimer = null;
+                doPlay(v, startWallMs);
+            }, 6000);
+        });
+        /* Cancel recovery if video resumes on its own before 6s */
+        v.addEventListener('playing', function () {
+            if (_stallRecoveryTimer) {
+                clearTimeout(_stallRecoveryTimer);
+                _stallRecoveryTimer = null;
+            }
+        });
+
+        /* Periodic sync: correct drift > 3s every 3 seconds.
+         * All users stay within ±3s of the same live position. */
+        wallClockSyncTimer = setInterval(function () {
+            if (liveEdgeStartMs == null || !v.duration || v.paused) return;
+            var target = liveTarget(liveEdgeStartMs);
             if (target >= v.duration) {
                 clearInterval(wallClockSyncTimer);
                 wallClockSyncTimer = null;
                 return;
             }
-            /* Only seek if badly out of sync (> 10s) — seeks drop buffered data and stall playback. */
-            var drift = Math.abs(v.currentTime - target);
-            if (drift > 10) {
-                v.currentTime = Math.min(target, v.duration - 0.05);
+            target = Math.min(target, v.duration - 0.05);
+            var drift = v.currentTime - target;
+            /* Behind by more than 3s or ahead by more than 1s → snap to live */
+            if (drift < -3 || drift > 1) {
+                v.currentTime = target;
             }
-        }, 15000); /* check every 15s */
+        }, 3000); /* check every 3 seconds */
     }
 
     var _bgPreloadEl = null;
@@ -985,6 +1048,13 @@ def cockfight_video_hook_js(request):
             .then(function (r) { return r.json(); })
             .then(function (d) {
                 var lv = d && d.latest_round_video;
+                lastCockfightSideLabels = (d && d.side_labels) || (lv && lv.side_labels) || null;
+                try {
+                    window.__cockfightSideLabels = lastCockfightSideLabels;
+                    window.dispatchEvent(new CustomEvent('kokoroko:cockfight-info', {
+                        detail: { info: d, side_labels: lastCockfightSideLabels, latest_round_video: lv }
+                    }));
+                } catch (eInfo) {}
                 try {
                     if (lv && lv.server_time) {
                         var srv = Date.parse(lv.server_time);

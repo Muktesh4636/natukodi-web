@@ -42,6 +42,11 @@ from .utils import (
     get_current_round_state,
     cockfight_consumer_stream_active,
     ensure_cockfight_round_video_duration,
+    next_cockfight_video_round_for_betting,
+    COCKFIGHT_SIDE_ODDS,
+    normalize_cockfight_side,
+    cockfight_side_labels_dict,
+    cockfight_side_display,
 )
 
 # Redis connection with tiered failover
@@ -2737,6 +2742,7 @@ def _serialize_latest_cockfight_round_video(request):
     else:
         out['hls_url'] = None
         out['requires_authentication'] = True
+    out['side_labels'] = cockfight_side_labels_dict(rv)
     return out
 
 
@@ -2745,20 +2751,31 @@ def _serialize_latest_cockfight_round_video(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cock_fight_info(request):
-    from .models import CockFightSession
+    from .models import CockFightSession, CockFightRoundVideo
 
     latest_round_video = _serialize_latest_cockfight_round_video(request)
     session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
     if not session:
+        sl_idle = None
+        if latest_round_video:
+            sl_idle = latest_round_video.get('side_labels')
         return Response({
             'session': None,
+            'round_id': None,
             'open': False,
+            'side_labels': sl_idle,
             'latest_round_video': latest_round_video,
         })
+    rid = session.video_round_id
+    labels_video = None
+    if rid:
+        labels_video = CockFightRoundVideo.objects.filter(pk=rid).only('label_cock1', 'label_cock2').first()
     return Response({
-        'session': session.pk,
+        'session': rid,
+        'round_id': rid,
         'open': True,
         'created_at': session.created_at.isoformat(),
+        'side_labels': cockfight_side_labels_dict(labels_video),
         'latest_round_video': latest_round_video,
     })
 
@@ -2786,12 +2803,21 @@ def place_cock_fight_bet(request):
     if stake <= 0:
         return Response({'error': 'Stake must be positive'}, status=status.HTTP_400_BAD_REQUEST)
 
-    session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
-    if not session:
-        return Response({'error': 'No open session'}, status=status.HTTP_400_BAD_REQUEST)
-
     odds = Decimal('9.00')
     with transaction.atomic():
+        session = CockFightSession.objects.select_for_update().filter(status='OPEN').order_by('-id').first()
+        if not session:
+            return Response({'error': 'No open session'}, status=status.HTTP_400_BAD_REQUEST)
+        if session.video_round_id is None:
+            rv_next = next_cockfight_video_round_for_betting()
+            if not rv_next:
+                return Response(
+                    {'error': 'Upload cockfight round video in admin first.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            session.video_round = rv_next
+            session.save(update_fields=['video_round'])
+
         wallet = Wallet.objects.select_for_update().get(user=request.user)
         if wallet.balance < stake:
             return Response({'error': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
@@ -2812,29 +2838,46 @@ def place_cock_fight_bet(request):
             amount=stake,
             description=f'Cock fight bet #{bet.pk}',
         )
-    return Response({'bet_id': bet.pk, 'stake': stake, 'side': side, 'potential_payout': potential_payout},
+    return Response({
+            'bet_id': bet.pk,
+            'round_id': session.video_round_id,
+            'stake': stake,
+            'side': side,
+            'potential_payout': potential_payout,
+        },
                     status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_cock_fight_bets(request):
-    from .models import CockFightBet
-    bets = CockFightBet.objects.filter(user=request.user).order_by('-created_at')[:50]
-    data = [
-        {
-            'id': b.pk,
-            'session': b.session_id,
-            'side': b.side,
-            'stake': b.stake,
-            'odds': str(b.odds),
-            'potential_payout': b.potential_payout,
-            'status': b.status,
-            'payout_amount': b.payout_amount,
-            'created_at': b.created_at.isoformat(),
-        }
-        for b in bets
-    ]
+    from .models import CockFightBet, CockFightRoundVideo
+    bets = CockFightBet.objects.filter(user=request.user).select_related('session').order_by('-created_at')[:50]
+    video_ids = list({b.session.video_round_id for b in bets if b.session.video_round_id})
+    videos = {
+        v.pk: v
+        for v in CockFightRoundVideo.objects.filter(pk__in=video_ids).only('pk', 'label_cock1', 'label_cock2')
+    }
+    data = []
+    for b in bets:
+        rv_obj = videos.get(b.session.video_round_id)
+        sl_row = cockfight_side_labels_dict(rv_obj)
+        data.append(
+            {
+                'id': b.pk,
+                'round_id': b.session.video_round_id,
+                'session': b.session.video_round_id,
+                'side': b.side,
+                'side_labels': sl_row,
+                'side_label': cockfight_side_display(b.side, sl_row),
+                'stake': b.stake,
+                'odds': str(b.odds),
+                'potential_payout': b.potential_payout,
+                'status': b.status,
+                'payout_amount': b.payout_amount,
+                'created_at': b.created_at.isoformat(),
+            }
+        )
     return Response(data)
 
 
@@ -2886,39 +2929,29 @@ def settle_cock_fight(request):
                 bet.settled_at = timezone.now()
                 bet.save()
                 lost_count += 1
-    return Response({'session': session.pk, 'winner': winner, 'won': won_count, 'lost': lost_count})
-
-
-# ---------------------------------------------------------------------------
-# Meron / Wala / Draw betting (sabong-style fixed odds)
-# Odds (decimal, includes stake):  MERON=1.90, WALA=1.92, DRAW=4.46
-# Example: bet 100 on MERON → win returns 190 total (90 profit + 100 stake back)
-# ---------------------------------------------------------------------------
-MERON_WALA_ODDS = {
-    'MERON': Decimal('1.90'),
-    'WALA': Decimal('1.92'),
-    'DRAW': Decimal('4.46'),
-}
+    return Response({'round_id': session.video_round_id, 'winner': winner, 'won': won_count, 'lost': lost_count})
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def place_meron_wala_bet(request):
     """
-    Place a bet on MERON / WALA / DRAW.
+    Place a bet on Cock 1 / Cock 2 / Draw.
     POST /api/game/meron-wala/bet/
-    Body: { "side": "MERON" | "WALA" | "DRAW", "stake": <int>, "event_id": <optional int> }
+    Body: { "side": "COCK1" | "COCK2" | "DRAW", "stake": <int> }
+    Legacy aliases: MERON → COCK1, WALA → COCK2 (still accepted).
+    Odds (decimal, includes stake): COCK1=1.90, COCK2=1.92, DRAW=4.46
     """
-    from .models import CockFightSession, CockFightBet
+    from .models import CockFightSession, CockFightBet, CockFightRoundVideo
     from accounts.models import Wallet, Transaction
 
     if request.user.is_staff or request.user.is_superuser:
         return Response({'error': 'Admins are not allowed to participate in the game.'},
                         status=status.HTTP_403_FORBIDDEN)
 
-    side = (request.data.get('side') or '').upper().strip()
-    if side not in MERON_WALA_ODDS:
-        return Response({'error': 'side must be MERON, WALA or DRAW'},
+    side = normalize_cockfight_side(request.data.get('side'))
+    if side not in COCKFIGHT_SIDE_ODDS:
+        return Response({'error': 'side must be COCK1, COCK2 or DRAW'},
                         status=status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -2933,7 +2966,7 @@ def place_meron_wala_bet(request):
         return Response({'error': f'Maximum bet amount is {max_bet_limit}'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    odds = MERON_WALA_ODDS[side]
+    odds = COCKFIGHT_SIDE_ODDS[side]
     potential_payout = int(Decimal(stake) * odds)
 
     with transaction.atomic():
@@ -2942,8 +2975,34 @@ def place_meron_wala_bet(request):
                    .filter(status='OPEN')
                    .order_by('-id')
                    .first())
-        if not session:
-            session = CockFightSession.objects.create(status='OPEN')
+        if session:
+            if session.video_round_id is None:
+                rv_next = next_cockfight_video_round_for_betting()
+                if not rv_next:
+                    return Response(
+                        {
+                            'error': (
+                                'No cockfight round video available to attach. '
+                                'Upload a round video in admin first.'
+                            ),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                session.video_round = rv_next
+                session.save(update_fields=['video_round'])
+        else:
+            rv_next = next_cockfight_video_round_for_betting()
+            if not rv_next:
+                return Response(
+                    {
+                        'error': (
+                            'Upload the next cockfight round video in admin before accepting bets '
+                            '(previous round has closed).'
+                        ),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            session = CockFightSession.objects.create(status='OPEN', video_round=rv_next)
 
         wallet = Wallet.objects.select_for_update().get(user=request.user)
         balance_before = int(wallet.balance)
@@ -2969,7 +3028,7 @@ def place_meron_wala_bet(request):
             amount=stake,
             balance_before=balance_before,
             balance_after=balance_after,
-            description=f'Meron/Wala bet #{bet.pk} on {side}',
+            description=f'Cock fight bet #{bet.pk} on {side}',
         )
 
         # Keep Redis balance cache in sync so wallet API stays fast/correct.
@@ -2979,11 +3038,21 @@ def place_meron_wala_bet(request):
             except Exception:
                 pass
 
+    labels_video = None
+    if session.video_round_id:
+        labels_video = CockFightRoundVideo.objects.filter(pk=session.video_round_id).only(
+            'label_cock1', 'label_cock2'
+        ).first()
+    rid = session.video_round_id
+    sl_resp = cockfight_side_labels_dict(labels_video)
     return Response({
         'success': True,
         'bet_id': bet.pk,
-        'session_id': session.pk,
+        'round_id': rid,
+        'session': rid,
         'side': side,
+        'side_labels': sl_resp,
+        'side_label': cockfight_side_display(side, sl_resp),
         'stake': stake,
         'odds': str(odds),
         'potential_payout': potential_payout,
@@ -2995,12 +3064,13 @@ def place_meron_wala_bet(request):
 @permission_classes([IsAuthenticated])
 def settle_meron_wala_round(request):
     """
-    Admin: mark the result for a Meron/Wala/Draw (cockfight) round and credit winners.
-    Staff/superuser only. Use from admin tools or a trusted client with a staff JWT.
+    Admin: mark the result for a cockfight round and credit winners.
+    Staff/superuser only.
 
     POST /api/game/meron-wala/admin/settle-round/
     Body (JSON):
-      { "round_id": <int>,  "winner": "MERON" | "WALA" | "DRAW" }
+      { "round_id": <int>,  "winner": "COCK1" | "COCK2" | "DRAW" }
+    Legacy winner aliases: MERON → COCK1, WALA → COCK2.
     (Legacy alias: "session_id" is accepted if "round_id" is omitted — same value as round id.)
     """
     if not (request.user.is_staff or request.user.is_superuser):

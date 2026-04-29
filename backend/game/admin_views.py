@@ -913,7 +913,7 @@ def recent_rounds(request):
             if search_query.isdigit():
                 try:
                     sid = int(search_query)
-                    cq |= Q(session_id=sid)
+                    cq |= Q(session_id=sid) | Q(session__video_round_id=sid)
                 except (ValueError, OverflowError):
                     pass
             cf_qs = cf_qs.filter(cq)
@@ -924,9 +924,13 @@ def recent_rounds(request):
 
         total_bets_count = cf_qs.count()
         total_bets_amount = cf_qs.aggregate(s=Sum('stake'))['s'] or 0
-        total_rounds = cf_qs.values('session_id').distinct().count()
 
-        aggregated = cf_qs.values('session_id').annotate(
+        cf_qs_ann = cf_qs.annotate(
+            display_round_id=F('session__video_round_id'),
+        )
+        total_rounds = cf_qs_ann.values('display_round_id').distinct().count()
+
+        aggregated = cf_qs_ann.values('display_round_id').annotate(
             round_bets_count=Count('id'),
             round_bets_amount=Coalesce(Sum('stake'), Value(0)),
             last_time=Max('created_at'),
@@ -1519,7 +1523,7 @@ def all_bets(request):
             if search_query.isdigit():
                 try:
                     sid = int(search_query)
-                    cq |= Q(session_id=sid) | Q(session__id=sid)
+                    cq |= Q(session_id=sid) | Q(session__id=sid) | Q(session__video_round_id=sid)
                 except (ValueError, OverflowError):
                     pass
             all_bets_list = all_bets_list.filter(cq)
@@ -1592,7 +1596,7 @@ def all_bets(request):
 @require_POST
 def cockfight_settle_result(request):
     """
-    Settle Meron/Wala/Draw for a cockfight round (same logic as
+    Settle Cock 1 / Cock 2 / Draw for a cockfight round (same logic as
     POST /api/game/meron-wala/admin/settle-round/). Submitted from All Bets (cock fight).
     """
     if not has_menu_permission(request.user, 'all_bets'):
@@ -1668,10 +1672,15 @@ def cockfight_round_videos(request):
         if tz_util.is_naive(schedule_dt):
             schedule_dt = tz_util.make_aware(schedule_dt, tz_util.get_current_timezone())
 
+        label_cock1 = (request.POST.get('label_cock1') or '').strip()[:80]
+        label_cock2 = (request.POST.get('label_cock2') or '').strip()[:80]
+
         obj = CockFightRoundVideo.objects.create(
             video=upload,
             uploaded_by=request.user,
             scheduled_start=schedule_dt,
+            label_cock1=label_cock1,
+            label_cock2=label_cock2,
         )
         try:
             from .utils import (
@@ -2022,37 +2031,15 @@ def approve_deposit(request, pk):
                 description=f"Manual deposit approved #{deposit.id}{f' (Includes 5% USDT bonus: ₹{bonus_amount})' if bonus_amount > 0 else ''}{f'. {deposit.admin_note}' if deposit.admin_note else ''}",
             )
 
-            # Handle referral bonus
-            referrer = deposit.user.referred_by
-            if referrer:
-                from accounts.referral_logic import calculate_referral_bonus, check_and_award_milestone_bonus
-                referral_bonus = calculate_referral_bonus(deposit.amount)
-                if referral_bonus > 0:
-                    ref_wallet, _ = Wallet.objects.get_or_create(user=referrer)
-                    ref_wallet = Wallet.objects.select_for_update().get(pk=ref_wallet.pk)
-                    ref_balance_before = ref_wallet.balance
-                    # Referral bonus needs to be rotated 1 time (counts as deposit for withdrawable rule)
-                    ref_wallet.add(referral_bonus, is_bonus=True)
-                    Wallet.objects.filter(pk=ref_wallet.pk).update(total_deposits=F('total_deposits') + int(referral_bonus))
-                    ref_wallet.refresh_from_db()
-                    Wallet.apply_deposit_rotation_credit(ref_wallet.pk, int(referral_bonus))
+            try:
+                from accounts.referral_logic import award_referrer_instant_bonus_on_referee_first_deposit
 
-                    Transaction.objects.create(
-                        user=referrer,
-                        transaction_type='REFERRAL_BONUS',
-                        amount=referral_bonus,
-                        balance_before=ref_balance_before,
-                        balance_after=ref_wallet.balance,
-                        description=f"Referral bonus from {deposit.user.username}'s deposit of ₹{deposit.amount}",
-                    )
-                    # 2️⃣ Update Redis for referrer atomically
-                    try:
-                        if redis_client:
-                            redis_client.incrbyfloat(f"user_balance:{referrer.id}", float(referral_bonus))
-                    except: pass
-                    # Check for milestone bonus
-                    check_and_award_milestone_bonus(referrer)
-        
+                award_referrer_instant_bonus_on_referee_first_deposit(deposit)
+            except Exception as ref_exc:
+                logger.warning('Referral instant bonus failed deposit=%s: %s', deposit.pk, ref_exc)
+
+            # Daily-loss referral commission: ``process_referral_daily_commission`` cron.
+
         messages.success(request, f"Deposit request #{deposit.id} approved. ₹{final_amount} added to {deposit.user.username}'s wallet.{f' (Includes ₹{bonus_amount} USDT bonus)' if bonus_amount > 0 else ''}")
     except DepositRequest.DoesNotExist:
         messages.error(request, 'Deposit request not found.')

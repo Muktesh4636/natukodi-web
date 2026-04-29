@@ -1,36 +1,36 @@
 """
-Shared Meron / Wala / Draw (cockfight) round settlement — used by API and game-admin UI.
+Shared Cock fight round settlement (COCK1 / COCK2 / DRAW) — used by API and game-admin UI.
 """
 from django.db import transaction
 from django.utils import timezone
 
-from .models import CockFightSession, CockFightBet
+from .models import CockFightSession, CockFightBet, CockFightRoundVideo
 from accounts.models import Wallet, Transaction
-from .utils import get_redis_client
+from .utils import get_redis_client, normalize_cockfight_side, cockfight_side_labels_dict, cockfight_side_display
 
-VALID_WINNERS = ('MERON', 'WALA', 'DRAW')
+VALID_WINNERS = ('COCK1', 'COCK2', 'DRAW')
 
 
 def run_meron_wala_settlement(round_id: int, winner: str):
     """
-    Settle an open CockFightSession. ``winner`` must be MERON, WALA, or DRAW.
-
-    Returns (payload, http_status). On failure payload is ``{'error': str, ...}``.
-    On success ``{'success': True, 'round_id': int, 'winner': str}``.
+    Settle an open CockFightSession. ``winner`` must be COCK1, COCK2, or DRAW
+    (MERON/WALA accepted as legacy aliases).
     """
-    w = (winner or '').upper().strip()
+    w = normalize_cockfight_side(winner)
     if w not in VALID_WINNERS:
-        return {'error': 'winner must be MERON, WALA, or DRAW'}, 400
+        return {'error': 'winner must be COCK1, COCK2, or DRAW'}, 400
 
     with transaction.atomic():
-        session = CockFightSession.objects.select_for_update().filter(pk=round_id).first()
+        session = CockFightSession.objects.select_for_update().filter(
+            video_round_id=round_id, status='OPEN'
+        ).first()
+        if not session:
+            # Legacy rows before video_round existed — settle by session pk
+            session = CockFightSession.objects.select_for_update().filter(
+                pk=round_id, status='OPEN'
+            ).first()
         if not session:
             return {'error': f'Round {round_id} not found'}, 404
-        if session.status != 'OPEN':
-            return {
-                'error': f'Round {round_id} is not open',
-                'status': session.status,
-            }, 400
 
         session.status = 'SETTLED'
         session.winner = w
@@ -69,4 +69,15 @@ def run_meron_wala_settlement(round_id: int, winner: str):
                 bet.settled_at = timezone.now()
                 bet.save(update_fields=['status', 'payout_amount', 'settled_at'])
 
-    return {'success': True, 'round_id': session.pk, 'winner': w}, 200
+    labels_video = None
+    if session.video_round_id:
+        labels_video = CockFightRoundVideo.objects.filter(pk=session.video_round_id).only(
+            'label_cock1', 'label_cock2'
+        ).first()
+    sl = cockfight_side_labels_dict(labels_video)
+    return {
+        'success': True,
+        'round_id': session.video_round_id,
+        'winner': w,
+        'winner_label': cockfight_side_display(w, sl),
+    }, 200

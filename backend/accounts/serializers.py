@@ -110,7 +110,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     - ``WIN`` → ``win``
     - ``BET`` → ``bet`` (open stake) or ``loss`` once the round is settled and this bet lost
     - ``DEPOSIT`` → ``successful`` (ledger rows are created after completed deposits; pending is on deposit-requests APIs)
-    - ``REFERRAL_BONUS``, ``MILESTONE_BONUS``, ``LEADERBOARD_PRIZE``, ``WITHDRAW``, ``REFUND`` → ``successful``
+    - ``REFERRAL_BONUS``, ``REFERRAL_COMMISSION``, ``MILESTONE_BONUS``, ``LEADERBOARD_PRIZE``, ``WITHDRAW``, ``REFUND`` → ``successful``
     """
 
     status = serializers.SerializerMethodField()
@@ -177,7 +177,14 @@ class TransactionSerializer(serializers.ModelSerializer):
             return 'bet'
         if t == 'DEPOSIT':
             return 'successful'
-        if t in ('WITHDRAW', 'REFUND', 'REFERRAL_BONUS', 'MILESTONE_BONUS', 'LEADERBOARD_PRIZE'):
+        if t in (
+            'WITHDRAW',
+            'REFUND',
+            'REFERRAL_BONUS',
+            'REFERRAL_COMMISSION',
+            'MILESTONE_BONUS',
+            'LEADERBOARD_PRIZE',
+        ):
             return 'successful'
         return 'successful'
 

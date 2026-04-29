@@ -644,11 +644,19 @@ class CricketBet(models.Model):
 
 
 class CockFightSession(models.Model):
+    """Betting round for Cock 1 / Cock 2 / Draw. ``video_round`` matches CockFightRoundVideo.pk."""
     status = models.CharField(
         max_length=20,
         choices=[('OPEN', 'Open'), ('SETTLED', 'Settled')],
         default='OPEN',
         db_index=True,
+    )
+    video_round = models.ForeignKey(
+        'CockFightRoundVideo',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='betting_sessions',
     )
     winner = models.CharField(max_length=10, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -715,6 +723,18 @@ class CockFightRoundVideo(models.Model):
     hls_token = models.CharField(
         max_length=64, blank=True, default='',
         help_text='Random UUID used as the private HLS directory path.',
+    )
+    label_cock1 = models.CharField(
+        max_length=80,
+        blank=True,
+        default='',
+        help_text='Display name for COCK1 in apps (e.g. Red). API bets stay COCK1.',
+    )
+    label_cock2 = models.CharField(
+        max_length=80,
+        blank=True,
+        default='',
+        help_text='Display name for COCK2 in apps (e.g. Black). API bets stay COCK2.',
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(

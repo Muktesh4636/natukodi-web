@@ -686,7 +686,7 @@
                         {% elif game == 'cockfight' %}
                         <thead>
                             <tr>
-                                <th>Session ID</th>
+                                <th>Round</th>
                                 <th>Bets</th>
                                 <th>Total stake</th>
                                 <th>Last activity</th>
@@ -695,7 +695,7 @@
                         <tbody>
                             {% for row in recent_rounds %}
                             <tr>
-                                <td><span class="round-id">#{{ row.session_id }}</span></td>
+                                <td>{% if row.display_round_id %}<span class="round-id">#{{ row.display_round_id }}</span>{% else %}<span class="round-id" style="color:#a0aec0;">—</span>{% endif %}</td>
                                 <td><strong>{{ row.round_bets_count }}</strong></td>
                                 <td><span class="amount">₹{{ row.round_bets_amount|floatformat:2 }}</span></td>
                                 <td><span class="time-badge">{{ row.last_time|date:"M d, Y H:i:s" }}</span></td>

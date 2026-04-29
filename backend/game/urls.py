@@ -31,7 +31,7 @@ urlpatterns = [
     path('admin/daily-reward-prob/', views.admin_daily_reward_prob, name='admin_daily_reward_prob_global'),
     path('admin/daily-reward-prob/<int:user_id>/', views.admin_daily_reward_prob, name='admin_daily_reward_prob_user'),
 
-    # Meron / Wala / Draw betting (sabong-style fixed odds)
+    # Cock fight: Cock 1 / Cock 2 / Draw (legacy paths kept as meron-wala/*)
     path('meron-wala/bet/', views.place_meron_wala_bet, name='place_meron_wala_bet'),
     path('meron-wala/bets/mine/', views.my_cock_fight_bets, name='my_cock_fight_bets'),
     path('meron-wala/info/', views.cock_fight_info, name='cock_fight_info'),

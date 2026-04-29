@@ -4,6 +4,7 @@ import os
 import random
 import subprocess
 from collections import Counter
+from decimal import Decimal
 
 
 def format_indian_int(value):
@@ -313,9 +314,10 @@ def get_game_setting(key, default=None):
         # Convert to int for numeric settings
         numeric_keys = [
             'BETTING_CLOSE_TIME', 'DICE_ROLL_TIME', 'DICE_RESULT_TIME', 'ROUND_END_TIME',
-            'BETTING_DURATION', 'RESULT_SELECTION_DURATION', 
+            'BETTING_DURATION', 'RESULT_SELECTION_DURATION',
             'RESULT_DISPLAY_DURATION', 'TOTAL_ROUND_DURATION',
-            'RESULT_ANNOUNCE_TIME', 'MAX_BET'
+            'RESULT_ANNOUNCE_TIME', 'MAX_BET',
+            'REFERRAL_INSTANT_BONUS_PER_REFEREE', 'REFERRAL_COMMISSION_PERCENT',
         ]
         if key in numeric_keys:
             try:
@@ -648,3 +650,75 @@ def cockfight_consumer_stream_active(rv) -> bool:
     else:
         wall_end = rv.uploaded_at + dur
     return now < wall_end
+
+
+def cockfight_claimed_video_round_ids():
+    """CockFightRoundVideo PKs that already have at least one CockFightSession row."""
+    from .models import CockFightSession
+
+    return set(
+        CockFightSession.objects.exclude(video_round_id__isnull=True).values_list(
+            'video_round_id', flat=True
+        )
+    )
+
+
+def next_cockfight_video_round_for_betting():
+    """
+    Latest uploaded CockFightRoundVideo that does not yet have any CockFightSession.
+    Aligns betting round numbers with admin video round IDs (same pk).
+    """
+    from .models import CockFightRoundVideo
+
+    claimed = cockfight_claimed_video_round_ids()
+    qs = CockFightRoundVideo.objects.all()
+    if claimed:
+        qs = qs.exclude(pk__in=claimed)
+    return qs.order_by('-id').first()
+
+
+# Cock fight Meron/Wala replacement: API uses COCK1 / COCK2 / DRAW (MERON→COCK1, WALA→COCK2 accepted as aliases).
+COCKFIGHT_SIDE_ALIASES = {
+    'MERON': 'COCK1',
+    'WALA': 'COCK2',
+}
+COCKFIGHT_SIDE_ODDS = {
+    'COCK1': Decimal('1.90'),
+    'COCK2': Decimal('1.92'),
+    'DRAW': Decimal('4.46'),
+}
+
+
+def normalize_cockfight_side(raw_side):
+    """Map legacy MERON/WALA to COCK1/COCK2; upper-strip unknown tokens."""
+    s = (raw_side or '').upper().strip()
+    return COCKFIGHT_SIDE_ALIASES.get(s, s)
+
+
+def cockfight_side_labels_dict(video_round):
+    """
+    UI labels for COCK1 / COCK2 from a CockFightRoundVideo instance (or None).
+    Betting/settlement always uses COCK1 and COCK2 codes regardless.
+    """
+    if video_round is None:
+        return {'COCK1': 'Cock 1', 'COCK2': 'Cock 2'}
+    c1 = (getattr(video_round, 'label_cock1', None) or '').strip()
+    c2 = (getattr(video_round, 'label_cock2', None) or '').strip()
+    return {'COCK1': c1 or 'Cock 1', 'COCK2': c2 or 'Cock 2'}
+
+
+def cockfight_side_display(side, labels):
+    """
+    Single UI string for a bet/result side code using the same labels as cockfight_side_labels_dict.
+    COCK1/COCK2/DRAW (and legacy MERON/WALA via normalize_cockfight_side — caller may pass raw side).
+    """
+    if labels is None:
+        labels = {}
+    code = normalize_cockfight_side(side) if side else ''
+    if code == 'DRAW':
+        return 'Draw'
+    if code == 'COCK1':
+        return labels.get('COCK1') or 'Cock 1'
+    if code == 'COCK2':
+        return labels.get('COCK2') or 'Cock 2'
+    return code or str(side or '')

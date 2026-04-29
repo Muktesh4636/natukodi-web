@@ -1,12 +1,33 @@
+import re
+import secrets
+
+from decimal import Decimal
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import F, Value
 from django.db.models.functions import Greatest
-from decimal import Decimal
 from django.utils import timezone
-import uuid
-import string
-import random
+
+
+REFERRAL_CODE_MAX_LEN = 20
+
+
+def referral_identity_slug(username, phone_number):
+    """
+    Base slug for referral codes: username (letters/digits only, lowercased), else phone digits,
+    else empty string.
+    """
+    raw = (username or '').strip().lower()
+    slug = re.sub(r'[^a-z0-9]', '', raw)
+    if len(slug) >= 2:
+        return slug[:REFERRAL_CODE_MAX_LEN]
+    if slug:
+        return slug[:REFERRAL_CODE_MAX_LEN]
+    digits = re.sub(r'\D', '', str(phone_number or ''))
+    if digits:
+        return digits[-REFERRAL_CODE_MAX_LEN:]
+    return ''
 
 
 class User(AbstractUser):
@@ -68,34 +89,35 @@ class User(AbstractUser):
     
     def generate_unique_referral_code(self):
         """
-        Generate a unique referral code for this user.
-        Format: Gunduata123, Gunduata124, Gunduata125, ...
+        Unique code derived from username (e.g. ``ravi``, ``ravi2``) or phone digits if username
+        has no usable slug; otherwise a short ``ref`` + hex fallback.
         """
-        prefix = "Gunduata"
-        codes = User.objects.exclude(
-            referral_code__isnull=True
-        ).exclude(
-            referral_code=''
-        ).values_list('referral_code', flat=True)
-        numeric_vals = []
-        for c in codes:
-            if not c:
-                continue
-            c = str(c).strip()
-            if c.isdigit():
-                numeric_vals.append(int(c))
-            elif c.upper().startswith("GUNDUATA") and len(c) > len(prefix):
-                suffix = c[len(prefix):].lstrip()
-                if suffix.isdigit():
-                    numeric_vals.append(int(suffix))
-        next_num = max(numeric_vals) + 1 if numeric_vals else 123
-        next_num = max(next_num, 123)  # Ensure we start at least at 123
+        base = referral_identity_slug(self.username, self.phone_number)
+        if not base:
+            base = 'ref' + secrets.token_hex(3)
 
-        code = f"{prefix}{next_num}"
-        while User.objects.filter(referral_code=code).exclude(pk=self.pk).exists():
-            next_num += 1
-            code = f"{prefix}{next_num}"
-        return code
+        base = base.lower()[:REFERRAL_CODE_MAX_LEN]
+
+        def _exists(candidate):
+            return (
+                User.objects.filter(referral_code__iexact=candidate)
+                .exclude(pk=self.pk)
+                .exists()
+            )
+
+        if not _exists(base):
+            return base
+
+        for n in range(2, 10_000):
+            suffix = str(n)
+            head_len = REFERRAL_CODE_MAX_LEN - len(suffix)
+            if head_len < 1:
+                head_len = 1
+            candidate = (base[:head_len] + suffix).lower()[:REFERRAL_CODE_MAX_LEN]
+            if not _exists(candidate):
+                return candidate
+
+        return (base[:12] + secrets.token_hex(4))[:REFERRAL_CODE_MAX_LEN].lower()
     
     def save(self, *args, **kwargs):
         # Track previous referred_by so we can update referrers' total_referrals_count
@@ -304,6 +326,7 @@ class Transaction(models.Model):
         ('WIN', 'Win'),
         ('REFUND', 'Refund'),
         ('REFERRAL_BONUS', 'Referral Bonus'),
+        ('REFERRAL_COMMISSION', 'Referral Commission'),
         ('MILESTONE_BONUS', 'Milestone Bonus'),
         ('LEADERBOARD_PRIZE', 'Leaderboard Prize'),
     ]
@@ -321,6 +344,42 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.transaction_type} - {self.amount}"
+
+
+class ReferralDailyCommission(models.Model):
+    """Ledger row + audit for daily referee wallet-loss × referrer slab commission."""
+
+    referrer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='referral_commission_earnings')
+    referee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='referral_commission_generated')
+    commission_date = models.DateField(db_index=True)
+    opening_balance = models.BigIntegerField()
+    closing_balance = models.BigIntegerField()
+    loss_amount = models.BigIntegerField()
+    commission_rate = models.DecimalField(max_digits=7, decimal_places=4)
+    commission_amount = models.BigIntegerField()
+    transaction = models.OneToOneField(
+        Transaction,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='referral_daily_commission_detail',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('referee', 'commission_date'),
+                name='uniq_referral_daily_comm_referee_date',
+            ),
+        ]
+        ordering = ('-commission_date', '-id')
+
+    def __str__(self):
+        return (
+            f'referrer={self.referrer_id} referee={self.referee_id} '
+            f'{self.commission_date} ₹{self.commission_amount}'
+        )
 
 
 class DepositRequest(models.Model):

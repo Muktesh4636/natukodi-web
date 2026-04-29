@@ -1,128 +1,284 @@
+"""
+Referral rewards:
+
+1. **Instant bonus**: referrer gets ``REFERRAL_INSTANT_BONUS_PER_REFEREE`` (default ₹100) once when a
+   referee's **first** deposit is approved (API + game-admin flows).
+
+2. **Daily commission**: referees' net wallet loss per IST calendar day × flat ``REFERRAL_COMMISSION_PERCENT``
+   (default 4%). Run ``manage.py process_referral_daily_commission`` **daily at 01:00 Asia/Kolkata** so the
+   previous IST day is settled once per night (no in-app timer — use cron/systemd on the server).
+
+Override defaults via ``GameSettings`` keys ``REFERRAL_INSTANT_BONUS_PER_REFEREE`` and ``REFERRAL_COMMISSION_PERCENT``.
+"""
 import logging
-import decimal
-import random
+from datetime import date, datetime, timedelta
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
-# Tiered milestone: 3 refs (with deposit) → ₹500, 5 more → ₹1000, then cycle resets
-# Only referrals who complete first deposit count
-TIER_1_COUNT = 3
-TIER_1_BONUS = Decimal('500')
-TIER_2_COUNT = 5  # additional after tier 1
-TIER_2_BONUS = Decimal('1000')
-CYCLE_SIZE = TIER_1_COUNT + TIER_2_COUNT  # 8
+from django.conf import settings
+from django.db import transaction
+from django.db.models import F
+from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 
-def get_tier_progress(active_referrals):
+def referral_per_referee_bonus_amount() -> int:
+    """Rupees credited to referrer when a referee's first deposit is approved."""
+    try:
+        from game.utils import get_game_setting
+
+        raw = get_game_setting('REFERRAL_INSTANT_BONUS_PER_REFEREE', 100)
+        return max(0, int(raw))
+    except (TypeError, ValueError):
+        return 100
+
+
+def referral_loss_commission_rate() -> Decimal:
+    """Flat daily-loss commission rate for every referrer (e.g. 0.04 = 4%)."""
+    try:
+        from game.utils import get_game_setting
+
+        raw = get_game_setting('REFERRAL_COMMISSION_PERCENT', 4)
+        p = int(str(raw).strip())
+        p = max(0, min(100, p))
+        return Decimal(p) / Decimal(100)
+    except Exception:
+        return Decimal('0.04')
+
+
+def referral_commission_rate_for_count(total_referrals: int) -> Decimal:
+    """Backward-compatible API: slab count ignored — same flat rate for everyone."""
+    return referral_loss_commission_rate()
+
+
+def commission_slabs_for_api():
+    """Single flat tier for clients."""
+    r = referral_loss_commission_rate()
+    return [
+        {
+            'min_referrals': 1,
+            'max_referrals': None,
+            'commission_percent': float(r * 100),
+        }
+    ]
+
+
+def award_referrer_instant_bonus_on_referee_first_deposit(deposit_request):
     """
-    Get current tier and progress. active_referrals = referrals who completed first deposit.
-    Returns: (tier, current, target, bonus) where tier is 1 or 2, current/target for display (e.g. 1/3, 2/5)
+    Credit referrer REFERRAL_BONUS when referee's first deposit is approved (once per referee).
+
+    Caller must already hold an outer atomic block; deposit row must be APPROVED and saved.
     """
-    progress_in_cycle = active_referrals % CYCLE_SIZE
-    if progress_in_cycle < TIER_1_COUNT:
-        return (1, progress_in_cycle, TIER_1_COUNT, TIER_1_BONUS)
-    else:
-        return (2, progress_in_cycle - TIER_1_COUNT, TIER_2_COUNT, TIER_2_BONUS)
+    from .models import DepositRequest, Wallet, Transaction
+
+    referee = deposit_request.user
+    referrer = getattr(referee, 'referred_by', None)
+    if not referrer or referrer.is_staff or referrer.is_superuser:
+        return False
+
+    if DepositRequest.objects.filter(user_id=referee.id, status='APPROVED').exclude(pk=deposit_request.pk).exists():
+        return False
+
+    bonus = referral_per_referee_bonus_amount()
+    if bonus <= 0:
+        return False
+
+    rw, _ = Wallet.objects.select_for_update().get_or_create(user_id=referrer.id)
+    rb_before = rw.balance
+    rw.add(bonus, is_bonus=True)
+    Wallet.objects.filter(pk=rw.pk).update(total_deposits=F('total_deposits') + int(bonus))
+    rw.refresh_from_db()
+    Wallet.apply_deposit_rotation_credit(rw.pk, int(bonus))
+    Transaction.objects.create(
+        user_id=referrer.id,
+        transaction_type='REFERRAL_BONUS',
+        amount=bonus,
+        balance_before=rb_before,
+        balance_after=rw.balance,
+        description=(
+            f'Referral instant bonus ₹{bonus} — first deposit approved for referee '
+            f'{referee.username} (deposit #{deposit_request.pk})'
+        ),
+    )
+    try:
+        from game.utils import get_redis_client
+
+        r = get_redis_client()
+        if r:
+            r.incrbyfloat(f'user_balance:{referrer.id}', float(bonus))
+    except Exception as exc:
+        logger.warning('Redis sync failed after referral instant bonus referrer=%s: %s', referrer.id, exc)
+
+    logger.info(
+        'Referral instant bonus ₹%s → referrer=%s referee=%s deposit=%s',
+        bonus,
+        referrer.username,
+        referee.username,
+        deposit_request.pk,
+    )
+    return True
 
 
-def calculate_milestone_bonus(active_referrals):
+def local_day_bounds(target_date: date):
+    """Start (inclusive) and end (exclusive) of calendar day in configured TIME_ZONE."""
+    tz = ZoneInfo(str(settings.TIME_ZONE))
+    day_start = datetime.combine(target_date, datetime.min.time(), tzinfo=tz)
+    day_end = day_start + timedelta(days=1)
+    return day_start, day_end
+
+
+def wallet_balance_immediately_before(user_id: int, dt_aware) -> int:
     """
-    Calculate milestone bonus for current tier completion.
-    Tier 1: 3 refs with deposit → ₹500
-    Tier 2: 5 more refs (8 total) → ₹1000
-    Then cycle resets.
+    Wallet balance just before ``dt_aware``: balance_after of last Transaction strictly before dt.
+    If none, 0.
     """
-    progress_in_cycle = active_referrals % CYCLE_SIZE
-    if progress_in_cycle == TIER_1_COUNT - 1 and active_referrals > 0:
-        return TIER_1_BONUS
-    if progress_in_cycle == CYCLE_SIZE - 1 and active_referrals > 0:
-        return TIER_2_BONUS
-    return Decimal('0')
+    from .models import Transaction
+
+    row = (
+        Transaction.objects.filter(user_id=user_id, created_at__lt=dt_aware)
+        .order_by('-created_at')
+        .values_list('balance_after', flat=True)
+        .first()
+    )
+    return int(row) if row is not None else 0
 
 
-def get_next_milestone(active_referrals):
-    """Get the next milestone and progress for display"""
-    tier, current, target, bonus = get_tier_progress(active_referrals)
-    progress_pct = (current / target * 100) if target > 0 else 0
-    return {
-        'tier': tier,
-        'current_progress': current,
-        'target': target,
-        'next_milestone': target,
-        'next_bonus': float(bonus),
-        'next_bonus_display': None,
-        'progress_percentage': min(progress_pct, 100.0)
+def yesterday_local_date() -> date:
+    tz = ZoneInfo(str(settings.TIME_ZONE))
+    now_local = timezone.now().astimezone(tz)
+    return (now_local.date() - timedelta(days=1))
+
+
+def process_referral_daily_commissions_for_date(target_date: date, *, dry_run: bool = False) -> dict:
+    """
+    For each referred user, compute net wallet loss on ``target_date`` (IST midnight boundaries).
+    Credit referrer ``flat_rate × loss`` (same rate for all referrers).
+
+    Idempotent via ReferralDailyCommission unique(referee, commission_date).
+    """
+    from django.contrib.auth import get_user_model
+
+    from .models import ReferralDailyCommission, Transaction, Wallet
+
+    User = get_user_model()
+
+    day_start, day_end = local_day_bounds(target_date)
+    rate = referral_loss_commission_rate()
+
+    stats = {
+        'target_date': str(target_date),
+        'dry_run': dry_run,
+        'commission_percent': float(rate * 100),
+        'referees_seen': 0,
+        'skipped_staff_referee': 0,
+        'skipped_no_referrer': 0,
+        'skipped_already_processed': 0,
+        'skipped_no_loss': 0,
+        'skipped_staff_referrer': 0,
+        'skipped_zero_rate': 0,
+        'skipped_zero_commission': 0,
+        'credits_created': 0,
+        'total_commission_amount': 0,
     }
 
+    qs = User.objects.filter(referred_by_id__isnull=False).select_related('referred_by').iterator(chunk_size=300)
 
-def check_and_award_milestone_bonus(referrer_user, active_referrals):
-    """
-    Check if referrer has reached a new milestone and award bonus if needed.
-    Only call when a referral completes their FIRST deposit (active_referrals just increased).
-    Returns True if a milestone bonus was awarded, False otherwise.
-    
-    Tier 1: 3 refs with deposit → ₹500
-    Tier 2: 8 refs total (5 more) → ₹1000, then cycle resets.
-    """
-    from .models import User, Wallet, Transaction
+    for referee in qs:
+        stats['referees_seen'] += 1
 
-    logger = logging.getLogger(__name__)
+        if referee.is_staff or referee.is_superuser:
+            stats['skipped_staff_referee'] += 1
+            continue
 
-    # Award only at exact milestone counts: 3, 8, 11, 16, ...
-    progress_in_cycle = active_referrals % CYCLE_SIZE
-    if progress_in_cycle == 0 and active_referrals > 0:
-        # Just completed tier 2 (8, 16, 24, ...) → ₹1000
-        current_bonus = TIER_2_BONUS
-        milestone_desc = "5 referrals (first deposit)"
-    elif progress_in_cycle == TIER_1_COUNT:
-        # Just completed tier 1 (3, 11, 19, ...) → ₹500
-        current_bonus = TIER_1_BONUS
-        milestone_desc = "3 referrals (first deposit)"
-    else:
-        return False
+        referrer = referee.referred_by
+        if not referrer:
+            stats['skipped_no_referrer'] += 1
+            continue
 
-    # Check if we already awarded for this exact count (avoid double-award)
-    desc_pattern = f"({active_referrals} total)"
-    if Transaction.objects.filter(
-        user=referrer_user,
-        transaction_type='MILESTONE_BONUS',
-        description__icontains=desc_pattern
-    ).exists():
-        return False
+        if ReferralDailyCommission.objects.filter(referee_id=referee.id, commission_date=target_date).exists():
+            stats['skipped_already_processed'] += 1
+            continue
 
-    try:
-        wallet, _ = Wallet.objects.get_or_create(user=referrer_user)
-        wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
+        open_bal = wallet_balance_immediately_before(referee.id, day_start)
+        close_bal = wallet_balance_immediately_before(referee.id, day_end)
+        loss = max(0, open_bal - close_bal)
 
-        balance_before = wallet.balance
-        wallet.balance += current_bonus
-        wallet.save()
+        if loss <= 0:
+            stats['skipped_no_loss'] += 1
+            continue
 
-        balance_after = wallet.balance
+        ref_user = User.objects.filter(pk=referrer.id).only('id', 'is_staff', 'is_superuser', 'username').first()
+        if not ref_user or ref_user.is_staff or ref_user.is_superuser:
+            stats['skipped_staff_referrer'] += 1
+            continue
 
-        Transaction.objects.create(
-            user=referrer_user,
-            transaction_type='MILESTONE_BONUS',
-            amount=current_bonus,
-            balance_before=balance_before,
-            balance_after=balance_after,
-            description=f"Milestone bonus: ₹{current_bonus} for {milestone_desc} ({active_referrals} total)"
+        if rate <= 0:
+            stats['skipped_zero_rate'] += 1
+            continue
+
+        commission = int(Decimal(loss) * rate)
+        if commission <= 0:
+            stats['skipped_zero_commission'] += 1
+            continue
+
+        stats['total_commission_amount'] += commission
+
+        if dry_run:
+            stats['credits_created'] += 1
+            continue
+
+        desc = (
+            f'Referral commission {float(rate * 100):g}% on referee {referee.username} '
+            f'daily loss ₹{loss} ({target_date})'
         )
 
-        logger.info(f"Milestone bonus of ₹{current_bonus} awarded to {referrer_user.username} for {active_referrals} referrals (first deposit)")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to award milestone bonus to {referrer_user.username}: {str(e)}")
-        return False
+        with transaction.atomic():
+            ref_wallet, _ = Wallet.objects.select_for_update().get_or_create(user_id=ref_user.id)
+            rb_before = ref_wallet.balance
+            ref_wallet.add(commission, is_bonus=True)
+            Wallet.objects.filter(pk=ref_wallet.pk).update(total_deposits=F('total_deposits') + int(commission))
+            ref_wallet.refresh_from_db()
+            Wallet.apply_deposit_rotation_credit(ref_wallet.pk, int(commission))
 
+            tx = Transaction.objects.create(
+                user_id=ref_user.id,
+                transaction_type='REFERRAL_COMMISSION',
+                amount=commission,
+                balance_before=rb_before,
+                balance_after=ref_wallet.balance,
+                description=desc,
+            )
+            ReferralDailyCommission.objects.create(
+                referrer_id=ref_user.id,
+                referee_id=referee.id,
+                commission_date=target_date,
+                opening_balance=open_bal,
+                closing_balance=close_bal,
+                loss_amount=loss,
+                commission_rate=rate,
+                commission_amount=commission,
+                transaction=tx,
+            )
 
-def calculate_referral_bonus(deposit_amount):
-    """
-    Calculate referral bonus based on deposit amount.
-    If deposit is ₹100 or more, referrer gets ₹100 bonus.
-    """
-    amount = decimal.Decimal(str(deposit_amount))
-    
-    if amount >= 100:
-        return decimal.Decimal('100')
-    else:
-        return decimal.Decimal('0')
+        try:
+            from game.utils import get_redis_client
+
+            r = get_redis_client()
+            if r:
+                r.incrbyfloat(f'user_balance:{ref_user.id}', float(commission))
+        except Exception as e:
+            logger.warning('Redis sync failed after referral commission uid=%s: %s', ref_user.id, e)
+
+        stats['credits_created'] += 1
+        logger.info(
+            'Referral commission ₹%s → %s (%.2f%%) loss ₹%s referee=%s date=%s',
+            commission,
+            ref_user.username,
+            float(rate * 100),
+            loss,
+            referee.username,
+            target_date,
+        )
+
+    return stats

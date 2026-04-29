@@ -992,12 +992,14 @@
                             <tbody>
                                 {% for bet in cockfight_bets %}
                                 <tr>
-                                    <td><span class="round-id">#{{ bet.session_id }}</span></td>
+                                    <td>{% if bet.session.video_round_id %}<span class="round-id">#{{ bet.session.video_round_id }}</span>{% else %}<span style="color:#a0aec0;">—</span>{% endif %}</td>
                                     <td>
-                                        {% if bet.side == 'MERON' %}
-                                            <span style="padding:3px 10px;background:#fee2e2;color:#991b1b;border-radius:6px;font-weight:600;font-size:12px;">MERON</span>
-                                        {% elif bet.side == 'WALA' %}
-                                            <span style="padding:3px 10px;background:#dbeafe;color:#1e40af;border-radius:6px;font-weight:600;font-size:12px;">WALA</span>
+                                        {% if bet.side == 'COCK1' %}
+                                            <span style="padding:3px 10px;background:#fee2e2;color:#991b1b;border-radius:6px;font-weight:600;font-size:12px;">Cock 1</span>
+                                        {% elif bet.side == 'COCK2' %}
+                                            <span style="padding:3px 10px;background:#dbeafe;color:#1e40af;border-radius:6px;font-weight:600;font-size:12px;">Cock 2</span>
+                                        {% elif bet.side == 'DRAW' %}
+                                            <span style="padding:3px 10px;background:#f3e8ff;color:#6b21a8;border-radius:6px;font-weight:600;font-size:12px;">Draw</span>
                                         {% else %}
                                             <span style="padding:3px 10px;background:#f3f4f6;color:#374151;border-radius:6px;font-weight:600;font-size:12px;">{{ bet.side }}</span>
                                         {% endif %}

@@ -39,6 +39,7 @@ from .models import (
     User,
     Wallet,
     Transaction,
+    ReferralDailyCommission,
     DepositRequest,
     WithdrawRequest,
     PaymentMethod,
@@ -1770,52 +1771,14 @@ def approve_deposit_request(request, pk):
             except Exception as je:
                 logger.warning(f"Journey init failed for user {deposit.user.id}: {je}")
 
-            # Check for referral bonus
-            if deposit.user.referred_by:
-                from .referral_logic import calculate_referral_bonus
-                bonus_amount = calculate_referral_bonus(deposit.amount)
-                
-                if bonus_amount > 0:
-                    referrer = deposit.user.referred_by
-                    referrer_wallet, _ = Wallet.objects.get_or_create(user=referrer)
-                    referrer_wallet = Wallet.objects.select_for_update().get(pk=referrer_wallet.pk)
-                    
-                    ref_balance_before = referrer_wallet.balance
-                    # Referral bonus needs to be rotated 1 time (counts as deposit for withdrawable rule)
-                    referrer_wallet.add(bonus_amount, is_bonus=True)
-                    Wallet.objects.filter(pk=referrer_wallet.pk).update(total_deposits=F('total_deposits') + int(bonus_amount))
-                    referrer_wallet.refresh_from_db()
-                    Wallet.apply_deposit_rotation_credit(referrer_wallet.pk, int(bonus_amount))
+            try:
+                from .referral_logic import award_referrer_instant_bonus_on_referee_first_deposit
 
-                    # Update Redis balance for referrer
-                    if redis_client:
-                        try:
-                            redis_client.incrbyfloat(f"user_balance:{referrer.id}", float(bonus_amount))
-                        except: pass
-                    
-                    Transaction.objects.create(
-                        user=referrer,
-                        transaction_type='REFERRAL_BONUS',
-                        amount=bonus_amount,
-                        balance_before=ref_balance_before,
-                        balance_after=referrer_wallet.balance,
-                        description=f"Referral bonus from {deposit.user.username}'s deposit of ₹{deposit.amount}",
-                    )
-                    logger.info(f"Referral bonus of ₹{bonus_amount} granted to {referrer.username} for {deposit.user.username}'s deposit")
-                    
-                    # Milestone bonus: only when referral completes their FIRST deposit
-                    first_deposit = not DepositRequest.objects.filter(
-                        user=deposit.user, status='APPROVED'
-                    ).exclude(pk=deposit.pk).exists()
-                    if first_deposit:
-                        from .referral_logic import check_and_award_milestone_bonus
-                        active_referrals = User.objects.filter(
-                            referred_by=referrer,
-                            deposit_requests__status='APPROVED'
-                        ).distinct().count()
-                        milestone_awarded = check_and_award_milestone_bonus(referrer, active_referrals)
-                        if milestone_awarded:
-                            logger.info(f"Milestone bonus awarded to {referrer.username}")
+                award_referrer_instant_bonus_on_referee_first_deposit(deposit)
+            except Exception as ref_exc:
+                logger.warning('Referral instant bonus failed deposit=%s: %s', pk, ref_exc)
+
+            # Daily-loss referral commission: ``python manage.py process_referral_daily_commission`` after midnight IST.
     except DepositRequest.DoesNotExist:
         logger.error(f"Admin {request.user.username} failed to approve deposit {pk}: Not found")
         return Response({'error': 'Deposit request not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -2348,119 +2311,87 @@ def daily_reward_history(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def referral_data(request):
-    """Get referral statistics and milestone information"""
-    from django.db.models import Count, Sum, Q
-    from .referral_logic import get_tier_progress, get_next_milestone, TIER_1_COUNT
-    
-    # request.user may be a minimal cached user (from CachedJWTAuthentication).
-    # Always operate on the real DB row to keep referral_code stable.
+    """
+    Referral stats: instant ₹ bonus per referee (first deposit), flat daily-loss commission %, totals.
+
+    Config via GameSettings: REFERRAL_INSTANT_BONUS_PER_REFEREE (default 100),
+    REFERRAL_COMMISSION_PERCENT (default 4). Daily commission is credited by nightly cron.
+
+    ``commission_earned_today`` uses IST midnight boundaries on ``Transaction.created_at`` (credits that
+    actually landed today — typically from last night's cron). ``total_commission_earnings`` is lifetime
+    ``REFERRAL_COMMISSION`` (same as ``total_daily_commission_earnings`` for backward compatibility).
+    """
+    from .referral_logic import (
+        commission_slabs_for_api,
+        referral_commission_rate_for_count,
+        referral_per_referee_bonus_amount,
+    )
+
     try:
         user = User.objects.get(pk=getattr(request.user, 'id', None))
     except Exception:
         return Response({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    # Ensure user has a referral code (fix for legacy users or missing codes)
+
     if not user.referral_code:
         user.referral_code = user.generate_unique_referral_code()
         user.save(update_fields=['referral_code'])
-    
-    # Total referrals: use stored count (total_referrals_count) kept in sync on save/delete
+
     total_referrals = getattr(user, 'total_referrals_count', None)
     if total_referrals is None:
         total_referrals = User.objects.filter(referred_by=user).count()
-    
-    # Count active referrals (referrals who have made at least one deposit)
+
     active_referrals = User.objects.filter(
         referred_by=user,
-        deposit_requests__status='APPROVED'
+        deposit_requests__status='APPROVED',
     ).distinct().count()
-    
-    # Calculate total earnings from referral bonuses
-    referral_transactions = Transaction.objects.filter(
-        user=user,
-        transaction_type='REFERRAL_BONUS'
-    )
-    total_earnings = referral_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
-    
-    # Tier progress: 3 refs (first deposit) → ₹500, 5 more → ₹1000, then cycle resets
-    tier, progress_current, target, _ = get_tier_progress(active_referrals)
-    current_milestone_bonus = '0'  # Not used for display; next_milestone has the reward
 
-    # Next unachieved milestone from full list (3, 8, 10, 20, 30, 50, 100)
-    next_milestone_counts = [3, 8, 10, 20, 30, 50, 100]
-    next_milestone_config = {
-        3: (500, None), 8: (1000, None), 10: (5000, None), 20: (10000, None),
-        30: (0, 'Mega Spin (up to ₹1 Lakh)'), 50: (25000, None), 100: (50000, None),
-    }
-    next_target = None
-    next_bonus = 0
-    next_bonus_display = None
-    for c in next_milestone_counts:
-        if active_referrals < c:
-            next_target = c
-            bonus_val, disp = next_milestone_config[c]
-            next_bonus = bonus_val
-            next_bonus_display = disp
-            break
-    if next_target is not None:
-        # For 3 and 8, use cycle-aware progress; for 10+, use simple count
-        if next_target in (3, 8):
-            next_milestone_info = get_next_milestone(active_referrals)
-            next_milestone_info['next_milestone'] = next_target
-            next_milestone_info['next_bonus'] = float(next_bonus)
-            next_milestone_info['next_bonus_display'] = next_bonus_display
-        else:
-            progress_to_next = min(active_referrals, next_target)
-            next_milestone_info = {
-                'tier': 1,
-                'current_progress': progress_to_next,
-                'target': next_target,
-                'next_milestone': next_target,
-                'next_bonus': float(next_bonus),
-                'next_bonus_display': next_bonus_display,
-                'progress_percentage': min((progress_to_next / next_target * 100) if next_target > 0 else 0, 100.0)
-            }
-    else:
-        next_milestone_info = get_next_milestone(active_referrals)
+    rate = referral_commission_rate_for_count(total_referrals)
 
-    # Milestones: 3 refs → ₹500, 5 more (8 total) → ₹1000, then 10, 20, 30 (Mega Spin), 50, 100
-    progress_in_cycle = active_referrals % 8
-    achieved_tier1 = progress_in_cycle >= 3 or (progress_in_cycle == 0 and active_referrals >= 8)
-    achieved_tier2 = progress_in_cycle == 0 and active_referrals >= 8
-    progress_tier1 = 3 if achieved_tier1 else (progress_current if tier == 1 else 0)
-    progress_tier2 = 5 if achieved_tier2 else (progress_current if tier == 2 else 0)
-
-    # All referral tiers including Mega Spin at 30
-    all_milestone_counts = [3, 8, 10, 20, 30, 50, 100]  # 8 = 3+5 "5 more"
-    milestone_config = {
-        3: {'bonus': 500, 'bonus_display': None},
-        8: {'bonus': 1000, 'bonus_display': None},
-        10: {'bonus': 5000, 'bonus_display': None},
-        20: {'bonus': 10000, 'bonus_display': None},
-        30: {'bonus': 0, 'bonus_display': 'Mega Spin (up to ₹1 Lakh)'},
-        50: {'bonus': 25000, 'bonus_display': None},
-        100: {'bonus': 50000, 'bonus_display': None},
-    }
-    milestones = []
-    for c in all_milestone_counts:
-        cfg = milestone_config[c]
-        achieved = active_referrals >= c
-        progress_curr = progress_tier1 if c == 3 else (progress_tier2 if c == 8 else min(active_referrals, c))
-        milestones.append({
-            'count': c,
-            'bonus': cfg['bonus'],
-            'bonus_display': cfg['bonus_display'],
-            'achieved': achieved,
-            'progress_current': progress_curr,
-            'target': 5 if c == 8 else (3 if c == 3 else c),
-        })
-    
-    # Get recent referral bonuses (last 10)
-    recent_bonuses = referral_transactions.order_by('-created_at')[:10].values(
-        'amount', 'description', 'created_at'
+    daily_total = (
+        Transaction.objects.filter(user=user, transaction_type='REFERRAL_COMMISSION').aggregate(
+            s=Sum('amount')
+        )['s']
+        or Decimal('0')
     )
 
-    # Get list of referred users (for display)
+    legacy_total = (
+        Transaction.objects.filter(
+            user=user,
+            transaction_type__in=('REFERRAL_BONUS', 'MILESTONE_BONUS'),
+        ).aggregate(s=Sum('amount'))['s']
+        or Decimal('0')
+    )
+
+    # IST calendar day bounds — credits ``commission_earned_today`` by wallet ledger timestamp (cron posts rows today).
+    from datetime import timedelta
+    from zoneinfo import ZoneInfo
+
+    tz = ZoneInfo(str(settings.TIME_ZONE))
+    now_local = timezone.now().astimezone(tz)
+    start_today_local = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_today_local = start_today_local + timedelta(days=1)
+    commission_today = (
+        Transaction.objects.filter(
+            user=user,
+            transaction_type='REFERRAL_COMMISSION',
+            created_at__gte=start_today_local,
+            created_at__lt=end_today_local,
+        ).aggregate(s=Sum('amount'))['s']
+        or Decimal('0')
+    )
+
+    recent_rows = ReferralDailyCommission.objects.filter(referrer=user).order_by('-commission_date', '-id')[:10]
+    recent_daily_commissions = [
+        {
+            'commission_date': str(row.commission_date),
+            'referee_username': row.referee.username,
+            'loss_amount': row.loss_amount,
+            'commission_percent': float(row.commission_rate * 100),
+            'commission_amount': row.commission_amount,
+        }
+        for row in recent_rows
+    ]
+
     referrals_qs = User.objects.filter(referred_by=user).order_by('-date_joined')
     referrals_list = []
     for ref in referrals_qs:
@@ -2471,16 +2402,22 @@ def referral_data(request):
             'date_joined': ref.date_joined.isoformat() if ref.date_joined else None,
             'has_deposit': has_deposit,
         })
-    
+
     return Response({
         'referral_code': user.referral_code or '',
         'total_referrals': total_referrals,
         'active_referrals': active_referrals,
-        'total_earnings': str(total_earnings),
-        'current_milestone_bonus': str(current_milestone_bonus),
-        'next_milestone': next_milestone_info,
-        'milestones': milestones,
-        'recent_bonuses': list(recent_bonuses),
+        'instant_referral_bonus_per_referee': referral_per_referee_bonus_amount(),
+        'commission_rate_percent': float(rate * 100),
+        'commission_slabs': commission_slabs_for_api(),
+        'total_commission_earnings': str(daily_total),
+        'total_daily_commission_earnings': str(daily_total),
+        'commission_earned_today': str(commission_today),
+        'commission_today_ist': str(now_local.date()),
+        'total_legacy_referral_bonus_earnings': str(legacy_total),
+        # Older clients used ``total_earnings`` — referral commission + instant/milestone bonuses.
+        'total_earnings': str(daily_total + legacy_total),
+        'recent_daily_commissions': recent_daily_commissions,
         'referrals': referrals_list,
     })
 
