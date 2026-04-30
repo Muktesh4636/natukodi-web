@@ -652,6 +652,100 @@ def cockfight_consumer_stream_active(rv) -> bool:
     return now < wall_end
 
 
+def cockfight_round_betting_open(rv) -> bool:
+    """
+    True while bets may still be placed on this round video.
+
+    Betting closes once the match video window ends (scheduled_start + duration, or
+    uploaded_at + duration if no schedule). Unlike consumer stream timing, there is no
+    pre-load blackout — users may bet before scheduled_start until wall_end.
+    """
+    if rv is None:
+        return False
+    rv = ensure_cockfight_round_video_duration(rv)
+    now = timezone.now()
+    if rv.duration_seconds is None:
+        return True
+    dur = timedelta(seconds=float(rv.duration_seconds))
+    if rv.scheduled_start:
+        wall_end = rv.scheduled_start + dur
+    else:
+        wall_end = rv.uploaded_at + dur
+    return now <= wall_end
+
+
+def resolve_cockfight_session_for_new_bet():
+    """
+    Pick or create the OPEN CockFightSession that should receive a new bet.
+
+    If the latest OPEN session points at a round whose betting window has ended,
+    new bets go to the next CockFightRoundVideo that has no session yet (same rule as
+    ``next_cockfight_video_round_for_betting``), reusing an OPEN session for that video
+    if one already exists.
+
+    Returns ``(session, error_message)``. ``error_message`` is None on success.
+    Caller must run inside ``transaction.atomic()`` with appropriate locking.
+    """
+    from .models import CockFightSession, CockFightRoundVideo
+
+    def _attach_next_round_session():
+        rv_next = next_cockfight_video_round_for_betting()
+        if not rv_next:
+            return None, (
+                'Betting closed for this round. Upload the next cockfight round video before accepting bets.'
+            )
+        existing = (
+            CockFightSession.objects.select_for_update()
+            .filter(status='OPEN', video_round_id=rv_next.pk)
+            .order_by('-id')
+            .first()
+        )
+        if existing:
+            return existing, None
+        new_session = CockFightSession.objects.create(status='OPEN', video_round=rv_next)
+        return new_session, None
+
+    session = (
+        CockFightSession.objects.select_for_update()
+        .filter(status='OPEN')
+        .order_by('-id')
+        .first()
+    )
+
+    if session is None:
+        rv_next = next_cockfight_video_round_for_betting()
+        if not rv_next:
+            return None, (
+                'Upload the next cockfight round video in admin before accepting bets '
+                '(previous round has closed).'
+            )
+        return CockFightSession.objects.create(status='OPEN', video_round=rv_next), None
+
+    if session.video_round_id is None:
+        rv_next = next_cockfight_video_round_for_betting()
+        if not rv_next:
+            return None, (
+                'No cockfight round video available to attach. Upload a round video in admin first.'
+            )
+        session.video_round = rv_next
+        session.save(update_fields=['video_round'])
+        return session, None
+
+    rv = CockFightRoundVideo.objects.filter(pk=session.video_round_id).first()
+    if not rv:
+        rv_next = next_cockfight_video_round_for_betting()
+        if not rv_next:
+            return None, 'No cockfight round video available to attach. Upload a round video in admin first.'
+        session.video_round = rv_next
+        session.save(update_fields=['video_round'])
+        return session, None
+
+    if cockfight_round_betting_open(rv):
+        return session, None
+
+    return _attach_next_round_session()
+
+
 def cockfight_claimed_video_round_ids():
     """CockFightRoundVideo PKs that already have at least one CockFightSession row."""
     from .models import CockFightSession

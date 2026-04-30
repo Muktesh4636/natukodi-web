@@ -1901,11 +1901,12 @@ def initiate_withdraw(request):
             logger.error(f"Error checking real-time balance for withdrawal: {re_err}")
 
     if withdrawable < amount:
-        logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient withdrawable balance (Withdrawable: {withdrawable}, Requested: {amount}, Total Balance: {wallet.balance})")
+        logger.warning(f"Withdrawal failed for user {request.user.username}: Insufficient withdrawable balance (Withdrawable: {withdrawable}, Requested: {amount}, Total balance: {wallet.balance})")
         msg = (
-            f'Insufficient withdrawable balance. You have ₹{withdrawable} available for withdrawal (Total balance: ₹{wallet.balance}). '
-            f'You must rotate deposited/bonus money by betting it at least once.'
+            f'Insufficient withdrawable balance. You have ₹{withdrawable} available for withdrawal (Total balance: ₹{wallet.balance}).'
         )
+        if getattr(settings, 'WITHDRAW_DEPOSIT_ROTATION_LOCK', False):
+            msg += ' You must rotate deposited/bonus money by betting it at least once.'
         return _api_error(msg)
 
     # Check for existing pending withdraw request
@@ -2066,10 +2067,37 @@ def get_payment_methods(request):
     return Response(serializer.data)
 
 
+def _user_bank_detail_has_bank(d: UserBankDetail) -> bool:
+    return bool((d.account_number or '').strip())
+
+
+def _user_bank_detail_has_upi(d: UserBankDetail) -> bool:
+    return bool((d.upi_id or '').strip())
+
+
+def _bank_upi_single_slot_error_response(user, *, account_number: str, upi_id: str, exclude_pk=None):
+    """At most one saved bank (non-empty account_number) and one UPI per user."""
+    qs = UserBankDetail.objects.filter(user=user)
+    others = qs.exclude(pk=exclude_pk) if exclude_pk is not None else qs
+    acc = (account_number or '').strip()
+    vpa = (upi_id or '').strip()
+    if acc and sum(1 for d in others if _user_bank_detail_has_bank(d)) >= 1:
+        return Response(
+            {'error': 'You already have a bank account saved. Delete it before adding another.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if vpa and sum(1 for d in others if _user_bank_detail_has_upi(d)) >= 1:
+        return Response(
+            {'error': 'You already have a UPI ID saved. Delete it before adding another.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    return None
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def my_bank_details(request):
-    """Get or create user bank details"""
+    """Get or create user bank details (max one bank row and one UPI row per user)."""
     if request.method == 'GET':
         logger.info(f"Fetching bank details for user: {request.user.username} (ID: {request.user.id})")
         details = list(UserBankDetail.objects.filter(user=request.user))
@@ -2092,7 +2120,12 @@ def my_bank_details(request):
             if item.get('upi_id'):
                 upi_accounts.append({
                     'number': upi_n,
-                    **item,
+                    'id': item['id'],
+                    'user': item.get('user'),
+                    'upi_id': item.get('upi_id', ''),
+                    'is_default': item.get('is_default', False),
+                    'created_at': item.get('created_at'),
+                    'updated_at': item.get('updated_at'),
                     'copy_text': item.get('upi_id', ''),
                     'copy_label': 'UPI ID',
                 })
@@ -2107,6 +2140,14 @@ def my_bank_details(request):
         logger.info(f"Creating bank detail for user: {request.user.username} (ID: {request.user.id})")
         serializer = UserBankDetailSerializer(data=request.data)
         if serializer.is_valid():
+            vd = serializer.validated_data
+            limit_err = _bank_upi_single_slot_error_response(
+                request.user,
+                account_number=(vd.get('account_number') or ''),
+                upi_id=(vd.get('upi_id') or ''),
+            )
+            if limit_err:
+                return limit_err
             # If setting as default, unset others
             if serializer.validated_data.get('is_default'):
                 UserBankDetail.objects.filter(user=request.user).update(is_default=False)
@@ -2133,6 +2174,21 @@ def bank_detail_action(request, pk):
         logger.info(f"Updating bank detail {pk} for user: {request.user.username}")
         serializer = UserBankDetailSerializer(detail, data=request.data, partial=True)
         if serializer.is_valid():
+            vd = serializer.validated_data
+            merged_acc = detail.account_number
+            if 'account_number' in vd:
+                merged_acc = vd['account_number']
+            merged_upi = detail.upi_id
+            if 'upi_id' in vd:
+                merged_upi = vd['upi_id']
+            limit_err = _bank_upi_single_slot_error_response(
+                request.user,
+                account_number=merged_acc or '',
+                upi_id=merged_upi or '',
+                exclude_pk=detail.pk,
+            )
+            if limit_err:
+                return limit_err
             if serializer.validated_data.get('is_default'):
                 UserBankDetail.objects.filter(user=request.user).exclude(pk=pk).update(is_default=False)
             serializer.save()

@@ -3,6 +3,7 @@ import secrets
 
 from decimal import Decimal
 
+from django.conf import settings as django_settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import F, Value
@@ -273,6 +274,8 @@ class Wallet(models.Model):
     @property
     def computed_unavailable_balance(self):
         """Unavailable = deposit_rotation_lock minus turnover since baseline (1x playthrough per credit)."""
+        if not getattr(django_settings, 'WITHDRAW_DEPOSIT_ROTATION_LOCK', False):
+            return Decimal('0.00')
         try:
             lock = int(getattr(self, 'deposit_rotation_lock', 0) or 0)
             b = int(getattr(self, 'deposit_rotation_baseline_turnover', 0) or 0)

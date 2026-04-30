@@ -42,11 +42,11 @@ from .utils import (
     get_current_round_state,
     cockfight_consumer_stream_active,
     ensure_cockfight_round_video_duration,
-    next_cockfight_video_round_for_betting,
     get_cockfight_side_odds,
     normalize_cockfight_side,
     cockfight_side_labels_dict,
     cockfight_side_display,
+    resolve_cockfight_session_for_new_bet,
 )
 
 # Redis connection with tiered failover
@@ -2817,18 +2817,9 @@ def place_cock_fight_bet(request):
 
     odds = Decimal('9.00')
     with transaction.atomic():
-        session = CockFightSession.objects.select_for_update().filter(status='OPEN').order_by('-id').first()
-        if not session:
-            return Response({'error': 'No open session'}, status=status.HTTP_400_BAD_REQUEST)
-        if session.video_round_id is None:
-            rv_next = next_cockfight_video_round_for_betting()
-            if not rv_next:
-                return Response(
-                    {'error': 'Upload cockfight round video in admin first.'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            session.video_round = rv_next
-            session.save(update_fields=['video_round'])
+        session, sess_err = resolve_cockfight_session_for_new_bet()
+        if sess_err:
+            return Response({'error': sess_err}, status=status.HTTP_400_BAD_REQUEST)
 
         wallet = Wallet.objects.select_for_update().get(user=request.user)
         if wallet.balance < stake:
@@ -2979,39 +2970,9 @@ def place_meron_wala_bet(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
     with transaction.atomic():
-        session = (CockFightSession.objects
-                   .select_for_update()
-                   .filter(status='OPEN')
-                   .order_by('-id')
-                   .first())
-        if session:
-            if session.video_round_id is None:
-                rv_next = next_cockfight_video_round_for_betting()
-                if not rv_next:
-                    return Response(
-                        {
-                            'error': (
-                                'No cockfight round video available to attach. '
-                                'Upload a round video in admin first.'
-                            ),
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                session.video_round = rv_next
-                session.save(update_fields=['video_round'])
-        else:
-            rv_next = next_cockfight_video_round_for_betting()
-            if not rv_next:
-                return Response(
-                    {
-                        'error': (
-                            'Upload the next cockfight round video in admin before accepting bets '
-                            '(previous round has closed).'
-                        ),
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            session = CockFightSession.objects.create(status='OPEN', video_round=rv_next)
+        session, sess_err = resolve_cockfight_session_for_new_bet()
+        if sess_err:
+            return Response({'error': sess_err}, status=status.HTTP_400_BAD_REQUEST)
 
         odds_table = get_cockfight_side_odds(session.video_round_id)
         odds = odds_table[side]

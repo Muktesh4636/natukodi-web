@@ -434,9 +434,9 @@ REST_FRAMEWORK = {
     }
 }
 
-# JWT Settings - SECURITY: Shorter token lifetimes
+# JWT Settings — access + refresh both 30d so clients stay signed in without refresh calls until then.
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Increased to 24h for better user experience
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -452,6 +452,10 @@ SIMPLE_JWT = {
 # If True: only one active login per user (new login invalidates old tokens).
 # If False: allow multiple devices/sessions for the same user (no forced logout message).
 SINGLE_SESSION_PER_USER = os.getenv('SINGLE_SESSION_PER_USER', 'False') == 'True'
+
+# Withdrawal: 1x turnover lock on deposits/bonuses (wallet deposit_rotation_lock). Default off — full balance withdrawable
+# (still subject to min amount, pending request, Redis exposure). Set WITHDRAW_DEPOSIT_ROTATION_LOCK=True to enforce again.
+WITHDRAW_DEPOSIT_ROTATION_LOCK = os.getenv('WITHDRAW_DEPOSIT_ROTATION_LOCK', 'False') == 'True'
 
 # CORS Settings — if CORS_ALLOWED_ORIGINS is unset, use local dev defaults; merge PUBLIC_SITE_* origins always.
 _default_cors = ['http://localhost:5173', 'http://localhost:3000']
