@@ -7,26 +7,65 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+# Resolve paths first so .env loads reliably (same dir as manage.py), regardless of process cwd.
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 load_dotenv()
+
+from dice_game.public_site import parse_public_site_url
 
 USE_REDIS = True # Global setting for Redis usage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Security: set ALLOWED_HOSTS via env for production (comma-separated).
+# Production: merge default hosts/origins for fightening.sbs (DisallowedHost → HTTP 400 if missing).
+# Opt out on other deployments: DISABLE_BUILTIN_ALLOWED_HOSTS=1
+_BUILTIN_DEPLOY_HOSTS_ENABLED = (
+    not DEBUG
+    and os.getenv('DISABLE_BUILTIN_ALLOWED_HOSTS', '').lower() not in ('1', 'true', 'yes')
+)
+_PROJECT_BUILTIN_ALLOWED_HOSTS = (
+    'svs.fightening.sbs',
+    'www.svs.fightening.sbs',
+    'fightening.sbs',
+    'www.fightening.sbs',
+)
+
+# Canonical public URL (e.g. https://yourdomain.com). When set, merges hostname into ALLOWED_HOSTS
+# and origin into CSRF_TRUSTED_ORIGINS / CORS_ALLOWED_ORIGINS. Optional extra origins: PUBLIC_SITE_EXTRA_ORIGINS.
+_site_meta = parse_public_site_url(os.getenv('PUBLIC_SITE_URL', ''))
+PUBLIC_SITE_URL = _site_meta['url'] if _site_meta else ''
+PUBLIC_SITE_ORIGIN = _site_meta['origin'] if _site_meta else ''
+PUBLIC_SITE_DOMAIN = _site_meta['hostname'] if _site_meta else ''
+
+# Security: ALLOWED_HOSTS via env (comma-separated); hostname from PUBLIC_SITE_URL is merged when not DEBUG *.
 ALLOWED_HOSTS_STR = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
+if _site_meta and '*' not in ALLOWED_HOSTS:
+    _host_lc = {h.lower() for h in ALLOWED_HOSTS}
+    if _site_meta['hostname'] not in _host_lc:
+        ALLOWED_HOSTS.append(_site_meta['hostname'])
 
+if _BUILTIN_DEPLOY_HOSTS_ENABLED and '*' not in ALLOWED_HOSTS:
+    _host_lc = {h.lower() for h in ALLOWED_HOSTS}
+    for _h in _PROJECT_BUILTIN_ALLOWED_HOSTS:
+        if _h.lower() not in _host_lc:
+            ALLOWED_HOSTS.append(_h)
+            _host_lc.add(_h.lower())
+
+# Emergency: allow any Host (debug prod issues only — remove when fixed)
+if (
+    not DEBUG
+    and os.getenv('DJANGO_ALLOW_ANY_HOST', '').lower() in ('1', 'true', 'yes')
+):
+    ALLOWED_HOSTS = ['*']
 # For local development, allow all hosts if DEBUG is True
-if DEBUG:
+elif DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
     _required_hosts = {'localhost', '127.0.0.1'}
@@ -64,6 +103,7 @@ TESSERACT_CMD = os.getenv('TESSERACT_CMD', '/opt/homebrew/bin/tesseract')
 # Disable: python manage.py maintenance off
 
 MIDDLEWARE = [
+    'dice_game.host_normalization_middleware.NormalizeHostMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'dice_game.normalize_slashes_middleware.NormalizeSlashesMiddleware',  # Normalize // to /
     'dice_game.maintenance_middleware.MaintenanceModeMiddleware',  # Early: APK download bypass
@@ -91,12 +131,33 @@ _default_csrf_origins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
 ]
+
+_site_csrf_origins: list[str] = []
+if PUBLIC_SITE_ORIGIN:
+    _site_csrf_origins.append(PUBLIC_SITE_ORIGIN)
+_extra_site_origins = os.getenv('PUBLIC_SITE_EXTRA_ORIGINS', '').strip()
+if _extra_site_origins:
+    for _o in _extra_site_origins.split(','):
+        _o = _o.strip()
+        if _o and _o not in _site_csrf_origins:
+            _site_csrf_origins.append(_o)
+
+if _BUILTIN_DEPLOY_HOSTS_ENABLED:
+    for _h in _PROJECT_BUILTIN_ALLOWED_HOSTS:
+        _origin = f'https://{_h}'
+        if _origin not in _site_csrf_origins:
+            _site_csrf_origins.append(_origin)
+
 _csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '').strip()
-if _csrf_origins_env:
-    _extra = [o.strip() for o in _csrf_origins_env.split(',') if o.strip()]
-    CSRF_TRUSTED_ORIGINS = list(_default_csrf_origins) + [o for o in _extra if o not in _default_csrf_origins]
-else:
-    CSRF_TRUSTED_ORIGINS = _default_csrf_origins
+_env_csrf = [o.strip() for o in _csrf_origins_env.split(',') if o.strip()] if _csrf_origins_env else []
+
+CSRF_TRUSTED_ORIGINS = []
+_seen_csrf: set[str] = set()
+for _bucket in (_default_csrf_origins, _site_csrf_origins, _env_csrf):
+    for _o in _bucket:
+        if _o not in _seen_csrf:
+            _seen_csrf.add(_o)
+            CSRF_TRUSTED_ORIGINS.append(_o)
 
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_HTTPONLY = False
@@ -118,6 +179,9 @@ SESSION_COOKIE_HTTPONLY = False
 
 # SECURITY: Production security settings
 if not DEBUG:
+    # Do not trust X-Forwarded-Host unless you explicitly enable it (mis-set proxy headers → DisallowedHost / 400).
+    USE_X_FORWARDED_HOST = os.getenv('USE_X_FORWARDED_HOST', 'False') == 'True'
+
     # HTTPS/SSL Settings
     SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
     SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
@@ -389,14 +453,22 @@ SIMPLE_JWT = {
 # If False: allow multiple devices/sessions for the same user (no forced logout message).
 SINGLE_SESSION_PER_USER = os.getenv('SINGLE_SESSION_PER_USER', 'False') == 'True'
 
-# CORS Settings - SECURITY: Restrict to specific origins
-CORS_ALLOWED_ORIGINS_STR = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://localhost:3000'
+# CORS Settings — if CORS_ALLOWED_ORIGINS is unset, use local dev defaults; merge PUBLIC_SITE_* origins always.
+_default_cors = ['http://localhost:5173', 'http://localhost:3000']
+_cors_env_raw = os.getenv('CORS_ALLOWED_ORIGINS', '').strip()
+_cors_base = (
+    [o.strip() for o in _cors_env_raw.split(',') if o.strip()]
+    if _cors_env_raw
+    else list(_default_cors)
 )
-CORS_ALLOWED_ORIGINS = [
-    origin.strip() for origin in CORS_ALLOWED_ORIGINS_STR.split(',') if origin.strip()
-]
+
+CORS_ALLOWED_ORIGINS = []
+_seen_cors: set[str] = set()
+for _bucket in (_cors_base, _site_csrf_origins):
+    for _o in _bucket:
+        if _o not in _seen_cors:
+            _seen_cors.add(_o)
+            CORS_ALLOWED_ORIGINS.append(_o)
 
 # Only allow credentials from trusted origins
 CORS_ALLOW_CREDENTIALS = True

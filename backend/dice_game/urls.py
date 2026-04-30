@@ -41,6 +41,7 @@ urlpatterns = [
     path('api/health/', project_views.health, name='health'),
     path('api/status/', project_views.api_status, name='api_status'),
     path('api/time/', project_views.time_now, name='time_now'),
+    path('api/site/', project_views.site_public_config, name='site_public_config'),
     # Maintenance status (public; works even when maintenance is on)
     path('api/maintenance/status/', project_views.maintenance_status, name='maintenance_status'),
     # Standalone system health dashboard (separate from admin panel UI)
@@ -178,6 +179,9 @@ urlpatterns = [
     # Serve React static assets (assets/*)
     re_path(r'^assets/.*$', project_views.serve_react_app, name='react_assets'),
     
+    # SVS company demo (static marketing page; not the React app)
+    path('svs/', project_views.svs_company_demo, name='svs_company_demo'),
+
     # Root path - public website landing page
     path('', project_views.home, name='root'),
     
@@ -188,7 +192,7 @@ urlpatterns = [
     # Explicitly exclude download paths and .apk files
     # Exclude game-admin with or without trailing slash so /game-admin never hits the SPA
     re_path(
-        r'^(?!/?api/)(?!/?admin(?:/|$))(?!/?game-admin(?:/|$))(?!/?static/)(?!/?media/)(?!/?ws/)(?!/?assets/)(?!apk$)(?!download-apk$)(?!.*\.apk$).*$',
+        r'^(?!/?api/)(?!/?admin(?:/|$))(?!/?game-admin(?:/|$))(?!/?svs(?:/|$))(?!/?static/)(?!/?media/)(?!/?ws/)(?!/?assets/)(?!apk$)(?!download-apk$)(?!.*\.apk$).*$',
         project_views.serve_react_app,
         name='react_app',
     ),

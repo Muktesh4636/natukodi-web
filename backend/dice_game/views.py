@@ -1,6 +1,7 @@
 import re
 
 from django.http import HttpResponse, JsonResponse, FileResponse, StreamingHttpResponse
+from django.shortcuts import render
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
@@ -255,6 +256,10 @@ def api_root(request):
         'name': 'Gundu ata API',
         'version': '1.0',
         'description': 'REST API for Gundu ata application',
+        'site': {
+            'public_site_url': settings.PUBLIC_SITE_URL or None,
+            'public_site_origin': settings.PUBLIC_SITE_ORIGIN or None,
+        },
         'endpoints': {
             'auth': {
                 'base_url': f'{base_url}api/auth/',
@@ -280,6 +285,14 @@ def api_root(request):
         }
     }
     return JsonResponse(api_data, json_dumps_params={'indent': 2})
+
+
+def site_public_config(request):
+    """Public canonical site URL from PUBLIC_SITE_URL (for clients / APK base URL discovery)."""
+    return JsonResponse({
+        'public_site_url': settings.PUBLIC_SITE_URL or None,
+        'public_site_origin': settings.PUBLIC_SITE_ORIGIN or None,
+    })
 
 
 @api_view(['GET'])
@@ -1174,6 +1187,11 @@ def serve_react_app(request, path=''):
 
 
 @never_cache
+def svs_company_demo(request):
+    """Public one-page company demo for SVS (white-label gaming / odds)."""
+    return render(request, 'svs_company.html')
+
+
 def home(request):
     """Root URL: serve the React build (same as SPA catch-all), not a separate marketing page."""
     return serve_react_app(request, path='')

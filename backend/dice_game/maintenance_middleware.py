@@ -22,7 +22,9 @@ MAINTENANCE_ALLOWED_PREFIXES = (
     '/api/health/',       # Health check — no deps; for load balancer / 502 debugging
     '/api/status/',       # Aggregate DB + Redis + public-route probes — for external monitoring
     '/api/time/',         # Public time endpoint — useful for clients
+    '/api/site/',         # Canonical PUBLIC_SITE_URL for clients (same as api root ``site`` block)
     '/api/whitelabel/',   # White-label lead capture — public form so leads still work during maintenance
+    '/svs',              # SVS company demo page (public marketing)
     '/static/',
     '/media/',
     '/admin/',  # Franchise / access message (Django admin not exposed here)
