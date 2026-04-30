@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="home" data-auth="0" data-header-wallet="0">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta name="theme-color" content="#000000" />
+  <title>Kokoroko</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=64" /></head>
+<body>
+  <div class="app-frame">
+    <div class="app">
+      <header class="top-header" role="banner">
+        <div class="top-header__row">
+          <a href="#home" class="brand brand--home" data-nav="home" aria-label="Kokoroko home">
+            <div class="brand__logo" aria-hidden="true">
+              <img src="assets/ic_launcher.png" alt="" width="44" height="44" />
+            </div>
+            <span class="wordmark">
+              <span class="w">K</span><span class="o">O</span><span class="w">K</span><span class="o">O</span><span class="w">R</span><span class="o">O</span><span class="w">K</span><span class="o">O</span>
+            </span>
+          </a>
+          <div class="top-header__end">
+            <a href="#wallet" class="wallet-pill" id="header-wallet-pill" data-nav="wallet" aria-label="Open wallet" hidden>
+            <span class="wallet-pill__ru">₹</span><span class="wallet-pill__num" id="header-balance">0.00</span>
+            <span class="wallet-pill__add" aria-hidden="true">+</span>
+          </a>
+            <div class="top-header__auth" id="header-auth-pills">
+              <a href="#login" class="wallet-pill wallet-pill--signin" id="header-signin-pill" aria-label="Sign in">Sign in</a>
+              <a href="#register" class="wallet-pill wallet-pill--signup" id="header-signup-pill" aria-label="Sign up">Sign up</a>
+            </div>
+          </div>
+        </div>
+        <div class="top-header__line"></div>
+      </header>
+
+      <main class="content" id="main-scroll">
+        <input type="file" id="wallet-deposit-screenshot" accept="image/*" class="visually-hidden" hidden aria-hidden="true" />
+        <input type="file" id="dep-screenshot-input" accept="image/*" class="visually-hidden" hidden aria-hidden="true" />
+
+        <!-- Deposit flow full-page dialog -->
+        <div class="dep-dialog" id="dep-dialog" hidden>
+          <div class="dep-dialog__page">
+
+            <!-- Header: back + "Payment" + timer -->
+            <header class="dep-dialog__topbar">
+              <button type="button" class="dep-dialog__back" id="dep-dialog-close" aria-label="Back">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </button>
+              <h2 class="dep-dialog__topbar-title">Payment</h2>
+              <div class="dep-dialog__timer" id="dep-timer">10:00</div>
+            </header>
+
+            <div class="dep-dialog__scroll">
+
+              <!-- Amount card -->
+              <div class="dep-dialog__amount-card">
+                <span class="dep-dialog__amount-label">Amount Payable</span>
+              <span class="dep-dialog__amount-value" id="dep-amount-display">₹1,000</span>
+            </div>
+
+              <!-- Loading -->
+              <div class="dep-dialog__loading" id="dep-loading">
+                <div class="dep-dialog__spinner"></div>
+                <p>Loading payment details…</p>
+              </div>
+
+              <!-- Choose Payment Method -->
+              <div class="dep-dialog__section" id="dep-methods-wrap" hidden>
+                <p class="dep-dialog__section-title" id="dep-methods-title">Choose payment method</p>
+                <div class="dep-dialog__methods-list" id="dep-methods-row"></div>
+              </div>
+
+              <!-- Payment details (UPI / Bank) -->
+              <div class="dep-dialog__card" id="dep-details-card" hidden>
+                <div id="dep-upi-block" hidden>
+                  <div class="dep-dialog__upi-row">
+                    <div class="dep-dialog__upi-info">
+                      <span class="dep-dialog__upi-label" id="dep-upi-label">UPI ID</span>
+                      <span class="dep-dialog__upi-id" id="dep-upi-id"></span>
+                    </div>
+                    <button type="button" class="dep-dialog__copy" id="dep-copy-upi" aria-label="Copy UPI ID">Copy</button>
+                  </div>
+                  <div class="dep-dialog__qr-wrap" id="dep-qr-wrap" hidden>
+                    <img id="dep-qr-img" class="dep-dialog__qr" src="" alt="QR Code" />
+                  </div>
+                </div>
+                <div id="dep-bank-block" hidden>
+                  <div class="dep-dialog__bank-grid" id="dep-bank-grid"></div>
+                </div>
+              </div>
+
+              <!-- Upload screenshot section -->
+              <div class="dep-dialog__upload-section" id="dep-upload-section" hidden>
+                <div class="dep-dialog__upload-head">
+                  <p class="dep-dialog__section-title">Upload Payment Screenshot</p>
+                  <span class="dep-dialog__upload-hint">Max 10MB · JPG, PNG</span>
+                </div>
+                <button type="button" class="dep-dialog__upload-box" id="dep-upload-btn">
+                  <svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true"><path fill="#bbb" d="M20 6h-2.18c.07-.31.18-.62.18-.97C18 3.35 16.65 2 15.03 2c-.98 0-1.85.49-2.38 1.24L12 4.1l-.65-.87C10.82 2.49 9.96 2 8.97 2 7.35 2 6 3.35 6 4.97c0 .35.11.66.18.97H4C2.9 5.94 2 6.84 2 7.94V19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4.97c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zM20 19H4V8h16v11zM12 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+                  <span class="dep-dialog__upload-box-txt">Tap to select screenshot</span>
+                </button>
+                <div class="dep-dialog__file-preview" id="dep-file-preview" hidden>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#22c55e" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  <span id="dep-file-name">screenshot.jpg</span>
+                  <button type="button" class="dep-dialog__file-remove" id="dep-file-remove" aria-label="Remove">×</button>
+                </div>
+              </div>
+
+              <div class="dep-dialog__err" id="dep-err" hidden></div>
+
+              <div class="dep-dialog__footer">
+                <button type="button" class="dep-dialog__submit" id="dep-submit-btn" disabled>
+                  <span id="dep-submit-txt">Submit Payment Proof</span>
+                </button>
+              </div>
+
+            </div><!-- /.dep-dialog__scroll -->
+          </div>
+        </div>
+
+        <!-- Login (LoginScreen in MainActivity.kt) -->
+        <div class="panel ap-auth ap-login" data-panel="login" id="login-panel" hidden>
+          <div class="ap-auth__inner">
+            <div class="ap-login__row4" role="img" aria-label="Game types">
+              <div class="ap-head-ico">
+                <img src="assets/ic_launcher.png" alt="" width="40" height="40" class="ap-head-ico__img" />
+                <span class="ap-head-ico__t">Promotions</span>
+              </div>
+              <div class="ap-head-ico">
+                <img src="assets/cockfight_banner.png" alt="" width="40" height="40" class="ap-head-ico__img" style="object-fit:cover;border-radius:6px;" />
+                <span class="ap-head-ico__t">Cockfight</span>
+              </div>
+              <div class="ap-head-ico">
+                <img src="assets/category_gunduata.jpg" alt="" width="40" height="40" class="ap-head-ico__img" />
+                <span class="ap-head-ico__t">Dice Play</span>
+              </div>
+              <div class="ap-head-ico">
+                <img src="assets/category_cricket.jpg" alt="" width="40" height="40" class="ap-head-ico__img" />
+                <span class="ap-head-ico__t">Cricket</span>
+              </div>
+            </div>
+            <div class="ap-login__body">
+              <div class="ap-logo-ring">
+                <img src="assets/ic_launcher.png" alt="Kokoroko" width="150" height="150" class="ap-logo-ring__img" />
+              </div>
+              <h1 class="ap-title">Login</h1>
+              <p class="ap-sub">Enter your phone number or username and password</p>
+              <form id="login-form" novalidate class="ap-form">
+                <div class="ap-oft">
+                  <label class="ap-oft__label" for="login-user">Phone number or Username</label>
+                  <input
+                    type="text"
+                    id="login-user"
+                    name="username"
+                    class="ap-oft__input"
+                    placeholder="e.g. 9876543210 or john123"
+                    autocomplete="username"
+                  />
+                </div>
+                <div class="ap-oft ap-oft--with-action">
+                  <label class="ap-oft__label" for="login-pass">Password</label>
+                  <div class="ap-oft__row">
+                    <input
+                      type="password"
+                      id="login-pass"
+                      name="password"
+                      class="ap-oft__input ap-oft__input--flex"
+                      autocomplete="current-password"
+                    />
+                    <button type="button" class="ap-iconbtn" id="login-pass-toggle" aria-label="Show password" title="Show password">
+                      <svg class="ap-eye" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"
+                        ><path
+                          fill="currentColor"
+                          d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                      /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="ap-err" id="login-err" hidden></div>
+                <button type="submit" class="ap-pill ap-pill--black" id="login-submit" aria-busy="false">
+                  <span class="ap-pill__txt">Login</span>
+                  <svg class="ap-pill__ar" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
+                    ><path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"
+                  /></svg>
+                </button>
+              </form>
+              <p class="ap-already">
+                Don’t have an account?
+                <a href="#register" class="ap-link">Sign up</a>
+              </p>
+              <p class="ap-demo-hint">Demo login (no server): <code>svs</code> / <code>svs</code></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register (SignupScreen in MainActivity.kt) -->
+        <div class="panel ap-auth ap-register" data-panel="register" id="register-panel" hidden>
+          <div class="ap-reg-top">
+            <a href="#login" class="ap-reg-top__back" aria-label="Back to login">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+                ><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+              /></svg>
+            </a>
+            <h2 class="ap-reg-top__h">Sign up</h2>
+          </div>
+          <div class="ap-auth__inner ap-reg-scroll">
+            <div class="ap-reg-body">
+              <div class="ap-logo-ring ap-logo-ring--reg">
+                <img src="assets/ic_launcher.png" alt="Kokoroko" width="150" height="150" class="ap-logo-ring__img" />
+              </div>
+              <h1 class="ap-title ap-title--reg">Create your account</h1>
+              <p class="ap-sub">Username, mobile &amp; password</p>
+              <form id="register-form" novalidate class="ap-form">
+                <div class="ap-oft">
+                  <label class="ap-oft__label" for="reg-username">Username</label>
+                  <input
+                    type="text"
+                    id="reg-username"
+                    class="ap-oft__input"
+                    placeholder="Choose a username"
+                    maxlength="32"
+                    autocomplete="username"
+                  />
+                </div>
+                <div class="ap-oft">
+                  <label class="ap-oft__label" for="reg-phone">Phone number</label>
+                  <input
+                    type="tel"
+                    id="reg-phone"
+                    class="ap-oft__input"
+                    placeholder="10-digit mobile number"
+                    inputmode="numeric"
+                    autocomplete="tel"
+                    maxlength="15"
+                  />
+                </div>
+                <div class="ap-oft ap-oft--with-action">
+                  <label class="ap-oft__label" for="reg-pass">Password</label>
+                  <div class="ap-oft__row">
+                    <input
+                      type="password"
+                      id="reg-pass"
+                      class="ap-oft__input ap-oft__input--flex"
+                      autocomplete="new-password"
+                    />
+                    <button type="button" class="ap-iconbtn" id="reg-pass-toggle" aria-label="Show password">
+                      <svg class="ap-eye" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"
+                        ><path
+                          fill="currentColor"
+                          d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                      /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="ap-err" id="register-err" hidden></div>
+                <button type="submit" class="ap-pill ap-pill--orange" id="register-submit">
+                  <span class="ap-pill__txt ap-pill__txt--solo">Create account</span>
+                </button>
+              </form>
+              <p class="ap-already ap-already--reg">
+                Already have an account?
+                <a href="#login" class="ap-link">Log in</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Home -->
+        <div class="panel panel--active" data-panel="home">
+          <!-- APK download banner -->
+          <a href="assets/kokoroko.apk" download="Kokoroko.apk" class="apk-banner" id="apk-banner" aria-label="Download Kokoroko for Android (APK)">
+            <span class="apk-banner__icon apk-banner__icon--play" aria-hidden="true">
+              <!-- Google Play mark (single-color; not Apple / iOS) -->
+              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"
+                />
+              </svg>
+            </span>
+            <span class="apk-banner__text">
+              <strong>Download Kokoroko App</strong>
+              <span>Android APK — Free</span>
+            </span>
+            <span class="apk-banner__btn" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              Install
+            </span>
+            <button type="button" class="apk-banner__close" id="apk-banner-close" aria-label="Dismiss">×</button>
+          </a>
+
+          <div class="search-wrap">
+            <div class="search" role="search">
+              <svg class="search__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="search" class="search__input" placeholder="Search games..." enterkeyhint="search" />
+              <button type="button" class="search__clear" hidden aria-label="Clear">×</button>
+            </div>
+          </div>
+
+          <div class="banner" id="home-banner">
+            <a class="banner__link banner__link--active" href="#gundu" data-action="gundu" data-banner-idx="0">
+              <img src="assets/banner_gundu.png" alt="Gundu Ata" width="1000" height="500" class="banner__img" />
+            </a>
+            <a class="banner__link" href="#cockfight" data-nav="cockfight" data-banner-idx="1" aria-hidden="true" tabindex="-1">
+              <img src="assets/cockfight_banner.png" alt="The Great Rooster Fight Championship" width="1000" height="500" class="banner__img" loading="lazy" />
+            </a>
+            <div class="banner__dots" role="tablist" aria-label="Banners">
+              <span class="banner__dot banner__dot--on" role="tab" aria-selected="true" data-banner-dot="0"></span>
+              <span class="banner__dot" role="tab" aria-selected="false" data-banner-dot="1"></span>
+            </div>
+          </div>
+
+          <section class="section popular" aria-label="Popular games">
+            <div class="section__head">
+              <h2 class="section__title">Popular Games:</h2>
+            </div>
+            <div class="game-row">
+              <a href="#cockfight" class="game-tile game-tile--cockfight" data-nav="cockfight"><img src="assets/category_cockfight.jpg" alt="Cockfight" width="70" height="70" /></a>
+              <a href="#gundu" class="game-tile" data-action="gundu"><img src="assets/category_gunduata.jpg" alt="Gundata" /></a>
+              <a href="#cricket" class="game-tile" data-nav=""><img src="assets/category_cricket.jpg" alt="Cricket" /></a>
+              <a href="#referral" class="game-tile" data-nav="referral"><img src="assets/category_promotions.jpg?v=2" alt="Promotions" /></a>
+            </div>
+          </section>
+
+          <section class="section cock-live" aria-label="Cock fight live">
+            <div class="cock-live__row">
+              <span class="cock-live__title">Cock Fight</span>
+              <div class="live-toggle">
+                <span class="live-toggle__label">LIVE</span>
+                <label class="switch">
+                  <input type="checkbox" id="live-on" checked />
+                  <span class="switch__slider" aria-hidden="true"></span>
+                </label>
+              </div>
+            </div>
+            <div class="live-off-msg" id="live-off" hidden>Live is off. Turn on LIVE above to see the match card.</div>
+            <div class="video-card" id="live-card-wrap">
+              <div class="video-card__box">
+                <video
+                  id="live-video"
+                  class="video-card__media"
+                  playsinline
+                  muted
+                  loop
+                  preload="auto"
+                  poster="assets/cockfight_banner.png"
+                  disablePictureInPicture
+                  tabindex="-1"
+                >
+                  <source src="assets/cock_fight.mp4" type="video/mp4" />
+                </video>
+                <div class="live-stream-badge" aria-hidden="true">
+                  <span class="live-stream-badge__dot"></span>
+                  <span class="live-stream-badge__text">LIVE</span>
+                </div>
+                <a href="#cockfight" class="video-card__hit" id="live-card-hit" aria-label="Open cock fight live"></a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section fight-high" aria-label="Highlights">
+            <h2 class="fight-high__h">Fight highlights</h2>
+            <p class="fight-high__sub">Rooster fight replays</p>
+            <div class="fight-high__grid">
+              <button type="button" class="hen-card">
+                <img src="assets/match_meron.jpg" alt="" />
+                <div class="hen-card__ov"></div>
+                <div class="hen-card__play" aria-hidden="true">▶</div>
+                <div class="hen-card__cap">
+                  <div class="hen-card__t">Cock 1 vs Cock 2</div>
+                  <div class="hen-card__v">1.2k views</div>
+                </div>
+              </button>
+              <button type="button" class="hen-card">
+                <img src="assets/match_wala.jpg" alt="" />
+                <div class="hen-card__ov"></div>
+                <div class="hen-card__play" aria-hidden="true">▶</div>
+                <div class="hen-card__cap">
+                  <div class="hen-card__t">Derby</div>
+                  <div class="hen-card__v">890 views</div>
+                </div>
+              </button>
+            </div>
+            <div class="fight-high__grid">
+              <button type="button" class="hen-card">
+                <img src="assets/match_meron.jpg" alt="" />
+                <div class="hen-card__ov"></div>
+                <div class="hen-card__play" aria-hidden="true">▶</div>
+                <div class="hen-card__cap">
+                  <div class="hen-card__t">Championship</div>
+                  <div class="hen-card__v">2.1k views</div>
+                </div>
+              </button>
+              <button type="button" class="hen-card">
+                <img src="assets/match_wala.jpg" alt="" />
+                <div class="hen-card__ov"></div>
+                <div class="hen-card__play" aria-hidden="true">▶</div>
+                <div class="hen-card__cap">
+                  <div class="hen-card__t">Tournament</div>
+                  <div class="hen-card__v">768 views</div>
+                </div>
+              </button>
+            </div>
+          </section>
+
+          <div class="spacer"></div>
+        </div>
+
+        <!-- Promotion tab opens Referral & Earn (#referral); this panel is only a fallback for old #promotion links. -->
+        <div class="panel" data-panel="promotion" hidden>
+          <div class="promo-screen">
+            <div class="promo-topbar">
+              <a href="#home" class="promo-topbar__back" aria-label="Back to home">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </a>
+              <h1 class="promo-topbar__title">PROMOTIONS</h1>
+              <span class="promo-topbar__pad" aria-hidden="true"></span>
+            </div>
+            <div class="promo-row">
+              <p style="margin:0;padding:28px 20px;color:#bdbdbd;text-align:center;line-height:1.55;font-size:15px;">
+                Referral rewards, commission slabs, and your code are in <strong style="color:#fff;">Profile → Referral &amp; Earn</strong>.
+                <a href="#referral" style="display:inline-block;margin-top:14px;color:#ffb74d;font-weight:700;">Open Referral &amp; Earn</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet — matches Android WalletScreen (MainActivity) -->
+        <div class="panel" data-panel="wallet" id="wallet-panel" hidden>
+          <div class="wallet-app" id="wallet-app-root" data-wallet-mode="deposit">
+            <header class="wallet-topbar">
+              <a href="#home" class="wallet-topbar__back" aria-label="Back to home">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </a>
+              <h1 class="wallet-topbar__title">Wallet</h1>
+              <span class="wallet-topbar__pad" aria-hidden="true"></span>
+            </header>
+            <hr class="wallet-hr" />
+            <div class="wallet-tabs" role="tablist" aria-label="Wallet mode">
+              <button type="button" class="wallet-tabs__tab is-on" data-wallet-mode="deposit" id="wallet-tab-deposit" role="tab" aria-selected="true" aria-controls="wallet-panel-body">Deposit</button>
+              <button type="button" class="wallet-tabs__tab" data-wallet-mode="withdrawal" id="wallet-tab-withdraw" role="tab" aria-selected="false" aria-controls="wallet-panel-body">Withdrawal</button>
+            </div>
+            <hr class="wallet-hr" />
+            <div class="wallet-body" id="wallet-panel-body" role="tabpanel">
+              <div class="wallet-top-sp"></div>
+              <div class="wallet-info" id="wallet-info-banner">
+                <span class="wallet-info__ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                </span>
+                <p class="wallet-info__text" data-wallet-info-deposit>Minimum deposit amount is ₹100.</p>
+                <p class="wallet-info__text" data-wallet-info-withdraw hidden>Withdrawal processed in 4–48 hours.</p>
+              </div>
+              <p class="wallet-withdrawable" data-wallet-only-withdraw hidden>
+                Available for withdrawal: <span id="wallet-withdrawable-balance" class="wallet-withdrawable__num">₹0.00</span>
+              </p>
+              <h2 class="wallet-section-title">Select Payment Method</h2>
+              <div class="wallet-pay-row">
+                <button type="button" class="wallet-pay-card is-selected" data-wallet-pay="upi" aria-pressed="true">
+                  <span class="wallet-pay-card__ic" aria-hidden="true">
+                    <img src="assets/upi_logo.png" alt="UPI" width="52" height="28" style="object-fit:contain;" />
+                  </span>
+                  <span class="wallet-pay-card__t">UPI</span>
+                  <span class="wallet-pay-card__sub">0% commission</span>
+                </button>
+                <button type="button" class="wallet-pay-card" data-wallet-pay="bank" aria-pressed="false">
+                  <span class="wallet-pay-card__ic" aria-hidden="true">
+                    <img src="assets/bank_logo.png" alt="Bank" width="36" height="36" style="object-fit:contain;" />
+                  </span>
+                  <span class="wallet-pay-card__t">Bank Account</span>
+                  <span class="wallet-pay-card__sub">0% commission</span>
+                </button>
+              </div>
+              <div class="wallet-dest" data-wallet-only-withdraw hidden>
+                <h3 class="wallet-dest__h">Withdrawal destination</h3>
+                <div class="wallet-dest__inner" data-wallet-dest-bank hidden>
+                  <p class="wallet-dest__hint" id="wallet-saved-bank">Saved bank details load when signed in.</p>
+                  <button type="button" class="wallet-outlined-btn" data-add="bank" aria-label="Add bank account">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    <span>Add bank account</span>
+                  </button>
+                </div>
+                <div class="wallet-dest__inner" data-wallet-dest-upi hidden>
+                  <p class="wallet-dest__hint" id="wallet-saved-upi">Saved UPI loads when signed in.</p>
+                  <button type="button" class="wallet-outlined-btn" data-add="upi" aria-label="Add UPI ID">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    <span>Add UPI ID</span>
+                  </button>
+                </div>
+              </div>
+              <h2 class="wallet-section-title">Enter Amount</h2>
+              <div class="wallet-amount-wrap">
+                <label class="wallet-amount-label" for="wallet-amount-input">Amount (₹)</label>
+                <input type="text" class="wallet-amount-input" id="wallet-amount-input" inputmode="numeric" autocomplete="transaction-amount" value="1000" placeholder="e.g. 500" data-placeholder-deposit="e.g. 500" data-placeholder-withdraw="e.g. 200" />
+              </div>
+              <div class="wallet-chips" id="wallet-chips" data-wallet-chips>
+                <button type="button" class="wallet-chip" data-amt="500">₹500</button>
+                <button type="button" class="wallet-chip is-on" data-amt="1000">₹1000</button>
+                <button type="button" class="wallet-chip" data-amt="2000">₹2000</button>
+                <button type="button" class="wallet-chip" data-amt="5000">₹5000</button>
+                <button type="button" class="wallet-chip" data-amt="10000">₹10000</button>
+              </div>
+              <div class="wallet-howto">
+                <span class="wallet-howto__q" data-wallet-howto-q>How to Deposit</span>
+                <span class="wallet-howto__pill">
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                  Watch Tutorial
+                </span>
+              </div>
+              <div class="wallet-cta" id="wallet-cta-deposit-block">
+                <button type="button" class="wallet-btn wallet-btn--deposit" id="wallet-btn-deposit">
+                  Proceed to Deposit
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                </button>
+              </div>
+              <div class="wallet-cta" id="wallet-cta-withdraw-block" hidden>
+                <button type="button" class="wallet-btn wallet-btn--withdraw" id="wallet-btn-withdraw">Request Withdrawal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cock Fight live (CockFightLiveScreen) — full screen, no bottom nav -->
+        <div class="panel cockfight-app" data-panel="cockfight" id="cockfight-panel" hidden>
+          <div class="cockfight-scroll" id="cockfight-scroll">
+            <div class="cockfight-marquee" aria-hidden="true">
+              <div class="cockfight-marquee__track">
+                <p class="cockfight-marquee__text">Deposit now and get ₹500 bonus on your first deposit! &nbsp; Limited time — deposit and get ₹500 bonus on your first deposit! &nbsp;</p>
+                <p class="cockfight-marquee__text">Deposit now and get ₹500 bonus on your first deposit! &nbsp; Limited time — deposit and get ₹500 bonus on your first deposit! &nbsp;</p>
+              </div>
+            </div>
+            <!-- Video — clean, no overlaid cards -->
+            <div class="cockfight-stream">
+              <div class="cockfight-stream__box">
+                <video
+                  id="cockfight-video"
+                  class="cockfight-stream__video"
+                  playsinline
+                  muted
+                  preload="metadata"
+                  disablePictureInPicture
+                  tabindex="-1"
+                  data-cockfight-live="1"
+                ></video>
+                <div class="live-stream-badge live-stream-badge--cockfight" aria-hidden="true">
+                  <span class="live-stream-badge__dot"></span>
+                  <span class="live-stream-badge__text">LIVE</span>
+                </div>
+                <!-- Quality picker -->
+                <div class="cf-quality" id="cf-quality-wrap" hidden>
+                  <button type="button" class="cf-quality__btn" id="cf-quality-btn" aria-label="Video quality" aria-haspopup="true" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.06 7.06 0 0 0-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <span id="cf-quality-label">HD</span>
+                  </button>
+                  <div class="cf-quality__menu" id="cf-quality-menu" hidden role="menu">
+                    <button class="cf-quality__opt" data-q="original" role="menuitem">Original</button>
+                    <button class="cf-quality__opt" data-q="720p" role="menuitem">720p</button>
+                    <button class="cf-quality__opt" data-q="360p" role="menuitem">360p</button>
+                  </div>
+                </div>
+                <button type="button" class="cockfight-stream__max" id="cockfight-video-max" aria-label="Maximize video" title="Full screen">
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
+
+                <!-- Match countdown overlay -->
+                <div class="cf-countdown" id="cf-countdown" hidden>
+                  <div class="cf-countdown__bg"></div>
+                  <div class="cf-countdown__content">
+                    <div class="cf-countdown__vs">
+                      <span class="cf-countdown__rooster cf-countdown__rooster--l">🐓</span>
+                      <span class="cf-countdown__vs-text">VS</span>
+                      <span class="cf-countdown__rooster cf-countdown__rooster--r">🐓</span>
+                    </div>
+                    <p class="cf-countdown__label">Next match starts in</p>
+                    <div class="cf-countdown__timer" id="cf-countdown-timer">00:00</div>
+                    <p class="cf-countdown__sub">Get ready to place your bets!</p>
+                  </div>
+                </div>
+
+                <!-- Winner congratulations overlay -->
+                <div class="cf-winner" id="cf-winner" hidden>
+                  <div class="cf-winner__bg"></div>
+                  <canvas class="cf-winner__confetti" id="cf-confetti"></canvas>
+                  <div class="cf-winner__content">
+                    <div class="cf-winner__trophy">🏆</div>
+                    <p class="cf-winner__title">Match Result</p>
+                    <div class="cf-winner__name" id="cf-winner-name">Cock 1 Wins!</div>
+                    <div class="cf-winner__badge" id="cf-winner-badge"></div>
+                    <p class="cf-winner__sub">Congratulations to all winners!</p>
+                    <div class="cf-winner__timer-row">
+                      <span class="cf-winner__dot"></span>
+                      <span id="cf-winner-countdown">5:00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VS strip: labels match bet cards (merged from API side_labels via applyCockfightSideLabels) -->
+            <div class="cock-vs-bar" aria-hidden="true">
+              <span class="cock-vs-bar__side cock-vs-bar__side--cock1" data-cf-vs="COCK1">Cock 1</span>
+              <span class="cock-vs-bar__vs">VS</span>
+              <span class="cock-vs-bar__side cock-vs-bar__side--cock2" data-cf-vs="COCK2">Cock 2</span>
+            </div>
+
+            <!-- Bet cards — always visible below video -->
+            <div class="cock-cards-row" id="cockfight-side-bar" role="group" aria-label="Pick Cock 1, Draw, or Cock 2 to bet">
+              <button type="button" class="cockfight-side-btn cockfight-side-btn--meron is-selected" data-cf-side="COCK1" data-cf-display="Cock 1" data-cf-odd="—" aria-pressed="true">
+                <span class="cockfight-side-btn__odd">—×</span>
+                <span class="cockfight-side-btn__lab">Cock 1</span>
+              </button>
+              <button type="button" class="cockfight-side-btn cockfight-side-btn--draw" data-cf-side="DRAW" data-cf-display="Draw" data-cf-odd="—" aria-pressed="false">
+                <span class="cockfight-side-btn__odd">—×</span>
+                <span class="cockfight-side-btn__lab">Draw</span>
+              </button>
+              <button type="button" class="cockfight-side-btn cockfight-side-btn--green" data-cf-side="COCK2" data-cf-display="Cock 2" data-cf-odd="—" aria-pressed="false">
+                <span class="cockfight-side-btn__odd">—×</span>
+                <span class="cockfight-side-btn__lab">Cock 2</span>
+              </button>
+            </div>
+
+            <!-- Chip selector — always visible -->
+            <div class="cock-chips-wrap">
+              <div class="cock-chips" id="cock-chips" role="group" aria-label="Bet amount">
+                <button type="button" class="cock-chip" data-amt="50">50</button>
+                <button type="button" class="cock-chip is-on" data-amt="100">100</button>
+                <button type="button" class="cock-chip" data-amt="200">200</button>
+                <button type="button" class="cock-chip" data-amt="300">300</button>
+                <button type="button" class="cock-chip" data-amt="500">500</button>
+                <button type="button" class="cock-chip" data-amt="1000">1000</button>
+                <button type="button" class="cock-chip" data-amt="2500">2500</button>
+                <button type="button" class="cock-chip" data-amt="5000">5000</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom dock: settings + history + Place Bet + wallet -->
+          <div class="cockfight-dock" id="cockfight-dock">
+            <div class="cock-bbar">
+              <div class="cock-bbar__icons">
+                <a href="#profile" class="cock-bicon" data-nav="profile" title="Settings" aria-label="Settings">
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.62.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.488.488 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.64-.95l-.36-2.54a.484.484 0 0 0-.5-.42h-3.84c-.24 0-.44.18-.5.42l-.36 2.54c-.6.25-1.16.55-1.64.95l-2.4-.97a.496.496 0 0 0-.6.22L2.46 8.4c-.14.2-.1.5.1.64l2.02 1.59c-.05.3-.08.63-.08.95s.02.64.08.95l-2.02 1.6a.5.5 0 0 0-.12.64l1.92 3.3c.12.22.38.3.6.2l2.4-.98c.48.4 1.04.7 1.64.95l.36 2.54c.05.24.25.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.6-.25 1.16-.55 1.64-.95l2.4.98c.22.1.48.02.6-.2l1.92-3.3c.12-.22.1-.5-.1-.64l-2-1.6zM12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5z"/></svg>
+                </a>
+                <button type="button" class="cock-bicon" id="cock-open-history" title="Bet history" aria-label="Bet history">
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M13 3a9 9 0 0 0-9 9H1l3.9 3.9.1.1L9 12H6a7 7 0 1 1 1.5 4.2L6.2 19A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-4-2.3V8z"/></svg>
+                </button>
+              </div>
+              <button type="button" class="cock-place" id="cock-place-btn">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+                <span>Place Bet…</span>
+              </button>
+              <a href="#wallet" class="cock-bicon cock-bicon--end" data-nav="wallet" title="Wallet" aria-label="Wallet">
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v1h-9a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9zm-9-2h2v-2h-2v2zm0-3h2v-2h-2v2zm0-3h2V8h-2v2z"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bet history sheet -->
+          <div class="cf-bet-sheet" id="cf-bet-sheet-main" hidden>
+            <button type="button" class="cf-bet-sheet__backdrop" id="cf-bet-sheet-main-bd" tabindex="-1" aria-label="Close"></button>
+            <div class="cf-bet-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="cf-bet-sheet-main-title">
+              <div class="cf-bet-sheet__grab" aria-hidden="true"></div>
+              <div class="cf-bet-sheet__head">
+                <h3 class="cf-bet-sheet__title" id="cf-bet-sheet-main-title">Bet placed</h3>
+                <button type="button" class="cf-bet-sheet__x" id="cf-bet-sheet-main-close" aria-label="Close">×</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gundata LIVE (GundataLiveScreen) — no bottom nav; matches APK: top bar, promo strip, video, Live/Virtual, dice grid, chips, action bar, last results -->
+        <div class="panel gundu-app" data-panel="gundu" id="gundu-panel" hidden>
+          <div class="gundu-chrome">
+            <div class="gundu-stripe" aria-hidden="true"></div>
+            <div class="gundu-promo" aria-hidden="true">
+              <div class="gundu-promo__track">
+                <p class="gundu-promo__text">
+                  Deposit ₹500 and get ₹500 bonus on your first deposit! &nbsp; Your first-deposit bonus — limited time. &nbsp; Deposit ₹500
+                  and get ₹500 bonus on your first deposit! &nbsp;
+                </p>
+                <p class="gundu-promo__text">
+                  Deposit ₹500 and get ₹500 bonus on your first deposit! &nbsp; Your first-deposit bonus — limited time. &nbsp; Deposit ₹500
+                  and get ₹500 bonus on your first deposit! &nbsp;
+                </p>
+              </div>
+            </div>
+            <div class="gundu-stream" id="gundu-stream-box">
+              <div class="gundu-stream__inner">
+                <video
+                  id="gundu-video"
+                  class="gundu-stream__video"
+                  playsinline
+                  muted
+                  loop
+                  preload="metadata"
+                  poster="assets/banner_gundu.png"
+                >
+                  <source src="assets/gunduata_live.mp4" type="video/mp4" />
+                </video>
+                <p class="gundu-stream__fs-ph" aria-hidden="true">Playing fullscreen</p>
+                <div class="gundu-livecap">
+                  <span class="gundu-livecap__dot" aria-hidden="true"></span>
+                  <span>Live</span>
+                </div>
+                <button type="button" class="gundu-fs" id="gundu-fs-open" aria-label="Fullscreen">
+                  <span class="gundu-fs__circle">
+                    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div class="gundu-pills" role="tablist" aria-label="Game mode">
+              <button type="button" class="gundu-pill is-on" data-gundu-region="0" data-gundu-pill="live" role="tab" aria-pressed="true" id="gundu-tab-live">
+                <span class="gundu-pill__caret" aria-hidden="true"></span>
+                <span class="gundu-pill__lbl">Live</span>
+              </button>
+              <button type="button" class="gundu-pill" data-gundu-region="1" data-gundu-pill="virt" role="tab" aria-pressed="false" id="gundu-tab-virt">
+                <span class="gundu-pill__caret" aria-hidden="true"></span>
+                <span class="gundu-pill__lbl">Virtual</span>
+              </button>
+            </div>
+          </div>
+          <div class="gundu-body" id="gundu-scroll">
+            <div class="gundu-grid" role="group" aria-label="Dice 1 to 6">
+              <button type="button" class="gundu-dice" data-gundu-face="1" aria-pressed="false">
+                <span class="gundu-dice__num">1</span>
+                <div class="gundu-dice__main">
+                  <div class="gundu-pip" data-p="1" aria-hidden="true">
+                    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                  </div>
+                  <span class="gundu-dice__stake" hidden>0</span>
+                </div>
+                <span class="gundu-dice__word">One</span>
+              </button>
+              <button type="button" class="gundu-dice" data-gundu-face="2">
+                <span class="gundu-dice__num">2</span>
+                <div class="gundu-dice__main">
+                  <div class="gundu-pip" data-p="2" aria-hidden="true">
+                    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                  </div>
+                  <span class="gundu-dice__stake" hidden>0</span>
+                </div>
+                <span class="gundu-dice__word">Two</span>
+              </button>
+              <button type="button" class="gundu-dice" data-gundu-face="3">
+                <span class="gundu-dice__num">3</span>
+                <div class="gundu-dice__main">
+                  <div class="gundu-pip" data-p="3" aria-hidden="true">
+                    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                  </div>
+                  <span class="gundu-dice__stake" hidden>0</span>
+                </div>
+                <span class="gundu-dice__word">Three</span>
+              </button>
+              <button type="button" class="gundu-dice" data-gundu-face="4">
+                <span class="gundu-dice__num">4</span>
+                <div class="gundu-dice__main">
+                  <div class="gundu-pip" data-p="4" aria-hidden="true">
+                    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                  </div>
+                  <span class="gundu-dice__stake" hidden>0</span>
+                </div>
+                <span class="gundu-dice__word">Four</span>
+              </button>
+              <button type="button" class="gundu-dice" data-gundu-face="5">
+                <span class="gundu-dice__num">5</span>
+                <div class="gundu-dice__main">
+                  <div class="gundu-pip" data-p="5" aria-hidden="true">
+                    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                  </div>
+                  <span class="gundu-dice__stake" hidden>0</span>
+                </div>
+                <span class="gundu-dice__word">Five</span>
+              </button>
+              <button type="button" class="gundu-dice" data-gundu-face="6">
+                <span class="gundu-dice__num">6</span>
+                <div class="gundu-dice__main">
+                  <div class="gundu-pip" data-p="6" aria-hidden="true">
+                    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                  </div>
+                  <span class="gundu-dice__stake" hidden>0</span>
+                </div>
+                <span class="gundu-dice__word">Six</span>
+              </button>
+            </div>
+            <div class="gundu-chips" id="gundu-chips" role="group" aria-label="Chip value">
+              <button type="button" class="gundu-chip is-on" data-amt="100">100</button>
+              <button type="button" class="gundu-chip" data-amt="200">200</button>
+              <button type="button" class="gundu-chip" data-amt="300">300</button>
+              <button type="button" class="gundu-chip" data-amt="500">500</button>
+              <button type="button" class="gundu-chip" data-amt="800">800</button>
+              <button type="button" class="gundu-chip" data-amt="1000">1000</button>
+            </div>
+            <div class="gundu-action">
+              <button type="button" class="gundu-sqicon" id="gundu-open-bet-history" title="Bet history" aria-label="Bet history">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
+                  />
+                </svg>
+              </button>
+              <button type="button" class="gundu-sqicon" id="gundu-undo" title="Undo last bet" aria-label="Undo last bet" disabled>
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                  <path fill="currentColor" d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                </svg>
+              </button>
+              <button type="button" class="gundu-place" id="gundu-place-btn" disabled>PLACE BET</button>
+              <a href="#wallet" class="gundu-sqicon gundu-sqicon--link" data-nav="wallet" title="Wallet" aria-label="Wallet">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6v-1h12v1zm-3-3H9v-1h6v1zm0-3H9V9h6v3zm-6-3V6h3v2H9v1z"
+                  />
+                </svg>
+              </a>
+            </div>
+            <h2 class="gundu-last-h">Last round results</h2>
+            <div class="gundu-lastwrap">
+              <div class="gundu-lastscroll" id="gundu-last-inner"></div>
+            </div>
+          </div>
+          <div class="gundu-fsdialog" id="gundu-fullscreen" hidden>
+            <video id="gundu-video-fs" class="gundu-fsdialog__video" playsinline loop preload="metadata" poster="assets/banner_gundu.png"></video>
+            <button type="button" class="gundu-fsdialog__close" id="gundu-fs-close" aria-label="Exit fullscreen">×</button>
+          </div>
+          <div class="gundu-virt" id="gundu-virt" hidden>
+            <div class="gundu-virt__backdrop" id="gundu-virt-backdrop" aria-hidden="true"></div>
+            <div class="gundu-virt__sheet" role="dialog" aria-label="Virtual Gundata">
+              <div class="gundu-virt__bar">
+                <span>Virtual</span>
+                <button type="button" class="gundu-virt__x" id="gundu-virt-close" aria-label="Close">×</button>
+              </div>
+              <iframe class="gundu-virt__frame" id="gundu-virt-frame" title="Gunduata virtual game" loading="lazy"></iframe>
+            </div>
+          </div>
+          <div class="gundu-bet-history" id="gundu-bet-history" hidden>
+            <div class="gundu-bet-history__backdrop" id="gundu-bet-history-backdrop"></div>
+            <div class="gundu-bet-history__panel" role="dialog" aria-label="Bet history">
+              <div class="gundu-bet-history__head">
+                <h2 class="gundu-bet-history__title">Your bets</h2>
+                <button type="button" class="gundu-bet-history__x" id="gundu-bet-history-close" aria-label="Close">×</button>
+              </div>
+              <p class="gundu-bet-history__sub" id="gundu-bet-history-empty">Loading…</p>
+              <ul class="gundu-bet-history__list" id="gundu-bet-history-list" hidden></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile & Settings — layout matches Android ProfileScreen (MainActivity.kt): top bar, banner, SectionHeader, ProfileMenuItem rows, Divider, Contact list, Log out Surface -->
+        <div class="panel" data-panel="profile" id="profile-panel" hidden>
+          <!-- Main list -->
+          <div class="profile-subview" data-profile-sub="main">
+            <div class="profile-topbar">
+              <a href="#home" class="profile-topbar__iconbtn" aria-label="Back to home">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </a>
+              <h2 class="profile-topbar__title">Profile &amp; Settings</h2>
+              <div class="profile-topbar__lock" aria-hidden="true" title="">
+                <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              </div>
+            </div>
+            <div class="profile-banner">
+              <img src="assets/profile_top.jpg" alt="" class="profile-banner__img" width="800" height="400" />
+            </div>
+            <p class="profile-section__h">Settings:</p>
+            <button type="button" class="profile-menu__row" data-open-profile="details">
+              <span class="profile-menu__ic"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
+              <span class="profile-menu__label">Profile</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+            <button type="button" class="profile-menu__row" data-open-profile="referral">
+              <span class="profile-menu__ic"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></span>
+              <span class="profile-menu__label">Referral &amp; Earn</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+            <button type="button" class="profile-menu__row" data-open-profile="transactions">
+              <span class="profile-menu__ic"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></span>
+              <span class="profile-menu__label">Transaction Records</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>            <hr class="profile-divider" />
+            <p class="profile-section__h">Contact / Support:</p>
+            <a class="profile-menu__row profile-menu__row--link" id="profile-link-wa" href="https://wa.me/9182351381" target="_blank" rel="noopener noreferrer">
+              <span class="profile-menu__ic profile-menu__ic--wa"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm0 3h8v2H6v-2z"/></svg></span>
+              <span class="profile-menu__label">Whatsapp</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>
+            <a class="profile-menu__row profile-menu__row--link" id="profile-link-tg" href="https://t.me/telegram" target="_blank" rel="noopener noreferrer">
+              <span class="profile-menu__ic profile-menu__ic--tg"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></span>
+              <span class="profile-menu__label">Telegram</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>
+            <a class="profile-menu__row profile-menu__row--link" id="profile-link-fb" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+              <span class="profile-menu__ic profile-menu__ic--fb"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 22.1 10.12 24v-8.45H7.08v-3.5h3.04V9.36c0-3.04 1.8-4.72 4.59-4.72 1.32 0 2.7.24 2.7.24v2.98h-1.52c-1.5 0-1.96.93-1.96 1.89v2.28h3.32l-.53 3.5h-2.8V24C19.62 22.1 24 18.1 24 12.07z"/></svg></span>
+              <span class="profile-menu__label">Facebook</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>
+            <a class="profile-menu__row profile-menu__row--link" id="profile-link-ig" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+              <span class="profile-menu__ic profile-menu__ic--img"><img src="assets/social_instagram.png" width="32" height="32" alt="" /></span>
+              <span class="profile-menu__label">Instagram</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>
+            <a class="profile-menu__row profile-menu__row--link" id="profile-link-yt" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">
+              <span class="profile-menu__ic profile-menu__ic--img"><img src="assets/social_youtube.png" width="32" height="32" alt="" /></span>
+              <span class="profile-menu__label">Youtube</span>
+              <svg class="profile-menu__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>
+            <div class="profile-logout-wrap">
+              <button type="button" class="profile-logout" id="profile-logout-btn">
+                <span>Log out</span>
+                <!-- Material Icons PowerSettingsNew -->
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.83 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.17-3.17-6.83z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Profile details (form — matches app; static on web) -->
+          <div class="profile-subview" data-profile-sub="details" hidden>
+            <div class="profile-topbar">
+              <button type="button" class="profile-topbar__iconbtn" data-profile-back="main" aria-label="Back">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </button>
+              <h2 class="profile-topbar__title profile-topbar__title--medium">Profile</h2>
+              <a href="#home" class="profile-topbar__home" aria-label="Home">
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </a>
+            </div>
+            <div class="profile-form">
+              <p class="profile-form__note" id="profile-form-hint">Edit your details. Web preview is local only.</p>
+              <label class="profile-field">
+                <span class="profile-field__l">Username</span>
+                <input type="text" class="profile-field__i" id="pf-username" name="username" autocomplete="username" value="KokorokoUser" />
+              </label>
+              <label class="profile-field">
+                <span class="profile-field__l">Phone Number</span>
+                <input type="tel" class="profile-field__i" id="pf-phone" name="phone" autocomplete="tel" value="" placeholder="+91 …" />
+              </label>
+              <label class="profile-field">
+                <span class="profile-field__l">Email</span>
+                <input type="email" class="profile-field__i" id="pf-email" name="email" autocomplete="email" value="" placeholder="name@email.com" />
+              </label>
+              <p class="profile-gender__h">Gender</p>
+              <div class="profile-gender" role="radiogroup" aria-label="Gender">
+                <label class="profile-gender__opt"><input type="radio" name="gender" value="Male" checked /> <span>Male</span></label>
+                <label class="profile-gender__opt"><input type="radio" name="gender" value="Female" /> <span>Female</span></label>
+                <label class="profile-gender__opt"><input type="radio" name="gender" value="Other" /> <span>Other</span></label>
+              </div>
+              <button type="button" class="profile-updatebtn" id="profile-update-btn">
+                <span>Update Details</span>
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Referral &amp; Earn (simplified) -->
+          <div class="profile-subview" data-profile-sub="referral" hidden>
+            <div class="profile-topbar">
+              <button type="button" class="profile-topbar__iconbtn" data-profile-back="main" aria-label="Back">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </button>
+              <h2 class="profile-topbar__title profile-topbar__title--medium">Referral</h2>
+              <a href="#home" class="profile-topbar__home" aria-label="Home">
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </a>
+            </div>
+            <div class="referral-body">
+              <div class="referral-hero">
+                <div class="referral-hero__lock" aria-hidden="true">🔐</div>
+                <h3 class="referral-hero__h" id="referral-hero-h">Receive up to 8% commission</h3>
+                <div class="referral-code referral-code--top" role="group" aria-label="Referral code">
+                  <span class="referral-code__t" id="referral-code-display">— — —</span>
+                  <button type="button" class="referral-code__copy" id="referral-copy-btn" aria-label="Copy code" data-copy="">⎘</button>
+                </div>
+                <button type="button" class="referral-share referral-share--top" id="referral-share-row">
+                  <span>Share &amp; Earn Lifetime</span>
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+                </button>
+                <p class="referral-hero__p" id="referral-hero-p">For each bet your referred friend wins, you earn a reward making every one of their victories a win for you too!</p>
+                <div class="referral-disclosures">
+                  <button type="button" class="referral-disclosure-btn" id="referral-disclosure-slabs" aria-expanded="false" aria-controls="referral-slabs-panel">
+                    <span class="referral-disclosure-btn__label">Commission slabs</span>
+                    <span class="referral-disclosure-btn__caret" aria-hidden="true">▾</span>
+                  </button>
+                  <div id="referral-slabs-panel" class="referral-disclosure-panel" hidden role="region" aria-labelledby="referral-disclosure-slabs">
+                    <p class="referral-slabs-intro">
+                      Each row is your <strong>total referred members</strong> (everyone who joined with your code) and the <strong>commission rate</strong> that applies for that tier.
+                    </p>
+                    <div class="referral-table-wrap">
+                      <table class="referral-table" aria-label="Commission by number of referrals">
+                        <thead>
+                          <tr>
+                            <th scope="col">When your referrals reach</th>
+                            <th scope="col">You earn</th>
+                          </tr>
+                        </thead>
+                        <tbody id="referral-slabs-tbody"></tbody>
+                      </table>
+                    </div>
+                    <p id="referral-slabs-empty" class="referral-disclosure-empty" hidden>No slab data from the server yet.</p>
+                  </div>
+                  <button type="button" class="referral-disclosure-btn" id="referral-disclosure-rules" aria-expanded="false" aria-controls="referral-rules-panel">
+                    <span class="referral-disclosure-btn__label">How to earn referral bonus</span>
+                    <span class="referral-disclosure-btn__caret" aria-hidden="true">▾</span>
+                  </button>
+                  <div id="referral-rules-panel" class="referral-disclosure-panel referral-rules-panel" hidden role="region" aria-labelledby="referral-disclosure-rules">
+                    <ul class="referral-rules-list">
+                      <li>Share your unique referral code with friends.</li>
+                      <li>They must register using your code. When they play and meet the platform’s activity rules, you earn commission on eligible turnover.</li>
+                      <li>Higher referral counts can unlock better commission rates — open <strong>Commission slabs</strong> above to see how many referred members qualify for each tier and the rate you earn.</li>
+                      <li>Instant referral bonus (if offered) is credited per referee when conditions are met; check your stats for amounts.</li>
+                      <li>Daily commission and dates may be shown in IST where the server provides them.</li>
+                    </ul>
+                  </div>
+                </div>
+                <p id="referral-hero-err" class="referral-hero__err" hidden></p>
+                <div class="referral-stats" id="referral-stats" hidden>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-total">—</span><span class="referral-stat__l">Total referrals</span></div>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-active">—</span><span class="referral-stat__l">Active referrals</span></div>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-earnings">—</span><span class="referral-stat__l">Total earnings</span></div>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-today">—</span><span class="referral-stat__l">Today’s commission</span></div>
+                </div>
+                <div class="referral-stats referral-stats--more" id="referral-stats-more" hidden>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-bonus-ref">—</span><span class="referral-stat__l">Bonus / referee (instant)</span></div>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-total-comm">—</span><span class="referral-stat__l">Total commission earnings</span></div>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-daily-comm">—</span><span class="referral-stat__l">Total daily commission</span></div>
+                  <div class="referral-stat"><span class="referral-stat__v" id="referral-stat-legacy">—</span><span class="referral-stat__l">Legacy referral bonus</span></div>
+                </div>
+                <p class="referral-ist" id="referral-commission-ist-line" hidden></p>
+              </div>
+              <section class="referral-section" id="referral-daily-section" hidden>
+                <h3 class="referral-section__h">Recent daily commissions</h3>
+                <div class="referral-table-wrap referral-table-wrap--scroll">
+                  <table class="referral-table" aria-label="Recent daily commissions">
+                    <thead>
+                      <tr>
+                        <th scope="col">Date</th><th scope="col">Player</th><th scope="col">Loss ₹</th>
+                        <th scope="col">%</th><th scope="col">Commission ₹</th>
+                      </tr>
+                    </thead>
+                    <tbody id="referral-daily-tbody"></tbody>
+                  </table>
+                </div>
+              </section>
+              <h3 class="referral-list__h" id="referral-list-heading" hidden>Your referrals</h3>
+              <ul class="referral-list" id="referral-list" hidden></ul>
+            </div>
+          </div>
+
+          <!-- Transaction Records -->
+          <div class="profile-subview" data-profile-sub="transactions" hidden>
+            <div class="profile-topbar">
+              <a href="#profile" class="profile-topbar__iconbtn" aria-label="Back">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              </a>
+              <h2 class="profile-topbar__title profile-topbar__title--medium">Transaction Records</h2>
+              <a href="#home" class="profile-topbar__home" aria-label="Home">
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </a>
+            </div>
+            <div class="txn-tabs" role="tablist">
+              <button type="button" class="txn-tab txn-tab--active" id="txn-tab-dep" role="tab" aria-selected="true" data-txn-tab="deposits">Deposits</button>
+              <button type="button" class="txn-tab" id="txn-tab-wd" role="tab" aria-selected="false" data-txn-tab="withdrawals">Withdrawals</button>
+            </div>
+            <div class="txn-body">
+              <div id="txn-list-deposits" class="txn-list" role="tabpanel"></div>
+              <div id="txn-list-withdrawals" class="txn-list" role="tabpanel" hidden></div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <nav class="bottom-nav" role="navigation" aria-label="Main">
+        <a href="#home" class="bottom-nav__item bottom-nav__item--on" data-nav="home" aria-current="page">
+          <span class="bottom-nav__ico bottom-nav__ico--svg" aria-hidden="true">
+            <!-- Material Icons.Home — matches APK BottomNavigationBar -->
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </span>
+          <span>Home</span>
+        </a>
+        <a href="#referral" class="bottom-nav__item" data-nav="referral">
+          <span class="bottom-nav__ico bottom-nav__ico--svg" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26"><path fill="currentColor" d="M20 6h-2.18c.07-.29.18-.57.18-.88C18 3.4 16.6 2 14.88 2c-.96 0-1.8.46-2.35 1.17L12 4.15l-.53-.99C10.92 2.46 10.08 2 9.12 2 7.4 2 6 3.4 6 5.12c0 .31.11.59.18.88H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5.12-2c.62 0 1.12.5 1.12 1.12 0 .41-.23.77-.58.97L13 7H11.1l-1.42-1.91c-.35-.2-.58-.56-.58-.97C9 3.5 9.5 3 10.12 3L12 5.5 13.88 4zm5.12 16H4v-2h16v2zm0-4H4V8h5.07l-2.64 3.56L8 13l4-2 4 2 1.57-1.44L14.93 8H20v8z"/></svg>
+          </span>
+          <span>Promotion</span>
+        </a>
+        <a href="#wallet" class="bottom-nav__item" id="bottom-nav-wallet" data-nav="wallet" hidden>
+          <span class="bottom-nav__ico bottom-nav__ico--svg" aria-hidden="true">
+            <!-- Material Icons.Default.Wallet (account_balance_wallet) — matches APK -->
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8h-10v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          </span>
+          <span>Wallet</span>
+        </a>
+        <a href="#profile" class="bottom-nav__item" data-nav="profile">
+          <span class="bottom-nav__ico bottom-nav__ico--svg" aria-hidden="true">
+            <!-- Material Icons.Default.Person — matches APK -->
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </span>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+  <div class="cf-history" id="cf-history" hidden>
+    <button type="button" class="cf-history__backdrop" id="cf-history-backdrop" aria-label="Close"></button>
+    <div class="cf-history__panel" role="dialog" aria-modal="true" aria-labelledby="cf-history-title">
+      <div class="cf-history__head">
+        <h2 class="cf-history__title" id="cf-history-title">Bet history</h2>
+        <button type="button" class="cf-history__close" id="cf-history-close" aria-label="Close">×</button>
+      </div>
+      <div class="cf-history__empty" id="cf-history-empty">
+        <svg viewBox="0 0 24 24" width="52" height="52" aria-hidden="true"><path fill="#555" d="M13 3a9 9 0 0 0-9 9H1l3.9 3.9.1.1L9 12H6a7 7 0 1 1 1.5 4.2L6.2 19A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-4-2.3V8z"/></svg>
+        <p>No bets placed yet</p>
+      </div>
+      <ul class="cf-history__list" id="cf-history-list" hidden></ul>
+    </div>
+  </div>
+  <!-- Home live preview — fullscreen (same pattern as gundu-fsdialog) -->
+  <div class="live-fsdialog" id="live-fullscreen" hidden>
+    <div class="live-stream-badge live-stream-badge--fs" aria-hidden="true">
+      <span class="live-stream-badge__dot"></span>
+      <span class="live-stream-badge__text">LIVE</span>
+    </div>
+    <video
+      id="live-video-fs"
+      class="live-fsdialog__video"
+      playsinline
+      muted
+      loop
+      preload="metadata"
+      poster="assets/cockfight_banner.png"
+      disablePictureInPicture
+    ></video>
+    <button type="button" class="live-fsdialog__close" id="live-fs-close" aria-label="Close full screen">×</button>
+  </div>
+  <!-- Cockfight stream — fullscreen with betting dock (APK-style) -->
+  <div class="cockfight-fsdialog" id="cockfight-fullscreen" hidden>
+    <div class="cockfight-fs-stage">
+      <div class="live-stream-badge live-stream-badge--fs" aria-hidden="true">
+        <span class="live-stream-badge__dot"></span>
+        <span class="live-stream-badge__text">LIVE</span>
+      </div>
+      <video
+        id="cockfight-video-fs"
+        class="cockfight-fsdialog__video"
+        playsinline
+        muted
+        loop
+        preload="metadata"
+        disablePictureInPicture
+      ></video>
+      <!-- Quality picker (fullscreen) -->
+      <div class="cf-quality cf-quality--fs" id="cf-quality-wrap-fs" hidden>
+        <button type="button" class="cf-quality__btn" id="cf-quality-btn-fs" aria-label="Video quality" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.06 7.06 0 0 0-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          <span id="cf-quality-label-fs">HD</span>
+        </button>
+        <div class="cf-quality__menu" id="cf-quality-menu-fs" hidden role="menu">
+          <button class="cf-quality__opt" data-q="original" role="menuitem">Original</button>
+          <button class="cf-quality__opt" data-q="720p" role="menuitem">720p</button>
+          <button class="cf-quality__opt" data-q="360p" role="menuitem">360p</button>
+        </div>
+      </div>
+      <div
+        class="cockfight-bet-cards cockfight-bet-cards--fs cockfight-side-bar cockfight-side-bar--fs"
+        id="cockfight-fs-side-bar"
+        role="group"
+        aria-label="Pick Cock 1, Draw, or Cock 2 to open bet card"
+      >
+        <button type="button" class="cockfight-side-btn cockfight-side-btn--meron is-selected" data-cf-side="COCK1" data-cf-display="Cock 1" data-cf-odd="—" aria-pressed="true">
+          <span class="cockfight-side-btn__lab">Cock 1</span>
+          <span class="cockfight-side-btn__odd">—×</span>
+        </button>
+        <button type="button" class="cockfight-side-btn cockfight-side-btn--draw" data-cf-side="DRAW" data-cf-display="Draw" data-cf-odd="—" aria-pressed="false">
+          <span class="cockfight-side-btn__lab">Draw</span>
+          <span class="cockfight-side-btn__odd">—×</span>
+        </button>
+        <button type="button" class="cockfight-side-btn cockfight-side-btn--green" data-cf-side="COCK2" data-cf-display="Cock 2" data-cf-odd="—" aria-pressed="false">
+          <span class="cockfight-side-btn__lab">Cock 2</span>
+          <span class="cockfight-side-btn__odd">—×</span>
+        </button>
+      </div>
+      <button type="button" class="cockfight-fsdialog__close" id="cockfight-fs-close" aria-label="Close full screen">×</button>
+    </div>
+    <div class="cockfight-fs-dock" id="cockfight-fs-dock">
+      <div class="cock-bbar cock-bbar--fs cock-bbar--subrow">
+        <div class="cock-bbar__icons">
+          <button type="button" class="cock-bicon" id="cockfight-fs-open-history" title="Bet history" aria-label="Bet history">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M13 3a9 9 0 0 0-9 9H1l3.9 3.9.1.1L9 12H6a7 7 0 1 1 1.5 4.2L6.2 19A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-4-2.3V8z"/></svg>
+          </button>
+        </div>
+        <p class="cock-bbar__hint">Tap Cock 1, Draw, or Cock 2 on the video</p>
+        <a href="#wallet" class="cock-bicon cock-bicon--end" data-nav="wallet" title="Wallet" aria-label="Wallet">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v1h-9a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9zm-9-2h2v-2h-2v2zm0-3h2v-2h-2v2zm0-3h2V8h-2v2z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="cf-bet-sheet cf-bet-sheet--fs" id="cf-bet-sheet-fs" hidden>
+      <button type="button" class="cf-bet-sheet__backdrop" id="cf-bet-sheet-fs-bd" tabindex="-1" aria-label="Close"></button>
+      <div class="cf-bet-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="cf-bet-sheet-fs-title">
+        <div class="cf-bet-sheet__grab" aria-hidden="true"></div>
+        <div class="cf-bet-sheet__head">
+          <h3 class="cf-bet-sheet__title" id="cf-bet-sheet-fs-title">Cock 1 · —×</h3>
+          <button type="button" class="cf-bet-sheet__x" id="cf-bet-sheet-fs-close" aria-label="Close">×</button>
+        </div>
+        <p class="cf-bet-sheet__sub">Select amount</p>
+        <div class="cock-chips" id="cockfight-fs-chips" role="group" aria-label="Bet amount">
+          <button type="button" class="cock-chip" data-amt="50">50</button>
+          <button type="button" class="cock-chip is-on" data-amt="100">100</button>
+          <button type="button" class="cock-chip" data-amt="200">200</button>
+          <button type="button" class="cock-chip" data-amt="300">300</button>
+          <button type="button" class="cock-chip" data-amt="500">500</button>
+          <button type="button" class="cock-chip" data-amt="1000">1000</button>
+          <button type="button" class="cock-chip" data-amt="2500">2500</button>
+          <button type="button" class="cock-chip" data-amt="5000">5000</button>
+        </div>
+        <button type="button" class="cf-bet-sheet__place" id="cockfight-fs-place-btn">Place Bet</button>
+      </div>
+    </div>
+  </div>
+  <script src="api-base.generated.js?v=1"></script>
+  <script src="api.js?v=26" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+  <script src="app.js?v=71" defer></script>
+</body>
+</html>

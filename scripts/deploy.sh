@@ -72,6 +72,13 @@ _rsync() {
 echo "==> Deploy backend/ -> ${REMOTE}:${DEPLOY_REMOTE_PATH}/"
 _rsync backend/ "${REMOTE}:${DEPLOY_REMOTE_PATH}/"
 
+# Optional Kokoroko SPA overrides (index.html, app.js): set DEPLOY_WEB_ROOT in deploy.env to your nginx docroot.
+DEPLOY_WEB_ROOT="${DEPLOY_WEB_ROOT:-}"
+if [[ -n "${DEPLOY_WEB_ROOT}" ]]; then
+  echo "==> Deploy kokoroko-web/ -> ${REMOTE}:${DEPLOY_WEB_ROOT}/"
+  _rsync kokoroko-web/ "${REMOTE}:${DEPLOY_WEB_ROOT}/"
+fi
+
 if [[ -n "${DEPLOY_SYSTEMD_SERVICE}" ]]; then
   REMOTE_PYTHON="${DEPLOY_REMOTE_PYTHON:-${DEPLOY_REMOTE_PATH}/venv/bin/python3}"
 
