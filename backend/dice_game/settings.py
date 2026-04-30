@@ -554,4 +554,7 @@ GAME_SETTINGS = {
     },
     # Referral: instant ₹ on referee first deposit; tiered % on referee daily wallet loss (cron; slabs in code)
     'REFERRAL_INSTANT_BONUS_PER_REFEREE': 100,
+    # Cock fight (COCK1/COCK2): editable in game-admin Game Settings; DRAW odds fixed in code
+    'COCKFIGHT_ODDS_COCK1': '1.90',
+    'COCKFIGHT_ODDS_COCK2': '1.92',
 }

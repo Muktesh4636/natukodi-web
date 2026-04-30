@@ -1640,6 +1640,41 @@ def cockfight_round_videos(request):
         return redirect('admin_dashboard')
 
     if request.method == 'POST':
+        if request.POST.get('action') == 'update_schedule':
+            rid_raw = (request.POST.get('round_id') or '').strip()
+            raw_schedule = (request.POST.get('scheduled_start') or '').strip()
+            if not rid_raw or not raw_schedule:
+                messages.error(request, 'Round and new playback start time are required.')
+                return redirect('cockfight_round_videos')
+            try:
+                rid = int(rid_raw)
+            except ValueError:
+                messages.error(request, 'Invalid round ID.')
+                return redirect('cockfight_round_videos')
+
+            from datetime import datetime
+            from django.utils import timezone as tz_util
+
+            try:
+                schedule_dt = datetime.fromisoformat(raw_schedule)
+            except ValueError:
+                messages.error(request, 'Invalid start date/time.')
+                return redirect('cockfight_round_videos')
+
+            if tz_util.is_naive(schedule_dt):
+                schedule_dt = tz_util.make_aware(schedule_dt, tz_util.get_current_timezone())
+
+            updated = CockFightRoundVideo.objects.filter(pk=rid).update(scheduled_start=schedule_dt)
+            if not updated:
+                messages.error(request, f'Round #{rid} not found.')
+            else:
+                messages.success(
+                    request,
+                    f'Round #{rid} playback start updated to {schedule_dt.strftime("%Y-%m-%d %H:%M")} '
+                    f'({tz_util.get_current_timezone_name()}). Clients use this time for sync.',
+                )
+            return redirect('cockfight_round_videos')
+
         upload = request.FILES.get('video')
         if not upload:
             messages.error(request, 'Choose a video file.')
@@ -1675,12 +1710,30 @@ def cockfight_round_videos(request):
         label_cock1 = (request.POST.get('label_cock1') or '').strip()[:80]
         label_cock2 = (request.POST.get('label_cock2') or '').strip()[:80]
 
+        from decimal import Decimal, InvalidOperation
+
+        raw_oc1 = (request.POST.get('odds_cock1') or '').strip()
+        raw_oc2 = (request.POST.get('odds_cock2') or '').strip()
+        if not raw_oc1 or not raw_oc2:
+            messages.error(request, 'Cock 1 and Cock 2 odds are required — enter a decimal for each (e.g. 1.90).')
+            return redirect('cockfight_round_videos')
+        try:
+            oc1 = Decimal(raw_oc1.replace(',', '')).quantize(Decimal('0.01'))
+            oc2 = Decimal(raw_oc2.replace(',', '')).quantize(Decimal('0.01'))
+            if oc1 < Decimal('1') or oc1 > Decimal('999.99') or oc2 < Decimal('1') or oc2 > Decimal('999.99'):
+                raise ValueError('range')
+        except (InvalidOperation, ValueError):
+            messages.error(request, 'Invalid odds. Use decimals between 1 and 999.99 (e.g. 1.90 and 1.92).')
+            return redirect('cockfight_round_videos')
+
         obj = CockFightRoundVideo.objects.create(
             video=upload,
             uploaded_by=request.user,
             scheduled_start=schedule_dt,
             label_cock1=label_cock1,
             label_cock2=label_cock2,
+            odds_cock1=oc1,
+            odds_cock2=oc2,
         )
         try:
             from .utils import (
@@ -1705,13 +1758,19 @@ def cockfight_round_videos(request):
         .order_by('-id')[:60]
     )
     recent_video_rows = []
+    from django.utils import timezone as dj_tz
+
     for rv in recent_qs:
         play_url = ''
         if rv.video and rv.hls_ready:
             from .views import build_cockfight_hls_url
 
             play_url = build_cockfight_hls_url(request, rv.pk)
-        recent_video_rows.append({'rv': rv, 'play_url': play_url})
+        sched_val = ''
+        if rv.scheduled_start:
+            loc = dj_tz.localtime(rv.scheduled_start)
+            sched_val = loc.strftime('%Y-%m-%dT%H:%M')
+        recent_video_rows.append({'rv': rv, 'play_url': play_url, 'schedule_input_value': sched_val})
 
     from django.db.models import Max
     max_id = CockFightRoundVideo.objects.aggregate(m=Max('id'))['m'] or 0
@@ -3573,7 +3632,25 @@ def game_settings(request):
             'description': 'When ticked: users cannot use the APK until they update. The update screen cannot be dismissed.'
         },
     ]
-    
+
+    cockfight_odds_settings = [
+        {
+            'key': 'COCKFIGHT_ODDS_COCK1',
+            'default': '1.90',
+            'description': (
+                'Cock fight — Cock 1 (COCK1) decimal odds (total return incl. stake). '
+                'Example: 1.90 → ₹190 back on ₹100 stake. Draw odds stay fixed in backend.'
+            ),
+        },
+        {
+            'key': 'COCKFIGHT_ODDS_COCK2',
+            'default': '1.92',
+            'description': (
+                'Cock fight — Cock 2 (COCK2) decimal odds; same rules as Cock 1.'
+            ),
+        },
+    ]
+
     # Get current app version settings
     app_version_current = {}
     for setting_info in app_version_settings:
@@ -3595,6 +3672,22 @@ def game_settings(request):
                 'value': setting_info['default'],
                 'description': setting_info['description'],
                 'exists': False
+            }
+
+    cockfight_odds_current = {}
+    for setting_info in cockfight_odds_settings:
+        try:
+            setting = GameSettings.objects.get(key=setting_info['key'])
+            cockfight_odds_current[setting_info['key']] = {
+                'value': (setting.value or '').strip(),
+                'description': setting.description or setting_info['description'],
+                'exists': True,
+            }
+        except GameSettings.DoesNotExist:
+            cockfight_odds_current[setting_info['key']] = {
+                'value': setting_info['default'],
+                'description': setting_info['description'],
+                'exists': False,
             }
     
     # Handle form submission (app version + maintenance toggles elsewhere; timing not edited here)
@@ -3633,7 +3726,29 @@ def game_settings(request):
                         }
                     )
 
-        clear_game_setting_cache([s['key'] for s in app_version_settings])
+        from decimal import Decimal, InvalidOperation
+
+        for setting_info in cockfight_odds_settings:
+            key = setting_info['key']
+            val = (request.POST.get(key) or '').strip()
+            if not val:
+                continue
+            try:
+                d = Decimal(val.replace(',', ''))
+                if d < Decimal('1') or d > Decimal('999.99'):
+                    raise InvalidOperation
+                q = d.quantize(Decimal('0.01'))
+                GameSettings.objects.update_or_create(
+                    key=key,
+                    defaults={
+                        'value': format(q, 'f'),
+                        'description': setting_info['description'],
+                    },
+                )
+            except (InvalidOperation, ValueError):
+                messages.warning(request, f'Invalid odds for {key}; skipped.')
+
+        clear_game_setting_cache([s['key'] for s in app_version_settings + cockfight_odds_settings])
         messages.success(request, 'Settings saved successfully.')
         return redirect('game_settings')
 
@@ -3647,6 +3762,16 @@ def game_settings(request):
             'value': setting_data['value'],
             'description': setting_data['description'],
             'input_type': setting_info['input_type'],
+        })
+
+    cockfight_odds_list = []
+    for setting_info in cockfight_odds_settings:
+        key = setting_info['key']
+        setting_data = cockfight_odds_current[key]
+        cockfight_odds_list.append({
+            'key': key,
+            'value': setting_data['value'],
+            'description': setting_data['description'],
         })
     
     # Maintenance mode status (for display in template)
@@ -3667,6 +3792,7 @@ def game_settings(request):
         # Empty: round timing / max-bet fields removed from this page; kept for template compatibility.
         'settings_list': [],
         'app_version_list': app_version_list,
+        'cockfight_odds_list': cockfight_odds_list,
         'maintenance_enabled': maintenance_enabled,
         'maintenance_until': maintenance_until,
         'page': 'game_settings',

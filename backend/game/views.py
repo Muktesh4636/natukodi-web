@@ -43,7 +43,7 @@ from .utils import (
     cockfight_consumer_stream_active,
     ensure_cockfight_round_video_duration,
     next_cockfight_video_round_for_betting,
-    COCKFIGHT_SIDE_ODDS,
+    get_cockfight_side_odds,
     normalize_cockfight_side,
     cockfight_side_labels_dict,
     cockfight_side_display,
@@ -2743,6 +2743,7 @@ def _serialize_latest_cockfight_round_video(request):
         out['hls_url'] = None
         out['requires_authentication'] = True
     out['side_labels'] = cockfight_side_labels_dict(rv)
+    out['odds'] = {k: str(v) for k, v in get_cockfight_side_odds(rv.pk).items()}
     return out
 
 
@@ -2755,6 +2756,15 @@ def cock_fight_info(request):
 
     latest_round_video = _serialize_latest_cockfight_round_video(request)
     session = CockFightSession.objects.filter(status='OPEN').order_by('-id').first()
+
+    if session and session.video_round_id:
+        odds_map = get_cockfight_side_odds(session.video_round_id)
+    elif latest_round_video and latest_round_video.get('round_id'):
+        odds_map = get_cockfight_side_odds(latest_round_video['round_id'])
+    else:
+        odds_map = get_cockfight_side_odds()
+
+    odds_out = {k: str(v) for k, v in odds_map.items()}
     if not session:
         sl_idle = None
         if latest_round_video:
@@ -2764,6 +2774,7 @@ def cock_fight_info(request):
             'round_id': None,
             'open': False,
             'side_labels': sl_idle,
+            'odds': odds_out,
             'latest_round_video': latest_round_video,
         })
     rid = session.video_round_id
@@ -2776,6 +2787,7 @@ def cock_fight_info(request):
         'open': True,
         'created_at': session.created_at.isoformat(),
         'side_labels': cockfight_side_labels_dict(labels_video),
+        'odds': odds_out,
         'latest_round_video': latest_round_video,
     })
 
@@ -2940,7 +2952,7 @@ def place_meron_wala_bet(request):
     POST /api/game/meron-wala/bet/
     Body: { "side": "COCK1" | "COCK2" | "DRAW", "stake": <int> }
     Legacy aliases: MERON → COCK1, WALA → COCK2 (still accepted).
-    Odds (decimal, includes stake): COCK1=1.90, COCK2=1.92, DRAW=4.46
+    Odds: COCK1/COCK2 from the round video row (set on cockfight round videos upload); otherwise Game Settings. DRAW fixed.
     """
     from .models import CockFightSession, CockFightBet, CockFightRoundVideo
     from accounts.models import Wallet, Transaction
@@ -2950,7 +2962,7 @@ def place_meron_wala_bet(request):
                         status=status.HTTP_403_FORBIDDEN)
 
     side = normalize_cockfight_side(request.data.get('side'))
-    if side not in COCKFIGHT_SIDE_ODDS:
+    if side not in ('COCK1', 'COCK2', 'DRAW'):
         return Response({'error': 'side must be COCK1, COCK2 or DRAW'},
                         status=status.HTTP_400_BAD_REQUEST)
 
@@ -2965,9 +2977,6 @@ def place_meron_wala_bet(request):
     if stake > max_bet_limit:
         return Response({'error': f'Maximum bet amount is {max_bet_limit}'},
                         status=status.HTTP_400_BAD_REQUEST)
-
-    odds = COCKFIGHT_SIDE_ODDS[side]
-    potential_payout = int(Decimal(stake) * odds)
 
     with transaction.atomic():
         session = (CockFightSession.objects
@@ -3003,6 +3012,10 @@ def place_meron_wala_bet(request):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             session = CockFightSession.objects.create(status='OPEN', video_round=rv_next)
+
+        odds_table = get_cockfight_side_odds(session.video_round_id)
+        odds = odds_table[side]
+        potential_payout = int(Decimal(stake) * odds)
 
         wallet = Wallet.objects.select_for_update().get(user=request.user)
         balance_before = int(wallet.balance)

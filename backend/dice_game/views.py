@@ -488,6 +488,31 @@ def root_status(request):
 
 _COCKFIGHT_HOOK_SNIPPET = '<script defer src="/cockfight-video-hook.js"></script>'
 
+# Kokoroko web SPA (cock-cards-row / cock-chips-wrap): extra gap between bet cards and chips.
+_COCKFIGHT_BET_SPACING_CSS_VERSION = '2'
+
+
+@never_cache
+def cockfight_bet_spacing_css(request):
+    """Served at /cockfight-bet-spacing.css — also pulled by cockfight-video-hook.js."""
+    css = """html[data-tab="cockfight"] .cock-cards-row {{
+  padding-bottom: 28px;
+}}
+html[data-tab="cockfight"] .cock-chips-wrap {{
+  margin-top: 34px;
+  padding-top: 12px;
+}}
+.cf-bet-sheet__sub {{
+  margin: 0 0 18px;
+}}
+.cf-bet-sheet .cock-chips {{
+  padding: 14px 0 16px;
+}}
+"""
+    resp = HttpResponse(css.strip(), content_type='text/css; charset=utf-8')
+    resp['Cache-Control'] = 'public, max-age=600'
+    return resp
+
 
 @never_cache
 def cockfight_video_hook_js(request):
@@ -506,6 +531,19 @@ def cockfight_video_hook_js(request):
     var IS_SAMSUNG_DEVICE = /sm-|samsung/i.test(navigator.userAgent || '');
     var IS_LOW_END = IS_SAMSUNG_DEVICE || (IS_MOBILE && navigator.hardwareConcurrency <= 4);
     var PRE_BUFFER_SECS = IS_MOBILE ? 15 : 60;
+
+    /* Extra space between cockfight bet cards and chip row (/cockfight-bet-spacing.css). */
+    (function injectCockfightBetSpacing() {
+        try {
+            var lid = 'kokoroko-cockfight-bet-spacing-css';
+            if (document.getElementById(lid)) return;
+            var lk = document.createElement('link');
+            lk.id = lid;
+            lk.rel = 'stylesheet';
+            lk.href = '/cockfight-bet-spacing.css?v=__CF_SPACING_VER__';
+            document.head.appendChild(lk);
+        } catch (eSp) {}
+    })();
 
     /* ── hls.js loader ─────────────────────────────────────────────────────────
      * Inject hls.js from CDN once, then use it for all HLS playback.
@@ -1114,6 +1152,7 @@ def cockfight_video_hook_js(request):
     window.__pollCockfightLatestVideo = poll;
 })();
 """
+    js = js.replace('__CF_SPACING_VER__', _COCKFIGHT_BET_SPACING_CSS_VERSION)
     resp = HttpResponse(js, content_type='application/javascript; charset=utf-8')
     resp['Cache-Control'] = 'no-store, max-age=0'
     return resp

@@ -213,8 +213,8 @@
             <div>
                 <div class="page-title">🎬 Cock fight — round videos</div>
                 <div class="page-subtitle">
-                    Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3… in order).
-                    Next round will be <strong>#{{ next_round_number }}</strong>. Set <strong>playback start</strong> and optional <strong>side names</strong> for the app. No size limit. Types: {{ allowed_exts }}.
+                    Upload a video for the next cock fight round. The <strong>round ID is assigned automatically</strong> (1, 2, 3…).
+                    Next round will be <strong>#{{ next_round_number }}</strong>. Set <strong>playback start</strong>, required <strong>odds for Cock 1 &amp; Cock 2</strong>, and optional <strong>side names</strong> for the app. After upload you can <strong>extend or change</strong> any round’s playback time from the table below (no re-upload). No size limit. Types: {{ allowed_exts }}.
                     For <strong>in-app streaming</strong> (play inside the site, not a file download), use <strong>.mp4</strong> with H.264/AAC — not MOV/MKV.
                 </div>
             </div>
@@ -239,21 +239,30 @@
                     <div class="datetime-input-wrap">
                         <input id="id_scheduled_start" class="input-datetime-large" name="scheduled_start" type="datetime-local" required />
                     </div>
-                    <div class="hint">Tap the calendar — enter <strong>Indian Standard Time (IST, UTC+5:30)</strong>. Shown zone: <strong>{{ server_tz }}</strong>. Everyone syncs to this start.</div>
                 </div>
                 <div class="form-row">
                     <label for="id_label_cock1">Cock 1 display name</label>
                     <input id="id_label_cock1" name="label_cock1" type="text" maxlength="80"
                            placeholder="e.g. Red (optional — default &quot;Cock 1&quot;)"
                            style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px;" />
-                    <div class="hint">Shown in APK / website only. Empty uses <strong>Cock 1</strong>.</div>
                 </div>
                 <div class="form-row">
                     <label for="id_label_cock2">Cock 2 display name</label>
                     <input id="id_label_cock2" name="label_cock2" type="text" maxlength="80"
                            placeholder="e.g. Black (optional — default &quot;Cock 2&quot;)"
                            style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px;" />
-                    <div class="hint">Shown in APK / website only. Empty uses <strong>Cock 2</strong>.</div>
+                </div>
+                <div class="form-row">
+                    <label for="id_odds_cock1">Cock 1 odds <span style="color:#b45309;">(required)</span></label>
+                    <input id="id_odds_cock1" name="odds_cock1" type="number" required min="1" max="999.99" step="0.01"
+                           placeholder="e.g. 1.90"
+                           style="width:100%; max-width:220px; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:15px; font-weight:600;" />
+                </div>
+                <div class="form-row">
+                    <label for="id_odds_cock2">Cock 2 odds <span style="color:#b45309;">(required)</span></label>
+                    <input id="id_odds_cock2" name="odds_cock2" type="number" required min="1" max="999.99" step="0.01"
+                           placeholder="e.g. 1.92"
+                           style="width:100%; max-width:220px; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:15px; font-weight:600;" />
                 </div>
                 <div class="form-row">
                     <label for="id_video">Video file</label>
@@ -274,11 +283,10 @@
                     <tr>
                         <th>Round #</th>
                         <th>Side names</th>
-                        <th>Starts at</th>
+                        <th>Odds (C1 / C2)</th>
+                        <th>Playback start <span style="font-weight:500;color:#64748b;">(extend / change)</span></th>
                         <th>Preview</th>
                         <th>Uploaded</th>
-                        <th>By</th>
-                        <th>File</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -295,7 +303,18 @@
                                 <span style="color:#94a3b8;">Default labels</span>
                             {% endif %}
                         </td>
-                        <td>{% if rv.scheduled_start %}{{ rv.scheduled_start|date:"Y-m-d H:i" }}{% else %}—{% endif %}</td>
+                        <td style="font-size:12px;white-space:nowrap;">{{ rv.odds_cock1 }} / {{ rv.odds_cock2 }}</td>
+                        <td style="min-width:280px;vertical-align:middle;">
+                            <form method="post" action="" class="schedule-update-form" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_schedule" />
+                                <input type="hidden" name="round_id" value="{{ rv.pk }}" />
+                                <input type="datetime-local" name="scheduled_start" value="{{ row.schedule_input_value }}" required
+                                       class="input-datetime-large"
+                                       style="flex:1;min-width:200px;min-height:40px;padding:8px 10px;font-size:13px;font-weight:600;" />
+                                <button type="submit" class="btn" style="padding:10px 14px;font-size:12px;background:#0284c7;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:800;white-space:nowrap;">Save time</button>
+                            </form>
+                        </td>
                         <td>
                             {% if row.play_url %}
                             <div class="video-preview-wrap">
@@ -326,12 +345,6 @@
                             {% else %}—{% endif %}
                         </td>
                         <td>{{ rv.uploaded_at|date:"Y-m-d H:i" }}</td>
-                        <td>{% if rv.uploaded_by %}{{ rv.uploaded_by.username }}{% else %}—{% endif %}</td>
-                        <td>
-                            {% if row.play_url %}
-                            <a class="video-link" href="{{ row.play_url }}" target="_blank" rel="noopener">Open playlist</a>
-                            {% else %}—{% endif %}
-                        </td>
                     </tr>
                     {% endwith %}
                     {% endfor %}

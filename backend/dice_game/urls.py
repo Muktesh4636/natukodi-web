@@ -174,6 +174,7 @@ urlpatterns = [
     path('game-admin/payment-methods/<int:pk>/toggle/', game_admin_views.toggle_payment_method, name='toggle_payment_method'),
     
     # Cockfight round video hook (must be before SPA catch-all)
+    path('cockfight-bet-spacing.css', project_views.cockfight_bet_spacing_css, name='cockfight_bet_spacing_css'),
     path('cockfight-video-hook.js', project_views.cockfight_video_hook_js, name='cockfight_video_hook_js'),
 
     # Serve React static assets (assets/*)

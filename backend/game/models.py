@@ -736,6 +736,18 @@ class CockFightRoundVideo(models.Model):
         default='',
         help_text='Display name for COCK2 in apps (e.g. Black). API bets stay COCK2.',
     )
+    odds_cock1 = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('1.90'),
+        help_text='Decimal odds for COCK1 this round (required on upload; incl. stake).',
+    )
+    odds_cock2 = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('1.92'),
+        help_text='Decimal odds for COCK2 this round (required on upload; incl. stake).',
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

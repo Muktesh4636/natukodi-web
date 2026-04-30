@@ -689,6 +689,62 @@ COCKFIGHT_SIDE_ODDS = {
 }
 
 
+def get_cockfight_side_odds(round_video=None):
+    """
+    Effective decimal odds per side.
+
+    If ``round_video`` is a ``CockFightRoundVideo`` instance or primary key: COCK1/COCK2 use that
+    round's ``odds_cock1`` / ``odds_cock2`` (set when uploading on cockfight round videos admin).
+
+    Otherwise COCK1/COCK2 fall back to Game Settings (COCKFIGHT_ODDS_COCK1 / COCKFIGHT_ODDS_COCK2).
+
+    DRAW is always fixed (see ``COCKFIGHT_SIDE_ODDS``).
+    """
+    from decimal import InvalidOperation
+    from .models import CockFightRoundVideo
+
+    out = {
+        'COCK1': COCKFIGHT_SIDE_ODDS['COCK1'],
+        'COCK2': COCKFIGHT_SIDE_ODDS['COCK2'],
+        'DRAW': COCKFIGHT_SIDE_ODDS['DRAW'],
+    }
+    lo, hi = Decimal('1'), Decimal('999.99')
+
+    rv = None
+    if round_video is not None:
+        if isinstance(round_video, CockFightRoundVideo):
+            rv = round_video
+        else:
+            try:
+                pk = int(round_video)
+            except (TypeError, ValueError):
+                pk = None
+            if pk:
+                rv = CockFightRoundVideo.objects.filter(pk=pk).only('odds_cock1', 'odds_cock2').first()
+
+    if rv is not None:
+        for attr, side in (('odds_cock1', 'COCK1'), ('odds_cock2', 'COCK2')):
+            val = getattr(rv, attr, None)
+            if val is not None:
+                try:
+                    d = Decimal(str(val))
+                    if lo <= d <= hi:
+                        out[side] = d
+                except (InvalidOperation, TypeError, ValueError):
+                    pass
+        return out
+
+    for side, gkey in (('COCK1', 'COCKFIGHT_ODDS_COCK1'), ('COCK2', 'COCKFIGHT_ODDS_COCK2')):
+        raw = get_game_setting(gkey, str(out[side]))
+        try:
+            d = Decimal(str(raw).strip().replace(',', ''))
+            if lo <= d <= hi:
+                out[side] = d
+        except (InvalidOperation, TypeError, ValueError):
+            pass
+    return out
+
+
 def normalize_cockfight_side(raw_side):
     """Map legacy MERON/WALA to COCK1/COCK2; upper-strip unknown tokens."""
     s = (raw_side or '').upper().strip()
