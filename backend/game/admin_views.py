@@ -1652,8 +1652,22 @@ def cockfight_round_videos(request):
                 messages.error(request, 'Invalid round ID.')
                 return redirect('cockfight_round_videos')
 
-            from datetime import datetime
+            rv_existing = CockFightRoundVideo.objects.filter(pk=rid).only(
+                'pk', 'scheduled_start'
+            ).first()
+            if not rv_existing:
+                messages.error(request, f'Round #{rid} not found.')
+                return redirect('cockfight_round_videos')
             from django.utils import timezone as tz_util
+
+            if rv_existing.scheduled_start and tz_util.now() >= rv_existing.scheduled_start:
+                messages.error(
+                    request,
+                    'This match has already started. Playback start time cannot be changed.',
+                )
+                return redirect('cockfight_round_videos')
+
+            from datetime import datetime
 
             try:
                 schedule_dt = datetime.fromisoformat(raw_schedule)
@@ -1767,10 +1781,22 @@ def cockfight_round_videos(request):
 
             play_url = build_cockfight_hls_url(request, rv.pk)
         sched_val = ''
+        sched_display = ''
         if rv.scheduled_start:
             loc = dj_tz.localtime(rv.scheduled_start)
             sched_val = loc.strftime('%Y-%m-%dT%H:%M')
-        recent_video_rows.append({'rv': rv, 'play_url': play_url, 'schedule_input_value': sched_val})
+            sched_display = loc.strftime('%Y-%m-%d %H:%M')
+        now = dj_tz.now()
+        can_edit_schedule = not (rv.scheduled_start and now >= rv.scheduled_start)
+        recent_video_rows.append(
+            {
+                'rv': rv,
+                'play_url': play_url,
+                'schedule_input_value': sched_val,
+                'schedule_display': sched_display,
+                'can_edit_schedule': can_edit_schedule,
+            }
+        )
 
     from django.db.models import Max
     max_id = CockFightRoundVideo.objects.aggregate(m=Max('id'))['m'] or 0
