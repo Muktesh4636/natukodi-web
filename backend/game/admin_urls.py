@@ -16,6 +16,7 @@ urlpatterns = [
     path('all-bets/', admin_views.all_bets, name='all_bets'),
     path('cockfight-settle-result/', admin_views.cockfight_settle_result, name='cockfight_settle_result'),
     path('cockfight-round-videos/', admin_views.cockfight_round_videos, name='cockfight_round_videos'),
+    path('live-dice-videos/', admin_views.live_dice_round_videos, name='live_dice_round_videos'),
     path('wallets/', admin_views.wallets, name='wallets'),
     path('deposit-requests/', admin_views.deposit_requests, name='deposit_requests'),
     path('deposit-requests/<int:pk>/approve/', admin_views.approve_deposit, name='approve_deposit'),

@@ -47,5 +47,12 @@ urlpatterns = [
     ),
     path('meron-wala/settle/', views.settle_cock_fight, name='settle_cock_fight'),
     path('meron-wala/admin/settle-round/', views.settle_meron_wala_round, name='settle_meron_wala_round'),
+
+    # Live Dice (Gundu Ata) — RTMP live stream
+    path('live-dice/info/', views.live_dice_info, name='live_dice_info'),
+    # Live Dice RTMP stream webhooks (called by mediamtx)
+    path('live-dice/stream-auth/', views.live_dice_stream_auth, name='live_dice_stream_auth'),
+    path('live-dice/stream-on-ready/', views.live_dice_stream_on_ready, name='live_dice_stream_on_ready'),
+    path('live-dice/stream-on-not-ready/', views.live_dice_stream_on_not_ready, name='live_dice_stream_on_not_ready'),
 ]
 

@@ -674,6 +674,143 @@ def cockfight_round_betting_open(rv) -> bool:
     return now <= wall_end
 
 
+# ─── Live Dice HLS Utilities ──────────────────────────────────────────────────
+
+_live_dice_log = logging.getLogger(__name__)
+
+
+def transcode_live_dice_video_hls(rv_pk: int):
+    """
+    Background: transcode the uploaded dice video into HLS with three adaptive
+    quality levels — 360p, 720p, 1080p — using 2-second segments.
+
+    Output layout (all under MEDIA_ROOT/live_dice_hls/<hls_token>/):
+        master.m3u8
+        360p/index.m3u8 + seg*.ts
+        720p/index.m3u8 + seg*.ts
+        1080p/index.m3u8 + seg*.ts
+
+    hls_token is a random UUID stored on the model so the path is unguessable.
+    """
+    import threading, uuid as _uuid
+
+    def _run():
+        try:
+            from .models import LiveDiceRoundVideo
+            from django.conf import settings as dj_settings
+
+            rv = LiveDiceRoundVideo.objects.filter(pk=rv_pk).first()
+            if not rv or not rv.video:
+                return
+            src = rv.video.path
+            if not os.path.isfile(src):
+                return
+
+            token = _uuid.uuid4().hex
+            out_dir = os.path.join(dj_settings.MEDIA_ROOT, 'live_dice_hls', token)
+            os.makedirs(os.path.join(out_dir, '360p'), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, '720p'), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, '1080p'), exist_ok=True)
+
+            master_pl = os.path.join(out_dir, 'master.m3u8')
+            seg_pattern = os.path.join(out_dir, '%v', 'seg%03d.ts')
+            variant_pattern = os.path.join(out_dir, '%v', 'index.m3u8')
+
+            r = subprocess.run(
+                [
+                    'ffmpeg', '-y', '-i', src,
+                    '-filter_complex',
+                    '[0:v]split=3[v1][v2][v3];'
+                    '[v1]scale=-2:360[v360];'
+                    '[v2]scale=-2:720[v720];'
+                    '[v3]scale=-2:1080[v1080]',
+                    '-map', '[v360]', '-map', '0:a',
+                    '-c:v:0', 'libx264', '-profile:v:0', 'main', '-level:v:0', '3.1',
+                    '-b:v:0', '800k', '-maxrate:v:0', '900k', '-bufsize:v:0', '1600k',
+                    '-c:a:0', 'aac', '-b:a:0', '96k',
+                    '-map', '[v720]', '-map', '0:a',
+                    '-c:v:1', 'libx264', '-profile:v:1', 'main', '-level:v:1', '3.1',
+                    '-b:v:1', '2500k', '-maxrate:v:1', '2800k', '-bufsize:v:1', '5000k',
+                    '-c:a:1', 'aac', '-b:a:1', '128k',
+                    '-map', '[v1080]', '-map', '0:a',
+                    '-c:v:2', 'libx264', '-profile:v:2', 'high', '-level:v:2', '4.0',
+                    '-b:v:2', '5000k', '-maxrate:v:2', '5500k', '-bufsize:v:2', '10000k',
+                    '-c:a:2', 'aac', '-b:a:2', '192k',
+                    '-f', 'hls',
+                    '-hls_time', '2',
+                    '-hls_playlist_type', 'vod',
+                    '-hls_flags', 'independent_segments',
+                    '-hls_segment_filename', seg_pattern,
+                    '-master_pl_name', 'master.m3u8',
+                    '-var_stream_map', 'v:0,a:0,name:360p v:1,a:1,name:720p v:2,a:2,name:1080p',
+                    variant_pattern,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=7200,
+            )
+            if r.returncode != 0:
+                _live_dice_log.warning('Live dice HLS transcode failed for pk=%s: %s', rv_pk, r.stderr[-400:])
+                return
+
+            if not os.path.isfile(master_pl):
+                _live_dice_log.warning('Live dice HLS transcode: master.m3u8 not found for pk=%s', rv_pk)
+                return
+
+            LiveDiceRoundVideo.objects.filter(pk=rv_pk).update(
+                hls_ready=True,
+                hls_token=token,
+            )
+            _live_dice_log.info('Live dice HLS transcode done for pk=%s → %s', rv_pk, out_dir)
+        except Exception as e:
+            _live_dice_log.warning('transcode_live_dice_video_hls error pk=%s: %s', rv_pk, e)
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+
+def ensure_live_dice_video_duration(rv):
+    """Persist duration_seconds via ffprobe once when missing (mutates DB)."""
+    from .models import LiveDiceRoundVideo
+
+    if getattr(rv, 'duration_seconds', None) is not None:
+        return rv
+    try:
+        path = rv.video.path
+    except Exception:
+        return rv
+    d = probe_video_file_duration_seconds(path)
+    if d is not None and d > 0:
+        LiveDiceRoundVideo.objects.filter(pk=rv.pk).update(duration_seconds=d)
+        rv.duration_seconds = d
+    return rv
+
+
+def live_dice_stream_active(rv) -> bool:
+    """
+    True while authenticated users may receive the live dice HLS URL.
+
+    URL is released 60 seconds BEFORE scheduled_start so clients can
+    pre-buffer, and removed once start + duration has elapsed.
+    """
+    rv = ensure_live_dice_video_duration(rv)
+    now = timezone.now()
+    PRELOAD_WINDOW = timedelta(minutes=1)
+
+    if rv.scheduled_start and now < (rv.scheduled_start - PRELOAD_WINDOW):
+        return False
+
+    if rv.duration_seconds is None:
+        return True
+
+    dur = timedelta(seconds=float(rv.duration_seconds))
+    if rv.scheduled_start:
+        wall_end = rv.scheduled_start + dur
+    else:
+        wall_end = rv.uploaded_at + dur
+    return now < wall_end
+
+
 def resolve_cockfight_session_for_new_bet():
     """
     Pick or create the OPEN CockFightSession that should receive a new bet.

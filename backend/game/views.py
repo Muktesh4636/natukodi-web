@@ -27,6 +27,7 @@ from .models import (
     GameRound, Bet, DiceResult, GameSettings, RoundPrediction,
     UserSoundSetting, MegaSpinProbability, DailyRewardProbability,
     CricketBet, CockFightBet, CockFightSession,
+    LiveDiceRoundVideo, LiveDiceStream,
 )
 from accounts.models import User, Wallet, Transaction # Added User, Wallet, Transaction for exposure API and other uses
 from .serializers import (
@@ -47,6 +48,8 @@ from .utils import (
     cockfight_side_labels_dict,
     cockfight_side_display,
     resolve_cockfight_session_for_new_bet,
+    live_dice_stream_active,
+    ensure_live_dice_video_duration,
 )
 
 # Redis connection with tiered failover
@@ -3068,3 +3071,246 @@ def settle_meron_wala_round(request):
     if code == 404:
         return Response(payload, status=status.HTTP_404_NOT_FOUND)
     return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ─── Live Dice (Gundu Ata) HLS Video Views ────────────────────────────────────
+
+LIVE_DICE_VIDEO_STREAM_SIGNER = TimestampSigner(salt='live-dice-round-video-stream-v1')
+
+
+def build_live_dice_hls_url(request, pk: int) -> str:
+    """Signed URL to the HLS master playlist for the live dice video."""
+    token = LIVE_DICE_VIDEO_STREAM_SIGNER.sign(str(pk))
+    path = reverse('live_dice_hls_serve', kwargs={'signed_token': token, 'file_path': 'master.m3u8'})
+    return request.build_absolute_uri(path)
+
+
+@require_http_methods(['GET', 'HEAD'])
+def live_dice_hls_serve(request, signed_token, file_path):
+    """
+    Serve HLS master playlist, variant playlists, and .ts segments for live dice.
+    Token-gated: every request validates the signed token.
+    Nginx serves actual bytes via X-Accel-Redirect for zero Gunicorn overhead.
+    """
+    max_age = getattr(settings, 'LIVE_DICE_VIDEO_STREAM_MAX_AGE', 60 * 60 * 6)
+    try:
+        pk = int(LIVE_DICE_VIDEO_STREAM_SIGNER.unsign(signed_token, max_age=max_age))
+    except BadSignature:
+        return HttpResponseForbidden('Invalid token')
+    except SignatureExpired:
+        return HttpResponseForbidden('Expired token')
+
+    from .models import LiveDiceRoundVideo
+
+    rv = LiveDiceRoundVideo.objects.filter(pk=pk).first()
+    if not rv or not rv.hls_ready or not rv.hls_token:
+        raise Http404()
+
+    from .admin_utils import is_admin
+
+    ensure_live_dice_video_duration(rv)
+    preview_ok = request.user.is_authenticated and is_admin(request.user)
+    if not preview_ok:
+        if not live_dice_stream_active(rv):
+            return HttpResponseForbidden('Broadcast ended')
+
+    safe_path = os.path.normpath(file_path).lstrip('/')
+    if '..' in safe_path or safe_path.startswith('/'):
+        return HttpResponseForbidden('Invalid path')
+
+    if safe_path.endswith('.m3u8'):
+        content_type = 'application/vnd.apple.mpegurl'
+        cache = 'private, no-cache'
+    elif safe_path.endswith('.ts'):
+        content_type = 'video/mp2t'
+        cache = 'private, max-age=3600'
+    else:
+        raise Http404()
+
+    resp = HttpResponse(content_type=content_type)
+    resp['X-Accel-Redirect'] = f'/x-accel-live-dice-hls/{rv.hls_token}/{safe_path}'
+    resp['Cache-Control'] = cache
+    resp['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
+def _serialize_latest_live_dice_video(request):
+    """Metadata + HLS URL for the most recently uploaded live dice video."""
+    from .models import LiveDiceRoundVideo
+
+    rv = LiveDiceRoundVideo.objects.order_by('-id').first()
+    if not rv or not rv.video:
+        return None
+    ensure_live_dice_video_duration(rv)
+    out = {
+        'round_id': rv.pk,
+        'server_time': timezone.now().isoformat(),
+    }
+    if rv.scheduled_start:
+        out['start'] = rv.scheduled_start.isoformat()
+    if request.user.is_authenticated:
+        if live_dice_stream_active(rv):
+            out['hls_url'] = build_live_dice_hls_url(request, rv.pk) if rv.hls_ready else None
+        else:
+            out['hls_url'] = None
+        out['requires_authentication'] = False
+    else:
+        out['hls_url'] = None
+        out['requires_authentication'] = True
+    return out
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def live_dice_info(request):
+    """
+    GET /api/game/live-dice/info/
+
+    Returns the current Gundu Ata game round state combined with the
+    latest live dice HLS video.  Game results come from the normal dice
+    engine; the video is just the accompanying live stream.
+
+    Response:
+    {
+      "live_video": { round_id, server_time, start, hls_url, requires_authentication },
+      "game_round": { ...same as GET /api/game/round/ ... }   # null if no active round
+    }
+    """
+    live_video = _serialize_latest_live_dice_video(request)
+    game_round_payload = _build_current_round_payload_dict()
+    return Response({
+        'live_video': live_video,
+        'game_round': game_round_payload,
+    })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def live_dice_latest_video(request):
+    """GET /api/game/live-dice/latest-video/ — latest live dice video only."""
+    return Response({'live_video': _serialize_latest_live_dice_video(request)})
+
+
+# ─── Live Dice RTMP/HLS Stream Views ─────────────────────────────────────────
+
+_LIVE_DICE_HLS_BASE = 'https://svs.fightening.sbs'
+
+
+def _get_active_live_dice_stream():
+    """Return the most recently created stream (prefer is_live=True)."""
+    live = LiveDiceStream.objects.filter(is_live=True).order_by('-id').first()
+    if live:
+        return live
+    return LiveDiceStream.objects.order_by('-id').first()
+
+
+def _serialize_live_dice_stream(stream, request=None):
+    if not stream:
+        return None
+    base = _LIVE_DICE_HLS_BASE
+    if request:
+        base = f'{request.scheme}://{request.get_host()}'
+    return {
+        'is_live': stream.is_live,
+        'hls_url': stream.hls_url(base) if stream.is_live else None,
+        'started_at': stream.started_at.isoformat() if stream.started_at else None,
+        'label': stream.label or None,
+    }
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def live_dice_info(request):
+    """
+    GET /api/game/live-dice/info/
+
+    Returns the current Gundu Ata live stream state + game round.
+
+    {
+      "live_stream": { is_live, hls_url, started_at, label },
+      "game_round":  { ... current dice engine round ... }
+    }
+    """
+    stream = _get_active_live_dice_stream()
+    game_round_payload = _build_current_round_payload_dict()
+    return Response({
+        'live_stream': _serialize_live_dice_stream(stream, request),
+        'game_round': game_round_payload,
+    })
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def live_dice_stream_auth(request):
+    """
+    mediamtx HTTP auth callback.
+    Called for every publish/read attempt. Validate the stream_key from the path.
+    Return 200 to allow, 401 to deny.
+    """
+    try:
+        data = json.loads(request.body)
+    except (ValueError, TypeError):
+        return HttpResponse(status=400)
+
+    action = data.get('action', '')
+    path = (data.get('path') or '').strip('/')
+
+    if action == 'read':
+        return HttpResponse('ok', status=200)
+
+    if action == 'publish':
+        if path.startswith('live/'):
+            key = path[len('live/'):]
+        else:
+            key = path
+        exists = LiveDiceStream.objects.filter(stream_key=key).exists()
+        if exists:
+            return HttpResponse('ok', status=200)
+        return HttpResponse('unauthorized', status=401)
+
+    return HttpResponse('ok', status=200)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def live_dice_stream_on_ready(request):
+    """
+    Called by mediamtx runOnReady hook (via curl) when a publisher starts.
+    Marks the stream as live.
+    """
+    path = (request.POST.get('path') or request.GET.get('path') or '').strip('/')
+    if path.startswith('live/'):
+        key = path[len('live/'):]
+    else:
+        key = path
+    if key:
+        updated = LiveDiceStream.objects.filter(stream_key=key).update(
+            is_live=True,
+            started_at=timezone.now(),
+            stopped_at=None,
+        )
+        if updated:
+            return HttpResponse('ok', status=200)
+    return HttpResponse('not found', status=404)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def live_dice_stream_on_not_ready(request):
+    """
+    Called by mediamtx runOnNotReady hook (via curl) when a publisher stops.
+    Marks the stream as offline.
+    """
+    path = (request.POST.get('path') or request.GET.get('path') or '').strip('/')
+    if path.startswith('live/'):
+        key = path[len('live/'):]
+    else:
+        key = path
+    if key:
+        LiveDiceStream.objects.filter(stream_key=key).update(
+            is_live=False,
+            stopped_at=timezone.now(),
+        )
+    return HttpResponse('ok', status=200)
+
+

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Dice Stream Keys — Admin</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .main-content { margin-left: 260px; flex: 1; padding: 28px 32px; background: #f8fafc; min-height: 100vh; }
+        .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+        .page-title { font-size: 22px; font-weight: 800; color: #0f172a; }
+        .page-subtitle { margin-top: 6px; color: #64748b; font-size: 13px; line-height: 1.5; max-width: 700px; }
+        .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px 24px; box-shadow: 0 10px 24px rgba(15,23,42,0.05); max-width: 680px; margin-bottom: 24px; }
+        .card-title { font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 16px; }
+        label { font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 6px; }
+        input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; }
+        input[type="text"]:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.18); }
+        .btn { border: none; border-radius: 10px; padding: 10px 18px; font-weight: 800; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #6366f1; color: #fff; }
+        .btn-danger  { background: #ef4444; color: #fff; padding: 6px 12px; font-size: 12px; }
+        .btn-save    { background: #0284c7; color: #fff; padding: 6px 12px; font-size: 12px; }
+        .messages { max-width: 680px; margin-bottom: 14px; }
+        .msg { padding: 12px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; border: 1px solid transparent; }
+        .msg.success { background: #ecfdf5; border-color: #34d399; color: #065f46; }
+        .msg.error   { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
+        .stream-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; max-width: 860px; margin-bottom: 16px; }
+        .live-badge { display: inline-block; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 999px; padding: 2px 12px; font-size: 12px; font-weight: 800; }
+        .offline-badge { display: inline-block; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 999px; padding: 2px 12px; font-size: 12px; font-weight: 700; }
+        .key-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 14px; word-break: break-all; margin: 10px 0; position: relative; }
+        .copy-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #6366f1; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .url-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; margin-top: 12px; }
+        .section-title { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 14px; }
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 18px 14px; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle { position: fixed; top: 14px; left: 14px; z-index: 2000; border: none; background: #0f172a; color: #fff; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            {% include 'admin/_admin_brand.html' %}
+            <div class="subtitle">Game Admin Panel</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">📡 Live Dice — RTMP stream</div>
+                <div class="page-subtitle">
+                    Create a stream key, then push live video from your phone/camera to
+                    <strong>rtmp://svs.fightening.sbs/live/&lt;stream_key&gt;</strong>.
+                    mediamtx handles transcoding automatically. Users get the HLS URL from
+                    <code>/api/game/live-dice/info/</code> when the stream is live.
+                </div>
+            </div>
+            <div><a href="{% url 'admin_logout' %}" class="logout-btn">Logout</a></div>
+        </div>
+
+        <div class="messages">
+            {% for message in messages %}
+                <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Create new stream key -->
+        <div class="card">
+            <div class="card-title">➕ Create new stream key</div>
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create" />
+                <div style="margin-bottom: 14px;">
+                    <label for="id_label">Label (optional)</label>
+                    <input type="text" id="id_label" name="label" maxlength="100"
+                           placeholder="e.g. Round 5 – 10 PM session" />
+                </div>
+                <button type="submit" class="btn btn-primary">Generate stream key</button>
+            </form>
+        </div>
+
+        <!-- Stream list -->
+        <div class="section-title">Stream keys</div>
+
+        {% if streams %}
+            {% for stream in streams %}
+            <div class="stream-row">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                    <strong style="font-size:15px;">Stream #{{ stream.pk }}</strong>
+                    {% if stream.is_live %}
+                        <span class="live-badge">🔴 LIVE</span>
+                    {% else %}
+                        <span class="offline-badge">⚫ Offline</span>
+                    {% endif %}
+                    {% if stream.started_at %}
+                        <span style="font-size:12px; color:#64748b;">Started: {{ stream.started_at|date:"Y-m-d H:i" }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Label edit -->
+                <form method="post" action="" style="display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_label" />
+                    <input type="hidden" name="stream_id" value="{{ stream.pk }}" />
+                    <input type="text" name="label" value="{{ stream.label }}" maxlength="100"
+                           placeholder="Label (optional)"
+                           style="flex:1; min-width:200px; padding:8px 12px; font-size:13px;" />
+                    <button type="submit" class="btn btn-save">Save label</button>
+                </form>
+
+                <!-- RTMP Push URL -->
+                <div class="url-label">📤 RTMP push URL (from your phone/OBS)</div>
+                <div class="key-box" id="rtmp-{{ stream.pk }}">{{ rtmp_base }}{{ stream.stream_key }}<button class="copy-btn" onclick="copyText('rtmp-{{ stream.pk }}', this)">Copy</button></div>
+
+                <!-- HLS Playback URL -->
+                <div class="url-label">▶️ HLS playback URL (users watch this)</div>
+                <div class="key-box" id="hls-{{ stream.pk }}">{{ hls_base }}{{ stream.stream_key }}/index.m3u8<button class="copy-btn" onclick="copyText('hls-{{ stream.pk }}', this)">Copy</button></div>
+
+                <!-- Stream key only -->
+                <div class="url-label">🔑 Stream key only</div>
+                <div class="key-box" id="key-{{ stream.pk }}">{{ stream.stream_key }}<button class="copy-btn" onclick="copyText('key-{{ stream.pk }}', this)">Copy</button></div>
+
+                {% if not stream.is_live %}
+                <form method="post" action="" style="margin-top:14px;" onsubmit="return confirm('Delete stream key #{{ stream.pk }}?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete" />
+                    <input type="hidden" name="stream_id" value="{{ stream.pk }}" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="padding: 24px; color: #64748b; background:#fff; border:1px solid #e2e8f0; border-radius:14px; max-width:680px;">
+                No stream keys yet. Create one above.
+            </div>
+        {% endif %}
+
+        <!-- How to stream guide -->
+        <div class="card" style="max-width:860px; margin-top:24px;">
+            <div class="card-title">📱 How to stream from your phone</div>
+            <ol style="font-size:13px; color:#374151; line-height:2; padding-left:20px; margin:0;">
+                <li>Download <strong>Larix Broadcaster</strong> (iOS / Android) — free</li>
+                <li>Go to <strong>Settings → Connections → New connection</strong></li>
+                <li>Set URL to: <code>rtmp://svs.fightening.sbs/live/&lt;your_stream_key&gt;</code></li>
+                <li>Leave Name/Username blank, tap <strong>Save</strong></li>
+                <li>Press the red button to start streaming</li>
+                <li>After ~5 seconds the status here will show 🔴 LIVE</li>
+                <li>Users watching <code>/api/game/live-dice/info/</code> will get the HLS URL automatically</li>
+            </ol>
+        </div>
+    </div>
+
+<script>
+function copyText(elId, btn) {
+    var el = document.getElementById(elId);
+    var text = el.childNodes[0].textContent.trim();
+    navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✓ Copied';
+        setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+    });
+}
+</script>
+</body>
+</html>

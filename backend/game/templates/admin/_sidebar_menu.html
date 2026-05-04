@@ -24,6 +24,9 @@
             {% if is_super_admin or admin_permissions.can_upload_cockfight_videos %}<li><a href="{% url 'cockfight_round_videos' %}" {% if page == 'cockfight-round-videos' %}class="active" {% endif %}> <span class="menu-icon">🎬</span> Cock fight — round videos
                 </a></li>
             {% endif %}
+            {% if is_super_admin or admin_permissions.can_upload_live_dice_videos %}<li><a href="{% url 'live_dice_stream' %}" {% if page == 'live-dice-stream' %}class="active" {% endif %}> <span class="menu-icon">📡</span> Live Dice — stream
+                </a></li>
+            {% endif %}
         </ul>
     </div>
     {% endif %}

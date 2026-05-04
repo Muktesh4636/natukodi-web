@@ -6,6 +6,14 @@ import random
 from pathlib import Path
 
 
+def live_dice_video_upload_path(instance, filename):
+    from uuid import uuid4
+    ext = Path(filename or '').suffix.lower()
+    if ext not in ('.mp4', '.webm', '.mov', '.mkv', '.m4v'):
+        ext = '.mp4'
+    return f'live_dice_videos/{uuid4().hex}{ext}'
+
+
 def cockfight_round_video_upload_path(instance, filename):
     from uuid import uuid4
     ext = Path(filename or '').suffix.lower()
@@ -139,6 +147,7 @@ class AdminPermissions(models.Model):
     can_view_admin_management = models.BooleanField(default=False)  # Super Admin only by default
     can_manage_payment_methods = models.BooleanField(default=True)
     can_upload_cockfight_videos = models.BooleanField(default=True)
+    can_upload_live_dice_videos = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -164,6 +173,7 @@ class AdminPermissions(models.Model):
             'admin_management': self.can_view_admin_management,
             'payment_methods': self.can_manage_payment_methods,
             'cockfight_videos': self.can_upload_cockfight_videos,
+            'live_dice_videos': self.can_upload_live_dice_videos,
         }
 
 
@@ -766,6 +776,104 @@ class CockFightRoundVideo(models.Model):
 
     def __str__(self):
         return f'CockFightRoundVideo #{self.pk}'
+
+
+class LiveDiceRoundVideo(models.Model):
+    """
+    Admin-uploaded video clip for a Gundu Ata (dice) live-stream session.
+    Round number = pk (auto 1, 2, 3…).  Game results still come from the
+    normal dice engine; this model only provides the HLS video stream.
+    """
+
+    video = models.FileField(upload_to=live_dice_video_upload_path, max_length=255)
+    scheduled_start = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Wall-clock time when playback should start for everyone (simulated live).',
+    )
+    duration_seconds = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Video length in seconds (ffprobe); used to drop stream URL after broadcast ends.',
+    )
+    hls_ready = models.BooleanField(
+        default=False,
+        help_text='True once HLS segments have been generated for adaptive streaming.',
+    )
+    hls_token = models.CharField(
+        max_length=64, blank=True, default='',
+        help_text='Random UUID used as the private HLS directory path.',
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='live_dice_round_videos_uploaded',
+    )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Live Dice Round Video'
+        verbose_name_plural = 'Live Dice Round Videos'
+
+    @property
+    def round_number(self):
+        return self.pk
+
+    def __str__(self):
+        return f'LiveDiceRoundVideo #{self.pk}'
+
+
+class LiveDiceStream(models.Model):
+    """
+    Live RTMP stream for Gundu Ata dice game.
+    Admin generates a stream_key; streamer pushes RTMP to:
+        rtmp://svs.fightening.sbs/live/<stream_key>
+    mediamtx serves HLS at:
+        https://svs.fightening.sbs/hls/live/<stream_key>/index.m3u8
+    """
+    stream_key = models.CharField(
+        max_length=64,
+        unique=True,
+        help_text='Push to: rtmp://svs.fightening.sbs/live/<stream_key>',
+    )
+    label = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        help_text='Optional label (e.g. "Round 5 – 10:00 PM").',
+    )
+    is_live = models.BooleanField(
+        default=False,
+        help_text='True while mediamtx reports an active publisher.',
+    )
+    started_at = models.DateTimeField(null=True, blank=True)
+    stopped_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='live_dice_streams_created',
+    )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Live Dice Stream'
+        verbose_name_plural = 'Live Dice Streams'
+
+    def hls_url(self, base_url='https://svs.fightening.sbs'):
+        return f'{base_url}/hls/live/{self.stream_key}/index.m3u8'
+
+    def rtmp_url(self):
+        return f'rtmp://svs.fightening.sbs/live/{self.stream_key}'
+
+    def __str__(self):
+        status = 'LIVE' if self.is_live else 'offline'
+        return f'LiveDiceStream #{self.pk} [{status}]'
 
 
 class ColourRound(models.Model):

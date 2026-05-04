@@ -132,6 +132,7 @@ urlpatterns = [
     path('game-admin/all-bets/', game_admin_views.all_bets, name='all_bets'),
     path('game-admin/cockfight-settle-result/', game_admin_views.cockfight_settle_result, name='cockfight_settle_result'),
     path('game-admin/cockfight-round-videos/', game_admin_views.cockfight_round_videos, name='cockfight_round_videos'),
+    path('game-admin/live-dice-stream/', game_admin_views.live_dice_stream, name='live_dice_stream'),
     path('game-admin/wallets/', game_admin_views.wallets, name='wallets'),
     path('game-admin/deposit-requests/', game_admin_views.deposit_requests, name='deposit_requests'),
     path('game-admin/deposit-requests/check-new/', game_admin_views.check_new_deposit_requests, name='check_new_deposit_requests'),

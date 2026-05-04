@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Dice round videos — Admin</title>
+    {% include 'admin/_admin_base_styles.html' %}
+    <style>
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .page-title { font-size: 22px; font-weight: 800; color: #0f172a; }
+        .page-subtitle {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+            max-width: 640px;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px 22px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.05);
+            max-width: 640px;
+            margin-bottom: 24px;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+        label { font-size: 13px; font-weight: 700; color: #0f172a; }
+        .form-row-schedule label { font-size: 14px; margin-bottom: 2px; }
+        .datetime-input-wrap { position: relative; width: 100%; }
+        input.input-datetime-large[type="datetime-local"] {
+            width: 100%;
+            max-width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.35;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #0f172a;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input.input-datetime-large[type="datetime-local"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
+            background: #fff;
+        }
+        input.input-datetime-large[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            cursor: pointer; padding: 4px; margin-right: 2px; opacity: 0.85; transform: scale(1.12);
+        }
+        input[type="file"] {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+            outline: none;
+            background: #ffffff;
+        }
+        .hint { font-size: 12px; color: #64748b; }
+        .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
+        .btn { border: none; border-radius: 10px; padding: 10px 18px; font-weight: 800; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #6366f1; color: #fff; }
+        .btn-primary:hover { filter: brightness(0.96); }
+        .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+        .messages { max-width: 640px; margin-bottom: 14px; }
+        .msg { padding: 12px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; border: 1px solid transparent; }
+        .msg.success { background: #ecfdf5; border-color: #34d399; color: #065f46; }
+        .msg.error   { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
+        .msg.warning { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+        .table-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; max-width: 860px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; font-weight: 700; color: #475569; }
+        tr:last-child td { border-bottom: none; }
+        .video-preview-wrap { width: 100%; max-width: 320px; }
+        .video-preview-wrap video {
+            width: 100%;
+            max-height: 180px;
+            border-radius: 10px;
+            background: #0f172a;
+            vertical-align: middle;
+        }
+        .video-preview-note { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+        /* Upload overlay */
+        #upload-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.80);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+        }
+        #upload-overlay.visible { display: flex; }
+        .upload-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px 40px;
+            min-width: 360px;
+            max-width: 500px;
+            width: 90vw;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.40);
+            text-align: center;
+        }
+        .uc-icon  { font-size: 44px; margin-bottom: 12px; }
+        .uc-title { font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+        .uc-file  { font-size: 13px; color: #64748b; margin-bottom: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .uc-track { background: #e2e8f0; border-radius: 999px; height: 18px; overflow: hidden; margin-bottom: 12px; }
+        .uc-bar {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 50%, #6366f1 100%);
+            background-size: 200% 100%;
+            width: 2%;
+            transition: width 0.3s ease;
+            animation: shimmer 1.6s linear infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+        .uc-pct   { font-size: 36px; font-weight: 900; color: #6366f1; margin: 4px 0 6px; }
+        .uc-speed { font-size: 13px; color: #64748b; min-height: 18px; }
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 18px 14px; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle {
+                position: fixed; top: 14px; left: 14px; z-index: 2000;
+                border: none; background: #0f172a; color: #fff;
+                width: 44px; height: 44px; border-radius: 12px;
+                cursor: pointer; box-shadow: 0 10px 20px rgba(15,23,42,0.25);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="upload-overlay">
+        <div class="upload-card">
+            <div class="uc-icon">⬆️</div>
+            <div class="uc-title">Uploading video…</div>
+            <div class="uc-file" id="uc-filename">—</div>
+            <div class="uc-track"><div class="uc-bar" id="uc-bar"></div></div>
+            <div class="uc-pct" id="uc-pct">0%</div>
+            <div class="uc-speed" id="uc-speed">Starting…</div>
+        </div>
+    </div>
+
+    <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            {% include 'admin/_admin_brand.html' %}
+            <div class="subtitle">Game Admin Panel</div>
+        </div>
+        {% include 'admin/_sidebar_menu.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">🎲 Live Dice — round videos</div>
+                <div class="page-subtitle">
+                    Upload a video for the next Gundu Ata (live dice) round.
+                    The <strong>round ID is assigned automatically</strong> (1, 2, 3…).
+                    Next round will be <strong>#{{ next_round_number }}</strong>.
+                    Set the <strong>playback start</strong> time; HLS transcoding starts automatically after upload.
+                    Game results come from the dice engine — this video is the accompanying live stream.
+                    Preferred format: <strong>MP4</strong> (H.264/AAC). Types: {{ allowed_exts }}.
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'admin_logout' %}" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <form id="upload-form" method="post" enctype="multipart/form-data" action="">
+                {% csrf_token %}
+                <div class="form-row form-row-schedule">
+                    <label for="id_scheduled_start">Playback start — date &amp; time ({{ server_tz }})</label>
+                    <div class="datetime-input-wrap">
+                        <input id="id_scheduled_start" class="input-datetime-large" name="scheduled_start" type="datetime-local" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="id_video">Video file</label>
+                    <input id="id_video" name="video" type="file" accept=".mp4,.webm,.mov,.mkv,.m4v,video/*" required />
+                    <div class="hint">Round ID will be auto-assigned as <strong>#{{ next_round_number }}</strong>. Prefer <strong>MP4</strong> for in-browser streaming; other formats may only download.</div>
+                </div>
+                <div class="actions">
+                    <button id="upload-btn" class="btn btn-primary" type="submit">Upload</button>
+                </div>
+            </form>
+        </div>
+
+        <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 12px;">Recent uploads</h2>
+        <div class="table-wrap">
+            {% if recent_video_rows %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Round #</th>
+                        <th>Playback start <span style="font-weight:500;color:#64748b;">(extend / change)</span></th>
+                        <th>HLS status</th>
+                        <th>Preview</th>
+                        <th>Uploaded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in recent_video_rows %}
+                    {% with rv=row.rv %}
+                    <tr>
+                        <td><strong>{{ rv.pk }}</strong></td>
+                        <td style="min-width:280px;vertical-align:middle;">
+                            {% if row.can_edit_schedule %}
+                            <form method="post" action="" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_schedule" />
+                                <input type="hidden" name="round_id" value="{{ rv.pk }}" />
+                                <input type="datetime-local" name="scheduled_start" value="{{ row.schedule_input_value }}" required
+                                       class="input-datetime-large"
+                                       style="flex:1;min-width:200px;min-height:40px;padding:8px 10px;font-size:13px;font-weight:600;" />
+                                <button type="submit" class="btn" style="padding:10px 14px;font-size:12px;background:#0284c7;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:800;white-space:nowrap;">Save time</button>
+                            </form>
+                            {% else %}
+                            <div style="font-size:13px;color:#0f172a;line-height:1.45;">
+                                <strong>{{ row.schedule_display }}</strong>
+                                <span style="display:block;margin-top:6px;font-size:12px;color:#64748b;">Stream started — playback time cannot be edited.</span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if rv.hls_ready %}
+                                <span style="color:#065f46;font-weight:700;">✅ Ready</span>
+                            {% else %}
+                                <span style="color:#92400e;">⏳ Transcoding…</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.play_url %}
+                            <div class="video-preview-wrap">
+                                <video id="admin-hls-{{ rv.pk }}" controls playsinline preload="none" controlsList="nodownload" webkit-playsinline></video>
+                                <script>
+                                (function(){
+                                    var v = document.getElementById('admin-hls-{{ rv.pk }}');
+                                    var src = '{{ row.play_url }}';
+                                    function attach(){
+                                        if(typeof Hls !== 'undefined' && Hls.isSupported()){
+                                            var h = new Hls(); h.loadSource(src); h.attachMedia(v);
+                                        } else if(v.canPlayType('application/vnd.apple.mpegurl')){
+                                            v.src = src;
+                                        }
+                                    }
+                                    if(typeof Hls !== 'undefined'){ attach(); }
+                                    else {
+                                        var s=document.createElement('script');
+                                        s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
+                                        s.onload=attach; document.head.appendChild(s);
+                                    }
+                                })();
+                                </script>
+                                <div class="video-preview-note">HLS adaptive stream preview (360p / 720p auto).</div>
+                            </div>
+                            {% elif rv.video %}
+                            <span style="color:#888;font-size:12px;">HLS transcoding in progress…</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ rv.uploaded_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="padding: 20px; color: #64748b;">No videos uploaded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+<script>
+(function () {
+    var form    = document.getElementById('upload-form');
+    var btn     = document.getElementById('upload-btn');
+    var overlay = document.getElementById('upload-overlay');
+    var bar     = document.getElementById('uc-bar');
+    var pct     = document.getElementById('uc-pct');
+    var spd     = document.getElementById('uc-speed');
+    var fname   = document.getElementById('uc-filename');
+
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var fileInput = document.getElementById('id_video');
+        if (!fileInput || !fileInput.files.length) return;
+
+        var file      = fileInput.files[0];
+        var data      = new FormData(form);
+        var xhr       = new XMLHttpRequest();
+        var startTime = Date.now();
+
+        fname.textContent = file.name;
+        bar.style.width   = '2%';
+        pct.textContent   = '0%';
+        spd.textContent   = 'Starting…';
+        overlay.classList.add('visible');
+        btn.disabled      = true;
+        btn.textContent   = 'Uploading…';
+
+        xhr.upload.addEventListener('progress', function (ev) {
+            if (!ev.lengthComputable) return;
+            var percent = Math.round((ev.loaded / ev.total) * 100);
+            bar.style.width = Math.max(percent, 2) + '%';
+            pct.textContent = percent + '%';
+
+            var elapsed = (Date.now() - startTime) / 1000;
+            if (elapsed > 0.5 && ev.loaded > 0) {
+                var mbps    = (ev.loaded / 1048576 / elapsed).toFixed(2);
+                var secLeft = Math.round((ev.total - ev.loaded) / (ev.loaded / elapsed));
+                spd.textContent = mbps + ' MB/s' +
+                    (secLeft > 0 ? ' — ' + secLeft + 's remaining' : ' — almost done…');
+            }
+        });
+
+        xhr.addEventListener('load', function () {
+            bar.style.width = '100%';
+            pct.textContent = '100%';
+            spd.textContent = '✅ Upload complete — refreshing…';
+            setTimeout(function () {
+                window.location.href = xhr.responseURL || window.location.pathname;
+            }, 800);
+        });
+
+        xhr.addEventListener('error', function () {
+            overlay.classList.remove('visible');
+            btn.disabled    = false;
+            btn.textContent = 'Upload';
+            alert('Upload failed. Please try again.');
+        });
+
+        xhr.addEventListener('abort', function () {
+            overlay.classList.remove('visible');
+            btn.disabled    = false;
+            btn.textContent = 'Upload';
+        });
+
+        xhr.open('POST', window.location.pathname, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.send(data);
+    });
+})();
+</script>
+</body>
+</html>

